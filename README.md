@@ -1,3 +1,3 @@
 # NotenikLib
 
-A description of this package.
+This is a Swift library of very Notenik-specific utilities. 

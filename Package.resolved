@@ -1,0 +1,79 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "CoreXLSX",
+        "repositoryURL": "https://github.com/MaxDesiatov/CoreXLSX",
+        "state": {
+          "branch": null,
+          "revision": "093b6c0d43d7fb85c359553c1b64fda237a79491",
+          "version": "0.10.0"
+        }
+      },
+      {
+        "package": "Down",
+        "repositoryURL": "https://github.com/iwasrobbed/Down",
+        "state": {
+          "branch": null,
+          "revision": "2aada56e6a0a5593a58e1ad583bd605b6d0b58dd",
+          "version": "0.9.2"
+        }
+      },
+      {
+        "package": "Ink",
+        "repositoryURL": "https://github.com/JohnSundell/Ink",
+        "state": {
+          "branch": null,
+          "revision": "878fd897945500be1885f2c88f81f8f909224796",
+          "version": "0.4.0"
+        }
+      },
+      {
+        "package": "NotenikMkdown",
+        "repositoryURL": "https://github.com/hbowie/NotenikMkdown",
+        "state": {
+          "branch": null,
+          "revision": "2e05919190ab010f3c0f8265e389871341c690c2",
+          "version": "0.1.4"
+        }
+      },
+      {
+        "package": "NotenikTextile",
+        "repositoryURL": "https://github.com/hbowie/NotenikTextile",
+        "state": {
+          "branch": null,
+          "revision": "8c8120e440728147dc284d87313b3718260ee4a5",
+          "version": "0.1.1"
+        }
+      },
+      {
+        "package": "NotenikUtils",
+        "repositoryURL": "https://github.com/hbowie/NotenikUtils",
+        "state": {
+          "branch": null,
+          "revision": "be13d95ff398883149b032883f3ce5b02db87188",
+          "version": "0.2.5"
+        }
+      },
+      {
+        "package": "XMLCoder",
+        "repositoryURL": "https://github.com/maxdesiatov/XMLCoder.git",
+        "state": {
+          "branch": null,
+          "revision": "eae62665fcf012fb5a4dc3a8d69af15bc21a45ba",
+          "version": "0.10.0"
+        }
+      },
+      {
+        "package": "ZIPFoundation",
+        "repositoryURL": "https://github.com/weichsel/ZIPFoundation.git",
+        "state": {
+          "branch": null,
+          "revision": "ec32d62d412578542c0ffb7a6ce34d3e64b43b94",
+          "version": "0.9.11"
+        }
+      }
+    ]
+  },
+  "version": 1
+}
