@@ -12,25 +12,25 @@
 import Foundation
 
 /// A single node in the Tags Tree.
-class TagsNode: Comparable, CustomStringConvertible {
+public class TagsNode: Comparable, CustomStringConvertible {
     
     static let thisLessThanThat = -1
     static let thisGreaterThanThat = 1
     static let thisEqualsThat = 0
     
-    static func < (lhs: TagsNode, rhs: TagsNode) -> Bool {
+    public static func < (lhs: TagsNode, rhs: TagsNode) -> Bool {
         return lhs.compareTo(node2: rhs) < 0
     }
     
-    static func == (lhs: TagsNode, rhs: TagsNode) -> Bool {
+    public static func == (lhs: TagsNode, rhs: TagsNode) -> Bool {
         return lhs.compareTo(node2: rhs) == 0
     }
     
-    private(set) weak var parent:   TagsNode?
-    private(set)      var children: [TagsNode] = []
-                      var type:     TagsNodeType = .root
-                      var tag:      String?
-                      var note:     Note?
+    private(set) weak   var parent:   TagsNode?
+    public private(set) var children: [TagsNode] = []
+    public              var type:     TagsNodeType = .root
+    public              var tag:      String?
+    public              var note:     Note?
     
     init() {
         
@@ -48,7 +48,7 @@ class TagsNode: Comparable, CustomStringConvertible {
         self.note = note
     }
     
-    var description: String {
+    public var description: String {
         switch type {
         case .root:
             return "root"

@@ -11,7 +11,7 @@
 
 import Foundation
 
-enum NotenikPathType {
+public enum NotenikPathType {
     case hopeless
     case empty
     case existing

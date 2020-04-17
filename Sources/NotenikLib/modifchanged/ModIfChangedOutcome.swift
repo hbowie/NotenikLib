@@ -12,7 +12,7 @@
 import Foundation
 
 /// Define the possible outcomes from the modIfChanged method
-enum modIfChangedOutcome {
+public enum modIfChangedOutcome {
     case notReady
     case noChange
     case idAlreadyExists

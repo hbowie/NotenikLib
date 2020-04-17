@@ -12,9 +12,9 @@
 import Foundation
 
 /// A list of values that can be picked from.
-class PickList {
+public class PickList {
     
-    var values: [StringValue] = []
+    public var values: [StringValue] = []
     
     /// Register a new value. Add it if not already present in the list.
     

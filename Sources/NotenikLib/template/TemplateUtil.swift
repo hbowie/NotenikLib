@@ -16,7 +16,7 @@ import NotenikMkdown
 import NotenikTextile
 
 /// Persistent data along with utility methods.
-class TemplateUtil {
+public class TemplateUtil {
     
     let fileManager = FileManager.default
     
@@ -34,7 +34,7 @@ class TemplateUtil {
     
     var workspace: ScriptWorkspace?
     
-    var textOutURL: URL?
+    public var textOutURL: URL?
     var textOutFileName = FileName()
     var outputLines = ""
     var outputOpen = false
@@ -79,7 +79,7 @@ class TemplateUtil {
     var wikiStyle: Character = "0"
     
     /// Initialize things.
-    init() {
+    public init() {
         let globalsCollection = NoteCollection()
         globals = Note(collection: globalsCollection)
         xmlConverter.addXML()

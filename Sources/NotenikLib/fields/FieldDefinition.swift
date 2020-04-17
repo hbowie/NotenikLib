@@ -12,12 +12,12 @@
 import Foundation
 
 /// The label used to identify this field, along with the field type.
-class FieldDefinition {
+public class FieldDefinition {
     
     var typeCatalog: AllTypes!
     
-    var fieldLabel:  FieldLabel = FieldLabel()
-    var fieldType:   AnyType = StringType()
+    public var fieldLabel:  FieldLabel = FieldLabel()
+    public var fieldType:   AnyType = StringType()
     
     /// Initialize with no parameters, defaulting to a simple String type.
     init() {

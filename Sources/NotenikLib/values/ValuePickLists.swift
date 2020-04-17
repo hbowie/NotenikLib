@@ -11,12 +11,12 @@
 
 import Foundation
 
-class ValuePickLists {
+public class ValuePickLists {
     
-    var statusConfig = StatusValueConfig()
-    var tagsPickList = TagsPickList()
-    var authorPickList = AuthorPickList()
-    var workTitlePickList = WorkTitlePickList()
+    public var statusConfig = StatusValueConfig()
+    public var tagsPickList = TagsPickList()
+    public var authorPickList = AuthorPickList()
+    public var workTitlePickList = WorkTitlePickList()
     
     /// Register the relevant values from another Note. 
     func registerNote(note: Note) {

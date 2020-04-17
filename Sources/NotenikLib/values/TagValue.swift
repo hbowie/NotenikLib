@@ -14,7 +14,7 @@ import Foundation
 import NotenikUtils
 
 /// Class representing one Tag (with possibly multiple levels)
-class TagValue: StringValue {
+public class TagValue: StringValue {
     
     var levels: [String] = []
     

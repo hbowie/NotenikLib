@@ -11,11 +11,11 @@
 
 import Foundation
 
-class Realm {
+public class Realm {
     
     var provider: Provider = Provider()
     var name = ""
-    var path = ""
+    public var path = ""
     var io: NotenikIO?
     
     init() {

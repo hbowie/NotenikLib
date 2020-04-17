@@ -18,19 +18,23 @@ import Ink
 import NotenikMkdown
 
 // Convert Markdown to HTML, using the user's favorite parser.
-class Markdown {
+public class Markdown {
     
     var notenikIO: NotenikIO?
-    var md = ""
-    var html = ""
+    public var md = ""
+    public var html = ""
     var ok = true
     
     var parserID = "down"
     
+    public init() {
+        
+    }
+    
     /// Parse the markdown text in md and place the result into html.
     /// Note that all instance properties must be set and accessed before and after
     /// the call to parse.
-    func parse() {
+    public func parse() {
         ok = true
         html = ""
         parserID = AppPrefs.shared.markdownParser

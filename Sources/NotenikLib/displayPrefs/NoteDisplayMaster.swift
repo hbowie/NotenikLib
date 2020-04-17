@@ -10,7 +10,7 @@
 //
 
 /// An ability to refresh all of the current Note displays. 
-protocol NoteDisplayMaster {
+public protocol NoteDisplayMaster {
     
     func displayRefresh()
 }

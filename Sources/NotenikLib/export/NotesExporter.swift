@@ -15,7 +15,7 @@ import NotenikUtils
 import NotenikMkdown
 
 /// An object capable of exporting a collection of notes to any one of several output formats.
-class NotesExporter {
+public class NotesExporter {
     
     let appPrefs = AppPrefs.shared
     
@@ -46,13 +46,13 @@ class NotesExporter {
     var tagsWritten = 0
     
     /// Initialize the Exporter.
-    init() {
+    public init() {
         tagsToSelect = TagsValue(appPrefs.tagsToSelect)
         tagsToSuppress = TagsValue(appPrefs.tagsToSuppress)
     }
     
     /// Export the Notes to one of several possible output formats.
-    func export(noteIO: NotenikIO,
+    public func export(noteIO: NotenikIO,
                        format: ExportFormat,
                        useTagsExportPrefs: Bool,
                        split: Bool,

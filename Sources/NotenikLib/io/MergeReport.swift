@@ -14,14 +14,14 @@ import Foundation
 import NotenikUtils
 
 /// A report to be produced by using Notenik
-class MergeReport: CustomStringConvertible {
+public class MergeReport: CustomStringConvertible {
     
     let scriptExt = "tcz"
     
-    var reportName = ""
-    var reportType = ""
+    public var reportName = ""
+    public var reportType = ""
     
-    var description: String {
+    public var description: String {
         var desc = "Report: "
         if reportType.lowercased() == "tcz" {
             desc.append(reportName)
@@ -38,7 +38,7 @@ class MergeReport: CustomStringConvertible {
         return reportName + "." + reportType
     }
     
-    func getURL(folderPath: String) -> URL? {
+    public func getURL(folderPath: String) -> URL? {
         let reportPath = FileUtils.joinPaths(path1: folderPath,
                                               path2: fileName)
         let reportURL = URL(fileURLWithPath: reportPath)

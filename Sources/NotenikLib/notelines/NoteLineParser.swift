@@ -14,7 +14,7 @@ import Foundation
 import NotenikUtils
 
 /// Read lines in the Notenik format, and create a Note from their content.
-class NoteLineParser {
+public class NoteLineParser {
     
     var collection:     NoteCollection
     var dict:           FieldDictionary
@@ -42,7 +42,7 @@ class NoteLineParser {
     var fileSize     = 0
     
     /// Initialize with a functioning Line Reader
-    init (collection: NoteCollection, reader: BigStringReader) {
+    public init (collection: NoteCollection, reader: BigStringReader) {
         
         self.collection = collection
         self.dict = collection.dict
@@ -60,7 +60,7 @@ class NoteLineParser {
     }
     
     /// Get the Note from the input lines
-    func getNote(defaultTitle: String) -> Note {
+    public func getNote(defaultTitle: String) -> Note {
         
         note = Note(collection: collection)
         label = FieldLabel()

@@ -11,7 +11,7 @@
 
 import Foundation
 
-enum NoteSortParm : Int {
+public enum NoteSortParm : Int {
     case title         = 0
     case seqPlusTitle  = 1
     case tasksByDate   = 2

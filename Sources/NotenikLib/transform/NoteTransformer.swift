@@ -15,7 +15,7 @@ import NotenikUtils
 import NotenikMkdown
 
 /// A class that provides mirroring of notes in some alternate format (normally HTML).
-class NoteTransformer {
+public class NoteTransformer {
     
     let fileManager  = FileManager.default
     
@@ -29,9 +29,9 @@ class NoteTransformer {
     static let scriptExtension      = ".tcz"
     static let sampleMirrorTemplate = "note_mirror.html"
     static let indexMirrorTemplate  = "index_mirror.html"
-    static let sampleReportTemplateFileName = "sample report template"
+    public static let sampleReportTemplateFileName = "sample report template"
     
-    var dispatchQueue: DispatchQueue
+    public var dispatchQueue: DispatchQueue
     
     var io: FileIO!
     
@@ -112,14 +112,14 @@ class NoteTransformer {
     }
     
     /// Mirror a Note to a Web page using the supplied note and template. 
-    func mirror(note: Note) -> [LogEvent] {
+    public func mirror(note: Note) -> [LogEvent] {
         let list = NotesList()
         list.append(note)
         return mirrorNotesList(list)
     }
     
     /// Mirror the entire list of Notes.
-    func mirrorAllNotes() -> [LogEvent] {
+    public func mirrorAllNotes() -> [LogEvent] {
         return mirrorNotesList(io.notesList)
     }
     
@@ -158,7 +158,7 @@ class NoteTransformer {
     }
     
     /// Let's run through all of the index templates we found. 
-    func rebuildIndices() -> [LogEvent] {
+    public func rebuildIndices() -> [LogEvent] {
         var errors: [LogEvent] = []
         
         for indexFileName in noteIndexFileNames {
@@ -214,7 +214,7 @@ class NoteTransformer {
     /// Generate sample mirror folders and files. Note that this is sort of a
     /// factory method since, when successful, it returns a good instance
     /// of NoteMirror.
-    static func genSampleMirrorFolder(io: NotenikIO) -> NoteTransformer? {
+    public static func genSampleMirrorFolder(io: NotenikIO) -> NoteTransformer? {
         
         let displayPrefs = DisplayPrefs.shared
         
@@ -375,7 +375,7 @@ class NoteTransformer {
     }
     
     /// Generate a sample report template.
-    static func genReportTemplateSample(io: NotenikIO, markdown: Bool = false) -> [LogEvent] {
+    public static func genReportTemplateSample(io: NotenikIO, markdown: Bool = false) -> [LogEvent] {
         var errors: [LogEvent] = []
         
         guard let collection = io.collection else {
@@ -500,7 +500,7 @@ class NoteTransformer {
     }
     
     /// Generate a URL pointing to the Report Template Sample and ensure the Reports folder exists.
-    static func getReportTemplateSampleURL(io: NotenikIO, markdown: Bool = false) -> URL? {
+    public static func getReportTemplateSampleURL(io: NotenikIO, markdown: Bool = false) -> URL? {
         guard let reportsFolder = io.reportsFullPath else { return nil }
         guard FileUtils.ensureFolder(forDir: reportsFolder) else { return nil }
         let reportsFolderURL = URL(fileURLWithPath: reportsFolder)

@@ -9,7 +9,7 @@
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
 //
 
-enum ExportFormat {
+public enum ExportFormat {
     case bookmarks
     case commaSeparated
     case json

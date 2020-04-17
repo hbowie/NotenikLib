@@ -15,21 +15,21 @@ import NotenikUtils
 
 /// The core module for playing and recording scripts, and
 /// executing script commands.
-class ScriptEngine: RowConsumer {
+public class ScriptEngine: RowConsumer {
     
     var lastScriptURL: URL?
     
     var lastCommandModule: ScriptModule = .script
     var lastCommandAction: ScriptAction = .blank
     
-    var workspace = ScriptWorkspace()
+    public var workspace = ScriptWorkspace()
     
     var command   = ScriptCommand()
     
     var reader:     DelimitedReader!
     var rowsRead  = 0
     
-    static let scriptExt = ".tcz"
+    public static let scriptExt = ".tcz"
     static let pathPlaceHolder = "#PATH#"
     
     let input    = InputModule()
@@ -38,7 +38,7 @@ class ScriptEngine: RowConsumer {
     let template = TemplateModule()
     let output   = OutputModule()
     
-    init() {
+    public init() {
  
     }
     
@@ -47,7 +47,7 @@ class ScriptEngine: RowConsumer {
     /// - Parameters:
     ///   - label: A string containing the column heading for the field.
     ///   - value: The actual value for the field.
-    func consumeField(label: String, value: String) {
+    public func consumeField(label: String, value: String) {
         workspace.holdErrors()
         let labelLower = label.lowercased()
         let valueLower = value.lowercased()
@@ -82,7 +82,7 @@ class ScriptEngine: RowConsumer {
     /// - Parameters:
     ///   - labels: An array of column headings.
     ///   - fields: A corresponding array of field values.
-    func consumeRow(labels: [String], fields: [String]) {
+    public func consumeRow(labels: [String], fields: [String]) {
         rowsRead += 1
         playCommand(command)
         command = ScriptCommand(workspace: workspace)
@@ -91,7 +91,7 @@ class ScriptEngine: RowConsumer {
     /// Play a script command -- all script commands should be executed
     /// through this method, whether they come from a script being played
     /// or from the Scripter window.
-    func playCommand(_ command: ScriptCommand) {
+    public func playCommand(_ command: ScriptCommand) {
         if command.module == .script {
             if command.action != .stop {
                 stopIfRecording()
@@ -226,7 +226,7 @@ class ScriptEngine: RowConsumer {
     /// - Parameter moduleStr: A string naming the desired module.
     /// - Returns: Either the command with the specified module, or
     ///            nil if the module name was invalid.
-    func getCommand(moduleStr: String) -> ScriptCommand? {
+    public func getCommand(moduleStr: String) -> ScriptCommand? {
         let command = ScriptCommand(workspace: workspace)
         let ok = command.setModule(value: moduleStr)
         if ok {

@@ -15,7 +15,7 @@ import Foundation
 /// tags. Note that the same note may appear more than once
 /// (if it has multiple tags). Also note that the root node
 /// will not be returned. 
-class TagsNodeIterator: IteratorProtocol {
+public class TagsNodeIterator: IteratorProtocol {
     
     var noteIO: NotenikIO?
     var positions: [Int] = []
@@ -29,7 +29,7 @@ class TagsNodeIterator: IteratorProtocol {
     }
     
     /// Return the next TagsNode, or nil at the end.
-    func next() -> TagsNode? {
+    public func next() -> TagsNode? {
         var nextNode: TagsNode? = nil
         if tagsNode!.children.count > 0 {
             setPosition(depth: depth, position: 0)

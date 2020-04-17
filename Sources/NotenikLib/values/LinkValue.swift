@@ -13,7 +13,7 @@ import Foundation
 
 import NotenikUtils
 
-class LinkValue : StringValue {
+public class LinkValue : StringValue {
     
     /**
      Part 1 of the url, delimited by a colon and zero or more slashes

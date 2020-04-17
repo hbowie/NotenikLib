@@ -12,7 +12,7 @@
 import Foundation
 
 /// A catalog of all available field types. One of these should be created for each Collection.
-class AllTypes {
+public class AllTypes {
     
     let artistType  = ArtistType()
     let authorType  = AuthorType()

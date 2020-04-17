@@ -14,7 +14,7 @@ import Cocoa
 import NotenikUtils
 
 /// Write out an HTML page listing all of the user's favorite bookmarks.
-class FavoritesToHTML {
+public class FavoritesToHTML {
     
     let prefs = AppPrefs.shared
     
@@ -37,7 +37,7 @@ class FavoritesToHTML {
     var favoritesWord = "favorites"
     var favoritesCap = "Favorites"
     
-    init() {
+    public init() {
         htmlConverter.addHTML()
         maxColumns = prefs.favoritesColumns
         maxLines = prefs.favoritesRows
@@ -48,14 +48,14 @@ class FavoritesToHTML {
         }
     }
     
-    convenience init (noteIO: NotenikIO, outURL: URL) {
+    public convenience init (noteIO: NotenikIO, outURL: URL) {
         self.init()
         self.noteIO = noteIO
         self.outURL = outURL
     }
     
     /// Generate the web page.
-    func generate() -> Bool {
+    public func generate() -> Bool {
         
         guard let io = noteIO else { return false }
         guard let url = outURL else { return false }

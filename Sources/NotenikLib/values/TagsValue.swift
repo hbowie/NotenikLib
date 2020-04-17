@@ -14,17 +14,17 @@ import Foundation
 import NotenikUtils
 
 /// One or more tags, each consisting of one or more levels
-class TagsValue: StringValue {
+public class TagsValue: StringValue {
     
-    var tags: [TagValue] = []
+    public var tags: [TagValue] = []
     
     /// Default initializer
-    override init() {
+    public override init() {
         super.init()
     }
     
     /// Convenience initializer with String value
-    convenience init (_ value: String) {
+    public convenience init (_ value: String) {
         self.init()
         set(value)
     }
@@ -72,7 +72,7 @@ class TagsValue: StringValue {
     }
     
     /// Sort the tags alphabetically
-    func sort() {
+    public func sort() {
         tags.sort { $0.description < $1.description }
         removeDuplicates()
         calcValue()

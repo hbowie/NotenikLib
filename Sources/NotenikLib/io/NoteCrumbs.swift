@@ -13,23 +13,23 @@ import Foundation
 
 /// Keep track of where we've been and how we got here, and allow the user
 /// to move forward and backwards in the list of notes s/he's visited.
-class NoteCrumbs {
+public class NoteCrumbs {
     
     var io: NotenikIO
     var crumbs: [NoteID] = []
     var lastCrumb: NoteID?
     
-    init(io: NotenikIO) {
+    public init(io: NotenikIO) {
         self.io = io
     }
     
     /// Let's start over. 
-    func refresh() {
+    public func refresh() {
         crumbs = []
     }
     
     /// Indicate the latest note visited by the user.
-    func select(latest: Note) {
+    public func select(latest: Note) {
         let latestID = latest.noteID
         
         /// If this note is just the last one returned from this list, then don't
@@ -49,7 +49,7 @@ class NoteCrumbs {
     
     /// Go back to the prior note in the breadcrumbs.
     /// - Parameter from: The Note we're starting from.
-    func backup(from: Note) -> Note {
+    public func backup(from: Note) -> Note {
         let fromID = from.noteID
         var index = crumbs.count - 1
         while index > 0 {
@@ -75,7 +75,7 @@ class NoteCrumbs {
     
     /// Go forward to the next Note in the list.
     /// - Parameter from: The Note we're starting from.
-    func advance(from: Note) -> Note {
+    public func advance(from: Note) -> Note {
         let fromID = from.noteID
         var index = crumbs.count - 2
         while index >= 0 {

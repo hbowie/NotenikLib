@@ -8,7 +8,7 @@
 
 import Foundation
 
-enum TagsNodeType: Int {
+public enum TagsNodeType: Int {
     case root   = 0
     case note   = 1
     case tag    = 2

@@ -15,9 +15,9 @@ import NotenikUtils
 import NotenikMkdown
 
 /// Generate the coding necessary to display a Note in a readable format.
-class NoteDisplay: NSObject {
+public class NoteDisplay: NSObject {
     
-    var format: MarkedupFormat = .htmlDoc
+    public var format: MarkedupFormat = .htmlDoc
     
     let displayPrefs = DisplayPrefs.shared
 
@@ -25,7 +25,7 @@ class NoteDisplay: NSObject {
     ///
     /// - Parameter note: The note to be displayed.
     /// - Returns: A string containing the encoded note.
-    func display(_ note: Note, io: NotenikIO) -> String {
+    public func display(_ note: Note, io: NotenikIO) -> String {
         let collection = note.collection
         let dict = collection.dict
         let code = Markedup(format: format)

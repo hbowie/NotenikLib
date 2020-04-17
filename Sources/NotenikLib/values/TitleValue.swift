@@ -14,7 +14,7 @@ import Foundation
 import NotenikUtils
 
 /// A title field value
-class TitleValue: StringValue {
+public class TitleValue: StringValue {
     
     /// The lowest common denominator of the title (lower case, no whitespace, no punctuation)
     var common = ""

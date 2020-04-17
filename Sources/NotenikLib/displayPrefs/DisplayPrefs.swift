@@ -12,10 +12,10 @@
 import Foundation
 
 /// A Singleton Class for sharing and updating appearance preferences for the Display tab
-class DisplayPrefs {
+public class DisplayPrefs {
     
     // Provide a single standard shared singleton instance
-    static let shared = DisplayPrefs()
+    public static let shared = DisplayPrefs()
     
     let defaults = UserDefaults.standard
     
@@ -69,7 +69,7 @@ class DisplayPrefs {
         buildCSS()
     }
     
-    var font: String? {
+    public var font: String? {
         get {
             return _displayFont
         }
@@ -88,7 +88,7 @@ class DisplayPrefs {
         }
     }
     
-    var size: String? {
+    public var size: String? {
         get {
             return _displaySize
         }
@@ -99,7 +99,7 @@ class DisplayPrefs {
         }
     }
     
-    func buildCSS() {
+    public func buildCSS() {
         var tempCSS = ""
         tempCSS += "font-family: "
         if font == nil {
@@ -116,7 +116,7 @@ class DisplayPrefs {
     }
     
     /// Apply the CSS to the entire body. 
-    var bodyCSS: String? {
+    public var bodyCSS: String? {
         var tempCSS = "body { "
         if css != nil {
             tempCSS.append(css!)
@@ -125,7 +125,7 @@ class DisplayPrefs {
         return tempCSS
     }
     
-    var css: String? {
+    public var css: String? {
         get {
             return _displayCSS
         }
@@ -135,11 +135,11 @@ class DisplayPrefs {
         }
     }
     
-    func setMaster(master: NoteDisplayMaster) {
+    public func setMaster(master: NoteDisplayMaster) {
         self.displayMaster = master
     }
     
-    func displayRefresh() {
+    public func displayRefresh() {
         if displayMaster != nil {
             displayMaster!.displayRefresh()
         }

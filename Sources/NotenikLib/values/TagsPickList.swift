@@ -12,7 +12,11 @@
 import Foundation
 
 /// A list of Tags that can be picked from. 
-class TagsPickList: PickList {
+public class TagsPickList: PickList {
+    
+    public override init() {
+        
+    }
     
     func registerTags(_ tags: TagsValue) {
         for tag in tags.tags {

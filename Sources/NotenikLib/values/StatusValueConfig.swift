@@ -14,9 +14,9 @@ import Foundation
 import NotenikUtils
 
 /// Information about the meaning of status values in the range of 0 through 9
-class StatusValueConfig {
+public class StatusValueConfig {
     
-    var statusOptions : [String] = []
+    public var statusOptions : [String] = []
     
     var doneThreshold = 6 
     
@@ -123,7 +123,7 @@ class StatusValueConfig {
     
     /// Return the corresponding label for the passed index, or an
     /// empty string if the index is invalid.
-    func get (_ i: Int) -> String {
+    public func get (_ i: Int) -> String {
         if i < 0 || i > 9 {
             return ""
         } else {
@@ -133,7 +133,7 @@ class StatusValueConfig {
     
     /// Format a String starting with the status integer, followed by a hyphen,
     /// followed by the standard label.
-    func getFullString(fromLabel label: String) -> String {
+    public func getFullString(fromLabel label: String) -> String {
         let i = get(label)
         return getFullString(fromIndex: i)
     }
@@ -150,7 +150,7 @@ class StatusValueConfig {
     
     /// Return the corresponding index for the passed label (or partial label),
     /// or -1 if the label is invalid. 
-    func get(_ label : String) -> Int {
+    public func get(_ label : String) -> Int {
         if label.count > 0 {
             let firstChar = StringUtils.charAt(index: 0, str: label)
             var index = 0

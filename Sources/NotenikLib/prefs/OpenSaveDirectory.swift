@@ -8,10 +8,10 @@
 
 import Foundation
 
-class OpenSaveDirectory {
+public class OpenSaveDirectory {
     
     // Singleton instance
-    static let shared = OpenSaveDirectory()
+    public static let shared = OpenSaveDirectory()
     
     // Shorthand references to System Objects
     private let defaults = UserDefaults.standard
@@ -45,7 +45,7 @@ class OpenSaveDirectory {
     }
     
     /// The last parent folder used for an open or save
-    var lastParentFolder: URL? {
+    public var lastParentFolder: URL? {
         get {
             return lp
         }
@@ -69,7 +69,7 @@ class OpenSaveDirectory {
     }
     
     /// Return a possible directory URL to be passed to an open or save panel
-    var directoryURL: URL? {
+    public var directoryURL: URL? {
         switch defaultLocation {
         case .userHome:
             return home

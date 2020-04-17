@@ -15,7 +15,7 @@ import NotenikUtils
 import NotenikMkdown
 
 /// Read and write notes from/to some sort of data store. 
-protocol NotenikIO: MkdownWikiLinkLookup {
+public protocol NotenikIO: MkdownWikiLinkLookup {
     
     /// The currently open collection, if any
     var collection: NoteCollection? { get }

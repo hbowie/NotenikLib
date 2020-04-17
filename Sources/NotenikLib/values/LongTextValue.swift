@@ -14,7 +14,7 @@ import Foundation
 /// A class to contain long strings of text, including multiple lines with line breaks.
 ///
 /// Note that the resulting value will not be allowed to have blank lines at its start or its end.
-class LongTextValue: StringValue {
+public class LongTextValue: StringValue {
     
     /// Number of blank lines encountered but not yet added to value
     var pendingBlankLines = 0

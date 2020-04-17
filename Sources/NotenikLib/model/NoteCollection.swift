@@ -14,27 +14,27 @@ import Foundation
 import NotenikUtils
 
 /// Information about a collection of Notes.
-class NoteCollection {
+public class NoteCollection {
     
-    var path  = ""
-    var title = ""
+    public var path  = ""
+    public var title = ""
     var realm        : Realm
     var noteType     : NoteType = .general
-    var dict         : FieldDictionary
+    public var dict  : FieldDictionary
     var idRule       : NoteIDRule
-    var sortParm     : NoteSortParm
+    public var sortParm     : NoteSortParm
     var sortDescending: Bool
-    var typeCatalog  = AllTypes()
-    var statusConfig : StatusValueConfig
-    var preferredExt : String = "txt"
-    var otherFields  = false
-    var readOnly     : Bool = false
+    public var typeCatalog  = AllTypes()
+    public var statusConfig : StatusValueConfig
+    public var preferredExt : String = "txt"
+    public var otherFields  = false
+    public var readOnly     : Bool = false
     var customFields : [SortField] = []
     var hasTimestamp = false
     var isRealmCollection = false
     var noteFileFormat: NoteFileFormat = .toBeDetermined
-    var mirror:         NoteTransformer?
-    var mirrorAutoIndex = false
+    public var mirror:         NoteTransformer?
+    public var mirrorAutoIndex = false
     
     /// Default initialization of a new Realm.
     init () {
@@ -52,7 +52,7 @@ class NoteCollection {
         self.realm = realm
     }
     
-    var collectionFullPathURL: URL? {
+    public var collectionFullPathURL: URL? {
         var collectionURL: URL
         if realm.path == "" || realm.path == " " {
             collectionURL = URL(fileURLWithPath: path)
@@ -64,7 +64,7 @@ class NoteCollection {
     }
     
     /// The complete path to this collection, represented as a String
-    var collectionFullPath: String {
+    public var collectionFullPath: String {
         if realm.path == "" || realm.path == " " {
             return path
         } else {

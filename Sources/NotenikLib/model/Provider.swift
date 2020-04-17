@@ -12,7 +12,7 @@
 import Foundation
 
 /// A Provider provides the operating and storage context for one or more users, and one or more realms.
-class Provider {
+public class Provider {
     
     var providerType: ProviderType = .file
     

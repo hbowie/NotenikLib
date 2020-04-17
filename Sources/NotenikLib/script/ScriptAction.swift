@@ -11,7 +11,7 @@
 
 import Foundation
 
-enum ScriptAction: String {
+public enum ScriptAction: String {
     case blank    = ""
     case add      = "add"
     case clear    = "clear"

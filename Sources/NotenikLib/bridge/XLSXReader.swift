@@ -15,7 +15,7 @@ import CoreXLSX
 
 import NotenikUtils
 
-class XLSXReader: RowImporter {
+public class XLSXReader: RowImporter {
     
     var consumer:           RowConsumer?
     var workspace:          ScriptWorkspace?
@@ -30,7 +30,7 @@ class XLSXReader: RowImporter {
     var labels:             [String] = []
     var fields:             [String] = []
     
-    init() {
+    public init() {
         
     }
     
@@ -50,7 +50,7 @@ class XLSXReader: RowImporter {
     ///
     /// - Parameter fileURL: The URL of the file to be read.
     /// - Returns: The number of rows returned. 
-    func read(fileURL: URL) {
+    public func read(fileURL: URL) {
         guard consumer != nil else { return }
         rowCount = 0
         labels = []

@@ -14,10 +14,10 @@ import Foundation
 import NotenikUtils
 
 /// A label used to identify a particular field within a collection of items.
-class FieldLabel: CustomStringConvertible {
+public class FieldLabel: CustomStringConvertible {
     
-    var properForm = ""
-    var commonForm = ""
+    public var properForm = ""
+    public var commonForm = ""
     var validLabel = false
     
     init() {
@@ -144,7 +144,7 @@ class FieldLabel: CustomStringConvertible {
         return properForm.count
     }
     
-    var description: String {
+    public var description: String {
         return properForm
     }
     

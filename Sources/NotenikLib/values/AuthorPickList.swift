@@ -11,9 +11,13 @@
 
 import Foundation
 
-class AuthorPickList: PickList {
+public class AuthorPickList: PickList {
     
-    func registerAuthor(_ author: AuthorValue) {
+    public override init() {
+        
+    }
+    
+    public func registerAuthor(_ author: AuthorValue) {
         _ = registerValue(author)
     } // end register tags
     

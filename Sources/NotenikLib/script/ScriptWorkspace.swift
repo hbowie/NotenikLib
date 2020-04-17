@@ -14,7 +14,7 @@ import Foundation
 import NotenikUtils
 
 /// A workspace to be shared between the Script Engine and its various modules. 
-class ScriptWorkspace {
+public class ScriptWorkspace {
     
     var parentPath = ""
     
@@ -24,7 +24,7 @@ class ScriptWorkspace {
     
     var scriptingStage: ScriptingStage = .none
     
-    var collection  = NoteCollection()
+    public var collection  = NoteCollection()
     
     var typeCatalog = AllTypes()
     
@@ -47,7 +47,7 @@ class ScriptWorkspace {
     var pendingErrors = ""
     var holdingErrors = false
     
-    var scriptLog   = ""
+    public var scriptLog   = ""
     
     init() {
         let parentRealmPath = AppPrefs.shared.parentRealmPath
@@ -61,7 +61,7 @@ class ScriptWorkspace {
         }
     }
     
-    var parentURL: URL {
+    public var parentURL: URL {
         return URL(fileURLWithPath: parentPath)
     }
     

@@ -14,7 +14,7 @@ import Foundation
 import NotenikUtils
 
 /// Retrieve and save Notes from and to files stored locally.
-class FileIO: NotenikIO, RowConsumer {
+public class FileIO: NotenikIO, RowConsumer {
     
     let filesFolderName     = "files"
     let reportsFolderName   = "reports"
@@ -25,17 +25,17 @@ class FileIO: NotenikIO, RowConsumer {
     
     var attachments: [String]?
     
-    static let infoFileName = "- INFO.nnk"
+    public static let infoFileName = "- INFO.nnk"
     
     var provider       : Provider = Provider()
     var realm          : Realm
-    var collection     : NoteCollection?
+    public var collection     : NoteCollection?
     var collectionFullPath: String?
-    var collectionOpen = false
+    public var collectionOpen = false
     
-    var reports: [MergeReport] = []
+    public var reports: [MergeReport] = []
     
-    var reportsFullPath: String? {
+    public var reportsFullPath: String? {
         if collectionFullPath == nil {
             return nil
         } else {
@@ -43,7 +43,7 @@ class FileIO: NotenikIO, RowConsumer {
         }
     }
     
-    var pickLists = ValuePickLists()
+    public var pickLists = ValuePickLists()
     
     var bunch          : BunchOfNotes?
     var templateFound  = false
@@ -53,7 +53,7 @@ class FileIO: NotenikIO, RowConsumer {
     var notesImported  = 0
     var noteToImport:    Note?
     
-    var notesList: NotesList {
+    public var notesList: NotesList {
         if bunch != nil {
             return bunch!.notesList
         } else {
@@ -62,7 +62,7 @@ class FileIO: NotenikIO, RowConsumer {
     }
     
     /// The position of the selected note, if any, in the current collection
-    var position:   NotePosition? {
+    public var position:   NotePosition? {
         if !collectionOpen || collection == nil || bunch == nil {
             return nil
         } else {
@@ -72,7 +72,7 @@ class FileIO: NotenikIO, RowConsumer {
     }
     
     /// Default initialization
-    init() {
+    public init() {
         provider.providerType = .file
         realm = Realm(provider: provider)
         collection = NoteCollection(realm: realm)
@@ -85,17 +85,17 @@ class FileIO: NotenikIO, RowConsumer {
     }
     
     /// Get information about the provider.
-    func getProvider() -> Provider {
+    public func getProvider() -> Provider {
         return provider
     }
     
     /// Get the default realm.
-    func getDefaultRealm() -> Realm {
+    public func getDefaultRealm() -> Realm {
         return realm
     }
     
     /// See what sort of path this might be.
-    func checkPathType(path: String) -> NotenikPathType {
+    public func checkPathType(path: String) -> NotenikPathType {
         
         guard FileUtils.isDir(path) else {
             logInfo("Notenik cannot do anything with this path: \(path)")
@@ -169,7 +169,7 @@ class FileIO: NotenikIO, RowConsumer {
     ///   - primeIO: The I/O module for the primary collection.
     ///   - archivePath: The location of the archive collection.
     /// - Returns: The Archive Note Collection, if collection opened successfully.
-    func openArchive(primeIO: NotenikIO, archivePath: String) -> NoteCollection? {
+    public func openArchive(primeIO: NotenikIO, archivePath: String) -> NoteCollection? {
         
         // See if the archive already exists
         let primeCollection = primeIO.collection!
@@ -196,7 +196,7 @@ class FileIO: NotenikIO, RowConsumer {
     /// - Parameter collectionPath: The path identifying the collection within this realm
     /// - Returns: A NoteCollection object, if the collection was opened successfully;
     ///            otherwise nil.
-    func openCollection(realm: Realm, collectionPath: String) -> NoteCollection? {
+    public func openCollection(realm: Realm, collectionPath: String) -> NoteCollection? {
         
         let initOK = initCollection(realm: realm, collectionPath: collectionPath)
         guard initOK else { return nil }
@@ -431,7 +431,7 @@ class FileIO: NotenikIO, RowConsumer {
     }
     
     /// Reload the note in memory from the backing data store. 
-    func reloadNote(_ noteToReload: Note) -> Note? {
+    public func reloadNote(_ noteToReload: Note) -> Note? {
         var ok = false
         guard collection != nil && collectionOpen else { return nil }
         guard let noteURL = noteToReload.fileInfo.url else { return nil }
@@ -496,7 +496,7 @@ class FileIO: NotenikIO, RowConsumer {
     ///   - to: The Note to which the file is to be attached.
     ///   - with: The unique identifier for this attachment for this note.
     /// - Returns: True if attachment added successfully, false if any sort of failure.
-    func addAttachment(from: URL, to: Note, with: String) -> Bool {
+    public func addAttachment(from: URL, to: Note, with: String) -> Bool {
         let attachmentName = AttachmentName()
         attachmentName.setName(fromFile: from, note: to, suffix: with)
         guard let attachmentURL = getURLforAttachment(attachmentName: attachmentName) else {
@@ -527,7 +527,7 @@ class FileIO: NotenikIO, RowConsumer {
     ///   - note1: The Note to which the files were previously attached.
     ///   - note2: The Note to wich the files should now be attached.
     /// - Returns: True if successful, false otherwise.
-    func reattach(from: Note, to: Note) -> Bool {
+    public func reattach(from: Note, to: Note) -> Bool {
         guard from.attachments.count > 0 else { return true }
         guard let fromNoteName = from.fileInfo.base else { return false }
         guard let toNoteName = to.fileInfo.base else { return false }
@@ -557,25 +557,25 @@ class FileIO: NotenikIO, RowConsumer {
     }
     
     /// If possible, return a URL to locate the indicated attachment.
-    func getURLforAttachment(attachmentName: AttachmentName) -> URL? {
+    public func getURLforAttachment(attachmentName: AttachmentName) -> URL? {
         return getURLforAttachment(fileName: attachmentName.fullName)
     }
     
     /// If possible, return a URL to locate the indicated attachment.
-    func getURLforAttachment(fileName: String) -> URL? {
+    public func getURLforAttachment(fileName: String) -> URL? {
         guard let folderPath = getAttachmentsLocation() else { return nil }
         let attachmentPath = FileUtils.joinPaths(path1: folderPath, path2: fileName)
         return URL(fileURLWithPath: attachmentPath)
     }
     
     /// Return a path to the storage location for attachments.
-    func getAttachmentsLocation() -> String? {
+    public func getAttachmentsLocation() -> String? {
         return FileUtils.joinPaths(path1: collectionFullPath!,
                                    path2: filesFolderName)
     }
     
     /// Load A list of available reports from the reports folder.
-    func loadReports() {
+    public func loadReports() {
         reports = []
         let reportsPath = FileUtils.joinPaths(path1: collectionFullPath!,
                                               path2: reportsFolderName)
@@ -618,7 +618,7 @@ class FileIO: NotenikIO, RowConsumer {
     /// - Parameter realm: The realm housing the collection to be opened.
     /// - Parameter collectionPath: The path identifying the collection within this realm
     /// - Returns: True if successful, false otherwise.
-    func initCollection(realm: Realm, collectionPath: String) -> Bool {
+    public func initCollection(realm: Realm, collectionPath: String) -> Bool {
         closeCollection()
         Logger.shared.log(subsystem: "com.powersurgepub.notenik",
                           category: "FileIO",
@@ -675,7 +675,7 @@ class FileIO: NotenikIO, RowConsumer {
     
     /// Add the default definitions to the Collection's dictionary:
     /// Title, Tags, Link and Body
-    func addDefaultDefinitions() {
+    public func addDefaultDefinitions() {
         guard collection != nil else { return }
         let dict = collection!.dict
         let types = collection!.typeCatalog
@@ -689,7 +689,7 @@ class FileIO: NotenikIO, RowConsumer {
     ///
     /// The passed collection should already have been initialized
     /// via a call to initCollection above.
-    func newCollection(collection: NoteCollection) -> Bool {
+    public func newCollection(collection: NoteCollection) -> Bool {
         
         self.collection = collection
         
@@ -753,7 +753,7 @@ class FileIO: NotenikIO, RowConsumer {
     /// - Parameter importer: A Row importer that will return rows and columns.
     /// - Parameter fileURL: The URL of the file to be imported.
     /// - Returns: The number of rows imported.
-    func importRows(importer: RowImporter, fileURL: URL) -> Int {
+    public func importRows(importer: RowImporter, fileURL: URL) -> Int {
         importer.setContext(consumer: self)
         notesImported = 0
         guard collection != nil && collectionOpen else { return 0 }
@@ -767,7 +767,7 @@ class FileIO: NotenikIO, RowConsumer {
     /// - Parameters:
     ///   - label: A string containing the column heading for the field.
     ///   - value: The actual value for the field.
-    func consumeField(label: String, value: String) {
+    public func consumeField(label: String, value: String) {
         _ = noteToImport!.setField(label: label, value: value)
     }
     
@@ -776,7 +776,7 @@ class FileIO: NotenikIO, RowConsumer {
     /// - Parameters:
     ///   - labels: An array of column headings.
     ///   - fields: A corresponding array of field values.
-    func consumeRow(labels: [String], fields: [String]) {
+    public func consumeRow(labels: [String], fields: [String]) {
         let (newNote, _) = addNote(newNote: noteToImport!)
         if newNote != nil {
             notesImported += 1
@@ -790,7 +790,7 @@ class FileIO: NotenikIO, RowConsumer {
     /// - Parameter archiveIO: An optional I/O module already set up
     ///                        for an archive collection.
     /// - Returns: The number of notes purged. 
-    func purgeClosed(archiveIO: NotenikIO?) -> Int {
+    public func purgeClosed(archiveIO: NotenikIO?) -> Int {
 
         guard collection != nil && collectionOpen else { return 0 }
         guard let notes = bunch?.notesList else { return 0 }
@@ -827,7 +827,7 @@ class FileIO: NotenikIO, RowConsumer {
     }
     
     /// Save some of the collection info to make it persistent
-    func persistCollectionInfo() {
+    public func persistCollectionInfo() {
         _ = saveInfoFile()
         _ = saveTemplateFile()
     }
@@ -876,7 +876,7 @@ class FileIO: NotenikIO, RowConsumer {
     }
     
     /// Change the preferred file extension for the Collection.
-    func changePreferredExt(from: String, to: String) -> Bool {
+    public func changePreferredExt(from: String, to: String) -> Bool {
         guard collection != nil else { return false }
         var ok = true
         let fromFilePath = collection!.makeFilePath(fileName: "template." + from)
@@ -921,7 +921,7 @@ class FileIO: NotenikIO, RowConsumer {
     }
     
     /// Close the current collection, if one is open
-    func closeCollection() {
+    public func closeCollection() {
         collection = nil
         collectionOpen = false
         if bunch != nil {
@@ -938,7 +938,7 @@ class FileIO: NotenikIO, RowConsumer {
     ///   - oldNote: The old version of the note.
     ///   - newNote: The new version of the note.
     /// - Returns: The modified note and its position.
-    func modNote(oldNote: Note, newNote: Note) -> (Note?, NotePosition) {
+    public func modNote(oldNote: Note, newNote: Note) -> (Note?, NotePosition) {
         let modOK = deleteNote(oldNote)
         guard modOK else { return (nil, NotePosition(index: -1)) }
         return addNote(newNote: newNote)
@@ -949,7 +949,7 @@ class FileIO: NotenikIO, RowConsumer {
     /// - Parameter newNote: The Note to be added
     /// - Returns: The added Note and its position, if added successfully;
     ///            otherwise nil and -1.
-    func addNote(newNote: Note) -> (Note?, NotePosition) {
+    public func addNote(newNote: Note) -> (Note?, NotePosition) {
         // Make sure we have an open collection available to us
         guard collection != nil && collectionOpen else { return (nil, NotePosition(index: -1)) }
         guard newNote.hasTitle() else { return (nil, NotePosition(index: -1)) }
@@ -973,7 +973,7 @@ class FileIO: NotenikIO, RowConsumer {
     
     /// Check for uniqueness and, if necessary, Increment the suffix
     /// for this Note's ID until it becomes unique.
-    func ensureUniqueID(for newNote: Note) {
+    public func ensureUniqueID(for newNote: Note) {
         var existingNote = bunch!.getNote(forID: newNote.ID)
         var inc = false
         while existingNote != nil {
@@ -991,7 +991,7 @@ class FileIO: NotenikIO, RowConsumer {
     ///
     /// - Parameter noteToDelete: The note to be deleted.
     /// - Returns: True if delete was successful, false otherwise.
-    func deleteNote(_ noteToDelete: Note) -> Bool {
+    public func deleteNote(_ noteToDelete: Note) -> Bool {
         
         var deleted = false
         
@@ -1025,7 +1025,7 @@ class FileIO: NotenikIO, RowConsumer {
     ///
     /// - Parameter note: The Note to be saved to disk.
     /// - Returns: True if saved successfully, false otherwise.
-    func writeNote(_ note: Note) -> Bool {
+    public func writeNote(_ note: Note) -> Bool {
         
         // Make sure we have an open collection available to us
         guard collection != nil && collectionOpen else { return false }
@@ -1118,7 +1118,7 @@ class FileIO: NotenikIO, RowConsumer {
     }
     
     /// Get or Set the NoteSortParm for the current collection.
-    var sortParm: NoteSortParm {
+    public var sortParm: NoteSortParm {
         get {
             return collection!.sortParm
         }
@@ -1130,7 +1130,7 @@ class FileIO: NotenikIO, RowConsumer {
         }
     }
     
-    var sortDescending: Bool {
+    public var sortDescending: Bool {
         get {
             return collection!.sortDescending
         }
@@ -1145,7 +1145,7 @@ class FileIO: NotenikIO, RowConsumer {
     /// Return the number of notes in the current collection.
     ///
     /// - Returns: The number of notes in the current collection
-    var notesCount: Int {
+    public var notesCount: Int {
         guard bunch != nil else { return 0 }
         return bunch!.count
     }
@@ -1154,7 +1154,7 @@ class FileIO: NotenikIO, RowConsumer {
     ///
     /// - Parameter note: The note to find.
     /// - Returns: A Note Position
-    func positionOfNote(_ note: Note) -> NotePosition {
+    public func positionOfNote(_ note: Note) -> NotePosition {
         guard collection != nil && collectionOpen else { return NotePosition(index: -1) }
         let (_, position) = bunch!.selectNote(note)
         return position
@@ -1167,7 +1167,7 @@ class FileIO: NotenikIO, RowConsumer {
     ///            - If the list is empty, return nil and -1.
     ///            - If the index is too high, return the last note.
     ///            - If the index is too low, return the first note.
-    func selectNote(at index: Int) -> (Note?, NotePosition) {
+    public func selectNote(at index: Int) -> (Note?, NotePosition) {
         guard collection != nil && collectionOpen else { return (nil, NotePosition(index: -1)) }
         return bunch!.selectNote(at: index)
     }
@@ -1176,7 +1176,7 @@ class FileIO: NotenikIO, RowConsumer {
     ///
     /// - Parameter at: An index value pointing to a note in the list
     /// - Returns: Either the note at that position, or nil, if the index is out of range.
-    func getNote(at index: Int) -> Note? {
+    public func getNote(at index: Int) -> Note? {
         guard collection != nil && collectionOpen else { return nil }
         return bunch!.getNote(at: index)
     }
@@ -1185,7 +1185,7 @@ class FileIO: NotenikIO, RowConsumer {
     ///
     /// - Parameter id: The ID we are looking for.
     /// - Returns: The Note with this key, if one exists; otherwise nil.
-    func getNote(forID id: NoteID) -> Note? {
+    public func getNote(forID id: NoteID) -> Note? {
         guard collection != nil && collectionOpen else { return nil }
         return bunch!.getNote(forID: id)
     }
@@ -1194,7 +1194,7 @@ class FileIO: NotenikIO, RowConsumer {
     ///
     /// - Parameter id: The ID we are looking for.
     /// - Returns: The Note with this key, if one exists; otherwise nil.
-    func getNote(forID id: String) -> Note? {
+    public func getNote(forID id: String) -> Note? {
         guard collection != nil && collectionOpen else { return nil }
         return bunch!.getNote(forID: id)
     }
@@ -1203,7 +1203,7 @@ class FileIO: NotenikIO, RowConsumer {
     /// - Parameter title: A wiki link target that is possibly a timestamp instead of a title.
     /// - Returns: The corresponding title, if the lookup was successful, otherwise the title
     ///            that was passed as input. 
-    func mkdownWikiLinkLookup(title: String) -> String {
+    public func mkdownWikiLinkLookup(title: String) -> String {
         guard collection != nil && collectionOpen else { return title }
         guard title.count < 15 && title.count > 11 else { return title }
         let target = getNote(forTimestamp: title)
@@ -1214,7 +1214,7 @@ class FileIO: NotenikIO, RowConsumer {
     /// Get the existing note with the specified timestamp, if one exists.
     /// - Parameter stamp: The timestamp we are looking for.
     /// - Returns: The Note with this timestamp, if one exists; otherwise nil.
-    func getNote(forTimestamp stamp: String) -> Note? {
+    public func getNote(forTimestamp stamp: String) -> Note? {
         guard collection != nil && collectionOpen else { return nil }
         return bunch!.getNote(forTimestamp: stamp)
     }
@@ -1222,7 +1222,7 @@ class FileIO: NotenikIO, RowConsumer {
     /// Return the first note in the sorted list, along with its index position.
     ///
     /// If the list is empty, return a nil Note and an index position of -1.
-    func firstNote() -> (Note?, NotePosition) {
+    public func firstNote() -> (Note?, NotePosition) {
         guard collection != nil && collectionOpen else { return (nil, NotePosition(index: -1)) }
         return bunch!.firstNote()
     }
@@ -1230,7 +1230,7 @@ class FileIO: NotenikIO, RowConsumer {
     /// Return the last note in the sorted list, along with its index position
     ///
     /// if the list is empty, return a nil Note and an index position of -1.
-    func lastNote() -> (Note?, NotePosition) {
+    public func lastNote() -> (Note?, NotePosition) {
         guard collection != nil && collectionOpen else { return (nil, NotePosition(index: -1)) }
         return bunch!.lastNote()
     }
@@ -1241,7 +1241,7 @@ class FileIO: NotenikIO, RowConsumer {
     /// - Parameter position: The position of the last note.
     /// - Returns: A tuple containing the next note, along with its index position.
     ///            If we're at the end of the list, then return a nil Note and an index of -1.
-    func nextNote(_ position : NotePosition) -> (Note?, NotePosition) {
+    public func nextNote(_ position : NotePosition) -> (Note?, NotePosition) {
         guard collection != nil && collectionOpen else { return (nil, NotePosition(index: -1)) }
         return bunch!.nextNote(position)
     }
@@ -1251,7 +1251,7 @@ class FileIO: NotenikIO, RowConsumer {
     /// - Parameter position: The index position of the last note accessed.
     /// - Returns: A tuple containing the prior note, along with its index position.
     ///            if we're outside the bounds of the list, then return a nil Note and an index of -1.
-    func priorNote(_ position : NotePosition) -> (Note?, NotePosition) {
+    public func priorNote(_ position : NotePosition) -> (Note?, NotePosition) {
         guard collection != nil && collectionOpen else { return (nil, NotePosition(index: -1)) }
         return bunch!.priorNote(position)
     }
@@ -1259,7 +1259,7 @@ class FileIO: NotenikIO, RowConsumer {
     /// Return the note currently selected.
     ///
     /// If the list index is out of range, return a nil Note and an index posiiton of -1.
-    func getSelectedNote() -> (Note?, NotePosition) {
+    public func getSelectedNote() -> (Note?, NotePosition) {
         guard collection != nil && collectionOpen else { return (nil, NotePosition(index: -1)) }
         return bunch!.getSelectedNote()
     }
@@ -1267,7 +1267,7 @@ class FileIO: NotenikIO, RowConsumer {
     /// Delete the currently selected Note, plus any attachments it might have. 
     ///
     /// - Returns: The new Note on which the collection should be positioned.
-    func deleteSelectedNote() -> (Note?, NotePosition) {
+    public func deleteSelectedNote() -> (Note?, NotePosition) {
         
         // Make sure we have an open collection available to us
         guard collection != nil && collectionOpen else { return (nil, NotePosition(index: -1)) }
@@ -1320,13 +1320,13 @@ class FileIO: NotenikIO, RowConsumer {
         return (nextNote, nextPosition)
     }
     
-    func getTagsNodeRoot() -> TagsNode? {
+    public func getTagsNodeRoot() -> TagsNode? {
         guard collection != nil && collectionOpen else { return nil }
         return bunch!.notesTree.root
     }
     
     /// Create an iterator for the tags nodes.
-    func makeTagsNodeIterator() -> TagsNodeIterator {
+    public func makeTagsNodeIterator() -> TagsNodeIterator {
         return TagsNodeIterator(noteIO: self)
     }
     

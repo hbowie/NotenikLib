@@ -12,10 +12,10 @@
 import Foundation
 
 /// The requirements that must be fulfilled for any field type class. 
-class AnyType {
+public class AnyType {
     
     /// A string identifying this particular field type.
-    var typeString = ""
+    public var typeString = ""
     
     /// The proper label typically assigned to fields of this type.
     var properLabel = ""

@@ -16,7 +16,7 @@ import NotenikUtils
 /// A String Value interpreted as a sequence number, or revision letter, or version number.
 ///
 /// Such a value may contain letters and digits and one or more periods or hyphens or dollar signs.
-class SeqValue: StringValue {
+public class SeqValue: StringValue {
     
     var positionOfFirstDecimal = -1
     var positionOfLastDecimal = -1
@@ -111,7 +111,7 @@ class SeqValue: StringValue {
     } // end set function
     
     /// Increment the sequence value by 1
-    func increment (onLeft: Bool) {
+    public func increment (onLeft: Bool) {
 
         // Determine where to begin incrementing
         var i = value.count - 1

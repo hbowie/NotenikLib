@@ -14,9 +14,9 @@ import Foundation
 import NotenikUtils
 
 /// A base value class for plain old strings
-class StringValue: CustomStringConvertible, Equatable, Comparable {
+public class StringValue: CustomStringConvertible, Equatable, Comparable {
     
-    var value = ""
+    public var value = ""
     
     /// Initialize with no initial value
     init() {
@@ -24,7 +24,7 @@ class StringValue: CustomStringConvertible, Equatable, Comparable {
     }
     
     /// Initialize with a String value
-    convenience init (_ value: String) {
+    public convenience init (_ value: String) {
         self.init()
         set(value)
     }
@@ -40,7 +40,7 @@ class StringValue: CustomStringConvertible, Equatable, Comparable {
     }
     
     /// Return the description, used as the String value for the object
-    var description: String {
+    public var description: String {
         return value
     }
     
@@ -60,12 +60,12 @@ class StringValue: CustomStringConvertible, Equatable, Comparable {
     }
     
     /// See if two of these objects have equal keys
-    static func ==(lhs: StringValue, rhs: StringValue) -> Bool {
+    public static func ==(lhs: StringValue, rhs: StringValue) -> Bool {
         return lhs.sortKey == rhs.sortKey
     }
     
     /// See which of these objects should come before the other in a sorted list
-    static func < (lhs: StringValue, rhs: StringValue) -> Bool {
+    public static func < (lhs: StringValue, rhs: StringValue) -> Bool {
       return lhs.sortKey < rhs.sortKey
     }
     

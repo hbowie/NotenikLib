@@ -12,7 +12,7 @@
 import Foundation
 
 /// A simple list of Notes. 
-class NotesList: Sequence {
+public class NotesList: Sequence {
     
     var list = [Note]()
     
@@ -96,13 +96,13 @@ class NotesList: Sequence {
         list.sort()
     }
     
-    func makeIterator() -> NotesList.Iterator {
+    public func makeIterator() -> NotesList.Iterator {
         return Iterator(self)
     }
     
-    class Iterator: IteratorProtocol {
+    public class Iterator: IteratorProtocol {
         
-        typealias Element = Note
+        public typealias Element = Note
         
         var list: NotesList!
         var index = 0
@@ -111,7 +111,7 @@ class NotesList: Sequence {
             self.list = list
         }
         
-        func next() -> Note? {
+        public func next() -> Note? {
             if index < 0 || index >= list.count {
                 return nil
             } else {

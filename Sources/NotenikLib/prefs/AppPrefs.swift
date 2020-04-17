@@ -14,10 +14,10 @@ import Cocoa
 import NotenikUtils
 
 /// Act as an intermediary between various Application classes and the UserDefaults
-class AppPrefs {
+public class AppPrefs {
     
     /// Provide a standard shared singleton instance
-    static let shared = AppPrefs()
+    public static let shared = AppPrefs()
     
     let fileManager = FileManager.default
     var tempDir: URL
@@ -53,7 +53,7 @@ class AppPrefs {
     var _edFSCG: CGFloat = 13.0
     
     var _prp = ""
-    var parentRealmPath = ""
+    public var parentRealmPath = ""
     
     var userFont       = NSFont.userFont(ofSize: 13.0)
     var fixedPitchFont = NSFont.userFixedPitchFont(ofSize: 13.0)
@@ -61,7 +61,7 @@ class AppPrefs {
     var userFontAttrs       = [NSAttributedString.Key.font: NSFont.userFont(ofSize: 13.0)]
     var fixedPitchFontAttrs = [NSAttributedString.Key.font: NSFont.userFixedPitchFont(ofSize: 13.0)]
     
-    var pickLists = ValuePickLists()
+    public var pickLists = ValuePickLists()
     
     var _tsel = ""
     var _tsup = ""
@@ -75,14 +75,14 @@ class AppPrefs {
     var _favRows = 0
     var _favColWidth = "250px"
     
-    var newVersionForReview = false
+    public var newVersionForReview = false
     
     var _mdParser = "notenik"
     
     var locale: Locale!
     var languageCode = "en"
     var localeID: String!
-    var americanEnglish = true
+    public var americanEnglish = true
     
     var _tempFileCount =  1
     
@@ -219,7 +219,7 @@ class AppPrefs {
     }
     
     /// Has the app made it out of the launching phase successfully?
-    var appLaunching: Bool {
+    public var appLaunching: Bool {
         get {
             return _appLaunching
         }
@@ -229,7 +229,7 @@ class AppPrefs {
         }
     }
     
-    var essentialURL: URL? {
+    public var essentialURL: URL? {
         get {
             return _essentialURL
         }
@@ -239,7 +239,7 @@ class AppPrefs {
         }
     }
     
-    var lastURL: URL? {
+    public var lastURL: URL? {
         get {
             return _lastURL
         }
@@ -249,7 +249,7 @@ class AppPrefs {
         }
     }
     
-    var confirmDeletes: Bool {
+    public var confirmDeletes: Bool {
         get {
             return !_qd
         }
@@ -282,7 +282,7 @@ class AppPrefs {
         }
     }
     
-    var parentRealmParentURL: URL? {
+    public var parentRealmParentURL: URL? {
         get {
             if _prp.count > 0 {
                 return URL(fileURLWithPath: _prp)
@@ -310,19 +310,19 @@ class AppPrefs {
         fixedPitchFontAttrs = [NSAttributedString.Key.font: fixedPitchFont]
     }
     
-    func increaseEditFontSize(by: Float) {
+    public func increaseEditFontSize(by: Float) {
         editFontSize += by
     }
     
-    func decreaseEditFontSize(by: Float) {
+    public func decreaseEditFontSize(by: Float) {
         editFontSize -= by
     }
     
-    func resetEditFontSize() {
+    public func resetEditFontSize() {
         editFontSize = 13.0
     }
     
-    func setRegularFont(object: NSObject) {
+    public func setRegularFont(object: NSObject) {
         if userFont != nil {
             if let cb = object as? NSComboBox {
                 cb.font = userFont
@@ -336,7 +336,7 @@ class AppPrefs {
         }
     }
     
-    func setFixedPitchFont(view: NSView) {
+    public func setFixedPitchFont(view: NSView) {
         if userFont != nil {
             if let textView = view as? NSTextView {
                 textView.font = fixedPitchFont
@@ -347,17 +347,17 @@ class AppPrefs {
     }
     
     /// Make an attributed string using latest font size
-    func makeUserAttributedString(text: String) -> NSAttributedString {
+    public func makeUserAttributedString(text: String) -> NSAttributedString {
         return NSAttributedString(string: text, attributes: userFontAttrs as [NSAttributedString.Key: Any])
     }
     
     /// Determine the appropriate height constraint for a text view based on the desired
     /// Number of lines to show. 
-    func getViewHeight(lines: Float) -> CGFloat {
+    public func getViewHeight(lines: Float) -> CGFloat {
         return CGFloat(editFontSize * 1.20 * lines)
     }
     
-    var tagsToSelect: String {
+    public var tagsToSelect: String {
         get {
             return _tsel
         }
@@ -367,7 +367,7 @@ class AppPrefs {
         }
     }
     
-    var tagsToSuppress: String {
+    public var tagsToSuppress: String {
         get {
             return _tsup
         }
@@ -378,13 +378,13 @@ class AppPrefs {
     }
     
     /// Add one to the use counter.
-    func incrementUseCount() {
+    public func incrementUseCount() {
         let newUseCount = useCount + 1
         useCount = newUseCount
     }
     
     /// Get and set the number of times the user has used the app. 
-    var useCount: Int {
+    public var useCount: Int {
         get {
             return _uc
         }
@@ -394,7 +394,7 @@ class AppPrefs {
         }
     }
     
-    func userPromptedForReview() {
+    public func userPromptedForReview() {
         lastVersionPromptedForReview = currentVersion
     }
     
@@ -408,7 +408,7 @@ class AppPrefs {
         }
     }
     
-    var favoritesColumns: Int {
+    public var favoritesColumns: Int {
         get { return _favCols }
         set {
             if newValue > 0 {
@@ -418,7 +418,7 @@ class AppPrefs {
         }
     }
     
-    var favoritesRows: Int {
+    public var favoritesRows: Int {
         get { return _favRows }
         set {
             if newValue > 0 {
@@ -428,7 +428,7 @@ class AppPrefs {
         }
     }
     
-    var favoritesColumnWidth: String {
+    public var favoritesColumnWidth: String {
         get { return _favColWidth }
         set {
             if newValue.count > 0 {
@@ -439,7 +439,7 @@ class AppPrefs {
     }
     
     /// get or set the chosen Markdown parser.
-    var markdownParser: String {
+    public var markdownParser: String {
         get { return _mdParser }
         set {
             switch newValue {

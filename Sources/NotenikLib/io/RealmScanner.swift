@@ -13,13 +13,13 @@ import Foundation
 
 import NotenikUtils
 
-class RealmScanner {
+public class RealmScanner {
     
     let fileManager = FileManager.default
     
     let scriptFileExt = ScriptEngine.scriptExt
     
-    var realmIO: NotenikIO = BunchIO()
+    public var realmIO: NotenikIO = BunchIO()
     var realmCollection: NoteCollection? = NoteCollection()
     
     let foldersToSkip = Set(["cgi-bin", "core", "css", "downloads", "files", "fonts", "images", "includes", "javascript", "js", "lib", "modules", "themes", "wp-admin", "wp-content", "wp-includes"])
@@ -27,8 +27,12 @@ class RealmScanner {
     var collectionPath = ""
     var collectionTag  = ""
     
+    public init() {
+        
+    }
+    
     /// Open a realm, looking for its collections
-    func openRealm(path: String) {
+    public func openRealm(path: String) {
         let provider = Provider()
         let realm = Realm(provider: provider)
         realm.path = path

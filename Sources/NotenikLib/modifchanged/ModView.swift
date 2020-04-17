@@ -12,7 +12,7 @@
 import Foundation
 
 /// A protocol for a class that can be used to allow a user to edit a text field
-protocol ModView {
+public protocol ModView {
 
     var text: String { get set }
     

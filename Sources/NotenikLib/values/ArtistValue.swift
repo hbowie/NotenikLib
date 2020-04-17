@@ -12,7 +12,7 @@
 import Foundation
 
 /// The name of an artist, which might be an individual or a group.
-class ArtistValue: StringValue {
+public class ArtistValue: StringValue {
     
     var compKey = ""
     

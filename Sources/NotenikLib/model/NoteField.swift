@@ -12,10 +12,10 @@
 import Foundation
 
 /// A particular field, consisting of a definition and a value, belonging to a particular Note. 
-class NoteField {
+public class NoteField {
     
-    var def:   FieldDefinition
-    var value: StringValue
+    public var def:   FieldDefinition
+    public var value: StringValue
     
     init() {
         def = FieldDefinition()

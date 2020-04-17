@@ -14,28 +14,28 @@ import Foundation
 import NotenikUtils
 
 /// The file name for a Note stored on disk.
-class NoteFileInfo {
+public class NoteFileInfo {
     
     var note: Note
     var collection: NoteCollection
     
-    var format: NoteFileFormat = .toBeDetermined
+    public var format: NoteFileFormat = .toBeDetermined
     var mmdMetaStartLine = ""
     var mmdMetaEndLine = ""
     
     /// This should contain the file name (without the path) plus the file extension
-    var base: String?
+    public var base: String?
     var ext:  String?
     var matchesIDSource = true
     
-    init(note: Note) {
+    public init(note: Note) {
         self.note = note
         self.collection = note.collection
         format = collection.noteFileFormat 
     }
     
     /// Does this note have a file name?
-    var isEmpty: Bool {
+    public var isEmpty: Bool {
         return base == nil
             || ext == nil
             || base!.count == 0
@@ -43,7 +43,7 @@ class NoteFileInfo {
     }
     
     /// Return the full file path for the Note
-    var fullPath: String? {
+    public var fullPath: String? {
         if self.isEmpty {
             return nil
         } else {

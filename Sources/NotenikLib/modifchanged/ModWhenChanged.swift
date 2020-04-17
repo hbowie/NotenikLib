@@ -14,11 +14,11 @@ import Foundation
 import NotenikUtils
 
 /// A Bridge between a User Interface and an Input/Output Module
-class ModWhenChanged {
+public class ModWhenChanged {
     
     var io: NotenikIO
     
-    init(io: NotenikIO) {
+    public init(io: NotenikIO) {
         self.io = io
     }
     
@@ -30,7 +30,7 @@ class ModWhenChanged {
     ///   - startingNote: The Note to which we want to compare the user's input.
     ///   - modViews: One user view for each field defined for the collection.
     /// - Returns: The outcome of the analysis and actions performed, plus the relevant Note.
-    func modIfChanged(newNoteRequested: Bool,
+    public func modIfChanged(newNoteRequested: Bool,
                       startingNote: Note,
                       modViews: [ModView],
                       statusConfig: StatusValueConfig) -> (modIfChangedOutcome, Note?) {

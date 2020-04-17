@@ -14,11 +14,11 @@ import Foundation
 import NotenikUtils
 
 /// A String value representing a date.
-class DateValue: StringValue {
+public class DateValue: StringValue {
     
-    var yyyy = ""
-    var mm = ""
-    var dd = ""
+    public var yyyy = ""
+    public var mm = ""
+    public var dd = ""
     
     var start = ""
     var end = ""
@@ -29,18 +29,18 @@ class DateValue: StringValue {
     var alphaMonth = false
     
     /// Default initialization
-    override init() {
+    public override init() {
         super.init()
     }
     
     /// Set an initial value as part of initialization
-    convenience init (_ value: String) {
+    public convenience init (_ value: String) {
         self.init()
         set(value)
     }
     
     /// Set an initial value with year, month and day integers
-    convenience init (year: Int, month: Int, day: Int) {
+    public convenience init (year: Int, month: Int, day: Int) {
         self.init()
         yyyy = String(format: "%04d", year)
         
@@ -77,15 +77,15 @@ class DateValue: StringValue {
         return DateUtils.shared.dateFromYMD(ymdDate)
     }
     
-    var year: Int? {
+    public var year: Int? {
         return Int(yyyy)
     }
     
-    var month: Int? {
+    public var month: Int? {
         return Int(mm)
     }
     
-    var day: Int? {
+    public var day: Int? {
         return Int(dd)
     }
     
@@ -123,7 +123,7 @@ class DateValue: StringValue {
         }
     }
     
-    var dMyDate: String {
+    public var dMyDate: String {
         if mm.count == 0 {
             return yyyy
         } else if dd.count == 0 {

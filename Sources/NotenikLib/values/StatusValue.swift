@@ -14,7 +14,7 @@ import Foundation
 import NotenikUtils
 
 /// A representation of an item's status using both a string label and an integer value
-class StatusValue: StringValue {
+public class StatusValue: StringValue {
     
     var statusInt = 0
     
@@ -115,7 +115,7 @@ class StatusValue: StringValue {
     }
     
     /// Get the integer representation of this status value
-    func getInt() -> Int {
+    public func getInt() -> Int {
         return statusInt
     }
     

@@ -14,7 +14,7 @@ import Foundation
 import NotenikUtils
 
 /// The full name assigned to a Note attachment.
-class AttachmentName: Comparable, NSCopying, CustomStringConvertible {
+public class AttachmentName: Comparable, NSCopying, CustomStringConvertible {
     
     let preferredSeparator = " | "
     
@@ -24,28 +24,28 @@ class AttachmentName: Comparable, NSCopying, CustomStringConvertible {
     var ext = ""
     
     /// Standard string representation to conform to CustomStringConvertible.
-    var description: String {
+    public var description: String {
         return fullName
     }
     
     /// The full name for the attachment, consisting of
     /// prefix, separator, suffix and file extension.
-    var fullName: String {
+    public var fullName: String {
         return prefix + separator + suffix + ext
     }
     
     /// Is the first attachment name less than the second?
-    static func < (lhs: AttachmentName, rhs: AttachmentName) -> Bool {
+    public static func < (lhs: AttachmentName, rhs: AttachmentName) -> Bool {
         return lhs.fullName < rhs.fullName
     }
     
     /// Are the two attachment names equal?
-    static func == (lhs: AttachmentName, rhs: AttachmentName) -> Bool {
+    public static func == (lhs: AttachmentName, rhs: AttachmentName) -> Bool {
         return lhs.fullName == rhs.fullName
     }
     
     /// Make a copy of this Attachment Name. 
-    func copy(with zone: NSZone? = nil) -> Any {
+    public func copy(with zone: NSZone? = nil) -> Any {
         let newAttachmentName = AttachmentName()
         newAttachmentName.prefix = self.prefix
         newAttachmentName.separator = self.separator

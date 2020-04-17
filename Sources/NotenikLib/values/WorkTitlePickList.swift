@@ -11,9 +11,9 @@
 
 import Foundation
 
-class WorkTitlePickList: PickList {
+public class WorkTitlePickList: PickList {
     
-    override init() {
+    public override init() {
         super.init()
     }
     

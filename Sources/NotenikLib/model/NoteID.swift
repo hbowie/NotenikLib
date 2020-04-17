@@ -14,7 +14,7 @@ import Foundation
 import NotenikUtils
 
 /// The unique identifier for a Note.
-class NoteID: CustomStringConvertible, Equatable, Comparable {
+public class NoteID: CustomStringConvertible, Equatable, Comparable {
     
     var rule: NoteIDRule = .fromTitle
     var source = ""
@@ -35,7 +35,7 @@ class NoteID: CustomStringConvertible, Equatable, Comparable {
     }
     
     /// Return the ID. 
-    var description: String {
+    public var description: String {
         return identifier
     }
     
@@ -108,11 +108,11 @@ class NoteID: CustomStringConvertible, Equatable, Comparable {
         print("NoteID Rule: \(rule), Source: \(source), ID: \(identifier)")
     }
     
-    static func == (lhs: NoteID, rhs: NoteID) -> Bool {
+    public static func == (lhs: NoteID, rhs: NoteID) -> Bool {
         return lhs.identifier == rhs.identifier
     }
     
-    static func < (lhs: NoteID, rhs: NoteID) -> Bool {
+    public static func < (lhs: NoteID, rhs: NoteID) -> Bool {
         return lhs.identifier < rhs.identifier
     }
 }

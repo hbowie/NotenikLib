@@ -14,7 +14,7 @@ import Foundation
 import NotenikUtils
 
 /// Can be used to increment the sequence of one Note and following Notes.
-class Sequencer {
+public class Sequencer {
     
     /// Increment the sequence of one Note along with following Notes
     /// that would otherwise now be less than or equal to the
@@ -24,7 +24,7 @@ class Sequencer {
     ///   - io: The I/O Module for the Collection being accessed.
     ///   - startingNote: The first Note whose sequence is to be incremented.
     /// - Returns: The number of Notes having their sequences incremented.
-    static func incrementSeq(io: NotenikIO, startingNote: Note) -> Int {
+    public static func incrementSeq(io: NotenikIO, startingNote: Note) -> Int {
         
         guard io.collectionOpen else { return 0 }
         guard io.collection != nil else { return 0 }

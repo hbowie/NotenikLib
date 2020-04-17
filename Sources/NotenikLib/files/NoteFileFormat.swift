@@ -10,7 +10,7 @@
 //
 
 /// An indicator of the format used to store the note on disk.
-enum NoteFileFormat: String {
+public enum NoteFileFormat: String {
     
     /// In Markdown format, the first line of the file contains a level 1 heading, and this
     /// is used as the Note's title. The rest of the file makes up the Note's body.

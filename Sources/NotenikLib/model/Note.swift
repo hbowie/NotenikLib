@@ -12,22 +12,22 @@
 import Foundation
 
 /// A single Note. 
-class Note: Comparable, NSCopying {
+public class Note: Comparable, NSCopying {
     
-    unowned var collection: NoteCollection
+    public unowned var collection: NoteCollection
     
     var ID = NoteID()
     
     var fields = [:] as [String: NoteField]
-    var attachments: [AttachmentName] = []
+    public var attachments: [AttachmentName] = []
     
     var _envCreateDate = ""
     var _envModDate    = ""
     
-    var fileInfo: NoteFileInfo!
+    public var fileInfo: NoteFileInfo!
     
     /// Initialize with a Collection
-    init (collection: NoteCollection) {
+    public init (collection: NoteCollection) {
         self.collection = collection
         fileInfo = NoteFileInfo(note: self)
     }
@@ -71,7 +71,7 @@ class Note: Comparable, NSCopying {
         }
     }
     
-    static func < (lhs: Note, rhs: Note) -> Bool {
+    public static func < (lhs: Note, rhs: Note) -> Bool {
         if lhs.collection.sortDescending {
             if lhs.collection.sortParm == .custom {
                 return compareCustomFields(lhs: lhs, rhs: rhs) > 0
@@ -87,7 +87,7 @@ class Note: Comparable, NSCopying {
         }
     }
     
-    static func == (lhs: Note, rhs: Note) -> Bool {
+    public static func == (lhs: Note, rhs: Note) -> Bool {
         if lhs.collection.sortParm == .custom {
             return compareCustomFields(lhs: lhs, rhs: rhs) == 0
         } else {
@@ -125,7 +125,7 @@ class Note: Comparable, NSCopying {
     }
     
     /// Make a copy of this Note
-    func copy(with zone: NSZone? = nil) -> Any {
+    public func copy(with zone: NSZone? = nil) -> Any {
         let newNote = Note(collection: collection)
         copyFields(to: newNote)
         copyAttachments(to: newNote)
@@ -170,7 +170,7 @@ class Note: Comparable, NSCopying {
     }
     
     /// Close the note, either by applying the recurs rule, or changing the status to 9
-    func close() {
+    public func close() {
         if hasDate() && hasRecurs() {
             recur()
         } else if hasStatus()  {
@@ -179,21 +179,21 @@ class Note: Comparable, NSCopying {
     }
     
     /// Toggle the Note's status between least complete and most complete.
-    func toggleStatus() {
+    public func toggleStatus() {
         if hasStatus() {
             status.toggle(config: collection.statusConfig)
         }
     }
     
     /// Bump this Note's status up to the next valid value for this Collection. 
-    func incrementStatus() {
+    public func incrementStatus() {
         if hasStatus() {
             status.increment(config: collection.statusConfig)
         }
     }
         
     /// Apply the recurs rule to the note
-    func recur() {
+    public func recur() {
         if hasDate() && hasRecurs() {
             let dateVal = date
             let recursVal = recurs
@@ -203,19 +203,19 @@ class Note: Comparable, NSCopying {
     }
     
     /// Set the Note's Title value
-    func setTitle(_ title: String) -> Bool {
+    public func setTitle(_ title: String) -> Bool {
         let ok = setField(label: LabelConstants.title, value: title)
         setID()
         return ok
     }
     
     /// Set the Note's Link value
-    func setLink(_ link: String) -> Bool {
+    public func setLink(_ link: String) -> Bool {
         return setField(label: LabelConstants.link, value: link)
     }
     
     /// Set the Note's Tags value
-    func setTags(_ tags: String) -> Bool {
+    public func setTags(_ tags: String) -> Bool {
         return setField(label: LabelConstants.tags, value: tags)
     }
     
@@ -225,12 +225,12 @@ class Note: Comparable, NSCopying {
     }
     
     /// Set the Note's Date value
-    func setDate(_ date: String) -> Bool {
+    public func setDate(_ date: String) -> Bool {
         return setField(label: LabelConstants.date, value: date)
     }
     
     /// Set the Note's Sequence value
-    func setSeq(_ seq: String) -> Bool {
+    public func setSeq(_ seq: String) -> Bool {
         return setField(label: LabelConstants.seq, value: seq)
     }
     
@@ -305,7 +305,7 @@ class Note: Comparable, NSCopying {
     }
     
     /// Return the Creator: either Author or Artist
-    var creatorValue: String {
+    public var creatorValue: String {
         if hasAuthor() {
             return author.value
         } else if hasArtist() {
@@ -316,7 +316,7 @@ class Note: Comparable, NSCopying {
     }
     
     /// Return the Note's Date Value
-    var date: DateValue {
+    public var date: DateValue {
         let val = getFieldAsValue(label: LabelConstants.date)
         if val is DateValue {
             return val as! DateValue
@@ -326,7 +326,7 @@ class Note: Comparable, NSCopying {
     }
     
     /// Does this note recur on a daily basis?
-    var daily: Bool {
+    public var daily: Bool {
         guard let recursVal = getFieldAsValue(label: LabelConstants.recurs) as? RecursValue else { return false }
         return recursVal.daily
     }
@@ -342,7 +342,7 @@ class Note: Comparable, NSCopying {
     }
     
     /// Return the Note's Link Value
-    var link: LinkValue {
+    public var link: LinkValue {
         let val = getFieldAsValue(label: LabelConstants.link)
         if val is LinkValue {
             return val as! LinkValue
@@ -352,7 +352,7 @@ class Note: Comparable, NSCopying {
     }
     
     /// Return the Note's Link Value (if any) as a possible URL
-    var linkAsURL: URL? {
+    public var linkAsURL: URL? {
         let val = getFieldAsValue(label: LabelConstants.link)
         if val is LinkValue {
             let linkVal = val as! LinkValue
@@ -363,7 +363,7 @@ class Note: Comparable, NSCopying {
     }
     
     /// Return the Note's Sequence Value
-    var seq: SeqValue {
+    public var seq: SeqValue {
         let val = getFieldAsValue(label: LabelConstants.seq)
         if val is SeqValue {
             return val as! SeqValue
@@ -383,13 +383,13 @@ class Note: Comparable, NSCopying {
     }
     
     /// Is the user done with this item? 
-    var isDone: Bool {
+    public var isDone: Bool {
         let val = getFieldAsValue(label: LabelConstants.status)
         guard let status = val as? StatusValue else { return false }
         return status.isDone(config: collection.statusConfig)
     }
     
-    var doneXorT: String {
+    public var doneXorT: String {
         var val = " "
         if status.isDone(config: collection.statusConfig) {
             val = "X"
@@ -400,7 +400,7 @@ class Note: Comparable, NSCopying {
     }
     
     /// Return the Note's Status Value
-    var status: StatusValue {
+    public var status: StatusValue {
         let val = getFieldAsValue(label: LabelConstants.status)
         if val is StatusValue {
             return val as! StatusValue
@@ -410,7 +410,7 @@ class Note: Comparable, NSCopying {
     }
     
     /// Return the Note's Title Value
-    var title: TitleValue {
+    public var title: TitleValue {
         let val = getFieldAsValue(label: LabelConstants.title)
         if val is TitleValue {
             return val as! TitleValue
@@ -420,7 +420,7 @@ class Note: Comparable, NSCopying {
     }
     
     /// Return the Note's Tags Value
-    var tags: TagsValue {
+    public var tags: TagsValue {
         let val = getFieldAsValue(label: LabelConstants.tags)
         if val is TagsValue {
             return val as! TagsValue
@@ -458,7 +458,7 @@ class Note: Comparable, NSCopying {
     }
     
     /// Return the Body of the Note
-    var body: LongTextValue {
+    public var body: LongTextValue {
         let val = getFieldAsValue(label: LabelConstants.body)
         if val is LongTextValue {
             return val as! LongTextValue
@@ -488,7 +488,7 @@ class Note: Comparable, NSCopying {
     }
     
     /// Get the unique ID used to identify this note within its collection
-    var noteID: NoteID {
+    public var noteID: NoteID {
         return ID
     }
     
@@ -537,17 +537,17 @@ class Note: Comparable, NSCopying {
     }
     
     /// Does this note have a non-blank title field?
-    func hasTitle() -> Bool {
+    public func hasTitle() -> Bool {
         return title.count > 0
     }
     
     /// Does this note have a non-blank tags field?
-    func hasTags() -> Bool {
+    public func hasTags() -> Bool {
         return tags.count > 0
     }
     
     // Does this note have a non-blank Sequence field?
-    func hasSeq() -> Bool {
+    public func hasSeq() -> Bool {
         return seq.count > 0
     }
     
@@ -557,12 +557,12 @@ class Note: Comparable, NSCopying {
     }
     
     /// Does this note have a non-blank date field?
-    func hasDate() -> Bool {
+    public func hasDate() -> Bool {
         return date.count > 0
     }
     
     /// Does this note have a non-blank recurs field?
-    func hasRecurs() -> Bool {
+    public func hasRecurs() -> Bool {
         return recurs.count > 0
     }
     
@@ -586,7 +586,7 @@ class Note: Comparable, NSCopying {
     }
     
     /// Does this note have a non-blank body?
-    func hasBody() -> Bool {
+    public func hasBody() -> Bool {
         return body.count > 0
     }
     
@@ -614,7 +614,7 @@ class Note: Comparable, NSCopying {
     }
     
     /// Get the body field, if one exists
-    func getBodyAsField() -> NoteField? {
+    public func getBodyAsField() -> NoteField? {
         return getField(label: LabelConstants.body)
     }
     
@@ -661,7 +661,7 @@ class Note: Comparable, NSCopying {
     ///
     /// - Parameter def: A Field Definition (typically from a Field Dictionary)
     /// - Returns: The corresponding field within this Note, if one exists for this definition
-    func getField(def: FieldDefinition) -> NoteField? {
+    public func getField(def: FieldDefinition) -> NoteField? {
         return fields[def.fieldLabel.commonForm]
     }
     

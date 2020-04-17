@@ -11,7 +11,7 @@
 
 import Foundation
 
-enum CollectionRequestType {
+public enum CollectionRequestType {
     case new
     case newMaster
     case saveAs

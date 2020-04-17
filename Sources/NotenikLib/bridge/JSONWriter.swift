@@ -13,7 +13,7 @@ import Foundation
 
 import NotenikUtils
 
-class JSONWriter {
+public class JSONWriter {
     
     /// Format with line breaks.
     var lineByLine = true
@@ -28,8 +28,12 @@ class JSONWriter {
     var startOfLine = true
     var lineCount = 0
     
+    public init() {
+        
+    }
+    
     /// Open the writer. This must always be performed once, before any writes occur.
-    func open() {
+    public func open() {
         writer.open()
         indentLevel = 0
         indent = ""
@@ -38,12 +42,12 @@ class JSONWriter {
     }
     
     /// Close the writer. This must always be done once, after all writes have occurred.
-    func close() {
+    public func close() {
         writer.close()
     }
     
     /// Save the output to a file; this should follow the call to the close method.
-    func save(destination: URL) -> Bool {
+    public func save(destination: URL) -> Bool {
         do {
             try outputString.write(to: destination, atomically: true, encoding: .utf8)
         } catch {
@@ -57,7 +61,7 @@ class JSONWriter {
     }
     
     /// Retrieve the output string after open, writing and close.
-    var outputString: String {
+    public var outputString: String {
         guard writer is BigStringWriter else { return "" }
         let big = writer as! BigStringWriter
         return big.bigString
@@ -86,7 +90,7 @@ class JSONWriter {
     }
     
     /// Write out the given note as a complete JSON object. 
-    func writeNoteAsObject(_ note: Note) {
+    public func writeNoteAsObject(_ note: Note) {
         let collection = note.collection
         let dict = collection.dict
         startObject()
@@ -98,7 +102,7 @@ class JSONWriter {
     }
     
     /// Write out the given note's body as a complete JSON object.
-    func writeBodyAsObject(_ note: Note) {
+    public func writeBodyAsObject(_ note: Note) {
         startObject()
         write(key: LabelConstants.body,
               value: note.getFieldAsString(label: LabelConstants.body))

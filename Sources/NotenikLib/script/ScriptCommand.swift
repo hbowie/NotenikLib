@@ -14,20 +14,20 @@ import Foundation
 import NotenikUtils
 
 /// One command to be executed by the Scripting Engine.
-class ScriptCommand: CustomStringConvertible {
+public class ScriptCommand: CustomStringConvertible {
     
     var workspace: ScriptWorkspace?
     
     var line      = ""
     
-    var module:   ScriptModule = .blank
-    var action:   ScriptAction = .blank
-    var modifier  = ""
+    public var module:   ScriptModule = .blank
+    public var action:   ScriptAction = .blank
+    public var modifier  = ""
     var _object   = ""
     var _value    = ""
     var valueWithPathResolved = ""
     
-    init() {
+    public init() {
         
     }
     
@@ -36,7 +36,7 @@ class ScriptCommand: CustomStringConvertible {
         self.workspace = workspace
     }
     
-    var object: String {
+    public var object: String {
         get {
             return _object
         }
@@ -49,7 +49,7 @@ class ScriptCommand: CustomStringConvertible {
         }
     }
     
-    var value: String {
+    public var value: String {
         get {
             return _value
         }
@@ -59,7 +59,7 @@ class ScriptCommand: CustomStringConvertible {
         }
     }
     
-    var description: String {
+    public var description: String {
         var desc = ""
         if module == .comment {
             desc = line
@@ -92,7 +92,7 @@ class ScriptCommand: CustomStringConvertible {
         return true
     }
     
-    func setAction(value: String) {
+    public func setAction(value: String) {
         let valueLower = value.lowercased()
         let action = ScriptAction(rawValue: valueLower)
         if action != nil {
@@ -102,7 +102,7 @@ class ScriptCommand: CustomStringConvertible {
         }
     }
     
-    func setValue(fileURL: URL) {
+    public func setValue(fileURL: URL) {
         value = fileURL.path
         valueWithPathResolved = fileURL.path
     }

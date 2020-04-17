@@ -15,9 +15,9 @@ import NotenikUtils
 
 /// A template to be used to create text file output
 /// (such as an HTML file) from a Collection of Notes.
-class Template {
+public class Template {
     
-    var util = TemplateUtil()
+    public var util = TemplateUtil()
     var notesList = NotesList()
     var collection = NoteCollection()
     var workspace: ScriptWorkspace?
@@ -29,7 +29,7 @@ class Template {
     var endLines         = [TemplateLine]()
     
     
-    init() {
+    public init() {
         
     }
     
@@ -46,7 +46,7 @@ class Template {
     ///
     /// - Parameter templateURL: The location of the template file.
     /// - Returns: True if opened ok, false if errors.
-    func openTemplate(templateURL: URL) -> Bool {
+    public func openTemplate(templateURL: URL) -> Bool {
         return util.openTemplate(templateURL: templateURL)
     }
     
@@ -55,7 +55,7 @@ class Template {
     /// - Parameters:
     ///   - notesList: The list of Notes to be used.
     ///   - dataSource: A path identifying the source of the notes.
-    func supplyData(notesList: NotesList, dataSource: String) {
+    public func supplyData(notesList: NotesList, dataSource: String) {
         self.notesList = notesList
         util.dataFileName = FileName(dataSource)
     }
@@ -63,7 +63,7 @@ class Template {
     /// Merge the supplied data with the template to generate output.
     ///
     /// - Returns: True if everything went smoothly, false if problems. 
-    func generateOutput() -> Bool {
+    public func generateOutput() -> Bool {
         
         guard util.templateOK else { return false }
         if notesList.count > 0 {

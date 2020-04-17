@@ -9,10 +9,10 @@
 import Foundation
 
 /// A Dictionary of Field Definitions
-class FieldDictionary {
+public class FieldDictionary {
     
     var dict = [:] as [String: FieldDefinition]
-    var list: [FieldDefinition] = []
+    public var list: [FieldDefinition] = []
     var insertPositionFromEnd = 0
     var locked = false
     
@@ -37,12 +37,12 @@ class FieldDictionary {
     }
     
     /// Lock the dictionary so that no more definitions may be added
-    func lock() {
+    public func lock() {
         locked = true
     }
     
     /// Unlock the dictionary so that more definitions may be added
-    func unlock() {
+    public func unlock() {
         locked = false
     }
     
@@ -59,7 +59,7 @@ class FieldDictionary {
     }
     
     /// Does the dictionary contain a definition for this field label?
-    func contains (_ label: String) -> Bool {
+    public func contains (_ label: String) -> Bool {
         let fieldLabel = FieldLabel(label)
         let def = dict[fieldLabel.commonForm]
         return def != nil
@@ -76,7 +76,7 @@ class FieldDictionary {
     }
     
     /// Return the optional definition for this field label
-    func getDef(_ labelStr: String) -> FieldDefinition? {
+    public func getDef(_ labelStr: String) -> FieldDefinition? {
         let fieldLabel = FieldLabel(labelStr)
         return dict[fieldLabel.commonForm]
     }
@@ -94,7 +94,7 @@ class FieldDictionary {
     }
     
     /// Add a new field definition to the dictionary, based on the passed field label string
-    func addDef (typeCatalog: AllTypes, label: String) -> FieldDefinition? {
+    public func addDef (typeCatalog: AllTypes, label: String) -> FieldDefinition? {
         let def = FieldDefinition(typeCatalog: typeCatalog, label: label)
         return addDef(def)
     }
@@ -141,7 +141,7 @@ class FieldDictionary {
     }
     
     /// Remove the given definition from the dictionary and report our success
-    func removeDef(_ def: FieldDefinition) -> Bool {
+    public func removeDef(_ def: FieldDefinition) -> Bool {
         var removeOK = false
         let common = def.fieldLabel.commonForm
         dict.removeValue(forKey: common)

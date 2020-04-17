@@ -14,21 +14,21 @@ import Foundation
 import NotenikUtils
 
 /// Format a note as a series of text lines. 
-class NoteLineMaker {
+public class NoteLineMaker {
     
-    var writer: LineWriter
+    public var writer: LineWriter
     let minCharsToValue = 8
-    var fieldsWritten = 0
+    public var fieldsWritten = 0
     
     /// Initialize with no input, assuming the writer will be a Big String Writer.
-    init() {
+    public init() {
         writer = BigStringWriter()
     }
     
     /// Initialize with the Line Writer to be used.
     ///
     /// - Parameter writer: The line writer to be used.
-    init(_ writer: LineWriter) {
+    public init(_ writer: LineWriter) {
         self.writer = writer
     }
     
@@ -36,7 +36,7 @@ class NoteLineMaker {
     ///
     /// - Parameter note: The note to be written.
     /// - Returns: The number of fields written.
-    func putNote(_ note: Note) -> Int {
+    public func putNote(_ note: Note) -> Int {
         
         if note.fileInfo.format == .toBeDetermined {
             note.fileInfo.format = .notenik
@@ -151,7 +151,7 @@ class NoteLineMaker {
     /// Write a field's label and value, along with the usual Notenik formatting.
     ///
     /// - Parameter field: The Note Field to be written.
-    func putField(_ field: NoteField?, format: NoteFileFormat) {
+    public func putField(_ field: NoteField?, format: NoteFileFormat) {
         if field != nil && field!.value.hasData {
             putFieldName(field!.def, format: format)
             putFieldValue(field!.value)
