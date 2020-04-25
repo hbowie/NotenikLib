@@ -1,8 +1,8 @@
 //
 //  CloudNik.swift
-//  
 //
 //  Created by Herb Bowie on 4/24/20.
+//
 //  Copyright © 2020 Herb Bowie (https://powersurgepub.com)
 //
 //  This programming code is published as open source software under the
@@ -11,34 +11,70 @@
 
 import Foundation
 
-class CloudNik {
+import NotenikUtils
+
+public class CloudNik {
     
     // Singleton instance
-    static let shared = CloudNik()
+    public static let shared = CloudNik()
     
     let fm = FileManager.default
-    var ubiquityIdenityToken: Any?
-    var url: URL?
+    var ubiquityIdentityToken: Any?
+    public var url: URL?
+    public var path = ""
     
     init() {
-        print("CloudNik initialization...")
-        ubiquityIdenityToken = fm.ubiquityIdentityToken
-        if ubiquityIdenityToken == nil {
-            print("iCloud not available")
-        } else {
-            print("iCloud available")
+        ubiquityIdentityToken = fm.ubiquityIdentityToken
+        guard ubiquityIdentityToken != nil else {
+            logError("iCloud not available")
+            return
         }
-        guard ubiquityIdenityToken != nil else { return }
+        
         url = fm.url(forUbiquityContainerIdentifier: nil)?.appendingPathComponent("Documents")
-        if url == nil {
-            print("iCloud container not available")
-        } else {
-            print("iCloud container located at \(url!.path)")
+        guard url != nil else {
+            logError("iCloud container not available")
+            return
+        }
+        
+        path = url!.path
+        var exists = fm.fileExists(atPath: path)
+        logInfo("iCloud container available at \(path) exists? \(exists)")
+    }
+    
+    func createDirectory(){
+        if let iCloudDocumentsURL = FileManager.default.url(forUbiquityContainerIdentifier: nil)?.appendingPathComponent("Documents") {
+            if (!FileManager.default.fileExists(atPath: iCloudDocumentsURL.path, isDirectory: nil)) {
+                do {
+                    try FileManager.default.createDirectory(at: iCloudDocumentsURL, withIntermediateDirectories: true, attributes: nil)
+                }
+                catch {
+                    //Error handling
+                    print("Error in creating doc")
+                }
+            }
         }
     }
     
-    var iCloudAvailable: Bool {
-        ubiquityIdenityToken = fm.ubiquityIdentityToken
-        return ubiquityIdenityToken != nil
+    public var iCloudAvailable: Bool {
+        ubiquityIdentityToken = fm.ubiquityIdentityToken
+        return ubiquityIdentityToken != nil
     }
+    
+    func logInfo(_ msg: String) {
+        Logger.shared.log(subsystem: "com.powersurgepub.notenik.macos",
+                          category: "CloudNik",
+                          level: .info,
+                          message: msg)
+    }
+    
+    /// Log an error message and optionally display an alert message.
+    func logError(_ msg: String) {
+        
+        Logger.shared.log(subsystem: "com.powersurgepub.notenik.macos",
+                          category: "CloudNik",
+                          level: .error,
+                          message: msg)
+        
+    }
+    
 }
