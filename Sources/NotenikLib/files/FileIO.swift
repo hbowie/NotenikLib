@@ -307,9 +307,9 @@ public class FileIO: NotenikIO, RowConsumer {
                 _ = saveInfoFile()
             }
             collection!.mirror = NoteTransformer(io: self)
-            if collection!.mirror == nil {
-                logInfo("No Mirroring")
-            } else {
+            if collection!.mirror != nil {
+            //     logInfo("No Mirroring")
+            // } else {
                 logInfo("Mirroring Engaged")
             }
             return collection
@@ -325,12 +325,12 @@ public class FileIO: NotenikIO, RowConsumer {
             let fileName = FileName(itemFullPath)
             if fileName.infofile && !infoFound {
                 _ = loadInfoFile(realm: realm,
-                                            collectionPath: collectionPath,
-                                            itemPath: itemPath)
+                                 collectionPath: collectionPath,
+                                 itemPath: itemPath)
             } else if fileName.template && !templateFound {
                 _ = loadTemplateFile(realm: realm,
-                                                    collectionPath: collectionPath,
-                                                    itemPath: itemPath)
+                                     collectionPath: collectionPath,
+                                     itemPath: itemPath)
             }
             if infoFound && templateFound {
                 break
@@ -396,7 +396,7 @@ public class FileIO: NotenikIO, RowConsumer {
                                                path2: itemPath)
         let fileName = FileName(itemFullPath)
         let itemURL = URL(fileURLWithPath: itemFullPath)
-        let templateNt = readNote(collection: collection!, noteURL: itemURL)
+        let templateNt = readNote(collection: collection!, noteURL: itemURL, reportErrors: false)
         
         guard let templateNote = templateNt else { return nil }
         guard templateNote.fields.count > 0 else { return nil }
@@ -626,10 +626,12 @@ public class FileIO: NotenikIO, RowConsumer {
                           message: "Initializing Collection")
         self.realm = realm
         self.provider = realm.provider
-        Logger.shared.log(subsystem: "com.powersurgepub.notenik",
-                          category: "FileIO",
-                          level: .info,
-                          message: "Realm:      " + realm.path)
+        if realm.path.count > 0 {
+            Logger.shared.log(subsystem: "com.powersurgepub.notenik",
+                              category: "FileIO",
+                              level: .info,
+                              message: "Realm:      " + realm.path)
+        }
         Logger.shared.log(subsystem: "com.powersurgepub.notenik",
                           category: "FileIO",
                           level: .info,
@@ -1058,14 +1060,16 @@ public class FileIO: NotenikIO, RowConsumer {
     /// - Parameter noteURL: The complete URL pointing to the note file to be read.
     /// - Returns: A note composed from the contents of the indicated file,
     ///            or nil, if problems reading file.
-    func readNote(collection: NoteCollection, noteURL: URL) -> Note? {
+    func readNote(collection: NoteCollection, noteURL: URL, reportErrors: Bool = true) -> Note? {
         
         let reader = BigStringReader(fileURL: noteURL)
         guard reader != nil else {
-            Logger.shared.log(subsystem: "com.powersurgepub.notenik",
-                              category: "FileIO",
-                              level: .error,
-                              message: "Error reading Note from \(noteURL)")
+            if reportErrors {
+                Logger.shared.log(subsystem: "com.powersurgepub.notenik",
+                                  category: "FileIO",
+                                  level: .error,
+                                  message: "Error reading Note from \(noteURL)")
+            }
             return nil
         }
         let parser = NoteLineParser(collection: collection, reader: reader!)

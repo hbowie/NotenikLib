@@ -204,9 +204,9 @@ public class AppPrefs {
         if languageCode == "en" {
             americanEnglish = (localeID == "en_US" || localeID == "en_PH" || localeID == "en_UM" || localeID == "en_US_POSIX" || localeID == "en_AS" || localeID == "en_VI")
         }
-        if localeID != nil {
-            logInfo("Locale identifier is \(localeID!)")
-        }
+        // if localeID != nil {
+        //     logInfo("Locale identifier is \(localeID!)")
+        // }
         if locale.regionCode != nil {
             logInfo("Region code is \(locale.regionCode!)")
         }

@@ -26,9 +26,9 @@ public class KnownFolderNode: Comparable, CustomStringConvertible {
     
     public var known:    KnownFolder?
     public var type:     KnownFolderNodeType = .root
-    var _url:      URL?
+    var _url:            URL?
     public var base    = KnownFolderBase()
-    var path:     [String] = []
+    var path:            [String] = []
     public var folder  = ""
     
     public static func < (lhs: KnownFolderNode, rhs: KnownFolderNode) -> Bool {
@@ -89,8 +89,9 @@ public class KnownFolderNode: Comparable, CustomStringConvertible {
     func compareTo(node2: KnownFolderNode) -> Int {
         
         // Compare node types.
-        var result = compareType(node2: node2)
-        guard result == thisEqualsThat else { return result }
+        var result = thisEqualsThat
+        // var result = compareType(node2: node2)
+        // guard result == thisEqualsThat else { return result }
         
         result = compareBase(node2: node2)
         guard result == thisEqualsThat else { return result }
@@ -195,6 +196,13 @@ public class KnownFolderNode: Comparable, CustomStringConvertible {
         while i < children.count {
             childNode = children[i]
             if newChild == childNode! {
+                if childNode!.known == nil && newChild.known != nil {
+                    childNode!.known = newChild.known
+                } else if newChild.known != nil {
+                    if !childNode!.known!.fromBookmark && newChild.known!.fromBookmark {
+                        childNode!.known!.fromBookmark = true
+                    }
+                }
                 return childNode!
             } else if newChild < childNode! {
                 addChild(newChild, at: i)

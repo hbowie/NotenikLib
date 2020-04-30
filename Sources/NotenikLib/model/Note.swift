@@ -275,7 +275,7 @@ public class Note: Comparable, NSCopying {
     }
     
     /// Return the Note's Artist Value
-    var artist: ArtistValue {
+    public var artist: ArtistValue {
         let val = getFieldAsValue(label: LabelConstants.artist)
         if val is ArtistValue {
             return val as! ArtistValue
@@ -285,7 +285,7 @@ public class Note: Comparable, NSCopying {
     }
     
     /// Return the Note's Author Value
-    var author: AuthorValue {
+    public var author: AuthorValue {
         let val = getFieldAsValue(label: LabelConstants.author)
         if val is AuthorValue {
             return val as! AuthorValue
@@ -295,7 +295,7 @@ public class Note: Comparable, NSCopying {
     }
     
     /// Return the Note's Code Value
-    var code: LongTextValue {
+    public var code: LongTextValue {
         let val = getFieldAsValue(label: LabelConstants.code)
         if val is LongTextValue {
             return val as! LongTextValue

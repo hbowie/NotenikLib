@@ -34,7 +34,7 @@ public class KnownFolders: Sequence {
     var viewer: KnownFoldersViewer?
     
     init() {
-        print("Known Folders init")
+        // print("Known Folders init")
         root = KnownFolderNode(tree: self)
         
         var homeDir = home
@@ -72,7 +72,7 @@ public class KnownFolders: Sequence {
     }
     
     public func loadDefaults() {
-        print("KnownFolders loading from defaults")
+        // print("KnownFolders loading from defaults")
         var bookmarkNumber = 1
         var bookmark: Data?
         var stale = false
@@ -115,7 +115,7 @@ public class KnownFolders: Sequence {
     /// Add another folder to the tree.
     public func add(_ known: KnownFolder, suspendReload: Bool) {
         
-        print("KnownFolders.add \(known)")
+        // print("KnownFolders.add \(known)")
         guard !known.url.path.contains("Notenik.app/Contents/Resources") else {
             return
         }
@@ -142,7 +142,7 @@ public class KnownFolders: Sequence {
         // Do we already have it in the list?
         for folder in folders {
             if known.path == folder.path {
-                print("  - URL already known")
+                // print("  - URL already known")
                 return
             }
         }
@@ -157,7 +157,9 @@ public class KnownFolders: Sequence {
             // Leave as-is
         }
 
-        if !known.isCollection { print("  - URL does not point to a collection") }
+        if !known.isCollection {
+            // print("  - URL does not point to a collection")
+        }
         
         // guard urlPointsToCollection else { return }
         
@@ -174,7 +176,7 @@ public class KnownFolders: Sequence {
     }
     
     func addBase(base: KnownFolderBase) {
-        print("KnownFolders add base \(base)")
+        // print("KnownFolders add base \(base)")
         baseList.append(base)
         let baseNode = KnownFolderNode(tree: self)
         baseNode.type = .folder
@@ -196,6 +198,7 @@ public class KnownFolders: Sequence {
              known: KnownFolder?,
              suspendReload: Bool) {
         
+        /*
         print("KnownFolders adding url of \(url.path)")
         print("  - File Name: \(fileName)")
         print("  - Base: \(base)")
@@ -203,6 +206,7 @@ public class KnownFolders: Sequence {
         if known != nil {
             print("  - Known folder: \(known!)")
         }
+        */
         
         // Add base node or obtain it if already added.
         let baseNode = KnownFolderNode(tree: self)
@@ -229,6 +233,7 @@ public class KnownFolders: Sequence {
         lastChild.base = base
         lastChild.populatePath(folders: fileName.folders, start: startingIndex, number: end - startingIndex)
         lastChild.folder = fileName.folders[end]
+        lastChild.known = known
         _ = nextParent.addChild(lastChild)
         
         if !suspendReload {
@@ -238,8 +243,37 @@ public class KnownFolders: Sequence {
         }
     }
     
+    /// Forget about the passed node.
+    public func remove(_ known: KnownFolderNode) {
+        var i = 0
+        let knownFolder = known.known
+        if knownFolder != nil {
+            for folder in folders {
+                if knownFolder!.path == folder.path {
+                    folders.remove(at: i)
+                    break
+                } else {
+                    i += 1
+                }
+            }
+        }
+        
+        if !known.hasChildren {
+            var j = 0
+            while j < known.parent!.countChildren {
+                if known.parent!.getChild(at: j) == known {
+                    known.parent!.remove(at: j)
+                    break
+                } else {
+                    j += 1
+                }
+            }
+        }
+
+    }
+    
     public func saveDefaults() {
-        print("Known Folders saving defaults")
+        // print("Known Folders saving defaults")
         var bookmarkNumber = 1
         for folder in folders {
             if folder.fromBookmark && folder.inUse {
@@ -248,10 +282,10 @@ public class KnownFolders: Sequence {
             do {
                 let bookmark = try folder.url.bookmarkData(options: URL.BookmarkCreationOptions.withSecurityScope, includingResourceValuesForKeys: nil, relativeTo: nil)
                 defaults.set(bookmark, forKey: key(forNumber: bookmarkNumber))
-                print("  - Saved User Default for key \(key(forNumber: bookmarkNumber)) with url \(folder)")
+                // print("  - Saved User Default for key \(key(forNumber: bookmarkNumber)) with url \(folder)")
                 bookmarkNumber += 1
             } catch {
-                print("  - Couldn't create bookmark for \(folder.path)")
+                logError("  - Couldn't create bookmark for \(folder.path)")
             }
         }
         defaults.removeObject(forKey: key(forNumber: bookmarkNumber))
