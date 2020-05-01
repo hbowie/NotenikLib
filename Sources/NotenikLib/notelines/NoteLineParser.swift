@@ -20,6 +20,8 @@ public class NoteLineParser {
     var dict:           FieldDictionary
     var reader:         BigStringReader
     
+    var allowDictAdds = true
+    
     var note:           Note
     
     var textLine: String?
@@ -60,8 +62,9 @@ public class NoteLineParser {
     }
     
     /// Get the Note from the input lines
-    public func getNote(defaultTitle: String) -> Note {
+    public func getNote(defaultTitle: String, allowDictAdds: Bool = true) -> Note {
         
+        self.allowDictAdds = allowDictAdds
         note = Note(collection: collection)
         label = FieldLabel()
         def = FieldDefinition()
@@ -83,7 +86,8 @@ public class NoteLineParser {
             // Read and parse the next line and perform some basic accounting.
             noteLine = NoteLineIn(reader: reader,
                                   collection: collection,
-                                  bodyStarted: bodyStarted)
+                                  bodyStarted: bodyStarted,
+                                  allowDictAdds: allowDictAdds)
             lineNumber += 1
             fileSize += noteLine.line.count + 1
             if noteLine.blankLine {
@@ -124,13 +128,13 @@ public class NoteLineParser {
             } else if lineNumber == 1 && noteLine.mdH1Line && noteLine.value.count > 0 && !bodyStarted {
                 label.set(LabelConstants.title)
                 label.validLabel = true
-                def = note.collection.getDef(label: &label)!
+                def = note.collection.getDef(label: &label, allowDictAdds: allowDictAdds)!
                 value = noteLine.value
                 note.fileInfo.format = .markdown
             } else if note.fileInfo.format == .markdown && !bodyStarted && noteLine.mdTagsLine {
                 label.set(LabelConstants.tags)
                 label.validLabel = true
-                def = note.collection.getDef(label: &label)!
+                def = note.collection.getDef(label: &label, allowDictAdds: allowDictAdds)!
                 value = noteLine.value
                 valueComplete = true
             } else if noteLine.validLabel {
@@ -145,7 +149,7 @@ public class NoteLineParser {
                     note.fileInfo.format = .multiMarkdown
                     label.set(LabelConstants.body)
                     label.validLabel = true
-                    def = note.collection.getDef(label: &label)!
+                    def = note.collection.getDef(label: &label, allowDictAdds: allowDictAdds)!
                     clearValue()
                     bodyStarted = true
                 } else {
@@ -164,7 +168,7 @@ public class NoteLineParser {
                 // Value with no label
                 label.set(LabelConstants.body)
                 label.validLabel = true
-                def = note.collection.getDef(label: &label)!
+                def = note.collection.getDef(label: &label, allowDictAdds: allowDictAdds)!
                 value = noteLine.line
                 bodyStarted = true
                 if lineNumber == 1 {
@@ -197,18 +201,21 @@ public class NoteLineParser {
         
         pendingBlankLines = 0
         guard label.validLabel && value.count > 0 else { return }
-        let field = NoteField(def: def, value: value, statusConfig: collection.statusConfig)
-        if field.def.fieldLabel.isIndex {
-            if indexStarted {
-                note.appendToIndex(value)
+        let fieldInDict = collection.dict.contains(def)
+        if fieldInDict || allowDictAdds {
+            let field = NoteField(def: def, value: value, statusConfig: collection.statusConfig)
+            if field.def.fieldLabel.isIndex {
+                if indexStarted {
+                    note.appendToIndex(value)
+                } else {
+                    _ = note.setIndex(value)
+                    indexStarted = true
+                }
             } else {
-                _ = note.setIndex(value)
-                indexStarted = true
+                _ = note.setField(field)
             }
-        } else {
-            _ = note.setField(field)
+            fieldNumber += 1
         }
-        fieldNumber += 1
         label = FieldLabel()
         clearValue()
     }

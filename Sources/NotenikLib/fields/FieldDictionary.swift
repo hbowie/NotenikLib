@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 12/3/18.
-//  Copyright © 2018 PowerSurge Publishing. All rights reserved.
+//  Copyright © 2018 - 2020 PowerSurge Publishing. All rights reserved.
 //
 
 import Foundation
@@ -158,6 +158,13 @@ public class FieldDictionary {
             }
         }
         return removeOK
+    }
+    
+    public func display() {
+        print("FieldDictionary.display")
+        for def in list {
+            print("- \(def.fieldLabel.properForm) \(def.fieldLabel.commonForm) \(def.fieldType.typeString) ")
+        }
     }
     
 }

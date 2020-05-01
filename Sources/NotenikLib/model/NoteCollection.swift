@@ -83,7 +83,7 @@ public class NoteCollection {
     ///
     /// - Parameter label: A field label. The validLabel field will be updated as part of this call.
     /// - Returns: A Field Definition for this Label, if the label is valid, otherwise nil.
-    func getDef(label: inout FieldLabel) -> FieldDefinition? {
+    func getDef(label: inout FieldLabel, allowDictAdds: Bool = true) -> FieldDefinition? {
         label.validLabel = false
         var def: FieldDefinition? = nil
         if label.commonForm.count > 48 {
@@ -96,12 +96,13 @@ public class NoteCollection {
         } else if dict.contains(label) {
             label.validLabel = true
             def = dict.getDef(label)
-        } else if dict.locked && label.commonForm == LabelConstants.dateAddedCommon {
+        } else if label.commonForm == LabelConstants.dateAddedCommon
+            && dict.locked &&  allowDictAdds {
             label.validLabel = true
             dict.unlock()
             def = dict.addDef(typeCatalog: typeCatalog, label: label)
             dict.lock()
-        } else if dict.locked {
+        } else if dict.locked || !allowDictAdds {
             // Can't add any additional labels
         } else if label.isTitle || label.isTags || label.isLink || label.isBody || label.isDateAdded {
             label.validLabel = true

@@ -56,7 +56,8 @@ class NoteLineIn {
     /// Analyze the next line and return the line plus useful metadata about the line.
     init(reader: BigStringReader,
          collection: NoteCollection,
-         bodyStarted: Bool) {
+         bodyStarted: Bool,
+         allowDictAdds: Bool = true) {
         
         self.collection = collection
         self.bodyStarted = bodyStarted
@@ -154,7 +155,7 @@ class NoteLineIn {
                             colonFound = true
                             colonIndex = reader.currIndex
                             label.set(String(reader.bigString[reader.lineStartIndex...labelLast]))
-                            definition = collection.getDef(label: &label)
+                            definition = collection.getDef(label: &label, allowDictAdds: allowDictAdds)
                             validLabel = label.validLabel
                         }
                         colonCount += 1
@@ -191,7 +192,10 @@ class NoteLineIn {
         }
     }
     
-    init(line: String?, collection: NoteCollection, bodyStarted: Bool) {
+    init(line: String?,
+         collection: NoteCollection,
+         bodyStarted: Bool,
+         allowDictAdds: Bool = true) {
         
         if line == nil {
             self.line = ""
@@ -219,12 +223,12 @@ class NoteLineIn {
             mdTagsLine = true
             value = StringUtils.trimHeading(self.line)
         } else {
-            scanLine()
+            scanLine(allowDictAdds: allowDictAdds)
         }
     }
     
     /// Scan the line and collect relevant info about it
-    func scanLine() {
+    func scanLine(allowDictAdds: Bool = true) {
         
         validLabel = false
         label = FieldLabel()
@@ -265,7 +269,7 @@ class NoteLineIn {
                     colonFound = true
                     colonIndex = index
                     label.set(StringUtils.trim(String(line[line.startIndex..<index])))
-                    definition = collection.getDef(label: &label)
+                    definition = collection.getDef(label: &label, allowDictAdds: allowDictAdds)
                     validLabel = label.validLabel
                     if validLabel && index < line.endIndex {
                         value = StringUtils.trim(String(line[nextIndex..<line.endIndex]))
