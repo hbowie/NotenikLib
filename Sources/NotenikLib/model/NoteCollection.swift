@@ -37,7 +37,7 @@ public class NoteCollection {
     public var mirrorAutoIndex = false
     
     /// Default initialization of a new Realm.
-    init () {
+    public init () {
         realm = Realm()
         dict = FieldDictionary()
         idRule = NoteIDRule.fromTitle
@@ -47,7 +47,7 @@ public class NoteCollection {
     }
     
     /// Convenience initialization that identifies the Realm. 
-    convenience init (realm: Realm) {
+    public convenience init (realm: Realm) {
         self.init()
         self.realm = realm
     }

@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 12/4/18.
-//  Copyright © 2018 - 2019 Herb Bowie (https://powersurgepub.com)
+//  Copyright © 2018 - 2020 Herb Bowie (https://powersurgepub.com)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -141,9 +141,33 @@ public class Note: Comparable, NSCopying {
     /// matching definitions and values.
     ///
     /// - Parameter note2: The Note to be updated with this Note's field values.
-    func copyFields(to note2: Note) {
+    public func copyFields(to note2: Note) {
 
         let dict = collection.dict
+        let defs = dict.list
+        for definition in defs {
+            let field = getField(def: definition)
+            let field2 = note2.getField(def: definition)
+            if field == nil && field2 == nil {
+                // Nothing to do here -- just move on
+            } else if field == nil && field2 != nil {
+                field2!.value.set("")
+            } else if field != nil && field2 == nil {
+                _ = note2.addField(def: definition, strValue: field!.value.value)
+            } else {
+                field2!.value.set(field!.value.value)
+            }
+        }
+        note2.setID()
+    }
+    
+    /// Copy field values from this Note to a second Note, but only copying fields
+    /// defined in the second note's collection dictionary. 
+    ///
+    /// - Parameter note2: The Note to be updated with this Note's field values.
+    public func copyDefinedFields(to note2: Note) {
+
+        let dict = note2.collection.dict
         let defs = dict.list
         for definition in defs {
             let field = getField(def: definition)
