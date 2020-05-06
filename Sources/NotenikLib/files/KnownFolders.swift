@@ -71,8 +71,9 @@ public class KnownFolders: Sequence {
         } */
     }
     
-    public func loadDefaults() {
-        // print("KnownFolders loading from defaults")
+    /// Try to load security-scoped bookmarks stored from previous sessions. 
+    public func loadBookmarkDefaults() {
+        logInfo("Loading Bookmarks saved from Prior Sessions")
         var bookmarkNumber = 1
         var bookmark: Data?
         var stale = false
@@ -85,9 +86,14 @@ public class KnownFolders: Sequence {
                                   options: URL.BookmarkResolutionOptions.withSecurityScope,
                                   relativeTo: nil,
                                   bookmarkDataIsStale: &stale)
-                let newFolder = KnownFolder(url: url, isCollection: false, fromBookmark: true)
-                add(newFolder, suspendReload: true)
-                loaded += 1
+                if stale {
+                    logInfo("URL \(url.path) is stale, and must be explicitly re-opened")
+                } else {
+                    let newFolder = KnownFolder(url: url, isCollection: false, fromBookmark: true)
+                    add(newFolder, suspendReload: true)
+                    loaded += 1
+                    logInfo("URL \(url) successfully loaded")
+                }
             } catch {
                 logError("Bookmark # \(bookmarkNumber) could not be resolved")
             }
@@ -285,7 +291,7 @@ public class KnownFolders: Sequence {
                 // print("  - Saved User Default for key \(key(forNumber: bookmarkNumber)) with url \(folder)")
                 bookmarkNumber += 1
             } catch {
-                logError("  - Couldn't create bookmark for \(folder.path)")
+                logError("  - Couldn't create bookmark for \(folder.path) due to \(error)")
             }
         }
         defaults.removeObject(forKey: key(forNumber: bookmarkNumber))

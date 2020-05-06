@@ -32,7 +32,8 @@ public class RealmScanner {
     }
     
     /// Open a realm, looking for its collections
-    public func openRealm(path: String) {
+    public func openRealm(path: String) -> Bool {
+        var ok = true
         let provider = Provider()
         let realm = Realm(provider: provider)
         realm.path = path
@@ -47,6 +48,7 @@ public class RealmScanner {
             realmCollection!.isRealmCollection = true
         } else {
             logError("Unable to open the realm collection for \(path)")
+            ok = false
         }
         
         if realmCollection == nil || realmIO.notesCount == 0 {
@@ -54,7 +56,9 @@ public class RealmScanner {
                               category: "RealmIO",
                               level: .info,
                               message: "No Notenik Collections found within \(path)")
+            ok = false
         }
+        return ok
     }
     
     /// Scan folders recursively looking for signs that they are Notenik Collections
