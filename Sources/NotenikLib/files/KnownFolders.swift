@@ -34,7 +34,7 @@ public class KnownFolders: Sequence {
     var viewer: KnownFoldersViewer?
     
     init() {
-        // print("Known Folders init")
+
         root = KnownFolderNode(tree: self)
         
         var homeDir = home
@@ -50,25 +50,25 @@ public class KnownFolders: Sequence {
         let cloudBase = KnownFolderBase(name: "iCloud Drive", url: cloudDir)
         addBase(base: cloudBase)
 
-        /* cloudNik = CloudNik.shared
+        cloudNik = CloudNik.shared
         if cloudNik.url != nil {
-            let cloudBase = KnownFolderBase(name: "iCloud Drive", url: cloudNik.url!)
-            baseList.append(cloudBase)
-            addBase(base: cloudBase)
-            /* do {
-                
+            let notenikBase = KnownFolderBase(name: "iCloud Notenik", url: cloudNik.url!)
+            baseList.append(notenikBase)
+            addBase(base: notenikBase)
+            do {
                 let iCloudContents = try fm.contentsOfDirectory(at: cloudNik.url!,
                                                              includingPropertiesForKeys: nil,
                                                              options: .skipsHiddenFiles)
                 print("  - \(iCloudContents.count) entries in iCloud")
                 for doc in iCloudContents {
                     print("  - contents of iCloud Drive = \(doc.path)")
-                    // add(doc)
+                    add(url: doc, isCollection: true, fromBookmark: false, suspendReload: true)
                 }
+                reload()
             } catch {
                 logError("Error reading contents of iCloud drive folder")
-            } */
-        } */
+            }
+        }
     }
     
     /// Try to load security-scoped bookmarks stored from previous sessions. 
@@ -101,6 +101,10 @@ public class KnownFolders: Sequence {
         } while bookmark != nil
         reload()
         logInfo("\(loaded) Bookmarks loaded from user defaults")
+    }
+    
+    public func createNewCloudFolder(folderName: String) -> URL? {
+        return cloudNik.createNewFolder(folderName: folderName)
     }
     
     /// Add another collection to the list of known collections.
@@ -178,7 +182,12 @@ public class KnownFolders: Sequence {
         }
         let collectionFileName = FileName(known.url)
         folders.append(known)
-        add(url: known.url, fileName: collectionFileName, base: longestBase, startingIndex: longestBase.count - 1, known: known, suspendReload: suspendReload)
+        add(url: known.url,
+            fileName: collectionFileName,
+            base: longestBase,
+            startingIndex: longestBase.count - 1,
+            known: known,
+            suspendReload: suspendReload)
     }
     
     func addBase(base: KnownFolderBase) {

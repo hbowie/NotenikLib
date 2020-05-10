@@ -535,7 +535,8 @@ public class Note: Comparable, NSCopying {
                 + title.sortKey)
         case .tagsPlusTitle:
             return (tags.sortKey
-                + title.sortKey)
+                + title.sortKey
+                + status.sortKey)
         case .author:
             var creatorKey = ""
             if hasAuthor() {

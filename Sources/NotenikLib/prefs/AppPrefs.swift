@@ -75,8 +75,6 @@ public class AppPrefs {
     var _favRows = 0
     var _favColWidth = "250px"
     
-    public var newVersionForReview = false
-    
     var _mdParser = "notenik"
     
     var locale: Locale!
@@ -171,9 +169,6 @@ public class AppPrefs {
         if lvpfr != nil {
             _lvpfr = lvpfr!
         }
-        
-        // Now see if we have a new version for review.
-        newVersionForReview = currentVersion > lastVersionPromptedForReview
         
         // Get Favorites Defaults
         _favCols = defaults.integer(forKey: favoritesColumnsKey)
@@ -396,6 +391,11 @@ public class AppPrefs {
     
     public func userPromptedForReview() {
         lastVersionPromptedForReview = currentVersion
+    }
+    
+    /// Now see if we have a new version for review.
+    public var newVersionForReview: Bool {
+        return currentVersion > lastVersionPromptedForReview
     }
     
     var lastVersionPromptedForReview: String {

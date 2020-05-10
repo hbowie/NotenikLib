@@ -13,6 +13,7 @@ import Foundation
 
 import NotenikUtils
 
+/// Interact with the Notenik iCloud container.
 public class CloudNik {
     
     // Singleton instance
@@ -22,10 +23,10 @@ public class CloudNik {
     var ubiquityIdentityToken: Any?
     public var url: URL?
     public var path = ""
+    public var exists = false
     
     init() {
-        ubiquityIdentityToken = fm.ubiquityIdentityToken
-        guard ubiquityIdentityToken != nil else {
+        guard iCloudAvailable else {
             logError("iCloud not available")
             return
         }
@@ -37,22 +38,23 @@ public class CloudNik {
         }
         
         path = url!.path
-        var exists = fm.fileExists(atPath: path)
+        exists = fm.fileExists(atPath: path)
         logInfo("iCloud container available at \(path) exists? \(exists)")
     }
     
-    func createDirectory(){
-        if let iCloudDocumentsURL = FileManager.default.url(forUbiquityContainerIdentifier: nil)?.appendingPathComponent("Documents") {
-            if (!FileManager.default.fileExists(atPath: iCloudDocumentsURL.path, isDirectory: nil)) {
-                do {
-                    try FileManager.default.createDirectory(at: iCloudDocumentsURL, withIntermediateDirectories: true, attributes: nil)
-                }
-                catch {
-                    //Error handling
-                    print("Error in creating doc")
-                }
-            }
+    /// Create a folder for a new Collection within the Notenik iCloud container. 
+    func createNewFolder(folderName: String) -> URL? {
+        guard iCloudAvailable else { return nil }
+        guard url != nil else { return nil }
+        guard exists else { return nil }
+        let newFolderURL = url!.appendingPathComponent(folderName)
+        do {
+            try fm.createDirectory(at: newFolderURL, withIntermediateDirectories: true, attributes: nil)
+        } catch {
+            logError("Could not create new collection at \(newFolderURL.path)")
+            return nil
         }
+        return newFolderURL
     }
     
     public var iCloudAvailable: Bool {
