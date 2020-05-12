@@ -14,10 +14,54 @@ import Foundation
 /// A list of values that can be picked from.
 public class PickList {
     
+    public static let pickFromLiteral = "pick-from: "
+    
     public var values: [StringValue] = []
     
     /// Register a new value. Add it if not already present in the list.
     
+    /// Initialize with no values.
+    public init() {
+        
+    }
+    
+    /// Initialize with a list of values separated by commas or semi-colons.
+    public init(values: String) {
+        var i = values.startIndex
+        if values.hasPrefix(PickList.pickFromLiteral) {
+            i = values.index(i, offsetBy: PickList.pickFromLiteral.count)
+        }
+        var nextValue = ""
+        while i < values.endIndex {
+            let c = values[i]
+            if c == "," || c == ";" {
+                if nextValue.count > 0 {
+                    registerValue(nextValue)
+                    nextValue = ""
+                }
+            } else if c.isWhitespace {
+                if nextValue.count > 0 {
+                    nextValue.append(c)
+                }
+            } else {
+                nextValue.append(c)
+            }
+            i = values.index(after: i)
+        }
+        if nextValue.count > 0 {
+            registerValue(nextValue)
+        }
+    }
+    
+    public var count: Int {
+        return values.count
+    }
+    
+    /// Register a new value with an ordinary String. 
+    func registerValue(_ value: String) {
+        let strVal = StringValue(value)
+        registerValue(strVal)
+    }
     
     /// Register a new value. Add if not already present in the list.
     /// - Parameter value: Return the matching StringValue found or added.

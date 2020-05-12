@@ -417,6 +417,11 @@ public class FileIO: NotenikIO, RowConsumer {
                     }
                 }
                 def.fieldType = collection!.typeCatalog.assignType(label: def.fieldLabel, type: typeStr)
+            } else if val.value.hasPrefix("pick-from: ") {
+                let pickList = PickList(values: val.value)
+                if pickList.count > 0 {
+                    def.pickList = pickList
+                }
             }
         }
         collection!.dict.lock()

@@ -14,7 +14,7 @@ import Foundation
 public class AuthorPickList: PickList {
     
     public override init() {
-        
+        super.init()
     }
     
     public func registerAuthor(_ author: AuthorValue) {

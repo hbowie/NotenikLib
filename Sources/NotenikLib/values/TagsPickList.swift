@@ -15,7 +15,7 @@ import Foundation
 public class TagsPickList: PickList {
     
     public override init() {
-        
+        super.init()
     }
     
     func registerTags(_ tags: TagsValue) {

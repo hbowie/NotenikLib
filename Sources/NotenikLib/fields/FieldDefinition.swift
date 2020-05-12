@@ -18,6 +18,7 @@ public class FieldDefinition {
     
     public var fieldLabel:  FieldLabel = FieldLabel()
     public var fieldType:   AnyType = StringType()
+    public var pickList:    PickList?
     
     /// Initialize with no parameters, defaulting to a simple String type.
     init() {
