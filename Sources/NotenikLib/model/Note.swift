@@ -283,7 +283,7 @@ public class Note: Comparable, NSCopying {
     }
     
     /// Set the Note's Body value
-    func setBody(_ body: String) -> Bool {
+    public func setBody(_ body: String) -> Bool {
         return setField(label: LabelConstants.body, value: body)
     }
     
@@ -564,6 +564,11 @@ public class Note: Comparable, NSCopying {
     /// Does this note have a non-blank title field?
     public func hasTitle() -> Bool {
         return title.count > 0
+    }
+    
+    /// Does this note have a link?
+    public func hasLink() -> Bool {
+        return link.count > 0
     }
     
     /// Does this note have a non-blank tags field?
