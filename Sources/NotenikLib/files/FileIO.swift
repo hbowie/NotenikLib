@@ -1284,19 +1284,19 @@ public class FileIO: NotenikIO, RowConsumer {
         let (noteToDelete, oldPosition) = bunch!.getSelectedNote()
         guard noteToDelete != nil && oldPosition.index >= 0 else { return (nil, NotePosition(index: -1)) }
         let (priorNote, priorPosition) = bunch!.priorNote(oldPosition)
-        var nextNote = priorNote
-        var nextPosition = priorPosition
+        var returnNote = priorNote
+        var returnPosition = priorPosition
  
         _ = bunch!.delete(note: noteToDelete!)
-        var positioned = false
         if priorNote != nil {
-            (nextNote, nextPosition) = bunch!.nextNote(priorPosition)
+            let (nextNote, nextPosition) = bunch!.nextNote(priorPosition)
             if nextNote != nil {
-                positioned = true
+                returnNote = nextNote
+                returnPosition = nextPosition
             }
         }
-        if !positioned {
-            _ = bunch!.firstNote()
+        if returnNote == nil {
+            (returnNote, returnPosition) = bunch!.firstNote()
         }
         
         let notePath = noteToDelete!.fileInfo.fullPath
@@ -1326,7 +1326,7 @@ public class FileIO: NotenikIO, RowConsumer {
             }
         }
         
-        return (nextNote, nextPosition)
+        return (returnNote, returnPosition)
     }
     
     public func getTagsNodeRoot() -> TagsNode? {
