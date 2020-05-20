@@ -63,6 +63,7 @@ public class StatusValue: StringValue {
     func set (i: Int, config: StatusValueConfig) {
         if config.validStatus(i) {
             self.value = config.get(i)
+            statusInt = i
         }
     }
     
@@ -117,6 +118,10 @@ public class StatusValue: StringValue {
     /// Get the integer representation of this status value
     public func getInt() -> Int {
         return statusInt
+    }
+    
+    public func display() {
+        print("StatusValue int = \(statusInt), value = \(value)")
     }
     
 }

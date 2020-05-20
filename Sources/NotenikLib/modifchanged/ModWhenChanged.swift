@@ -66,7 +66,11 @@ public class ModWhenChanged {
             let fieldView = modViews[i]
             var noteValue = ""
             if field != nil {
-                noteValue = field!.value.value
+                if field!.def.fieldType.typeString == "status" {
+                    noteValue = statusConfig.getFullString(fromLabel: field!.value.value)
+                } else {
+                    noteValue = field!.value.value
+                }
             }
             var userValue = fieldView.text
             if def.fieldType is TagsType {
