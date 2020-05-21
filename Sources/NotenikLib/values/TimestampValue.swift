@@ -13,7 +13,7 @@ import Foundation
 
 import NotenikUtils
 
-class TimestampValue: StringValue {
+public class TimestampValue: StringValue {
     
     override init() {
         super.init()

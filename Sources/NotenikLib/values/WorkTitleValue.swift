@@ -11,7 +11,7 @@
 
 import Foundation
 
-class WorkTitleValue: StringValue {
+public class WorkTitleValue: StringValue {
     
     var author = ""
     var date = ""

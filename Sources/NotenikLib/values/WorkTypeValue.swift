@@ -12,6 +12,6 @@
 import Foundation
 
 /// Indicates the type of work produced by a creator. 
-class WorkTypeValue: StringValue {
+public class WorkTypeValue: StringValue {
 
 }

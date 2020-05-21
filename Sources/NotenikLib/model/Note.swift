@@ -356,7 +356,7 @@ public class Note: Comparable, NSCopying {
     }
     
     /// Return the Note's Recurs Value
-    var recurs: RecursValue {
+    public var recurs: RecursValue {
         let val = getFieldAsValue(label: LabelConstants.recurs)
         if val is RecursValue {
             return val as! RecursValue
@@ -397,7 +397,7 @@ public class Note: Comparable, NSCopying {
     }
     
     /// Return the Note's Index Value
-    var index: IndexValue {
+    public var index: IndexValue {
         let val = getFieldAsValue(label: LabelConstants.index)
         if val is IndexValue {
             return val as! IndexValue
@@ -454,7 +454,7 @@ public class Note: Comparable, NSCopying {
     }
     
     /// Return the Note's Work Title Value
-    var workTitle: WorkTitleValue {
+    public var workTitle: WorkTitleValue {
         let val = getFieldAsValue(label: LabelConstants.workTitle)
         if val is WorkTitleValue {
             return val as! WorkTitleValue
@@ -463,7 +463,7 @@ public class Note: Comparable, NSCopying {
         }
     }
     
-    var workLink: LinkValue {
+    public var workLink: LinkValue {
         let val = getFieldAsValue(label: LabelConstants.workLinkCommon)
         if val is LinkValue {
             return val as! LinkValue
@@ -472,7 +472,7 @@ public class Note: Comparable, NSCopying {
         }
     }
     
-    var workType: WorkTypeValue {
+    public var workType: WorkTypeValue {
         let val = getFieldAsValue(label: LabelConstants.workTypeCommon)
         if val is WorkTypeValue {
             return val as! WorkTypeValue
@@ -492,7 +492,7 @@ public class Note: Comparable, NSCopying {
     }
     
     /// Return the date the note was originally added
-    var dateAdded: DateValue {
+    public var dateAdded: DateValue {
         let val = getFieldAsValue(label: LabelConstants.dateAdded)
         if val is DateValue {
             return val as! DateValue
@@ -502,7 +502,7 @@ public class Note: Comparable, NSCopying {
     }
     
     /// Retum the timestamp value
-    var timestamp: TimestampValue {
+    public var timestamp: TimestampValue {
         let val = getFieldAsValue(label: LabelConstants.timestamp)
         if val is TimestampValue {
             return val as! TimestampValue

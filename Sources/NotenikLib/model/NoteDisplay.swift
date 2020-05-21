@@ -115,7 +115,6 @@ public class NoteDisplay: NSObject {
             MkdownParser.markdownToMarkedup(markdown: field.value.value, wikiLinkLookup: io, writer: code)
         } else if field.def.fieldType.typeString == LabelConstants.dateType {
             code.startParagraph()
-            code.finishParagraph()
             code.append(field.def.fieldLabel.properForm)
             code.append(": ")
             if let dateValue = field.value as? DateValue {
@@ -123,6 +122,7 @@ public class NoteDisplay: NSObject {
             } else {
                 code.append(field.value.value)
             }
+            code.finishParagraph()
         } else {
             code.startParagraph()
             code.append(field.def.fieldLabel.properForm)

@@ -11,7 +11,7 @@
 
 import Foundation
 
-class IndexValue: StringValue {
+public class IndexValue: StringValue {
     
     /// Default initializer
     override init() {
