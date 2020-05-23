@@ -116,7 +116,7 @@ public class StatusValueConfig {
     }
     
     /// Is this status label (or partial label) valid?
-    func validStatus(_ label : String) -> Bool {
+    func validStatus(_ label: String) -> Bool {
         let i = get(label)
         return i >= 0
     }

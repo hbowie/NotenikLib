@@ -17,6 +17,7 @@ import NotenikUtils
 public class StatusValue: StringValue {
     
     var statusInt = 0
+    var label = ""
     
     /// Convenience initializer using an integer and a Status Value Config
     convenience init (i: Int, config: StatusValueConfig) {
@@ -62,7 +63,8 @@ public class StatusValue: StringValue {
     /// Set the status using an integer and the passed Status Value Config
     func set (i: Int, config: StatusValueConfig) {
         if config.validStatus(i) {
-            self.value = config.get(i)
+            self.value = config.getFullString(fromIndex: i)
+            self.label = config.get(i)
             statusInt = i
         }
     }
@@ -75,9 +77,18 @@ public class StatusValue: StringValue {
     /// Set the status using a string and the passed Status Value Config
     func set(str: String, config: StatusValueConfig) {
         super.set(str)
+        var digits = 0
+        for c in str {
+            if StringUtils.isDigit(c) {
+                digits += 1
+            }
+        }
+        guard digits < 2 else { return }
         var i = config.get(str)
         if i >= 0 {
             statusInt = i
+            self.value = config.getFullString(fromIndex: i)
+            self.label = config.get(i)
         } else {
             let trimmed = StringUtils.trim(str)
             if trimmed.count >= 1 {
@@ -86,7 +97,8 @@ public class StatusValue: StringValue {
                     i = Int(String(c))!
                     if config.validStatus(i) {
                         statusInt = i
-                        self.value = config.get(i)
+                        self.value = config.getFullString(fromIndex: i)
+                        self.label = config.get(i)
                     }
                 }
             }
