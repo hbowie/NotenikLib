@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 12/6/19.
-//  Copyright © 2019 Herb Bowie (https://powersurgepub.com)
+//  Copyright © 2019 - 2020 Herb Bowie (https://powersurgepub.com)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -23,9 +23,18 @@ public class Markdown {
     var notenikIO: NotenikIO?
     public var md = ""
     public var html = ""
+    var mkdown = MkdownParser()
     var ok = true
     
     var parserID = "down"
+    
+    public var counts: MkdownCounts {
+        if parserID == "notenik" || parserID == "mkdown" {
+            return mkdown.counts
+        } else {
+            return MkdownCounts()
+        }
+    }
     
     public init() {
         
@@ -54,7 +63,7 @@ public class Markdown {
             let ink = MarkdownParser()
             html = ink.html(from: md)
         case "notenik", "mkdown":
-            let mkdown = MkdownParser(md)
+            mkdown = MkdownParser(md)
             mkdown.parse()
             html = mkdown.html
         default:

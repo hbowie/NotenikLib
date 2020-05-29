@@ -20,6 +20,8 @@ public class NoteDisplay: NSObject {
     public var format: MarkedupFormat = .htmlDoc
     
     let displayPrefs = DisplayPrefs.shared
+    
+    public var counts = MkdownCounts()
 
     /// Get the code used to display this entire note as a web page, including html tags.
     ///
@@ -90,7 +92,11 @@ public class NoteDisplay: NSObject {
             code.append(field.def.fieldLabel.properForm)
             code.append(": ")
             code.finishParagraph()
-            MkdownParser.markdownToMarkedup(markdown: field.value.value, wikiLinkLookup: io, writer: code)
+            let md = MkdownParser(field.value.value)
+            md.wikiLinkLookup = io
+            md.parse()
+            code.append(md.html)
+            counts = md.counts
         } else if field.def.fieldLabel.commonForm == LabelConstants.linkCommon {
             code.startParagraph()
             code.append(field.def.fieldLabel.properForm)

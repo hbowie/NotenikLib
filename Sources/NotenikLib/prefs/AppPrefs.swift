@@ -455,6 +455,11 @@ public class AppPrefs {
         }
     }
     
+    /// Are we using the Notenik Parser?
+    public var notenikParser: Bool {
+        return _mdParser == "notenik"
+    }
+    
     /// Given a file extension, return the next temp file to be used by Notenik.
     func nextTempFile(ext: String) -> URL {
         var fnm = "notenik-temp-\(_tempFileCount)"
