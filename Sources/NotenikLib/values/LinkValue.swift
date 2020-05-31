@@ -13,7 +13,7 @@ import Foundation
 
 import NotenikUtils
 
-public class LinkValue : StringValue {
+public class LinkValue: StringValue {
     
     /**
      Part 1 of the url, delimited by a colon and zero or more slashes
@@ -102,7 +102,13 @@ public class LinkValue : StringValue {
     
     /// Return the link value as an optional URL
     var url: URL? {
-        return StringUtils.urlFrom(str: value)
+        var scheme = getLinkPart1()
+        var link = value
+        if scheme.count == 0 {
+            scheme = "https://"
+            link = scheme + getLinkPart2() + getLinkPart3() + getLinkPart4() + getLinkPart5()
+        }
+        return StringUtils.urlFrom(str: link)
     }
     
     /// Set the link value from an actual URL
@@ -202,6 +208,25 @@ public class LinkValue : StringValue {
         if p5End >= 0 && p5End > p4End && p5End > p3End {
             let p5EndIndex = self.value.index(self.value.startIndex, offsetBy: p5End)
             linkPart5 = self.value [p5StartIndex...p5EndIndex]
+        }
+    }
+    
+    public func display() {
+        print("Display LinkValue properties")
+        if linkPart1 != nil {
+            print("  Link Part 1: '\(linkPart1!)'")
+        }
+        if linkPart2 != nil {
+            print("  Link Part 2: '\(linkPart2!)'")
+        }
+        if linkPart3 != nil {
+            print("  Link Part 3: '\(linkPart3!)'")
+        }
+        if linkPart4 != nil {
+            print("  Link Part 4: '\(linkPart4!)'")
+        }
+        if linkPart5 != nil {
+            print("  Link Part 5: '\(linkPart5!)'")
         }
     }
 }
