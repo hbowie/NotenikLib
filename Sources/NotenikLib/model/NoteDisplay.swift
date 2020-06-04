@@ -97,7 +97,7 @@ public class NoteDisplay: NSObject {
             md.parse()
             code.append(md.html)
             counts = md.counts
-        } else if field.def.fieldLabel.commonForm == LabelConstants.linkCommon {
+        } else if field.def.fieldType is LinkType {
             code.startParagraph()
             code.append(field.def.fieldLabel.properForm)
             code.append(": ")

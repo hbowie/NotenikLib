@@ -386,6 +386,27 @@ public class Note: Comparable, NSCopying {
         }
     }
     
+    /// Return the first available link value from this note.
+    public var firstLinkAsURL: URL? {
+        let dict = collection.dict
+        let defs = dict.list
+        for definition in defs {
+            let fieldType = definition.fieldType
+            let linkType = fieldType as? LinkType
+            if linkType != nil {
+                let linkField = getField(def: definition)
+                if linkField != nil {
+                    if let linkVal = linkField!.value as? LinkValue {
+                        if let linkURL = linkVal.url {
+                            return linkURL
+                        }
+                    }
+                }
+            }
+        }
+        return nil
+    }
+    
     /// Return the Note's Sequence Value
     public var seq: SeqValue {
         let val = getFieldAsValue(label: LabelConstants.seq)
