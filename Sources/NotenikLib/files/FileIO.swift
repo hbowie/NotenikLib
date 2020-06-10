@@ -354,6 +354,9 @@ public class FileIO: NotenikIO, RowConsumer {
         if otherFieldsField != nil {
             let otherFields = BooleanValue(otherFieldsField!.value.value)
             collection!.otherFields = otherFields.isTrue
+            if collection!.otherFields {
+                collection!.dict.unlock()
+            }
         }
         
         let sortParmStr = infoNote.getFieldAsString(label: LabelConstants.sortParmCommon)
@@ -424,7 +427,9 @@ public class FileIO: NotenikIO, RowConsumer {
                 }
             }
         }
-        collection!.dict.lock()
+        if !collection!.otherFields {
+            collection!.dict.lock()
+        }
         collection!.preferredExt = fileName.extLower
         let templateStatusValue = templateNote.status.value
         if templateStatusValue.count > 1 {

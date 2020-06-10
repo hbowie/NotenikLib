@@ -243,6 +243,11 @@ public class Note: Comparable, NSCopying {
         return setField(label: LabelConstants.tags, value: tags)
     }
     
+    /// Set the note's author value. 
+    public func setAuthor(_ author: String) -> Bool {
+        return setField(label: LabelConstants.author, value: author)
+    }
+    
     /// Set the Note's Status value
     func setStatus(_ status: String) -> Bool {
         return setField(label: LabelConstants.status, value: status)
