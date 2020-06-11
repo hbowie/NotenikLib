@@ -184,8 +184,16 @@ public class XMLNoteImporter: NSObject, XMLParserDelegate {
             } else if value.count > 0 {
                 _ = note!.setTags(value)
             }
+        case "date":
+            if value.count > 0 {
+                _ = note!.setDate(value)
+            }
         case "em":
             value.append("*")
+        case "link":
+            if value.count > 0 {
+                _ = note!.setLink(value)
+            }
         case "item", "note":
             if note!.hasTitle() {
                 let (addedNote, _) = io.addNote(newNote: note!)
@@ -196,6 +204,14 @@ public class XMLNoteImporter: NSObject, XMLParserDelegate {
         case "name":
             if parentLabel == "author" {
                 _ = note!.setAuthor(value)
+            }
+        case "seq":
+            if value.count > 0 {
+                _ = note!.setSeq(value)
+            }
+        case "status":
+            if value.count > 0 {
+                _ = note!.setStatus(value)
             }
         case "p":
             if value.count > 0 {
