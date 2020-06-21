@@ -916,6 +916,10 @@ public class FileIO: NotenikIO, RowConsumer {
                 collection!.hasTimestamp = true
             } else if def.fieldLabel.commonForm == LabelConstants.statusCommon {
                 value = collection!.statusConfig.statusOptionsAsString
+            } else if def.pickList != nil {
+                value = def.pickList!.valueString
+            } else if def.fieldType is LongTextType {
+                value = "<longtext>"
             }
             str.append("\(def.fieldLabel.properForm): \(value) \n\n")
         }

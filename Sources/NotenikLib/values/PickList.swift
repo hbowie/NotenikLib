@@ -18,6 +18,19 @@ public class PickList {
     
     public var values: [StringValue] = []
     
+    public var valueString: String {
+        var str = "pick-from: "
+        var valueIndex = 0
+        for value in values {
+            if valueIndex > 0 {
+                str.append(", ")
+            }
+            str.append(String(describing: value))
+            valueIndex += 1
+        }
+        return str
+    }
+    
     /// Register a new value. Add it if not already present in the list.
     
     /// Initialize with no values.
