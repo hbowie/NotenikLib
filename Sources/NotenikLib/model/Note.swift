@@ -573,6 +573,10 @@ public class Note: Comparable, NSCopying {
             return (creatorKey
                 + date.sortKey
                 + title.sortKey)
+        case .tagsPlusSeq:
+            return (tags.sortKey + " "
+                + seq.sortKey + " "
+                + title.sortKey)
         case .custom:
             var key = ""
             for sortField in collection.customFields {
