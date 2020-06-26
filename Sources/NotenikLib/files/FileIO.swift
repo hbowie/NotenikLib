@@ -918,6 +918,8 @@ public class FileIO: NotenikIO, RowConsumer {
                 value = collection!.statusConfig.statusOptionsAsString
             } else if def.pickList != nil {
                 value = def.pickList!.valueString
+            } else if def.fieldLabel.commonForm == LabelConstants.bodyCommon {
+                value = ""
             } else if def.fieldType is LongTextType {
                 value = "<longtext>"
             }
