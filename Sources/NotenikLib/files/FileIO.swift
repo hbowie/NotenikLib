@@ -376,6 +376,12 @@ public class FileIO: NotenikIO, RowConsumer {
             collection!.mirrorAutoIndex = mirrorAutoIndex.isTrue
         }
         
+        let bodyLabelField = infoNote.getField(label: LabelConstants.bodyLabelDisplayCommon)
+        if bodyLabelField != nil {
+            let bodyLabel = BooleanValue(bodyLabelField!.value.value)
+            collection!.bodyLabel = bodyLabel.isTrue
+        }
+        
         let noteFileFormatField = infoNote.getField(label: LabelConstants.noteFileFormat)
         if noteFileFormatField != nil {
             let noteFileFormat = NoteFileFormat(rawValue: noteFileFormatField!.value.value)
@@ -872,6 +878,7 @@ public class FileIO: NotenikIO, RowConsumer {
         str.append("Sort Descending: \(collection!.sortDescending)" + "\n\n")
         str.append("Other Fields Allowed: " + String(collection!.otherFields) + "\n\n")
         str.append("\(LabelConstants.mirrorAutoIndex): \(collection!.mirrorAutoIndex)\n\n")
+        str.append("\(LabelConstants.bodyLabelDisplay): \(collection!.bodyLabel)\n\n")
         
         let filePath = collection!.makeFilePath(fileName: FileIO.infoFileName)
         

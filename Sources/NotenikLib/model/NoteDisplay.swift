@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 1/22/19.
-//  Copyright © 2019 Herb Bowie (https://powersurgepub.com)
+//  Copyright © 2019 - 2020 Herb Bowie (https://powersurgepub.com)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -31,12 +31,11 @@ public class NoteDisplay: NSObject {
         let collection = note.collection
         let dict = collection.dict
         let code = Markedup(format: format)
-        // code.notenikIO = io
         code.startDoc(withTitle: note.title.value, withCSS: displayPrefs.bodyCSS)
         var i = 0
         if note.hasTags() {
             let tagsField = note.getField(label: LabelConstants.tags)
-            code.append(display(tagsField!, io: io))
+            code.append(display(tagsField!, collection: collection, io: io))
         }
         while i < dict.count {
             let def = dict.getDef(i)
@@ -47,7 +46,7 @@ public class NoteDisplay: NSObject {
                     field!.def.fieldLabel.commonForm != LabelConstants.tagsCommon &&
                     field!.def.fieldLabel.commonForm != LabelConstants.dateAddedCommon &&
                     field!.def.fieldLabel.commonForm != LabelConstants.timestampCommon) {
-                    code.append(display(field!, io: io))
+                    code.append(display(field!, collection: collection, io: io))
                 }
             }
             i += 1
@@ -56,11 +55,11 @@ public class NoteDisplay: NSObject {
             code.horizontalRule()
             let stamp = note.getField(label: LabelConstants.timestamp)
             if stamp != nil {
-                code.append(display(stamp!, io: io))
+                code.append(display(stamp!, collection: collection, io: io))
             }
             let dateAdded = note.getField(label: LabelConstants.dateAdded)
             if dateAdded != nil {
-                code.append(display(dateAdded!, io: io))
+                code.append(display(dateAdded!, collection: collection, io: io))
             }
         }
         code.finishDoc()
@@ -72,9 +71,8 @@ public class NoteDisplay: NSObject {
     ///
     /// - Parameter field: The field to be displayed.
     /// - Returns: A String containing the code that can be used to display this field.
-    func display(_ field: NoteField, io: NotenikIO) -> String {
+    func display(_ field: NoteField, collection: NoteCollection, io: NotenikIO) -> String {
         let code = Markedup(format: format)
-        // code.notenikIO = io
         if field.def.fieldLabel.commonForm == LabelConstants.titleCommon {
             code.startParagraph()
             code.startStrong()
@@ -88,10 +86,12 @@ public class NoteDisplay: NSObject {
             code.finishEmphasis()
             code.finishParagraph()
         } else if field.def.fieldLabel.commonForm == LabelConstants.bodyCommon {
-            code.startParagraph()
-            code.append(field.def.fieldLabel.properForm)
-            code.append(": ")
-            code.finishParagraph()
+            if collection.bodyLabel {
+                code.startParagraph()
+                code.append(field.def.fieldLabel.properForm)
+                code.append(": ")
+                code.finishParagraph()
+            }
             let md = MkdownParser(field.value.value)
             md.wikiLinkLookup = io
             md.parse()

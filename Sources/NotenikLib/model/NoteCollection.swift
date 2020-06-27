@@ -35,6 +35,7 @@ public class NoteCollection {
     var noteFileFormat: NoteFileFormat = .toBeDetermined
     public var mirror:         NoteTransformer?
     public var mirrorAutoIndex = false
+    public var bodyLabel = true
     
     /// Default initialization of a new Realm.
     public init () {
