@@ -73,7 +73,7 @@ public class PickList {
     /// Register a new value with an ordinary String. 
     func registerValue(_ value: String) {
         let strVal = StringValue(value)
-        registerValue(strVal)
+        _ = registerValue(strVal)
     }
     
     /// Register a new value. Add if not already present in the list.

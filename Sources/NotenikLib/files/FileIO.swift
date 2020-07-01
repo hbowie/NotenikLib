@@ -306,7 +306,8 @@ public class FileIO: NotenikIO, RowConsumer {
             if !infoFound {
                 _ = saveInfoFile()
             }
-            collection!.mirror = NoteTransformer(io: self)
+            let transformer = NoteTransformer(io: self)
+            collection!.mirror = transformer
             if collection!.mirror != nil {
             //     logInfo("No Mirroring")
             // } else {

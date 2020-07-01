@@ -212,7 +212,7 @@ class TemplateLine {
     
     /// Process a Debug Command
     func processDebug() {
-        util.debug = true
+        // util.debug = true
     }
     
     /// Process a Define Group Command
@@ -228,6 +228,7 @@ class TemplateLine {
         util.clearIfs()
         guard let groupNumber = validGroupNumber() else { return }
         util.setIfEndGroup(groupNumber)
+        util.endingGroup = true
     }
     
     func processIfNewGroupCommand() {
@@ -351,7 +352,8 @@ class TemplateLine {
         
     }
     
+    /// Process an unrecognized command.
     func processDefault() {
-        
+     
     }
 }

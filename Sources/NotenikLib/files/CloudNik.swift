@@ -57,11 +57,13 @@ public class CloudNik {
         return newFolderURL
     }
     
+    /// Is iCloud available?
     public var iCloudAvailable: Bool {
         ubiquityIdentityToken = fm.ubiquityIdentityToken
         return ubiquityIdentityToken != nil
     }
     
+    /// Send an info message to the Log.
     func logInfo(_ msg: String) {
         Logger.shared.log(subsystem: "com.powersurgepub.notenik.macos",
                           category: "CloudNik",

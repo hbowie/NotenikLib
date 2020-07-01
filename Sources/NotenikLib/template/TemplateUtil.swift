@@ -20,8 +20,6 @@ public class TemplateUtil {
     
     let fileManager = FileManager.default
     
-    var debug = false
-    
     var templateURL: URL?
     var templateFileName = FileName()
     
@@ -59,6 +57,7 @@ public class TemplateUtil {
     var outputStage = OutputStage.front
     
     var skippingData = false
+    var endingGroup = false
     var ifBypassDepth = 0
     
     var minorGroup = -1
@@ -385,6 +384,11 @@ public class TemplateUtil {
         }
         
         groupValue[groupNumber] = nextValue
+    }
+    
+    /// End all groups after last Note has been processed. 
+    func endAllGroups() {
+        setEndGroupsTrue(majorGroup: 1)
     }
     
     /// Indicate the end of a group (and its sub-groups)

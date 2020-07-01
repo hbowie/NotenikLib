@@ -59,9 +59,7 @@ public class KnownFolders: Sequence {
                 let iCloudContents = try fm.contentsOfDirectory(at: cloudNik.url!,
                                                              includingPropertiesForKeys: nil,
                                                              options: .skipsHiddenFiles)
-                print("  - \(iCloudContents.count) entries in iCloud")
                 for doc in iCloudContents {
-                    print("  - contents of iCloud Drive = \(doc.path)")
                     add(url: doc, isCollection: true, fromBookmark: false, suspendReload: true)
                 }
                 reload()

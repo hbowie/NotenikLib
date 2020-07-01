@@ -25,9 +25,13 @@ public class Template {
     var loopLines        = [TemplateLine]()
     var outerLinesBefore = [TemplateLine]()
     var outerLinesAfter  = [TemplateLine]()
-    var endGroupLines    = [TemplateLine]()
     var endLines         = [TemplateLine]()
+    var endGroupLines    = [[TemplateLine]]()
     
+    var endingGroupNumber = -1
+    var endGroupPendingIfs = 0
+    
+    var emptyNote: Note!
     
     public init() {
         
@@ -75,13 +79,16 @@ public class Template {
         loopLines = []
         outerLinesBefore = []
         outerLinesAfter = []
-        endGroupLines = []
         endLines = []
+        endGroupLines = []
+        
+        endingGroupNumber = -1
+        endGroupPendingIfs = 0
         
         util.skippingData = false
         util.outputStage = .front
         var line = util.nextTemplateLine()
-        let emptyNote = Note(collection: collection)
+        emptyNote = Note(collection: collection)
         while line != nil {
             if util.outputStage == .front {
                 line!.generateOutput(note: emptyNote)
@@ -89,11 +96,12 @@ public class Template {
                 if line!.command != nil && line!.command! == .nextrec {
                     // Don't need to store the nextrec command line
                 } else {
-                    loopLines.append(line!)
+                    addToLoopLines(line: line!)
                 }
             } else if util.outputStage == .postLoop {
                 if line!.command != nil && line!.command! == .loop {
                     processLoop()
+                    endLoopProcessing()
                 } else {
                     line!.generateOutput(note: emptyNote)
                 }
@@ -104,16 +112,79 @@ public class Template {
         return true
     }
     
+    /// Store another line that will be part of the loop we will execute for every note.
+    func addToLoopLines(line: TemplateLine) {
+        
+        loopLines.append(line)
+        
+        // Capture end group lines in a separate array. 
+        var nextEndingGroupNumber = -1
+        if line.command != nil {
+            switch line.command! {
+            case .ifendgroup:
+                endingGroupNumber = -1
+                guard let groupNum = line.validGroupNumber() else { break }
+                nextEndingGroupNumber = groupNum
+            case .definegroup, .ifnewgroup, .ifchange, .ifendlist, .ifnewlist:
+                endingGroupNumber = -1
+            case .ifCmd:
+                endGroupPendingIfs += 1
+            case .endif:
+                if endGroupPendingIfs > 0 {
+                    endGroupPendingIfs -= 1
+                } else {
+                    endingGroupNumber = -1
+                }
+            default:
+                break
+            }
+        }
+        if endingGroupNumber >= 0 {
+            addEndGroupLine(line: line, groupNumber: endingGroupNumber)
+        }
+        if nextEndingGroupNumber >= 0 {
+            endingGroupNumber = nextEndingGroupNumber
+        }
+    }
+    
+    /// Add another template line to our list of lines to be executed when a group ends.
+    func addEndGroupLine(line: TemplateLine, groupNumber: Int) {
+        while endGroupLines.count <= groupNumber {
+            endGroupLines.append([])
+        }
+        endGroupLines[groupNumber].append(line)
+    }
+    
+    func endLoopProcessing() {
+        util.endAllGroups()
+        var i = util.endGroup.count - 1
+        while i >= 0 {
+            if util.endGroup[i] {
+                if i < endGroupLines.count {
+                    for endGroupLine in endGroupLines[i] {
+                        endGroupLine.generateOutput(note: emptyNote)
+                    }
+                }
+            }
+            i -= 1
+        }
+    }
+    
     /// Merge that data in the Notes collection with the template lines
     /// between the nextrec and loop commands. 
     func processLoop() {
         
         for note in notesList {
-            util.resetGroupBreaks()
-            util.skippingData = false
-            for line in loopLines {
-                line.generateOutput(note: note)
-            }
+            processLoopForNote(note)
+        }
+    }
+    
+    func processLoopForNote(_ note: Note, endOfNotes: Bool = false) {
+        util.resetGroupBreaks()
+        util.skippingData = false
+        util.endingGroup = false
+        for line in loopLines {
+            line.generateOutput(note: note)
         }
     }
 }
