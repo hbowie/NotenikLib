@@ -400,11 +400,11 @@ class BunchIO: NotenikIO, RowConsumer  {
     /// - Parameter title: A wiki link target that is possibly a timestamp instead of a title.
     /// - Returns: The corresponding title, if the lookup was successful, otherwise the title
     ///            that was passed as input.
-    func mkdownWikiLinkLookup(title: String) -> String {
-        guard collection != nil && collectionOpen else { return title }
-        guard title.count < 15 && title.count > 11 else { return title }
-        let target = getNote(forTimestamp: title)
-        guard target != nil else { return title }
+    func mkdownWikiLinkLookup(linkText: String) -> String {
+        guard collection != nil && collectionOpen else { return linkText }
+        guard linkText.count < 15 && linkText.count > 11 else { return linkText }
+        let target = getNote(forTimestamp: linkText)
+        guard target != nil else { return linkText }
         return target!.title.value
     }
     

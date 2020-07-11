@@ -17,7 +17,6 @@ import NotenikUtils
 public class FileIO: NotenikIO, RowConsumer {
     
     let filesFolderName     = "files"
-    let reportsFolderName   = "reports"
     let scriptExt           = ".tcz"
     let templateID          = "template"
     
@@ -39,13 +38,14 @@ public class FileIO: NotenikIO, RowConsumer {
         if collectionFullPath == nil {
             return nil
         } else {
-            return FileUtils.joinPaths(path1: collectionFullPath!, path2: reportsFolderName)
+            return FileUtils.joinPaths(path1: collectionFullPath!, path2: CollectionFile.reportsFolderName)
         }
     }
     
     public var pickLists = ValuePickLists()
     
     var bunch          : BunchOfNotes?
+    var aliasList      = AliasList()
     var templateFound  = false
     var infoFound      = false
     var notePosition   = NotePosition(index: -1)
@@ -124,31 +124,11 @@ public class FileIO: NotenikIO, RowConsumer {
         var foldersFound = 0
         var notesFound = 0
         for itemPath in contents {
-            let itemFullPath = FileUtils.joinPaths(path1: path,
-                                                   path2: itemPath)
-            let fileName = FileName(itemFullPath)
-            if FileUtils.isDir(itemFullPath) {
-                if itemPath == reportsFolderName {
-                    // Skip this type of folder
-                } else {
-                    foldersFound += 1
-                }
-            } else if fileName.readme {
-                // Skip the readme file
-            } else if fileName.infofile {
-                // Skip the info file
-            } else if fileName.dotfile {
-                // Skip filenames starting with a period
-            } else if fileName.template {
-                // Skip the template file
-            } else if fileName.licenseFile {
-                // Skip a LICENSE file
-            } else if fileName.collectionParms {
-                // Skip a Collection Parms file
-            } else if fileName.noteExt {
+            let collectionFile = CollectionFile(dir: path, name: itemPath)
+            if collectionFile.type == .generalFolder {
+                foldersFound += 1
+            } else if collectionFile.type == .noteFile {
                 notesFound += 1
-            } else {
-                // print ("- Does not have a valid note extension")
             }
         }
         if notesFound > 0 {
@@ -201,6 +181,8 @@ public class FileIO: NotenikIO, RowConsumer {
         let initOK = initCollection(realm: realm, collectionPath: collectionPath)
         guard initOK else { return nil }
         
+        aliasList = AliasList(io: self)
+        
         // Let's read the directory contents
         bunch = BunchOfNotes(collection: collection!)
         
@@ -209,8 +191,8 @@ public class FileIO: NotenikIO, RowConsumer {
         var notesRead = 0
         
         _ = loadInfoFile(realm: realm,
-                                    collectionPath: collectionPath,
-                                    itemPath: FileIO.infoFileName)
+                collectionPath: collectionPath,
+                      itemPath: FileIO.infoFileName)
         
         var templateNote = loadTemplateFile(realm: realm,
                                             collectionPath: collectionPath,
@@ -234,27 +216,11 @@ public class FileIO: NotenikIO, RowConsumer {
             // Second pass through directory contents -- look for Notes
             pickLists.statusConfig = collection!.statusConfig
             for itemPath in dirContents {
-                let itemFullPath = FileUtils.joinPaths(path1: collectionFullPath!,
-                                                       path2: itemPath)
-                let fileName = FileName(itemFullPath)
-                let itemURL = URL(fileURLWithPath: itemFullPath)
-                if FileUtils.isDir(itemFullPath) {
-                    if itemPath == reportsFolderName {
-                        loadReports()
-                    }
-                } else if fileName.readme {
-                    // Skip the readme file
-                } else if fileName.infofile {
-                    // Skip the info file
-                } else if fileName.dotfile {
-                    // Skip filenames starting with a period
-                } else if fileName.template {
-                    // Skip the template file
-                } else if fileName.licenseFile {
-                    // Skip a LICENSE file
-                } else if fileName.collectionParms {
-                    // Skip a Collection Parms file
-                } else if fileName.noteExt {
+                let collectionFile = CollectionFile(dir: collectionFullPath!, name: itemPath)
+                let itemURL = URL(fileURLWithPath: collectionFile.path)
+                if collectionFile.type == .reportsFolder {
+                    loadReports()
+                } else if collectionFile.type == .noteFile {
                     let note = readNote(collection: collection!, noteURL: itemURL)
                     if note != nil && note!.hasTitle() {
                         addAttachments(to: note!)
@@ -274,10 +240,7 @@ public class FileIO: NotenikIO, RowConsumer {
                                           level: .error,
                                           message: "No title for Note read from \(itemURL)")
                     }
-                } else {
-                    // print ("- Does not have a valid note extension")
                 }
-                
             }
         } catch let error {
             Logger.shared.log(subsystem: "com.powersurgepub.notenik",
@@ -313,6 +276,7 @@ public class FileIO: NotenikIO, RowConsumer {
             // } else {
                 logInfo("Mirroring Engaged")
             }
+            _ = aliasList.loadFromDisk()
             return collection
         }
     }
@@ -321,14 +285,12 @@ public class FileIO: NotenikIO, RowConsumer {
     func scanDirForSpecialFiles(realm: Realm, collectionPath: String, dirContents: [String]) {
         // First pass through directory contents -- look for template and info files
         for itemPath in dirContents {
-            let itemFullPath = FileUtils.joinPaths(path1: collectionFullPath!,
-                                                   path2: itemPath)
-            let fileName = FileName(itemFullPath)
-            if fileName.infofile && !infoFound {
+            let collectionFile = CollectionFile(dir: collectionFullPath!, name: itemPath)
+            if collectionFile.type == .infoFile && !infoFound {
                 _ = loadInfoFile(realm: realm,
                                  collectionPath: collectionPath,
                                  itemPath: itemPath)
-            } else if fileName.template && !templateFound {
+            } else if collectionFile.type == .templateFile && !templateFound {
                 _ = loadTemplateFile(realm: realm,
                                      collectionPath: collectionPath,
                                      itemPath: itemPath)
@@ -595,7 +557,7 @@ public class FileIO: NotenikIO, RowConsumer {
     public func loadReports() {
         reports = []
         let reportsPath = FileUtils.joinPaths(path1: collectionFullPath!,
-                                              path2: reportsFolderName)
+                                              path2: CollectionFile.reportsFolderName)
         do {
             let reportsDirContents = try fileManager.contentsOfDirectory(atPath: reportsPath)
             
@@ -849,6 +811,7 @@ public class FileIO: NotenikIO, RowConsumer {
     public func persistCollectionInfo() {
         _ = saveInfoFile()
         _ = saveTemplateFile()
+        _ = aliasList.saveToDisk()
     }
     
     /// Save a README file into the current collection
@@ -948,6 +911,9 @@ public class FileIO: NotenikIO, RowConsumer {
     
     /// Close the current collection, if one is open
     public func closeCollection() {
+
+        _ = aliasList.saveToDisk()
+
         collection = nil
         collectionOpen = false
         if bunch != nil {
@@ -1231,12 +1197,40 @@ public class FileIO: NotenikIO, RowConsumer {
     /// - Parameter title: A wiki link target that is possibly a timestamp instead of a title.
     /// - Returns: The corresponding title, if the lookup was successful, otherwise the title
     ///            that was passed as input. 
-    public func mkdownWikiLinkLookup(title: String) -> String {
-        guard collection != nil && collectionOpen else { return title }
-        guard title.count < 15 && title.count > 11 else { return title }
-        let target = getNote(forTimestamp: title)
-        guard target != nil else { return title }
-        return target!.title.value
+    public func mkdownWikiLinkLookup(linkText: String) -> String {
+        guard collection != nil && collectionOpen else { return linkText }
+        guard collection!.hasTimestamp else { return linkText }
+        
+        // Check for first possible case: title within the wiki link
+        // points directly to another note having that same title.
+        let titleID = StringUtils.toCommon(linkText)
+        var linkedNote = getNote(forID: titleID)
+        if linkedNote != nil {
+            aliasList.add(titleID: titleID, timestamp: linkedNote!.timestamp.value)
+            return linkText
+        }
+        
+        // Check for second possible case: title within the wiki link
+        // used to point directly to another note having that same title,
+        // but the target note's title has since been modified.
+        let timestamp = aliasList.get(titleID: titleID)
+        if timestamp != nil {
+            linkedNote = getNote(forTimestamp: timestamp!)
+            if linkedNote != nil {
+                return linkedNote!.title.value
+            }
+        }
+        
+        // Check for third possible case: string within the wiki link
+        // is already a timestamp pointing to another note.
+        guard linkText.count < 15 && linkText.count > 11 else { return linkText }
+        linkedNote = getNote(forTimestamp: linkText)
+        if linkedNote != nil {
+            return linkedNote!.title.value
+        }
+        
+        // Nothing worked, so just return the linkText.
+        return linkText
     }
     
     /// Get the existing note with the specified timestamp, if one exists.

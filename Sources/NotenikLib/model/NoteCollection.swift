@@ -22,7 +22,7 @@ public class NoteCollection {
     var noteType     : NoteType = .general
     public var dict  : FieldDictionary
     var idRule       : NoteIDRule
-    public var sortParm     : NoteSortParm
+    public var sortParm : NoteSortParm
     var sortDescending: Bool
     public var typeCatalog  = AllTypes()
     public var statusConfig : StatusValueConfig
