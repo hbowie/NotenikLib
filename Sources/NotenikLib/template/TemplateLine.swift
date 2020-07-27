@@ -33,7 +33,8 @@ class TemplateLine {
     ///   - text: The text making up the line.
     ///   - util: The instance of TemplateUtil that we are sharing.
     init(text: String, util: TemplateUtil) {
-        self.text = StringUtils.trim(text)
+        // self.text = StringUtils.trim(text)
+        self.text = text
         self.util = util
         lineNumber = util.lineCount
         analyzeLine()

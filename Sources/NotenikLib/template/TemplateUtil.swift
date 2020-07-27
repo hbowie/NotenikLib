@@ -388,7 +388,7 @@ public class TemplateUtil {
     
     /// End all groups after last Note has been processed. 
     func endAllGroups() {
-        setEndGroupsTrue(majorGroup: 1)
+        setEndGroupsTrue(majorGroup: 0)
     }
     
     /// Indicate the end of a group (and its sub-groups)
