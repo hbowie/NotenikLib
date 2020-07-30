@@ -173,7 +173,6 @@ public class Template {
     /// Merge that data in the Notes collection with the template lines
     /// between the nextrec and loop commands. 
     func processLoop() {
-        
         for note in notesList {
             processLoopForNote(note)
         }

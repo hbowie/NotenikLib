@@ -32,4 +32,5 @@ enum TemplateCommand: String {
     case outerloop   = "outerloop"
     case output      = "output"
     case set         = "set"
+    case trailing    = "trailing"
 }

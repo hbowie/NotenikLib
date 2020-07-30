@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 6/4/19.
-//  Copyright © 2019 Herb Bowie (https://powersurgepub.com)
+//  Copyright © 2019 - 2020 Herb Bowie (https://powersurgepub.com)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -176,6 +176,8 @@ class TemplateLine {
             processOutputCommand(note: note)
         case .set:
             processSetCommand(note: note)
+        case .trailing:
+            processTrailingCommand()
         default:
             processDefault()
         }
@@ -353,8 +355,34 @@ class TemplateLine {
         
     }
     
+    /// Remove or replace the last character written out (ignoring newlines and whitespace). 
+    func processTrailingCommand() {
+        guard !util.skippingData else { return }
+        guard tokens.count > 1 else { return }
+        let trailingCharStr = String(tokens[1])
+        var trailingChar: Character = " "
+        if trailingCharStr.lowercased() == "comma" {
+            trailingChar = ","
+        } else {
+            trailingChar = trailingCharStr[trailingCharStr.startIndex]
+        }
+        var replacement: Character? = nil
+        if tokens.count > 2 {
+            let replacementStr = String(tokens[2])
+            replacement = replacementStr[replacementStr.startIndex]
+        }
+        util.replaceTrailing(char: trailingChar, with: replacement)
+    }
+    
     /// Process an unrecognized command.
     func processDefault() {
      
+    }
+    
+    func display() {
+        if command != nil {
+            print("Cmd = \(command!)")
+        }
+        print("line = \(text)")
     }
 }

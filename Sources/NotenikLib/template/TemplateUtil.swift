@@ -273,6 +273,35 @@ public class TemplateUtil {
         }
     }
     
+    /// Replace a trailing character with another character, or with nothing at all.
+    /// - Parameters:
+    ///   - char: The character to be replaced, if found at end of output lines.
+    ///   - with: The character to use as a replacement. If nil or blank, then the character
+    ///           we'r'e looking for, if found in a trailing position, will simply be removed. 
+    func replaceTrailing(char: Character, with: Character? = nil) {
+        var index = outputLines.endIndex
+        var done = (index <= outputLines.startIndex)
+        while !done {
+            index = outputLines.index(before: index)
+            if index <= outputLines.startIndex {
+                done = true
+            } else {
+                let c = outputLines[index]
+                if c.isNewline || c.isWhitespace {
+                    // Ignore and keep going
+                } else if c == char {
+                    done = true
+                    _ = outputLines.remove(at: index)
+                    if with != nil && !with!.isWhitespace {
+                        outputLines.insert(with!, at: index)
+                    }
+                } else {
+                    done = true
+                }
+            } // end if we  have another char to inspect
+        } // end while looking for trailing char
+    } // end func
+    
     /// Close the output file, writing it out to disk if it was open.
     func closeOutput() {
         if outputOpen && textOutURL != nil {
