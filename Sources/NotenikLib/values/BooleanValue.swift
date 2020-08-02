@@ -12,9 +12,9 @@
 import Foundation
 
 /// Handle a boolean value as a string.
-class BooleanValue: StringValue {
+public class BooleanValue: StringValue {
     
-    var isTrue: Bool {
+    public var isTrue: Bool {
         let lower = value.lowercased()
         if lower.hasPrefix("y") {
             return true

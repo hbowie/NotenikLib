@@ -43,7 +43,11 @@ class BooleanType: AnyType {
     /// - Parameter label: The label.
     /// - Parameter type: The type string (if one is available)
     override func appliesTo(label: FieldLabel, type: String?) -> Bool {
-        return false
+        if type == nil {
+            return false
+        } else {
+            return type!.lowercased() == "bool" || type!.lowercased() == "boolean"
+        }
     }
     
 }
