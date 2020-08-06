@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 9/20/19.
-//  Copyright © 2019 Herb Bowie (https://powersurgepub.com)
+//  Copyright © 2019 - 2020 Herb Bowie (https://powersurgepub.com)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -24,7 +24,7 @@ public class Sequencer {
     ///   - io: The I/O Module for the Collection being accessed.
     ///   - startingNote: The first Note whose sequence is to be incremented.
     /// - Returns: The number of Notes having their sequences incremented.
-    public static func incrementSeq(io: NotenikIO, startingNote: Note) -> Int {
+    public static func incrementSeq(io: NotenikIO, startingNote: Note, incMajor: Bool = false) -> Int {
         
         guard io.collectionOpen else { return 0 }
         guard io.collection != nil else { return 0 }
@@ -49,7 +49,7 @@ public class Sequencer {
             if starting {
                 lastSeq = SeqValue(seq.value)
                 if seq.positionsToRightOfDecimal > 0 {
-                    incrementingOnLeft = false
+                    incrementingOnLeft = incMajor
                 }
                 starting = false
             }
