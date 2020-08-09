@@ -101,6 +101,7 @@ class AliasList: RowConsumer {
     func saveToDisk() -> Bool {
         guard noteIO != nil else { return true }
         guard noteIO!.collection != nil else { return true }
+        guard !noteIO!.collection!.readOnly else { return true }
         guard noteIO!.collection!.hasTimestamp else { return true }
         guard count > 0 else { return true }
         let filePath = noteIO!.collection!.makeFilePath(fileName: AliasList.aliasFileName)

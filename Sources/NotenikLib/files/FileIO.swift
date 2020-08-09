@@ -809,6 +809,8 @@ public class FileIO: NotenikIO, RowConsumer {
     
     /// Save some of the collection info to make it persistent
     public func persistCollectionInfo() {
+        guard collection != nil else { return }
+        guard !collection!.readOnly else { return true }
         _ = saveInfoFile()
         _ = saveTemplateFile()
         _ = aliasList.saveToDisk()
@@ -912,7 +914,10 @@ public class FileIO: NotenikIO, RowConsumer {
     /// Close the current collection, if one is open
     public func closeCollection() {
 
-        _ = aliasList.saveToDisk()
+        guard collection != nil else { return }
+        if !collection!.readOnly {
+            _ = aliasList.saveToDisk()
+        }
 
         collection = nil
         collectionOpen = false
