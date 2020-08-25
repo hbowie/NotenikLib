@@ -74,7 +74,7 @@ class BunchOfNotes {
     /// - Parameter note: The note to be added, whether from a data store or from a user
     /// - Returns: True if the note was added to the collection, false if it could not be added.
     func add(note: Note) -> Bool {
-        let noteID = note.noteID.identifier
+        let noteID = note.id
         let existingNote = notesDict[noteID]
         guard existingNote == nil else { return false }
 

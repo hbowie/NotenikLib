@@ -12,11 +12,9 @@
 import Foundation
 
 /// A single Note. 
-public class Note: Comparable, NSCopying {
+public class Note: Comparable, Identifiable, NSCopying {
     
     public unowned var collection: NoteCollection
-    
-    var ID = NoteID()
     
     var fields = [:] as [String: NoteField]
     public var attachments: [AttachmentName] = []
@@ -30,10 +28,6 @@ public class Note: Comparable, NSCopying {
     public init (collection: NoteCollection) {
         self.collection = collection
         fileInfo = NoteFileInfo(note: self)
-    }
-    
-    func setID() {
-        ID.set(from: self)
     }
     
     /// The note's creation date, as reported from the note's environment (file system, etc.)
@@ -191,6 +185,38 @@ public class Note: Comparable, NSCopying {
             let attachment2 = attachment
             note2.attachments.append(attachment2)
         }
+    }
+    
+    /* ---------------------------------------------------------
+     
+     The following fields and functions identify and manipulate
+     the unique indentifier for this Note
+     
+     --------------------------------------------------------- */
+    
+    /// Provide a value to uniquely identify this note within its Collection, and provide
+    /// conformance to the Identifiable protocol.
+    public var id: String {
+        return _noteID.identifier
+    }
+    
+    var _noteID = NoteID()
+    
+    /// Get the unique ID used to identify this note within its collection
+    public var noteID: NoteID {
+        return _noteID
+    }
+    
+    func setID() {
+        _noteID.set(from: self)
+    }
+    
+    func incrementID() -> String {
+        return _noteID.increment()
+    }
+    
+    func updateIDSource() {
+        _noteID.updateSource(note: self)
     }
     
     /// Close the note, either by applying the recurs rule, or changing the status to 9
@@ -535,11 +561,6 @@ public class Note: Comparable, NSCopying {
         } else {
             return TimestampValue(val.value)
         }
-    }
-    
-    /// Get the unique ID used to identify this note within its collection
-    public var noteID: NoteID {
-        return ID
     }
     
     /// Return a String containing the current sort key for the Note
