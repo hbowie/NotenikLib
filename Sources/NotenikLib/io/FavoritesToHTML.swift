@@ -9,7 +9,7 @@
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
 //
 
-import Cocoa
+import Foundation
 
 import NotenikUtils
 

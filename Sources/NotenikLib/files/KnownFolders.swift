@@ -28,7 +28,7 @@ public class KnownFolders: Sequence {
     var baseList: [KnownFolderBase] = []
     
     let fm      = FileManager.default
-    let home    = FileManager.default.homeDirectoryForCurrentUser
+    // let home    = FileManager.default.homeDirectoryForCurrentUser
     var cloudNik: CloudNik!
     
     var viewer: KnownFoldersViewer?
@@ -37,7 +37,7 @@ public class KnownFolders: Sequence {
 
         root = KnownFolderNode(tree: self)
         
-        var homeDir = home
+        /* var homeDir = home
         while homeDir.pathComponents.count > 3 {
             homeDir.deleteLastPathComponent()
         }
@@ -48,7 +48,7 @@ public class KnownFolders: Sequence {
         cloudDir.appendPathComponent("Mobile Documents")
         cloudDir.appendPathComponent("com~apple~CloudDocs")
         let cloudBase = KnownFolderBase(name: "iCloud Drive", url: cloudDir)
-        addBase(base: cloudBase)
+        addBase(base: cloudBase) */
 
         cloudNik = CloudNik.shared
         if cloudNik.url != nil {
@@ -67,38 +67,6 @@ public class KnownFolders: Sequence {
                 logError("Error reading contents of iCloud drive folder")
             }
         }
-    }
-    
-    /// Try to load security-scoped bookmarks stored from previous sessions. 
-    public func loadBookmarkDefaults() {
-        logInfo("Loading Bookmarks saved from Prior Sessions")
-        var bookmarkNumber = 1
-        var bookmark: Data?
-        var stale = false
-        var loaded = 0
-        repeat {
-            bookmark = defaults.data(forKey: key(forNumber: bookmarkNumber))
-            guard bookmark != nil else { continue }
-            do {
-                let url = try URL(resolvingBookmarkData: bookmark!,
-                                  options: URL.BookmarkResolutionOptions.withSecurityScope,
-                                  relativeTo: nil,
-                                  bookmarkDataIsStale: &stale)
-                if stale {
-                    logInfo("URL \(url.path) is stale, and must be explicitly re-opened")
-                } else {
-                    let newFolder = KnownFolder(url: url, isCollection: false, fromBookmark: true)
-                    add(newFolder, suspendReload: true)
-                    loaded += 1
-                    logInfo("URL \(url) successfully loaded")
-                }
-            } catch {
-                logError("Bookmark # \(bookmarkNumber) could not be resolved")
-            }
-            bookmarkNumber += 1
-        } while bookmark != nil
-        reload()
-        logInfo("\(loaded) Bookmarks loaded from user defaults")
     }
     
     public func createNewCloudFolder(folderName: String) -> URL? {
@@ -283,25 +251,6 @@ public class KnownFolders: Sequence {
             }
         }
 
-    }
-    
-    public func saveDefaults() {
-        // print("Known Folders saving defaults")
-        var bookmarkNumber = 1
-        for folder in folders {
-            if folder.fromBookmark && folder.inUse {
-                folder.url.stopAccessingSecurityScopedResource()
-            }
-            do {
-                let bookmark = try folder.url.bookmarkData(options: URL.BookmarkCreationOptions.withSecurityScope, includingResourceValuesForKeys: nil, relativeTo: nil)
-                defaults.set(bookmark, forKey: key(forNumber: bookmarkNumber))
-                // print("  - Saved User Default for key \(key(forNumber: bookmarkNumber)) with url \(folder)")
-                bookmarkNumber += 1
-            } catch {
-                logError("  - Couldn't create bookmark for \(folder.path) due to \(error)")
-            }
-        }
-        defaults.removeObject(forKey: key(forNumber: bookmarkNumber))
     }
     
     public func registerViewer(_ viewer: KnownFoldersViewer) {

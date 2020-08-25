@@ -29,11 +29,11 @@ public class OpenSaveDirectory {
     /// Initialize a new object, retrieving whatever default values are available
     private init() {
         lp = defaults.url(forKey: lastParentFolderKey)
-        if #available(OSX 10.12, *) {
-            home = fileMgr.homeDirectoryForCurrentUser
-        } else {
-            // Fallback on earlier versions
-        }
+        #if os(macOS)
+            if #available(OSX 10.12, iOS 9999, *) {
+                home = fileMgr.homeDirectoryForCurrentUser
+            }
+        #endif
         let defaultLocationInt = defaults.integer(forKey: defaultDiskLocationKey)
         let possibleDefaultLocation = DefaultDiskLocation(rawValue: defaultLocationInt)
         if possibleDefaultLocation != nil {

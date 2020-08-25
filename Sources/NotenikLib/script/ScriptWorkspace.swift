@@ -53,12 +53,12 @@ public class ScriptWorkspace {
         let parentRealmPath = AppPrefs.shared.parentRealmPath
         if parentRealmPath.count > 0 {
             parentPath = parentRealmPath
-        } else {
+        } /* else {
             if #available(OSX 10.12, *) {
                 let home = FileManager.default.homeDirectoryForCurrentUser
                 parentPath = home.path
             } 
-        }
+        } */
     }
     
     public var parentURL: URL {
