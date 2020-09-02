@@ -58,17 +58,33 @@ class TagsTree {
     /// Delete child nodes where this Note is found
     func deleteNoteInChildren(note: Note, node: TagsNode) {
         var i = 0
+        var deleted = 0
         while i < node.countChildren {
             let child = node.getChild(at: i)
             if child!.type == .note {
                 if child!.note!.noteID == note.noteID {
                     node.remove(at: i)
+                    deleted += 1
                 } else {
                     i += 1
                 }
             } else {
                 deleteNoteInChildren(note: note, node: child!)
                 i += 1
+            }
+        }
+        if deleted > 0 && node.countChildren == 0 {
+            let parent = node.parent
+            if parent != nil {
+                var j = 0
+                while j < parent!.countChildren {
+                    let child = parent!.getChild(at: j)
+                    if child! == node {
+                        parent!.remove(at: j)
+                    } else {
+                        j += 1
+                    }
+                }
             }
         }
     }
