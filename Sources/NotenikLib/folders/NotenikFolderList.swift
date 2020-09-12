@@ -18,6 +18,8 @@ public class NotenikFolderList: Sequence {
     
     public static let shared = NotenikFolderList()
     
+    public static let helpFolderDesc = "Help Notes"
+    
     let fm = FileManager.default
     
     var ubiquityIdentityToken: Any?
@@ -27,11 +29,21 @@ public class NotenikFolderList: Sequence {
     
     var folders: [NotenikFolder] = []
     
+    public let root = NotenikFolderNode()
+    
     var count: Int { return folders.count }
     
     /// Initialize.
     private init() {
+        loadHelpNotes()
         loadICloudContainerFolders()
+    }
+    
+    func loadHelpNotes() {
+        let helpGroup = NotenikFolderNode(type: .group, desc: "Help")
+        let helpParent = root.addChild(newNode: helpGroup)
+        let helpNotes = NotenikFolderNode(type: .folder, desc: NotenikFolderList.helpFolderDesc)
+        _ = helpParent.addChild(newNode: helpNotes)
     }
     
     /// Load the folders found in Notenik's iCloud containter.
@@ -136,17 +148,48 @@ public class NotenikFolderList: Sequence {
             // Leave as-is
         }
         
-        // guard urlPointsToCollection else { return }
-        
         if index < folders.count {
             folders.insert(folder, at: index)
         } else {
             folders.append(folder)
         }
+        
+        var parent: NotenikFolderNode!
+        if folder.location == .iCloudContainer {
+            parent = root.addChild(type: .group, desc: "iCloud Container")
+        } else {
+            parent = root.addChild(type: .group, desc: "Recent")
+        }
+        _ = parent.addChild(type: .folder, desc: folder.folderName, folder: folder)
+    }
+    
+    /// Remove the given folder from our internal lists. 
+    public func remove(folder: NotenikFolder) -> Bool {
+        var index = 0
+        
+        for existingFolder in folders {
+            if folder == existingFolder {
+                folders.remove(at: index)
+                break
+            }
+            index += 1
+        }
+        
+        for group in root.children {
+            index = 0
+            for folderNode in group.children {
+                if folderNode.type == .folder && folderNode.folder != nil && folderNode.folder! == folder {
+                    group.remove(at: index)
+                    return true
+                }
+                index += 1
+            }
+        }
+        return false
     }
     
     /// Create a folder for a new Collection within the Notenik iCloud container.
-    func createNewFolderWithinICloudContainer(folderName: String) -> URL? {
+    public func createNewFolderWithinICloudContainer(folderName: String) -> URL? {
         guard iCloudContainerAvailable else { return nil }
         guard iCloudContainerURL != nil else { return nil }
         guard iCloudContainerExists else { return nil }
@@ -190,5 +233,16 @@ public class NotenikFolderList: Sequence {
                           category: "NotenikFolderList",
                           level: .error,
                           message: msg)
+    }
+    
+    /// Debugging info.
+    public func displayTree() {
+        print("Displaying NotenikFolderList tree")
+        for group in root.children {
+            print(group.desc)
+            for folder in group.children {
+                print("    \(folder.desc)")
+            }
+        }
     }
 }
