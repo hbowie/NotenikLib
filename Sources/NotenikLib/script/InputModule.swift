@@ -112,7 +112,7 @@ class InputModule: RowConsumer {
     func openDelimited(openURL: URL) {
         let reader = DelimitedReader()
         reader.setContext(consumer: self)
-        _ = reader.read(fileURL: openURL)
+        reader.read(fileURL: openURL)
         logInfo("\(notesInput) rows read from \(openURL.path)")
     }
     
@@ -120,35 +120,35 @@ class InputModule: RowConsumer {
         let reader = DirReader()
         reader.setContext(consumer: self)
         reader.maxDirDepth = workspace.maxDirDepth
-        _ = reader.read(fileURL: openURL)
+        reader.read(fileURL: openURL)
         logInfo("\(notesInput) rows read from \(openURL.path)")
     }
     
     func openMarkdownWithHeaders(openURL: URL) {
         let reader = MDHeadReader()
         reader.setContext(consumer: self)
-        _ = reader.read(fileURL: openURL)
+        reader.read(fileURL: openURL)
         logInfo("\(notesInput) rows read from \(openURL.path)")
     }
     
     func openXLSX(openURL: URL) {
         let reader = XLSXReader()
         reader.setContext(consumer: self)
-        _ = reader.read(fileURL: openURL)
+        reader.read(fileURL: openURL)
         logInfo("\(notesInput) rows read from \(openURL.path)")
     }
     
     func openNotenik(openURL: URL) {
         let reader = NoteReader()
         reader.setContext(consumer: self, workspace: workspace)
-        _ = reader.read(fileURL: openURL)
+        reader.read(fileURL: openURL)
         logInfo("\(notesInput) rows read from \(openURL.path)")
     }
     
     func openNotenikIndex(openURL: URL) {
         let reader = NoteIndexReader()
         reader.setContext(consumer: self, workspace: workspace)
-        _ = reader.read(fileURL: openURL)
+        reader.read(fileURL: openURL)
         logInfo("\(notesInput) rows read from \(openURL.path)")
     }
     
@@ -156,7 +156,7 @@ class InputModule: RowConsumer {
         let reader = NoteReader()
         reader.split = true
         reader.setContext(consumer: self, workspace: workspace)
-        _ = reader.read(fileURL: openURL)
+        reader.read(fileURL: openURL)
         logInfo("\(notesInput) rows read from \(openURL.path)")
     }
     

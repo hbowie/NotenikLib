@@ -276,7 +276,7 @@ public class FileIO: NotenikIO, RowConsumer {
             // } else {
                 logInfo("Mirroring Engaged")
             }
-            _ = aliasList.loadFromDisk()
+            aliasList.loadFromDisk()
             return collection
         }
     }

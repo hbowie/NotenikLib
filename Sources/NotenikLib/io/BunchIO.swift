@@ -338,7 +338,7 @@ class BunchIO: NotenikIO, RowConsumer  {
         var existingNote = bunch!.getNote(forID: newNote.noteID)
         var inc = false
         while existingNote != nil {
-            newNote.incrementID()
+            _ = newNote.incrementID()
             existingNote = bunch!.getNote(forID: newNote.noteID)
             inc = true
         }
