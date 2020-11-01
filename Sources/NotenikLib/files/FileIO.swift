@@ -345,6 +345,12 @@ public class FileIO: NotenikIO, RowConsumer {
             collection!.bodyLabel = bodyLabel.isTrue
         }
         
+        let h1TitlesField = infoNote.getField(label: LabelConstants.h1TitlesDisplayCommon)
+        if h1TitlesField != nil {
+            let h1Titles = BooleanValue(h1TitlesField!.value.value)
+            collection!.h1Titles = h1Titles.isTrue
+        }
+        
         let noteFileFormatField = infoNote.getField(label: LabelConstants.noteFileFormat)
         if noteFileFormatField != nil {
             let noteFileFormat = NoteFileFormat(rawValue: noteFileFormatField!.value.value)
@@ -845,6 +851,7 @@ public class FileIO: NotenikIO, RowConsumer {
         str.append("Other Fields Allowed: " + String(collection!.otherFields) + "\n\n")
         str.append("\(LabelConstants.mirrorAutoIndex): \(collection!.mirrorAutoIndex)\n\n")
         str.append("\(LabelConstants.bodyLabelDisplay): \(collection!.bodyLabel)\n\n")
+        str.append("\(LabelConstants.h1TitlesDisplay): \(collection!.h1Titles)\n\n")
         
         let filePath = collection!.makeFilePath(fileName: FileIO.infoFileName)
         

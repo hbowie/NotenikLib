@@ -64,6 +64,8 @@ public struct LabelConstants {
     static let timestampCommon  = "timestamp"
     static let title            = "Title"
     public static let titleCommon      = "title"
+    static let h1TitlesDisplay  = "Display H1 Titles"
+    static let h1TitlesDisplayCommon = "displayh1titles"
     static let type             = "Type"
     static let typeCommon       = "type"
     static let workID           = "Work ID"

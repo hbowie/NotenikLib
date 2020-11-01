@@ -74,11 +74,15 @@ public class NoteDisplay: NSObject {
     func display(_ field: NoteField, collection: NoteCollection, io: NotenikIO) -> String {
         let code = Markedup(format: format)
         if field.def.fieldLabel.commonForm == LabelConstants.titleCommon {
-            code.startParagraph()
-            code.startStrong()
-            code.append(field.value.value)
-            code.finishStrong()
-            code.finishParagraph()
+            if collection.h1Titles {
+                code.heading(level: 1, text: field.value.value)
+            } else {
+                code.startParagraph()
+                code.startStrong()
+                code.append(field.value.value)
+                code.finishStrong()
+                code.finishParagraph()
+            }
         } else if field.def.fieldLabel.commonForm == LabelConstants.tagsCommon {
             code.startParagraph()
             code.startEmphasis()

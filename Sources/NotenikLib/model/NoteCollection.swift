@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 12/4/18.
-//  Copyright © 2019 Herb Bowie (https://powersurgepub.com)
+//  Copyright © 2019-2020 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -36,6 +36,7 @@ public class NoteCollection {
     public var mirror:         NoteTransformer?
     public var mirrorAutoIndex = false
     public var bodyLabel = true
+    public var h1Titles = false
     
     /// Default initialization of a new Realm.
     public init () {
