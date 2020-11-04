@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 7/17/19.
-//  Copyright © 2019 Herb Bowie (https://powersurgepub.com)
+//  Copyright © 2019-2020 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -239,7 +239,6 @@ public class NotesExporter {
         var (nextNote, position) = noteIO.firstNote()
         while nextNote != nil {
             let note = nextNote!
-            
             // Let's see if the next Note meets Tags Selection Criteria
             var noteSelected = true
             if tagsToSelect.tags.count > 0 {
@@ -546,6 +545,7 @@ public class NotesExporter {
             }
         }
         
+        exportNote.setID()
         exportNote.fileInfo.ext = fileExt
         exportNote.fileInfo.format = .notenik
         exportNote.fileInfo.genFileName()

@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 3/27/20.
-//  Copyright © 2020 Herb Bowie (https://powersurgepub.com)
+//  Copyright © 2020 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -22,7 +22,6 @@ public class NoteID: CustomStringConvertible, Equatable, Comparable {
     
     /// Initialize without a starting value, then set the value later.
     init() {
-        
     }
     
     /// Initialize using information from the Note.
@@ -59,18 +58,20 @@ public class NoteID: CustomStringConvertible, Equatable, Comparable {
         var power = 1
         var index = source.endIndex
         var found = false
-        repeat {
-            index = source.index(before: index)
-            char = source.charAtOffset(index: index, offsetBy: 0)
-            if let digit = char.wholeNumberValue {
-                number = number + (digit * power)
-                power = power * 10
-            } else if char.isWhitespace || char.isPunctuation {
-                if number > 0 {
-                    found = true
+        if source.count > 0 {
+            repeat {
+                index = source.index(before: index)
+                char = source.charAtOffset(index: index, offsetBy: 0)
+                if let digit = char.wholeNumberValue {
+                    number = number + (digit * power)
+                    power = power * 10
+                } else if char.isWhitespace || char.isPunctuation {
+                    if number > 0 {
+                        found = true
+                    }
                 }
-            }
-        } while index > source.startIndex && char.isNumber
+            } while index > source.startIndex && char.isNumber
+        }
         
         if found {
             number += 1
