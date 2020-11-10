@@ -44,6 +44,8 @@ public protocol NotenikIO: MkdownWikiLinkLookup {
     /// See what sort of path this might be. 
     func checkPathType(path: String) -> NotenikPathType
     
+    /// Provide an inspector that will be passed each Note as a Collection is opened.
+    func setInspector(_ inspector: NoteOpenInspector)
 
     /// Attempt to open the collection at the provided path.
     ///

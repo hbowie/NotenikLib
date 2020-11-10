@@ -16,7 +16,7 @@ import NotenikUtils
 /// Class representing one Tag (with possibly multiple levels)
 public class TagValue: StringValue {
     
-    var levels: [String] = []
+    public var levels: [String] = []
     
     /// The number of levels in the tag
     override var count: Int {

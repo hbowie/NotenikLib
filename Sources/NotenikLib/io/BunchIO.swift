@@ -166,6 +166,11 @@ class BunchIO: NotenikIO, RowConsumer  {
         return notesToDelete.count
     }
     
+    /// Provide an inspector that will be passed each Note as a Collection is opened.
+    func setInspector(_ inspector: NoteOpenInspector) {
+        // Ignore for BunchIO
+    }
+    
     /// Open the collection.
     ///
     /// - Parameter realm: The realm housing the collection to be opened.

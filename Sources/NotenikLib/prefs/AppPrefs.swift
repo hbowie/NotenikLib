@@ -10,6 +10,7 @@
 //
 
 import Foundation
+import Network
 
 import NotenikUtils
 
@@ -109,6 +110,9 @@ public class AppPrefs {
         } else {
             appLaunching = true
             loadDefaults()
+        }
+        if #available(OSX 10.14, *) {
+            initNetworkMonitor()
         }
     }
     
@@ -387,6 +391,24 @@ public class AppPrefs {
         return tempFile
     }
     
+    var networkMonitor: Any?
+    public var networkAvailable = true
+    
+    @available(OSX 10.14, *)
+    func initNetworkMonitor() {
+        networkMonitor = NWPathMonitor()
+        guard let monitor = networkMonitor as? NWPathMonitor else { return }
+        monitor.pathUpdateHandler = { path in
+            if path.status == .satisfied {
+                self.networkAvailable = true
+            } else {
+                self.networkAvailable = false
+            }
+        }
+        let queue = DispatchQueue(label: "NetworkMonitor")
+        monitor.start(queue: queue)
+    }
+    
     /// Send an informative message to the log.
     func logInfo(_ msg: String) {
         Logger.shared.log(subsystem: "com.powersurgepub.notenik.macos",
@@ -402,4 +424,5 @@ public class AppPrefs {
                           level: .error,
                           message: msg)
     }
+    
 }

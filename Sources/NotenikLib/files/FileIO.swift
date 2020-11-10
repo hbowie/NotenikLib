@@ -22,6 +22,8 @@ public class FileIO: NotenikIO, RowConsumer {
     
     let fileManager = FileManager.default
     
+    var inspectors: [NoteOpenInspector] = []
+    
     var attachments: [String]?
     
     public static let infoFileName = "- INFO.nnk"
@@ -170,6 +172,11 @@ public class FileIO: NotenikIO, RowConsumer {
         return collection
     }
     
+    /// Provide an inspector that will be passed each Note as a Collection is opened.
+    public func setInspector(_ inspector: NoteOpenInspector) {
+        inspectors.append(inspector)
+    }
+    
     /// Attempt to open the collection at the provided path.
     ///
     /// - Parameter realm: The realm housing the collection to be opened.
@@ -228,6 +235,9 @@ public class FileIO: NotenikIO, RowConsumer {
                         let noteAdded = bunch!.add(note: note!)
                         if noteAdded {
                             notesRead += 1
+                            for inspector in inspectors {
+                                inspector.inspect(note!)
+                            }
                         } else {
                             Logger.shared.log(subsystem: "com.powersurgepub.notenik",
                                               category: "FileIO",
@@ -360,6 +370,9 @@ public class FileIO: NotenikIO, RowConsumer {
                 logError("\(noteFileFormatField!.value.value) is an invalid INFO file value for the key \(LabelConstants.noteFileFormat).")
             }
         }
+        
+        let lastStartupDate = infoNote.getFieldAsString(label: LabelConstants.lastStartupDateCommon)
+        collection!.lastStartupDate = lastStartupDate
         
         infoFound = true
         return infoNote
@@ -852,6 +865,9 @@ public class FileIO: NotenikIO, RowConsumer {
         str.append("\(LabelConstants.mirrorAutoIndex): \(collection!.mirrorAutoIndex)\n\n")
         str.append("\(LabelConstants.bodyLabelDisplay): \(collection!.bodyLabel)\n\n")
         str.append("\(LabelConstants.h1TitlesDisplay): \(collection!.h1Titles)\n\n")
+        if collection!.lastStartupDate.count > 0 {
+            str.append("\(LabelConstants.lastStartupDate): \(collection!.lastStartupDate)\n\n")
+        }
         
         let filePath = collection!.makeFilePath(fileName: FileIO.infoFileName)
         

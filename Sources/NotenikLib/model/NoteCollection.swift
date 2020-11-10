@@ -37,8 +37,10 @@ public class NoteCollection {
     public var mirrorAutoIndex = false
     public var bodyLabel = true
     public var h1Titles = false
+    public var lastStartupDate = ""
+    var todaysDate = ""
     
-    /// Default initialization of a new Realm.
+    /// Default initialization of a new Collection.
     public init () {
         realm = Realm()
         dict = FieldDictionary()
@@ -46,6 +48,11 @@ public class NoteCollection {
         sortParm = .title
         sortDescending = false
         statusConfig = StatusValueConfig()
+        
+        let today = Date()
+        let format = DateFormatter()
+        format.dateFormat = "yyyy-MM-dd"
+        todaysDate = format.string(from: today)
     }
     
     /// Convenience initialization that identifies the Realm. 
@@ -77,6 +84,16 @@ public class NoteCollection {
     /// Make a complete path to a file residing within this collection
     func makeFilePath(fileName: String) -> String {
         return FileUtils.joinPaths(path1: collectionFullPath, path2: fileName)
+    }
+    
+    /// Is this today's first startup?
+    public var startupToday: Bool {
+        return lastStartupDate != todaysDate
+    }
+    
+    /// Record the info that we've had a successful startup for today.
+    public func startedUp() {
+        lastStartupDate = todaysDate
     }
     
     /// Attempt to obtain or create a Field Definition for the given Label.
