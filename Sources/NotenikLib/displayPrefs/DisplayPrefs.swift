@@ -19,6 +19,10 @@ public class DisplayPrefs {
     
     let defaults = UserDefaults.standard
     
+    let longFontListKey = "long-font-list"
+    var _longFontList = false
+    let defaultLongFontList = false
+    
     let displayFontKey = "display-font"
     var _displayFont: String?
     let defaultFont = "Verdana"
@@ -35,9 +39,11 @@ public class DisplayPrefs {
     /// Private initializer to prevent creation of more than one instance
     private init() {
         
+        _longFontList = defaults.bool(forKey: longFontListKey)
+        
         _displayFont = defaults.string(forKey: displayFontKey)
         if _displayFont == nil || _displayFont!.count == 0 {
-            setDefaultFont()
+            _ = setDefaultFont()
         }
         
         _displaySize = defaults.string(forKey: displaySizeKey)
@@ -52,13 +58,14 @@ public class DisplayPrefs {
     }
     
     func setDefaults() {
-        setDefaultFont()
+        _ = setDefaultFont()
         setDefaultSize()
         setDefaultCSS()
     }
     
-    func setDefaultFont() {
+    public func setDefaultFont() -> String {
         font = defaultFont
+        return font
     }
     
     func setDefaultSize() {
@@ -69,9 +76,19 @@ public class DisplayPrefs {
         buildCSS()
     }
     
-    public var font: String? {
+    public var longFontList: Bool {
         get {
-            return _displayFont
+            return _longFontList
+        }
+        set {
+            _longFontList = newValue
+            defaults.set(newValue, forKey: longFontListKey)
+        }
+    }
+    
+    public var font: String {
+        get {
+            return _displayFont!
         }
         set {
             _displayFont = newValue
@@ -102,10 +119,7 @@ public class DisplayPrefs {
     public func buildCSS() {
         var tempCSS = ""
         tempCSS += "font-family: "
-        if font == nil {
-            setDefaultFont()
-        }
-        tempCSS += "\"" + font! + "\""
+        tempCSS += "\"" + font + "\""
         tempCSS += ", \"Helvetica Neue\", Helvetica, Arial, sans-serif;\n"
         tempCSS += "font-size: "
         if size == nil {
