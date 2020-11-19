@@ -122,13 +122,13 @@ public class FieldDictionary {
             return nil
         } else {
             dict [common] = def
-            if common == LabelConstants.titleCommon {
+            if common == NotenikConstants.titleCommon {
                 if list.isEmpty {
                     list.append(def)
                 } else {
                     list.insert(def, at: 0)
                 }
-            } else if common == LabelConstants.bodyCommon {
+            } else if common == NotenikConstants.bodyCommon {
                 list.append(def)
                 insertPositionFromEnd += 1
             } else if insertPositionFromEnd <= 0 {

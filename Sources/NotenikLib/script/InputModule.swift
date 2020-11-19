@@ -77,7 +77,7 @@ class InputModule: RowConsumer {
             workspace.typeCatalog = workspace.collection.typeCatalog
             if workspace.explodeTags {
                 _ = workspace.collection.dict.addDef(typeCatalog: workspace.typeCatalog,
-                                                     label: LabelConstants.tag)
+                                                     label: NotenikConstants.tag)
             }
             workspace.newList()
             // Clear pending sort fields if we're not merging
@@ -180,9 +180,9 @@ class InputModule: RowConsumer {
             var xplNotes = 0
             for tag in tags.tags {
                 let tagNote = Note(collection: workspace.collection)
-                _ = tagNote.setField(label: LabelConstants.tag, value: String(describing: tag))
+                _ = tagNote.setField(label: NotenikConstants.tag, value: String(describing: tag))
                 note.copyFields(to: tagNote)
-                _ = tagNote.setField(label: LabelConstants.tag, value: String(describing: tag))
+                _ = tagNote.setField(label: NotenikConstants.tag, value: String(describing: tag))
                 workspace.list.append(tagNote)
                 notesInput += 1
                 xplNotes += 1
@@ -190,7 +190,7 @@ class InputModule: RowConsumer {
             if xplNotes == 0 {
                 let tagNote = Note(collection: workspace.collection)
                 note.copyFields(to: tagNote)
-                _ = tagNote.setField(label: LabelConstants.tag, value: "")
+                _ = tagNote.setField(label: NotenikConstants.tag, value: "")
                 workspace.list.append(tagNote)
                 notesInput += 1
             }

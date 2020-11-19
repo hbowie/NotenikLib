@@ -16,8 +16,6 @@ import NotenikUtils
 /// Retrieve and save Notes from and to files stored locally.
 public class FileIO: NotenikIO, RowConsumer {
     
-    let filesFolderName     = "files"
-    let scriptExt           = ".tcz"
     let templateID          = "template"
     
     let fileManager = FileManager.default
@@ -26,22 +24,16 @@ public class FileIO: NotenikIO, RowConsumer {
     
     var attachments: [String]?
     
-    public static let infoFileName = "- INFO.nnk"
-    
-    var provider       : Provider = Provider()
-    var realm          : Realm
-    public var collection     : NoteCollection?
-    var collectionFullPath: String?
+    var provider            : Provider = Provider()
+    var realm               : Realm
+    public var collection   : NoteCollection?
     public var collectionOpen = false
     
     public var reports: [MergeReport] = []
     
     public var reportsFullPath: String? {
-        if collectionFullPath == nil {
-            return nil
-        } else {
-            return FileUtils.joinPaths(path1: collectionFullPath!, path2: CollectionFile.reportsFolderName)
-        }
+        guard collection != nil else { return nil }
+        return FileUtils.joinPaths(path1: collection!.notesPath, path2: CollectionFile.reportsFolderName)
     }
     
     public var pickLists = ValuePickLists()
@@ -94,53 +86,6 @@ public class FileIO: NotenikIO, RowConsumer {
     /// Get the default realm.
     public func getDefaultRealm() -> Realm {
         return realm
-    }
-    
-    /// See what sort of path this might be.
-    public func checkPathType(path: String) -> NotenikPathType {
-        
-        guard FileUtils.isDir(path) else {
-            logInfo("Notenik cannot do anything with this path: \(path)")
-            return .hopeless
-        }
-        
-        let infoPath = FileUtils.joinPaths(path1: path, path2: FileIO.infoFileName)
-        if fileManager.fileExists(atPath: infoPath)
-            && fileManager.isReadableFile(atPath: infoPath) {
-            return .existing
-        }
-        
-        var contents: [String] = []
-        do {
-            contents = try fileManager.contentsOfDirectory(atPath: path)
-        } catch {
-            logInfo("Problems reading contents of folder at \(path)")
-            return .hopeless
-        }
-
-        if contents.count == 0 {
-            logInfo("Empty folder found at \(path)")
-            return .empty
-        }
-        
-        var foldersFound = 0
-        var notesFound = 0
-        for itemPath in contents {
-            let collectionFile = CollectionFile(dir: path, name: itemPath)
-            if collectionFile.type == .generalFolder {
-                foldersFound += 1
-            } else if collectionFile.type == .noteFile {
-                notesFound += 1
-            }
-        }
-        if notesFound > 0 {
-            return .existing
-        } else if foldersFound > 0 {
-            return .realm
-        } else {
-            logInfo("Empty folder found at \(path)")
-            return .empty
-        }
     }
     
     /// Open a Collection to be used as an archive for another Collection. This will
@@ -199,7 +144,7 @@ public class FileIO: NotenikIO, RowConsumer {
         
         _ = loadInfoFile(realm: realm,
                 collectionPath: collectionPath,
-                      itemPath: FileIO.infoFileName)
+                      itemPath: NotenikConstants.infoFileName)
         
         var templateNote = loadTemplateFile(realm: realm,
                                             collectionPath: collectionPath,
@@ -211,7 +156,7 @@ public class FileIO: NotenikIO, RowConsumer {
         }
         
         do {
-            let dirContents = try fileManager.contentsOfDirectory(atPath: collectionFullPath!)
+            let dirContents = try fileManager.contentsOfDirectory(atPath: collection!.notesPath)
             
             // First pass through directory contents -- look for template and info files
             if !infoFound || !templateFound {
@@ -223,7 +168,7 @@ public class FileIO: NotenikIO, RowConsumer {
             // Second pass through directory contents -- look for Notes
             pickLists.statusConfig = collection!.statusConfig
             for itemPath in dirContents {
-                let collectionFile = CollectionFile(dir: collectionFullPath!, name: itemPath)
+                let collectionFile = CollectionFile(dir: collection!.notesPath, name: itemPath)
                 let itemURL = URL(fileURLWithPath: collectionFile.path)
                 if collectionFile.type == .reportsFolder {
                     loadReports()
@@ -295,7 +240,7 @@ public class FileIO: NotenikIO, RowConsumer {
     func scanDirForSpecialFiles(realm: Realm, collectionPath: String, dirContents: [String]) {
         // First pass through directory contents -- look for template and info files
         for itemPath in dirContents {
-            let collectionFile = CollectionFile(dir: collectionFullPath!, name: itemPath)
+            let collectionFile = CollectionFile(dir: collection!.notesPath, name: itemPath)
             if collectionFile.type == .infoFile && !infoFound {
                 _ = loadInfoFile(realm: realm,
                                  collectionPath: collectionPath,
@@ -315,15 +260,14 @@ public class FileIO: NotenikIO, RowConsumer {
     func loadInfoFile(realm: Realm, collectionPath: String, itemPath: String) -> Note? {
         let infoCollection = NoteCollection(realm: realm)
         infoCollection.path = collectionPath
-        let itemFullPath = FileUtils.joinPaths(path1: collectionFullPath!,
-                                               path2: itemPath)
+        let itemFullPath = makeFilePath(fileName: itemPath)
         let itemURL = URL(fileURLWithPath: itemFullPath)
         let infoNt = readNote(collection: infoCollection, noteURL: itemURL)
         guard let infoNote = infoNt else { return nil }
 
         collection!.title = infoNote.title.value
         
-        let otherFieldsField = infoNote.getField(label: LabelConstants.otherFields)
+        let otherFieldsField = infoNote.getField(label: NotenikConstants.otherFields)
         if otherFieldsField != nil {
             let otherFields = BooleanValue(otherFieldsField!.value.value)
             collection!.otherFields = otherFields.isTrue
@@ -332,46 +276,46 @@ public class FileIO: NotenikIO, RowConsumer {
             }
         }
         
-        let sortParmStr = infoNote.getFieldAsString(label: LabelConstants.sortParmCommon)
+        let sortParmStr = infoNote.getFieldAsString(label: NotenikConstants.sortParmCommon)
         var nsp: NoteSortParm = sortParm
         nsp.str = sortParmStr
         sortParm = nsp
         
-        let sortDescField = infoNote.getField(label: LabelConstants.sortDescending)
+        let sortDescField = infoNote.getField(label: NotenikConstants.sortDescending)
         if sortDescField != nil {
             let sortDescending = BooleanValue(sortDescField!.value.value)
             collection!.sortDescending = sortDescending.isTrue
         }
         
-        let mirrorAutoIndexField = infoNote.getField(label: LabelConstants.mirrorAutoIndexCommon)
+        let mirrorAutoIndexField = infoNote.getField(label: NotenikConstants.mirrorAutoIndexCommon)
         if mirrorAutoIndexField != nil {
             let mirrorAutoIndex = BooleanValue(mirrorAutoIndexField!.value.value)
             collection!.mirrorAutoIndex = mirrorAutoIndex.isTrue
         }
         
-        let bodyLabelField = infoNote.getField(label: LabelConstants.bodyLabelDisplayCommon)
+        let bodyLabelField = infoNote.getField(label: NotenikConstants.bodyLabelDisplayCommon)
         if bodyLabelField != nil {
             let bodyLabel = BooleanValue(bodyLabelField!.value.value)
             collection!.bodyLabel = bodyLabel.isTrue
         }
         
-        let h1TitlesField = infoNote.getField(label: LabelConstants.h1TitlesDisplayCommon)
+        let h1TitlesField = infoNote.getField(label: NotenikConstants.h1TitlesDisplayCommon)
         if h1TitlesField != nil {
             let h1Titles = BooleanValue(h1TitlesField!.value.value)
             collection!.h1Titles = h1Titles.isTrue
         }
         
-        let noteFileFormatField = infoNote.getField(label: LabelConstants.noteFileFormat)
+        let noteFileFormatField = infoNote.getField(label: NotenikConstants.noteFileFormat)
         if noteFileFormatField != nil {
             let noteFileFormat = NoteFileFormat(rawValue: noteFileFormatField!.value.value)
             if noteFileFormat != nil {
                 collection!.noteFileFormat = noteFileFormat!
             } else {
-                logError("\(noteFileFormatField!.value.value) is an invalid INFO file value for the key \(LabelConstants.noteFileFormat).")
+                logError("\(noteFileFormatField!.value.value) is an invalid INFO file value for the key \(NotenikConstants.noteFileFormat).")
             }
         }
         
-        let lastStartupDate = infoNote.getFieldAsString(label: LabelConstants.lastStartupDateCommon)
+        let lastStartupDate = infoNote.getFieldAsString(label: NotenikConstants.lastStartupDateCommon)
         collection!.lastStartupDate = lastStartupDate
         
         infoFound = true
@@ -382,9 +326,8 @@ public class FileIO: NotenikIO, RowConsumer {
     func loadTemplateFile(realm: Realm, collectionPath: String, itemPath: String) -> Note? {
         let dict = collection!.dict
         let types = collection!.typeCatalog
-        _ = dict.addDef(typeCatalog: types, label: LabelConstants.title)
-        let itemFullPath = FileUtils.joinPaths(path1: collectionFullPath!,
-                                               path2: itemPath)
+        _ = dict.addDef(typeCatalog: types, label: NotenikConstants.title)
+        let itemFullPath = makeFilePath(fileName: itemPath)
         let fileName = FileName(itemFullPath)
         let itemURL = URL(fileURLWithPath: itemFullPath)
         let templateNt = readNote(collection: collection!, noteURL: itemURL, reportErrors: false)
@@ -394,9 +337,9 @@ public class FileIO: NotenikIO, RowConsumer {
         guard collection!.dict.count > 0 else { return nil }
 
         templateFound = true
-        _ = dict.addDef(typeCatalog: types, label: LabelConstants.body)
+        _ = dict.addDef(typeCatalog: types, label: NotenikConstants.body)
         for def in collection!.dict.list {
-            if def.fieldLabel.commonForm == LabelConstants.timestampCommon {
+            if def.fieldLabel.commonForm == NotenikConstants.timestampCommon {
                 collection!.hasTimestamp = true
             }
             let val = templateNote.getFieldAsValue(label: def.fieldLabel.commonForm)
@@ -568,21 +511,19 @@ public class FileIO: NotenikIO, RowConsumer {
     
     /// Return a path to the storage location for attachments.
     public func getAttachmentsLocation() -> String? {
-        return FileUtils.joinPaths(path1: collectionFullPath!,
-                                   path2: filesFolderName)
+        return makeFilePath(fileName: NotenikConstants.filesFolderName)
     }
     
     /// Load A list of available reports from the reports folder.
     public func loadReports() {
         reports = []
-        let reportsPath = FileUtils.joinPaths(path1: collectionFullPath!,
-                                              path2: CollectionFile.reportsFolderName)
+        let reportsPath = makeFilePath(fileName: CollectionFile.reportsFolderName)
         do {
             let reportsDirContents = try fileManager.contentsOfDirectory(atPath: reportsPath)
             
             var scriptsFound = false
             for itemPath in reportsDirContents {
-                if itemPath.hasSuffix(scriptExt) {
+                if itemPath.hasSuffix(NotenikConstants.scriptExt) {
                     scriptsFound = true
                 }
             }
@@ -591,7 +532,7 @@ public class FileIO: NotenikIO, RowConsumer {
                 let itemFullPath = FileUtils.joinPaths(path1: reportsPath,
                                                        path2: itemPath)
                 let fileName = FileName(itemFullPath)
-                if itemPath.hasSuffix(scriptExt) {
+                if itemPath.hasSuffix(NotenikConstants.scriptExt) {
                     let report = MergeReport()
                     report.reportName = fileName.base
                     report.reportType = fileName.ext
@@ -618,56 +559,34 @@ public class FileIO: NotenikIO, RowConsumer {
     /// - Returns: True if successful, false otherwise.
     public func initCollection(realm: Realm, collectionPath: String) -> Bool {
         closeCollection()
-        Logger.shared.log(subsystem: "com.powersurgepub.notenik",
-                          category: "FileIO",
-                          level: .info,
-                          message: "Initializing Collection")
+        logInfo("Initializing Collection")
         self.realm = realm
         self.provider = realm.provider
         if realm.path.count > 0 {
-            Logger.shared.log(subsystem: "com.powersurgepub.notenik",
-                              category: "FileIO",
-                              level: .info,
-                              message: "Realm:      " + realm.path)
+            logInfo("Realm:      " + realm.path)
         }
-        Logger.shared.log(subsystem: "com.powersurgepub.notenik",
-                          category: "FileIO",
-                          level: .info,
-                          message: "Collection: " + collectionPath)
+        logInfo("Collection: " + collectionPath)
         
-        // Let's see if we have an actual path to a usable directory
-        var collectionURL: URL
-        if realm.path == "" || realm.path == " " {
-            collectionURL = URL(fileURLWithPath: collectionPath)
-        } else if collectionPath == "" || collectionPath == " " {
-            collectionURL = URL(fileURLWithPath: realm.path)
-        } else if collectionPath.starts(with: realm.path) {
-            collectionURL = URL(fileURLWithPath: collectionPath)
-        } else {
-            let realmURL = URL(fileURLWithPath: realm.path)
-            collectionURL = realmURL.appendingPathComponent(collectionPath)
-        }
-        collectionFullPath = collectionURL.path
-        if !fileManager.fileExists(atPath: collectionFullPath!) {
-            Logger.shared.log(subsystem: "com.powersurgepub.notenik",
-                              category: "FileIO",
-                              level: .error,
-                              message: "Collection folder does not exist")
-            return false
-        }
-        if !collectionURL.hasDirectoryPath {
-            Logger.shared.log(subsystem: "com.powersurgepub.notenik",
-                              category: "FileIO",
-                              level: .error,
-                              message: "Collection path does not point to a directory")
-            return false
-        }
         collection = NoteCollection(realm: realm)
         collection!.path = collectionPath
-        let folderIndex = collectionURL.pathComponents.count - 1
+        
+        // Let's see if we have an actual path to a usable directory
+        let pathType = FileIO.checkPathType(path: collection!.fullPath)
+        
+        switch pathType {
+        case .foreign, .hopeless, .realm:
+            logError("This path does not point to a Notenik Collection")
+            return false
+        case .empty, .existing:
+            break
+        case .web:
+            collection!.notesSubFolder = true
+        }
+        
+        let folderIndex = collection!.fullPathURL!.pathComponents.count - 1
         let parentIndex = folderIndex - 1
-        let folder = collectionURL.pathComponents[folderIndex]
-        let parent = collectionURL.pathComponents[parentIndex]
+        let folder = collection!.fullPathURL!.pathComponents[folderIndex]
+        let parent = collection!.fullPathURL!.pathComponents[parentIndex]
         collection!.title = parent + " " + folder
         
         return true
@@ -679,10 +598,10 @@ public class FileIO: NotenikIO, RowConsumer {
         guard collection != nil else { return }
         let dict = collection!.dict
         let types = collection!.typeCatalog
-        _ = dict.addDef(typeCatalog: types, label: LabelConstants.title)
-        _ = dict.addDef(typeCatalog: types, label: LabelConstants.tags)
-        _ = dict.addDef(typeCatalog: types, label: LabelConstants.link)
-        _ = dict.addDef(typeCatalog: types, label: LabelConstants.body)
+        _ = dict.addDef(typeCatalog: types, label: NotenikConstants.title)
+        _ = dict.addDef(typeCatalog: types, label: NotenikConstants.tags)
+        _ = dict.addDef(typeCatalog: types, label: NotenikConstants.link)
+        _ = dict.addDef(typeCatalog: types, label: NotenikConstants.body)
     }
     
     /// Open a New Collection.
@@ -696,13 +615,10 @@ public class FileIO: NotenikIO, RowConsumer {
         var ok = false
         
         // Make sure we have a good folder
-        let collectionURL = collection.collectionFullPathURL
-        guard collectionURL != nil else { return false }
-        if !fileManager.fileExists(atPath: collection.collectionFullPath) {
+        if !fileManager.fileExists(atPath: collection.fullPath) {
             logError("Collection folder does not exist")
             return false
         }
-        collectionFullPath = collectionURL!.path
         
         ok = saveReadMe()
         guard ok else { return ok }
@@ -841,7 +757,7 @@ public class FileIO: NotenikIO, RowConsumer {
         str.append("\n\n")
         str.append("Learn more at https://Notenik.net")
         str.append("\n")
-        let filePath = collection!.makeFilePath(fileName: "- README.txt")
+        let filePath = makeFilePath(fileName: "- README.txt")
         
         do {
             try str.write(toFile: filePath, atomically: true, encoding: String.Encoding.utf8)
@@ -858,18 +774,18 @@ public class FileIO: NotenikIO, RowConsumer {
     /// Save the INFO file into the current collection
     func saveInfoFile() -> Bool {
         var str = "Title: " + collection!.title + "\n\n"
-        str.append("Link: " + collection!.collectionFullPathURL!.absoluteString + "\n\n")
+        str.append("Link: " + collection!.fullPath + "\n\n")
         str.append("Sort Parm: " + collection!.sortParm.str + "\n\n")
         str.append("Sort Descending: \(collection!.sortDescending)" + "\n\n")
         str.append("Other Fields Allowed: " + String(collection!.otherFields) + "\n\n")
-        str.append("\(LabelConstants.mirrorAutoIndex): \(collection!.mirrorAutoIndex)\n\n")
-        str.append("\(LabelConstants.bodyLabelDisplay): \(collection!.bodyLabel)\n\n")
-        str.append("\(LabelConstants.h1TitlesDisplay): \(collection!.h1Titles)\n\n")
+        str.append("\(NotenikConstants.mirrorAutoIndex): \(collection!.mirrorAutoIndex)\n\n")
+        str.append("\(NotenikConstants.bodyLabelDisplay): \(collection!.bodyLabel)\n\n")
+        str.append("\(NotenikConstants.h1TitlesDisplay): \(collection!.h1Titles)\n\n")
         if collection!.lastStartupDate.count > 0 {
-            str.append("\(LabelConstants.lastStartupDate): \(collection!.lastStartupDate)\n\n")
+            str.append("\(NotenikConstants.lastStartupDate): \(collection!.lastStartupDate)\n\n")
         }
         
-        let filePath = collection!.makeFilePath(fileName: FileIO.infoFileName)
+        let filePath = makeFilePath(fileName: NotenikConstants.infoFileName)
         
         do {
             try str.write(toFile: filePath, atomically: true, encoding: String.Encoding.utf8)
@@ -887,9 +803,9 @@ public class FileIO: NotenikIO, RowConsumer {
     public func changePreferredExt(from: String, to: String) -> Bool {
         guard collection != nil else { return false }
         var ok = true
-        let fromFilePath = collection!.makeFilePath(fileName: "template." + from)
+        let fromFilePath = makeFilePath(fileName: "template." + from)
         let fromURL = StringUtils.urlFrom(str: fromFilePath)
-        let toFilePath = collection!.makeFilePath(fileName: "template." + to)
+        let toFilePath = makeFilePath(fileName: "template." + to)
         let toURL = StringUtils.urlFrom(str: toFilePath)
         guard fromURL != nil else { return false }
         guard toURL != nil else { return false }
@@ -908,20 +824,20 @@ public class FileIO: NotenikIO, RowConsumer {
         var str = ""
         for def in dict.list {
             var value = ""
-            if def.fieldLabel.commonForm == LabelConstants.timestampCommon {
+            if def.fieldLabel.commonForm == NotenikConstants.timestampCommon {
                 collection!.hasTimestamp = true
-            } else if def.fieldLabel.commonForm == LabelConstants.statusCommon {
+            } else if def.fieldLabel.commonForm == NotenikConstants.statusCommon {
                 value = collection!.statusConfig.statusOptionsAsString
             } else if def.pickList != nil {
                 value = def.pickList!.valueString
-            } else if def.fieldLabel.commonForm == LabelConstants.bodyCommon {
+            } else if def.fieldLabel.commonForm == NotenikConstants.bodyCommon {
                 value = ""
             } else if def.fieldType is LongTextType {
                 value = "<longtext>"
             }
             str.append("\(def.fieldLabel.properForm): \(value) \n\n")
         }
-        let filePath = collection!.makeFilePath(fileName: "template." + collection!.preferredExt)
+        let filePath = makeFilePath(fileName: "template." + collection!.preferredExt)
         do {
             try str.write(toFile: filePath, atomically: true, encoding: String.Encoding.utf8)
         } catch {
@@ -1393,5 +1309,102 @@ public class FileIO: NotenikIO, RowConsumer {
                           category: "FileIO",
                           level: .error,
                           message: msg)
+    }
+    
+    // Used for debugging. 
+    public func displayWebInfo(_ when: String) {
+        print(" ")
+        print("FileIO.displayWebInfo \(when)")
+        guard collection != nil else {
+            print("NoteCollection is nil!")
+            return
+        }
+        print("Collection Full Path: \(collection!.fullPath)")
+        print("Collection Notes Path: \(collection!.notesPath)")
+        print("Collection has notes subfolder? \(collection!.notesSubFolder)")
+        if collection!.mirror != nil {
+            print("Collection has a Notes Transformer")
+        }
+    }
+    
+    public func makeFilePath(fileName: String) -> String {
+        guard collection != nil else { return "" }
+        return FileUtils.joinPaths(path1: collection!.notesPath, path2: fileName)
+    }
+    
+    //--------------------------------------------------------------
+    //
+    // STATIC FUNCTIONS
+    //
+    //--------------------------------------------------------------
+    
+    /// Combine a real and a Collection path to make a complete Collection path.
+    public static func urlFrom(realm: Realm, path: String) -> URL {
+        var collectionURL: URL
+        if realm.path == "" || realm.path == " " {
+            collectionURL = URL(fileURLWithPath: path)
+        } else if path == "" || path == " " {
+            collectionURL = URL(fileURLWithPath: realm.path)
+        } else if path.starts(with: realm.path) {
+            collectionURL = URL(fileURLWithPath: path)
+        } else {
+            let realmURL = URL(fileURLWithPath: realm.path)
+            collectionURL = realmURL.appendingPathComponent(path)
+        }
+        return collectionURL
+    }
+    
+    /// See what sort of path this might be.
+    public static func checkPathType(path: String) -> NotenikPathType {
+        
+        // See if this path even points to a folder.
+        guard FileUtils.isDir(path) else { return .hopeless }
+        
+        // See if this points to an existing Collection.
+        let infoPath = FileUtils.joinPaths(path1: path, path2: NotenikConstants.infoFileName)
+        if FileManager.default.fileExists(atPath: infoPath)
+            && FileManager.default.isReadableFile(atPath: infoPath) {
+            return .existing
+        }
+        
+        // See if there is a sub-folder containing the notes.
+        let notesPath = FileUtils.joinPaths(path1: path, path2: NotenikConstants.notesFolderName)
+        if FileManager.default.fileExists(atPath: notesPath)
+            && FileManager.default.isReadableFile(atPath: notesPath) {
+            return .web
+        }
+        
+        // Let's examine folder contents to see what else it might be.
+        var contents: [String] = []
+        do {
+            contents = try FileManager.default.contentsOfDirectory(atPath: path)
+        } catch {
+            return .hopeless
+        }
+
+        // See if the folder is truly empty.
+        if contents.count == 0 {
+            return .empty
+        }
+        
+        // If not empty, then let's see what sort of stuff it contains.
+        var foldersFound = 0
+        var notesFound = 0
+        for itemPath in contents {
+            let collectionFile = CollectionFile(dir: path, name: itemPath)
+            if collectionFile.type == .generalFolder {
+                foldersFound += 1
+            } else if collectionFile.type == .noteFile {
+                notesFound += 1
+            }
+        }
+        
+        if notesFound > 0 {
+            return .existing
+        } else if foldersFound > 0 {
+            return .realm
+        } else {
+            return .foreign
+        }
     }
 }

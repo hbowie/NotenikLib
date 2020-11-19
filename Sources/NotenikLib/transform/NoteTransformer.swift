@@ -66,7 +66,7 @@ public class NoteTransformer {
         guard self.io!.collectionOpen else { return nil }
         
         // See if we can get a list of the contents of the mirror folder.
-        guard let contents1 = DirContents(path1: self.io!.collectionFullPath!,
+        guard let contents1 = DirContents(path1: self.io!.collection!.notesPath,
                                           path2: NoteTransformer.mirrorFolderName) else {
             return nil
         }
@@ -106,7 +106,7 @@ public class NoteTransformer {
             }
         }
         
-        let qlabel = "com.powersurgepub.notenik.q4: \(io.collection!.collectionFullPath)"
+        let qlabel = "com.powersurgepub.notenik.q4: \(io.collection!.notesPath)"
         dispatchQueue = DispatchQueue(label: qlabel,
                                       qos: .userInitiated)
     }
@@ -142,7 +142,7 @@ public class NoteTransformer {
             return errors
         }
         
-        template.supplyData(notesList: list, dataSource: io.collectionFullPath!)
+        template.supplyData(notesList: list, dataSource: io.collection!.notesPath)
         
         ok = template.generateOutput()
         guard ok else {
@@ -178,7 +178,7 @@ public class NoteTransformer {
                 return errors
             }
             
-            template.supplyData(notesList: io.notesList, dataSource: io.collectionFullPath!)
+            template.supplyData(notesList: io.notesList, dataSource: io.collection!.notesPath)
             
             ok = template.generateOutput()
             guard ok else {
@@ -229,8 +229,14 @@ public class NoteTransformer {
         }
         guard fileIO.collectionOpen else { return nil }
         let collection = io.collection!
-        let collectionPath = fileIO.collectionFullPath
+        let collectionPath = collection.notesPath
         let dict = collection.dict
+        var upToWebFolder = ""
+        var downToNotesFolder = ""
+        if collection.notesSubFolder {
+            upToWebFolder = "../"
+            downToNotesFolder = "\(NotenikConstants.notesFolderName)/"
+        }
         
         // First let's create a css styles file.
         var css = ""
@@ -238,7 +244,7 @@ public class NoteTransformer {
             css = displayPrefs.bodyCSS!
         }
         ok = NoteTransformer.writeSampleFile(contents: css,
-                                             collectionPath: collectionPath!,
+                                             collectionPath: collectionPath,
                                              folder1: mirrorFolderName,
                                              folder2: cssFolderName,
                                              fileName: cssFileName)
@@ -248,9 +254,9 @@ public class NoteTransformer {
         var markedup = Markedup(format: .htmlDoc)
         // markedup.notenikIO = io
         markedup.templateNextRec()
-        markedup.templateOutput(filename: "../../=$title&f$=.html")
+        markedup.templateOutput(filename: "\(upToWebFolder)../../=$title&f$=.html")
         markedup.startDoc(withTitle: "=$title$=",
-                          withCSS: "\(mirrorFolderName)/\(cssFolderName)/\(cssFileName)",
+                          withCSS: "\(downToNotesFolder)\(mirrorFolderName)/\(cssFolderName)/\(cssFileName)",
                           linkToFile: true)
         markedup.heading(level: 1, text: "=$title$=")
         
@@ -258,7 +264,7 @@ public class NoteTransformer {
         while i < dict.count {
             let def = dict.getDef(i)
             if def != nil {
-                if (def!.fieldLabel.commonForm != LabelConstants.titleCommon) {
+                if (def!.fieldLabel.commonForm != NotenikConstants.titleCommon) {
                     NoteTransformer.genFieldDisplay(def: def!, io: fileIO, markedup: markedup)
                 }
             }
@@ -277,7 +283,7 @@ public class NoteTransformer {
         markedup.templateLoop()
         
         ok = NoteTransformer.writeSampleFile(contents: markedup.code,
-                                             collectionPath: collectionPath!,
+                                             collectionPath: collectionPath,
                                              folder1: mirrorFolderName,
                                              folder2: templatesFolderName,
                                              fileName: sampleMirrorTemplate)
@@ -285,9 +291,9 @@ public class NoteTransformer {
         
         // Now let's create a sample index template.
         markedup = Markedup(format: .htmlDoc)
-        markedup.templateOutput(filename: "../../index.html")
+        markedup.templateOutput(filename: "\(upToWebFolder)../../index.html")
         markedup.startDoc(withTitle: collection.title,
-                          withCSS: "\(mirrorFolderName)/\(cssFolderName)/\(cssFileName)",
+                          withCSS: "\(downToNotesFolder)\(mirrorFolderName)/\(cssFolderName)/\(cssFileName)",
         linkToFile: true)
         markedup.heading(level: 1, text: "Index for \(collection.title)")
         markedup.startUnorderedList(klass: nil)
@@ -303,7 +309,7 @@ public class NoteTransformer {
         markedup.finishDoc()
 
         ok = NoteTransformer.writeSampleFile(contents: markedup.code,
-                                             collectionPath: collectionPath!,
+                                             collectionPath: collectionPath,
                                              folder1: mirrorFolderName,
                                              folder2: templatesFolderName,
                                              fileName: indexMirrorTemplate)
@@ -321,19 +327,19 @@ public class NoteTransformer {
 
         markedup.writeLine("")
         markedup.templateIfField(fieldname: "=$\(def.fieldLabel.commonForm)$=")
-        if def.fieldLabel.commonForm == LabelConstants.titleCommon {
+        if def.fieldLabel.commonForm == NotenikConstants.titleCommon {
             markedup.startParagraph()
             markedup.startStrong()
             markedup.append("=$\(def.fieldLabel.commonForm)$=")
             markedup.finishStrong()
             markedup.finishParagraph()
-        } else if def.fieldLabel.commonForm == LabelConstants.tagsCommon {
+        } else if def.fieldLabel.commonForm == NotenikConstants.tagsCommon {
             markedup.startParagraph()
             markedup.startEmphasis()
             markedup.append("=$\(def.fieldLabel.commonForm)$=")
             markedup.finishEmphasis()
             markedup.finishParagraph()
-        } else if def.fieldLabel.commonForm == LabelConstants.bodyCommon {
+        } else if def.fieldLabel.commonForm == NotenikConstants.bodyCommon {
             markedup.startParagraph()
             markedup.append(def.fieldLabel.properForm)
             markedup.append(": ")
@@ -351,7 +357,7 @@ public class NoteTransformer {
             markedup.link(text: "=$\(def.fieldLabel.commonForm)$=",
                 path: "=$\(def.fieldLabel.commonForm)$=")
             markedup.finishParagraph()
-        } else if def.fieldLabel.commonForm == LabelConstants.codeCommon {
+        } else if def.fieldLabel.commonForm == NotenikConstants.codeCommon {
             markedup.startParagraph()
             markedup.append(def.fieldLabel.properForm)
             markedup.append(": ")

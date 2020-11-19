@@ -13,6 +13,6 @@ import Foundation
 
 public enum CollectionRequestType {
     case new
-    case newMaster
+    case newWebsite
     case saveAs
 }

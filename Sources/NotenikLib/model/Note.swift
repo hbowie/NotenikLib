@@ -37,16 +37,16 @@ public class Note: Comparable, Identifiable, NSCopying {
         }
         set {
             _envCreateDate = newValue
-            let dateAddedDef = collection.dict.getDef(LabelConstants.dateAdded)
+            let dateAddedDef = collection.dict.getDef(NotenikConstants.dateAdded)
             if dateAddedDef != nil {
                 let dateAddedValue = dateAdded
                 if dateAddedValue.value.count == 0 {
                     _ = setDateAdded(newValue)
                 }
             }
-            let timestampDef = collection.dict.getDef(LabelConstants.timestamp)
+            let timestampDef = collection.dict.getDef(NotenikConstants.timestamp)
             if timestampDef != nil {
-                if !self.contains(label: LabelConstants.timestamp) {
+                if !self.contains(label: NotenikConstants.timestamp) {
                     let timestamp = TimestampValue(newValue)
                     let timestampField = NoteField(def: timestampDef!, value: timestamp)
                     fields[timestampDef!.fieldLabel.commonForm] = timestampField
@@ -254,49 +254,49 @@ public class Note: Comparable, Identifiable, NSCopying {
     
     /// Set the Note's Title value
     public func setTitle(_ title: String) -> Bool {
-        let ok = setField(label: LabelConstants.title, value: title)
+        let ok = setField(label: NotenikConstants.title, value: title)
         setID()
         return ok
     }
     
     /// Set the Note's Link value
     public func setLink(_ link: String) -> Bool {
-        return setField(label: LabelConstants.link, value: link)
+        return setField(label: NotenikConstants.link, value: link)
     }
     
     /// Set the Note's Tags value
     public func setTags(_ tags: String) -> Bool {
-        return setField(label: LabelConstants.tags, value: tags)
+        return setField(label: NotenikConstants.tags, value: tags)
     }
     
     /// Set the note's author value. 
     public func setAuthor(_ author: String) -> Bool {
-        return setField(label: LabelConstants.author, value: author)
+        return setField(label: NotenikConstants.author, value: author)
     }
     
     /// Set the Note's Status value
     func setStatus(_ status: String) -> Bool {
-        return setField(label: LabelConstants.status, value: status)
+        return setField(label: NotenikConstants.status, value: status)
     }
     
     /// Set the Note's Date value
     public func setDate(_ date: String) -> Bool {
-        return setField(label: LabelConstants.date, value: date)
+        return setField(label: NotenikConstants.date, value: date)
     }
     
     /// Set the Note's Sequence value
     public func setSeq(_ seq: String) -> Bool {
-        return setField(label: LabelConstants.seq, value: seq)
+        return setField(label: NotenikConstants.seq, value: seq)
     }
     
     /// Set the Note's Index value
     func setIndex(_ index: String) -> Bool {
-        return setField(label: LabelConstants.index, value: index)
+        return setField(label: NotenikConstants.index, value: index)
     }
     
     /// Append additional data to the Index Value
     func appendToIndex(_ index: String) {
-        let field = getField(label: LabelConstants.index)
+        let field = getField(label: NotenikConstants.index)
         if field == nil {
             _ = setIndex(index)
         } else {
@@ -310,28 +310,28 @@ public class Note: Comparable, Identifiable, NSCopying {
     
     /// Set the Note's Code value
     func setCode(_ code: String) -> Bool {
-        return setField(label: LabelConstants.code, value: code)
+        return setField(label: NotenikConstants.code, value: code)
     }
     
     /// Set the Note's Body value
     public func setBody(_ body: String) -> Bool {
-        return setField(label: LabelConstants.body, value: body)
+        return setField(label: NotenikConstants.body, value: body)
     }
     
     /// Set the Note's Date Added field
     func setDateAdded(_ dateAdded: String) -> Bool {
-        return setField(label: LabelConstants.dateAdded, value: dateAdded)
+        return setField(label: NotenikConstants.dateAdded, value: dateAdded)
     }
     
     func setTimestamp(_ timestamp: String) -> Bool {
-        let ok = setField(label: LabelConstants.timestamp, value: timestamp)
+        let ok = setField(label: NotenikConstants.timestamp, value: timestamp)
         setID()
         return ok
     }
     
     /// Return the Note's Artist Value
     public var artist: ArtistValue {
-        let val = getFieldAsValue(label: LabelConstants.artist)
+        let val = getFieldAsValue(label: NotenikConstants.artist)
         if val is ArtistValue {
             return val as! ArtistValue
         } else {
@@ -341,7 +341,7 @@ public class Note: Comparable, Identifiable, NSCopying {
     
     /// Return the Note's Author Value
     public var author: AuthorValue {
-        let val = getFieldAsValue(label: LabelConstants.author)
+        let val = getFieldAsValue(label: NotenikConstants.author)
         if val is AuthorValue {
             return val as! AuthorValue
         } else {
@@ -351,7 +351,7 @@ public class Note: Comparable, Identifiable, NSCopying {
     
     /// Return the Note's Code Value
     public var code: LongTextValue {
-        let val = getFieldAsValue(label: LabelConstants.code)
+        let val = getFieldAsValue(label: NotenikConstants.code)
         if val is LongTextValue {
             return val as! LongTextValue
         } else {
@@ -372,7 +372,7 @@ public class Note: Comparable, Identifiable, NSCopying {
     
     /// Return the Note's Date Value
     public var date: DateValue {
-        let val = getFieldAsValue(label: LabelConstants.date)
+        let val = getFieldAsValue(label: NotenikConstants.date)
         if val is DateValue {
             return val as! DateValue
         } else {
@@ -382,13 +382,13 @@ public class Note: Comparable, Identifiable, NSCopying {
     
     /// Does this note recur on a daily basis?
     public var daily: Bool {
-        guard let recursVal = getFieldAsValue(label: LabelConstants.recurs) as? RecursValue else { return false }
+        guard let recursVal = getFieldAsValue(label: NotenikConstants.recurs) as? RecursValue else { return false }
         return recursVal.daily
     }
     
     /// Return the Note's Recurs Value
     public var recurs: RecursValue {
-        let val = getFieldAsValue(label: LabelConstants.recurs)
+        let val = getFieldAsValue(label: NotenikConstants.recurs)
         if val is RecursValue {
             return val as! RecursValue
         } else {
@@ -398,7 +398,7 @@ public class Note: Comparable, Identifiable, NSCopying {
     
     /// Return the Note's Link Value
     public var link: LinkValue {
-        let val = getFieldAsValue(label: LabelConstants.link)
+        let val = getFieldAsValue(label: NotenikConstants.link)
         if val is LinkValue {
             return val as! LinkValue
         } else {
@@ -408,7 +408,7 @@ public class Note: Comparable, Identifiable, NSCopying {
     
     /// Return the Note's Link Value (if any) as a possible URL
     public var linkAsURL: URL? {
-        let val = getFieldAsValue(label: LabelConstants.link)
+        let val = getFieldAsValue(label: NotenikConstants.link)
         if val is LinkValue {
             let linkVal = val as! LinkValue
             return linkVal.url
@@ -440,7 +440,7 @@ public class Note: Comparable, Identifiable, NSCopying {
     
     /// Return the Note's Sequence Value
     public var seq: SeqValue {
-        let val = getFieldAsValue(label: LabelConstants.seq)
+        let val = getFieldAsValue(label: NotenikConstants.seq)
         if val is SeqValue {
             return val as! SeqValue
         } else {
@@ -450,7 +450,7 @@ public class Note: Comparable, Identifiable, NSCopying {
     
     /// Return the Note's Index Value
     public var index: IndexValue {
-        let val = getFieldAsValue(label: LabelConstants.index)
+        let val = getFieldAsValue(label: NotenikConstants.index)
         if val is IndexValue {
             return val as! IndexValue
         } else {
@@ -460,7 +460,7 @@ public class Note: Comparable, Identifiable, NSCopying {
     
     /// Is the user done with this item? 
     public var isDone: Bool {
-        let val = getFieldAsValue(label: LabelConstants.status)
+        let val = getFieldAsValue(label: NotenikConstants.status)
         guard let status = val as? StatusValue else { return false }
         return status.isDone(config: collection.statusConfig)
     }
@@ -477,7 +477,7 @@ public class Note: Comparable, Identifiable, NSCopying {
     
     /// Return the Note's Status Value
     public var status: StatusValue {
-        let val = getFieldAsValue(label: LabelConstants.status)
+        let val = getFieldAsValue(label: NotenikConstants.status)
         if val is StatusValue {
             return val as! StatusValue
         } else {
@@ -487,7 +487,7 @@ public class Note: Comparable, Identifiable, NSCopying {
     
     /// Return the Note's Title Value
     public var title: TitleValue {
-        let val = getFieldAsValue(label: LabelConstants.title)
+        let val = getFieldAsValue(label: NotenikConstants.title)
         if val is TitleValue {
             return val as! TitleValue
         } else {
@@ -497,7 +497,7 @@ public class Note: Comparable, Identifiable, NSCopying {
     
     /// Return the Note's Tags Value
     public var tags: TagsValue {
-        let val = getFieldAsValue(label: LabelConstants.tags)
+        let val = getFieldAsValue(label: NotenikConstants.tags)
         if val is TagsValue {
             return val as! TagsValue
         } else {
@@ -507,7 +507,7 @@ public class Note: Comparable, Identifiable, NSCopying {
     
     /// Return the Note's Work Title Value
     public var workTitle: WorkTitleValue {
-        let val = getFieldAsValue(label: LabelConstants.workTitle)
+        let val = getFieldAsValue(label: NotenikConstants.workTitle)
         if val is WorkTitleValue {
             return val as! WorkTitleValue
         } else {
@@ -516,7 +516,7 @@ public class Note: Comparable, Identifiable, NSCopying {
     }
     
     public var workLink: LinkValue {
-        let val = getFieldAsValue(label: LabelConstants.workLinkCommon)
+        let val = getFieldAsValue(label: NotenikConstants.workLinkCommon)
         if val is LinkValue {
             return val as! LinkValue
         } else {
@@ -525,7 +525,7 @@ public class Note: Comparable, Identifiable, NSCopying {
     }
     
     public var workType: WorkTypeValue {
-        let val = getFieldAsValue(label: LabelConstants.workTypeCommon)
+        let val = getFieldAsValue(label: NotenikConstants.workTypeCommon)
         if val is WorkTypeValue {
             return val as! WorkTypeValue
         } else {
@@ -535,7 +535,7 @@ public class Note: Comparable, Identifiable, NSCopying {
     
     /// Return the Body of the Note
     public var body: LongTextValue {
-        let val = getFieldAsValue(label: LabelConstants.body)
+        let val = getFieldAsValue(label: NotenikConstants.body)
         if val is LongTextValue {
             return val as! LongTextValue
         } else {
@@ -545,7 +545,7 @@ public class Note: Comparable, Identifiable, NSCopying {
     
     /// Return the date the note was originally added
     public var dateAdded: DateValue {
-        let val = getFieldAsValue(label: LabelConstants.dateAdded)
+        let val = getFieldAsValue(label: NotenikConstants.dateAdded)
         if val is DateValue {
             return val as! DateValue
         } else {
@@ -555,7 +555,7 @@ public class Note: Comparable, Identifiable, NSCopying {
     
     /// Retum the timestamp value
     public var timestamp: TimestampValue {
-        let val = getFieldAsValue(label: LabelConstants.timestamp)
+        let val = getFieldAsValue(label: NotenikConstants.timestamp)
         if val is TimestampValue {
             return val as! TimestampValue
         } else {
@@ -682,21 +682,21 @@ public class Note: Comparable, Identifiable, NSCopying {
     
     /// Does this Note contain a title?
     func containsTitle() -> Bool {
-        return contains(label: LabelConstants.title)
+        return contains(label: NotenikConstants.title)
     }
     
     /// Get the Title field, if one exists
     func getTitleAsField() -> NoteField? {
-        return getField(label: LabelConstants.title)
+        return getField(label: NotenikConstants.title)
     }
     
     func getTagsAsField() -> NoteField? {
-        return getField(label: LabelConstants.tags)
+        return getField(label: NotenikConstants.tags)
     }
     
     /// Get the body field, if one exists
     public func getBodyAsField() -> NoteField? {
-        return getField(label: LabelConstants.body)
+        return getField(label: NotenikConstants.body)
     }
     
     /// See if the note contains a field with the given label.

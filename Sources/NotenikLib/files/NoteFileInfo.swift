@@ -47,7 +47,7 @@ public class NoteFileInfo {
         if self.isEmpty {
             return nil
         } else {
-            return FileUtils.joinPaths(path1: note.collection.collectionFullPath, path2: baseDotExt!)
+            return FileUtils.joinPaths(path1: note.collection.notesPath, path2: baseDotExt!)
         }
     }
     

@@ -16,29 +16,29 @@ import NotenikUtils
 /// Information about a collection of Notes.
 public class NoteCollection {
     
-    public var path  = ""
-    public var title = ""
-    var realm        : Realm
-    var noteType     : NoteType = .general
-    public var dict  : FieldDictionary
-    var idRule       : NoteIDRule
-    public var sortParm : NoteSortParm
-    var sortDescending: Bool
-    public var typeCatalog  = AllTypes()
-    public var statusConfig : StatusValueConfig
-    public var preferredExt : String = "txt"
-    public var otherFields  = false
-    public var readOnly     : Bool = false
-    var customFields : [SortField] = []
-    var hasTimestamp = false
-    var isRealmCollection = false
-    var noteFileFormat: NoteFileFormat = .toBeDetermined
-    public var mirror:         NoteTransformer?
-    public var mirrorAutoIndex = false
-    public var bodyLabel = true
-    public var h1Titles = false
-    public var lastStartupDate = ""
-    var todaysDate = ""
+    public  var title       = ""
+            var realm       : Realm
+            var noteType    : NoteType = .general
+    public  var dict        : FieldDictionary
+            var idRule      : NoteIDRule
+    public  var sortParm    : NoteSortParm
+            var sortDescending: Bool
+    public  var typeCatalog  = AllTypes()
+    public  var statusConfig: StatusValueConfig
+    public  var preferredExt: String = "txt"
+    public  var otherFields = false
+    public  var readOnly    : Bool = false
+            var customFields: [SortField] = []
+            var hasTimestamp = false
+            var isRealmCollection = false
+            var noteFileFormat: NoteFileFormat = .toBeDetermined
+    public  var mirror:         NoteTransformer?
+    public  var mirrorAutoIndex = false
+
+    public  var bodyLabel = true
+    public  var h1Titles = false
+    public  var lastStartupDate = ""
+            var todaysDate = ""
     
     /// Default initialization of a new Collection.
     public init () {
@@ -61,30 +61,51 @@ public class NoteCollection {
         self.realm = realm
     }
     
-    public var collectionFullPathURL: URL? {
-        var collectionURL: URL
-        if realm.path == "" || realm.path == " " {
-            collectionURL = URL(fileURLWithPath: path)
-        } else {
-            let realmURL = URL(fileURLWithPath: realm.path)
-            collectionURL = realmURL.appendingPathComponent(path)
+    /// Get and set a path for the collection.
+    public  var path: String {
+        get {
+            return _path
         }
-        return collectionURL
-    }
-    
-    /// The complete path to this collection, represented as a String
-    public var collectionFullPath: String {
-        if realm.path == "" || realm.path == " " {
-            return path
-        } else {
-            return FileUtils.joinPaths(path1: realm.path, path2: path)
+        set {
+            _path = newValue
+            setPaths()
         }
     }
+    var _path        = ""
     
-    /// Make a complete path to a file residing within this collection
-    func makeFilePath(fileName: String) -> String {
-        return FileUtils.joinPaths(path1: collectionFullPath, path2: fileName)
+    /// Indicate whether the notes reside in a subfolder named notes.
+    public var notesSubFolder: Bool {
+        get {
+            return _notesSubfolder
+        }
+        set {
+            _notesSubfolder = newValue
+            setPaths()
+        }
     }
+    var _notesSubfolder  = false
+    
+    /// Set paths
+    func setPaths() {
+        fullPathURL = FileIO.urlFrom(realm: realm, path: _path)
+        guard fullPathURL != nil else { return }
+        fullPath = fullPathURL!.path
+        parentURL = fullPathURL!.deletingLastPathComponent()
+        if _notesSubfolder {
+            notesPath = FileUtils.joinPaths(path1: fullPath,
+                                            path2: NotenikConstants.notesFolderName)
+            notesPathURL = URL(fileURLWithPath: notesPath)
+        } else {
+            notesPath = fullPath
+            notesPathURL = fullPathURL
+        }
+    }
+    
+    public private(set) var fullPath    = ""
+    public private(set) var fullPathURL:  URL?
+    public private(set) var notesPath   = ""
+    public private(set) var notesPathURL: URL?
+    public private(set) var parentURL:    URL?
     
     /// Is this today's first startup?
     public var startupToday: Bool {
@@ -94,6 +115,22 @@ public class NoteCollection {
     /// Record the info that we've had a successful startup for today.
     public func startedUp() {
         lastStartupDate = todaysDate
+    }
+    
+    /// Set new values for the Status Value configuration. 
+    public func setStatusConfig(_ options: String) {
+        
+        statusConfig.set(options)
+        
+        typeCatalog.statusValueConfig = statusConfig
+        
+        var statusLabel = FieldLabel(NotenikConstants.status)
+        let fieldDef = getDef(label: &statusLabel, allowDictAdds: false)
+        if fieldDef != nil {
+            if let statusType = fieldDef!.fieldType as? StatusType {
+                statusType.statusValueConfig = statusConfig
+            }
+        }
     }
     
     /// Attempt to obtain or create a Field Definition for the given Label.
@@ -115,7 +152,7 @@ public class NoteCollection {
         } else if dict.contains(label) {
             label.validLabel = true
             def = dict.getDef(label)
-        } else if label.commonForm == LabelConstants.dateAddedCommon
+        } else if label.commonForm == NotenikConstants.dateAddedCommon
             && dict.locked &&  allowDictAdds {
             label.validLabel = true
             dict.unlock()

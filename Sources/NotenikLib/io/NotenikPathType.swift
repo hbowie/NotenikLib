@@ -15,5 +15,7 @@ public enum NotenikPathType {
     case hopeless
     case empty
     case existing
+    case foreign
     case realm
+    case web
 }

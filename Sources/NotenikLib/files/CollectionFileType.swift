@@ -22,5 +22,6 @@ enum CollectionFileType {
     case readme
     case reportsFolder
     case templateFile
+    case webIndex
     case unknown
 }

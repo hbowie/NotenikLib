@@ -42,11 +42,11 @@ class AliasList: RowConsumer {
     
     /// Load the exising alias list from its disk file within the collection.
     func loadFromDisk() {
-        guard noteIO != nil else { return }
-        guard noteIO!.collection != nil else { return }
-        guard noteIO!.collection!.hasTimestamp else { return }
+        guard let io = noteIO as? FileIO else { return }
+        guard let collection = io.collection else { return }
+        guard collection.hasTimestamp else { return }
         rowsLoaded = 0
-        let filePath = noteIO!.collection!.makeFilePath(fileName: AliasList.aliasFileName)
+        let filePath = io.makeFilePath(fileName: AliasList.aliasFileName)
         let aliasFileExists = FileManager.default.fileExists(atPath: filePath)
         if aliasFileExists {
             let fileURL = URL(fileURLWithPath: filePath)
@@ -99,12 +99,12 @@ class AliasList: RowConsumer {
     /// Save the list of aliases to disk.
     /// - Returns: True if no problems were encountered; false if problems did occur.
     func saveToDisk() -> Bool {
-        guard noteIO != nil else { return true }
-        guard noteIO!.collection != nil else { return true }
-        guard !noteIO!.collection!.readOnly else { return true }
-        guard noteIO!.collection!.hasTimestamp else { return true }
+        guard let io = noteIO as? FileIO else { return true }
+        guard let collection = io.collection else { return true }
+        guard !collection.readOnly else { return true }
+        guard collection.hasTimestamp else { return true }
         guard count > 0 else { return true }
-        let filePath = noteIO!.collection!.makeFilePath(fileName: AliasList.aliasFileName)
+        let filePath = io.makeFilePath(fileName: AliasList.aliasFileName)
         let fileURL = URL(fileURLWithPath: filePath)
         let writer = DelimitedWriter(destination: fileURL, format: .tabDelimited)
         writer.open()

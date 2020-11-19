@@ -34,7 +34,7 @@ public class NoteDisplay: NSObject {
         code.startDoc(withTitle: note.title.value, withCSS: displayPrefs.bodyCSS)
         var i = 0
         if note.hasTags() {
-            let tagsField = note.getField(label: LabelConstants.tags)
+            let tagsField = note.getField(label: NotenikConstants.tags)
             code.append(display(tagsField!, collection: collection, io: io))
         }
         while i < dict.count {
@@ -43,9 +43,9 @@ public class NoteDisplay: NSObject {
                 let field = note.getField(def: def!)
                 if (field != nil &&
                     field!.value.hasData &&
-                    field!.def.fieldLabel.commonForm != LabelConstants.tagsCommon &&
-                    field!.def.fieldLabel.commonForm != LabelConstants.dateAddedCommon &&
-                    field!.def.fieldLabel.commonForm != LabelConstants.timestampCommon) {
+                    field!.def.fieldLabel.commonForm != NotenikConstants.tagsCommon &&
+                    field!.def.fieldLabel.commonForm != NotenikConstants.dateAddedCommon &&
+                    field!.def.fieldLabel.commonForm != NotenikConstants.timestampCommon) {
                     code.append(display(field!, collection: collection, io: io))
                 }
             }
@@ -53,11 +53,11 @@ public class NoteDisplay: NSObject {
         }
         if note.hasDateAdded() || note.hasTimestamp() {
             code.horizontalRule()
-            let stamp = note.getField(label: LabelConstants.timestamp)
+            let stamp = note.getField(label: NotenikConstants.timestamp)
             if stamp != nil {
                 code.append(display(stamp!, collection: collection, io: io))
             }
-            let dateAdded = note.getField(label: LabelConstants.dateAdded)
+            let dateAdded = note.getField(label: NotenikConstants.dateAdded)
             if dateAdded != nil {
                 code.append(display(dateAdded!, collection: collection, io: io))
             }
@@ -73,7 +73,7 @@ public class NoteDisplay: NSObject {
     /// - Returns: A String containing the code that can be used to display this field.
     func display(_ field: NoteField, collection: NoteCollection, io: NotenikIO) -> String {
         let code = Markedup(format: format)
-        if field.def.fieldLabel.commonForm == LabelConstants.titleCommon {
+        if field.def.fieldLabel.commonForm == NotenikConstants.titleCommon {
             if collection.h1Titles {
                 code.heading(level: 1, text: field.value.value)
             } else {
@@ -83,13 +83,13 @@ public class NoteDisplay: NSObject {
                 code.finishStrong()
                 code.finishParagraph()
             }
-        } else if field.def.fieldLabel.commonForm == LabelConstants.tagsCommon {
+        } else if field.def.fieldLabel.commonForm == NotenikConstants.tagsCommon {
             code.startParagraph()
             code.startEmphasis()
             code.append(field.value.value)
             code.finishEmphasis()
             code.finishParagraph()
-        } else if field.def.fieldLabel.commonForm == LabelConstants.bodyCommon {
+        } else if field.def.fieldLabel.commonForm == NotenikConstants.bodyCommon {
             if collection.bodyLabel {
                 code.startParagraph()
                 code.append(field.def.fieldLabel.properForm)
@@ -111,7 +111,7 @@ public class NoteDisplay: NSObject {
             }
             code.link(text: pathDisplay!, path: field.value.value)
             code.finishParagraph()
-        } else if field.def.fieldLabel.commonForm == LabelConstants.codeCommon {
+        } else if field.def.fieldLabel.commonForm == NotenikConstants.codeCommon {
             code.startParagraph()
             code.append(field.def.fieldLabel.properForm)
             code.append(": ")
@@ -123,7 +123,7 @@ public class NoteDisplay: NSObject {
             code.append(": ")
             code.finishParagraph()
             MkdownParser.markdownToMarkedup(markdown: field.value.value, wikiLinkLookup: io, writer: code)
-        } else if field.def.fieldType.typeString == LabelConstants.dateType {
+        } else if field.def.fieldType.typeString == NotenikConstants.dateType {
             code.startParagraph()
             code.append(field.def.fieldLabel.properForm)
             code.append(": ")

@@ -53,11 +53,6 @@ class BunchIO: NotenikIO, RowConsumer  {
         closeCollection()
     }
     
-    /// See what sort of path this might be.
-    func checkPathType(path: String) -> NotenikPathType {
-        return .hopeless
-    }
-    
     /// Return the number of notes in the current collection.
     ///
     /// - Returns: The number of notes in the current collection
@@ -257,10 +252,10 @@ class BunchIO: NotenikIO, RowConsumer  {
         guard collection != nil else { return }
         let dict = collection!.dict
         let types = collection!.typeCatalog
-        _ = dict.addDef(typeCatalog: types, label: LabelConstants.title)
-        _ = dict.addDef(typeCatalog: types, label: LabelConstants.tags)
-        _ = dict.addDef(typeCatalog: types, label: LabelConstants.link)
-        _ = dict.addDef(typeCatalog: types, label: LabelConstants.body)
+        _ = dict.addDef(typeCatalog: types, label: NotenikConstants.title)
+        _ = dict.addDef(typeCatalog: types, label: NotenikConstants.tags)
+        _ = dict.addDef(typeCatalog: types, label: NotenikConstants.link)
+        _ = dict.addDef(typeCatalog: types, label: NotenikConstants.body)
     }
     
     /// Load the list of reports available for this collection.
@@ -577,5 +572,10 @@ class BunchIO: NotenikIO, RowConsumer  {
     /// Return a path to the storage location for attachments.
     func getAttachmentsLocation() -> String? {
         return nil
+    }
+    
+    /// See what sort of path this might be.
+    static func checkPathType(path: String) -> NotenikPathType {
+        return .hopeless
     }
 }

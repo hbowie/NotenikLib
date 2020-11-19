@@ -11,7 +11,14 @@
 
 import Foundation
 
-public struct LabelConstants {
+/// Various constants used throughout Notenik.
+public struct NotenikConstants {
+    
+    //-------------------------------------------------------------
+    //
+    // Field Labels
+    //
+    //-------------------------------------------------------------
     static let artist           = "Artist"
     static let artistCommon     = "artist"
     static let author           = "Author"
@@ -86,4 +93,23 @@ public struct LabelConstants {
     static let workTypeCommon   = "worktype"
     
     static let dateType         = "date"
+    
+    //-------------------------------------------------------------
+    //
+    // Default configuration values
+    //
+    //-------------------------------------------------------------
+    
+    static let defaultWebStatusConfig = "1 - Idea; 4 - In Work; 8 - Canceled; 9 - Published"
+    
+    //-------------------------------------------------------------
+    //
+    // Files and folders
+    //
+    //-------------------------------------------------------------
+    
+    public static let infoFileName      = "- INFO.nnk"
+    public static let notesFolderName   = "notes"
+    public static let filesFolderName     = "files"
+    public static let scriptExt           = ".tcz"
 }

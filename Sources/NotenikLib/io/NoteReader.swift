@@ -65,7 +65,7 @@ class NoteReader: RowImporter {
         
         // Build the list of labels
         if split {
-            labels.append(LabelConstants.tag)
+            labels.append(NotenikConstants.tag)
         }
         for def in collection!.dict.dict {
             labels.append(def.value.fieldLabel.properForm)
@@ -94,7 +94,7 @@ class NoteReader: RowImporter {
     func returnNoteFields(note: Note, splitTag: String?) {
         startRow()
         for label in labels {
-            if split && label == LabelConstants.tag {
+            if split && label == NotenikConstants.tag {
                 if splitTag == nil {
                     anotherField(label: label, value: "")
                 } else {

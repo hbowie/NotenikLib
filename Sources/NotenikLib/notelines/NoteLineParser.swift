@@ -50,9 +50,9 @@ public class NoteLineParser {
         self.dict = collection.dict
         let typeCat = collection.typeCatalog
         
-        let tagsDef = dict.getDef(LabelConstants.tags)
+        let tagsDef = dict.getDef(NotenikConstants.tags)
         if tagsDef == nil {
-            _ = dict.addDef(typeCatalog: typeCat, label: LabelConstants.tags)
+            _ = dict.addDef(typeCatalog: typeCat, label: NotenikConstants.tags)
         }
         
         self.reader = reader
@@ -126,13 +126,13 @@ public class NoteLineParser {
                 && !bodyStarted {
                 note.fileInfo.mmdMetaEndLine = noteLine.line
             } else if lineNumber == 1 && noteLine.mdH1Line && noteLine.value.count > 0 && !bodyStarted {
-                label.set(LabelConstants.title)
+                label.set(NotenikConstants.title)
                 label.validLabel = true
                 def = note.collection.getDef(label: &label, allowDictAdds: allowDictAdds)!
                 value = noteLine.value
                 note.fileInfo.format = .markdown
             } else if note.fileInfo.format == .markdown && !bodyStarted && noteLine.mdTagsLine {
-                label.set(LabelConstants.tags)
+                label.set(NotenikConstants.tags)
                 label.validLabel = true
                 def = note.collection.getDef(label: &label, allowDictAdds: allowDictAdds)!
                 value = noteLine.value
@@ -147,7 +147,7 @@ public class NoteLineParser {
             } else if noteLine.blankLine {
                 if fieldNumber > 1 && blankLines == 1 && !bodyStarted {
                     note.fileInfo.format = .multiMarkdown
-                    label.set(LabelConstants.body)
+                    label.set(NotenikConstants.body)
                     label.validLabel = true
                     def = note.collection.getDef(label: &label, allowDictAdds: allowDictAdds)!
                     clearValue()
@@ -166,7 +166,7 @@ public class NoteLineParser {
                 }
             } else {
                 // Value with no label
-                label.set(LabelConstants.body)
+                label.set(NotenikConstants.body)
                 label.validLabel = true
                 def = note.collection.getDef(label: &label, allowDictAdds: allowDictAdds)!
                 value = noteLine.line

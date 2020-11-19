@@ -34,19 +34,19 @@ public class WorkTitlePickList: PickList {
         let link = note.workLink
         work.setLink(link)
         
-        let id = note.getFieldAsValue(label: LabelConstants.workIDcommon)
+        let id = note.getFieldAsValue(label: NotenikConstants.workIDcommon)
         work.setID(id)
         
-        let rights = note.getFieldAsValue(label: LabelConstants.workRightsCommon)
+        let rights = note.getFieldAsValue(label: NotenikConstants.workRightsCommon)
         work.setRights(rights)
         
-        let holder = note.getFieldAsValue(label: LabelConstants.workRightsHolderCommon)
+        let holder = note.getFieldAsValue(label: NotenikConstants.workRightsHolderCommon)
         work.setHolder(holder)
         
-        let publisher = note.getFieldAsValue(label: LabelConstants.publisherCommon)
+        let publisher = note.getFieldAsValue(label: NotenikConstants.publisherCommon)
         work.setPublisher(publisher)
         
-        let city = note.getFieldAsValue(label: LabelConstants.pubCityCommon)
+        let city = note.getFieldAsValue(label: NotenikConstants.pubCityCommon)
         work.setCity(city)
     } // end register tags
     

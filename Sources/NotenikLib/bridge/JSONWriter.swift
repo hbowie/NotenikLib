@@ -104,8 +104,8 @@ public class JSONWriter {
     /// Write out the given note's body as a complete JSON object.
     public func writeBodyAsObject(_ note: Note) {
         startObject()
-        write(key: LabelConstants.body,
-              value: note.getFieldAsString(label: LabelConstants.body))
+        write(key: NotenikConstants.body,
+              value: note.getFieldAsString(label: NotenikConstants.body))
         endObject()
     }
     

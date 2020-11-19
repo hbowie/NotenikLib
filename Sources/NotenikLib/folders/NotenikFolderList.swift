@@ -3,7 +3,7 @@
 //
 //  Created by Herb Bowie on 8/26/20.
 
-//  Copyright © 2020 Herb Bowie (https://powersurgepub.com)
+//  Copyright © 2020 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -84,11 +84,10 @@ public class NotenikFolderList: Sequence {
     
     /// Add another collection to the list of known collections.
     public func add(_ collection: NoteCollection) {
-        let url = collection.collectionFullPathURL
-        if url != nil {
-            let newFolder = NotenikFolder(url: url!, isCollection: true)
-            add(newFolder)
-        }
+        let url = collection.fullPathURL
+        guard url != nil else { return }
+        let newFolder = NotenikFolder(url: url!, isCollection: true)
+        add(newFolder)
     }
     
     /// Add another folder to the tree, along with its specified metadata.
@@ -105,7 +104,10 @@ public class NotenikFolderList: Sequence {
         }
         
         /// Make sure the url points to a directory.
-        guard folder.url.isFileURL && folder.url.hasDirectoryPath else {
+        guard folder.url.isFileURL
+                // This says no just because there is no trailing slash
+                // && folder.url.hasDirectoryPath
+        else {
             logError("URL does not point to a file directory: \(folder.url.absoluteString)")
             return
         }
@@ -136,7 +138,8 @@ public class NotenikFolderList: Sequence {
         }
         
         /// Let's see if the passed URL  points to a Notenik Collection.
-        let infoPath = FileUtils.joinPaths(path1: folder.path, path2: FileIO.infoFileName)
+        let infoPath = FileUtils.joinPaths(path1: folder.path,
+                                           path2: NotenikConstants.infoFileName)
         let infoURL = URL(fileURLWithPath: infoPath)
         var folderIsACollection = false
         do {

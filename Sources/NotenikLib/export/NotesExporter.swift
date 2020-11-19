@@ -79,8 +79,8 @@ public class NotesExporter {
         
         dict = noteIO.collection!.dict
         
-        authorDef = dict.contains(LabelConstants.authorCommon)
-        workDef = dict.contains(LabelConstants.workTitleCommon)
+        authorDef = dict.contains(NotenikConstants.authorCommon)
+        workDef = dict.contains(NotenikConstants.workTitleCommon)
         
         logNormal("Export requested to \(destination.absoluteString)")
         
@@ -149,7 +149,7 @@ public class NotesExporter {
         
         // Write out column headers
         if split {
-            delimWriter.write(value: LabelConstants.tag)
+            delimWriter.write(value: NotenikConstants.tag)
         }
         for def in dict.list {
             delimWriter.write(value: def.fieldLabel.properForm)
@@ -224,7 +224,7 @@ public class NotesExporter {
             return
         }
         
-        logNormal("New Collection successfully initialized at \(exportCollection.collectionFullPath)")
+        logNormal("New Collection successfully initialized at \(exportCollection.fullPath)")
         
     }
     
@@ -323,7 +323,7 @@ public class NotesExporter {
             writeField(value: splitTag)
         }
         for def in dict.list {
-            if def.fieldLabel.commonForm == LabelConstants.tagsCommon {
+            if def.fieldLabel.commonForm == NotenikConstants.tagsCommon {
                 writeField(value: cleanTags)
             } else {
                 writeField(value: note.getFieldAsString(label: def.fieldLabel.commonForm))
@@ -333,7 +333,7 @@ public class NotesExporter {
         if webExt {
             // Now add derived fields
             let code = Markedup(format: .htmlFragment)
-            MkdownParser.markdownToMarkedup(markdown: note.getFieldAsString(label: LabelConstants.bodyCommon),
+            MkdownParser.markdownToMarkedup(markdown: note.getFieldAsString(label: NotenikConstants.bodyCommon),
                                             wikiLinkLookup: noteIO, writer: code)
             writeField(value: String(describing: code))
             
@@ -388,10 +388,10 @@ public class NotesExporter {
         jsonWriter.writeKey(note.id)
         jsonWriter.startObject()
         if split {
-            jsonWriter.write(key: LabelConstants.tag, value: splitTag)
+            jsonWriter.write(key: NotenikConstants.tag, value: splitTag)
         }
         for def in dict.list {
-            if def.fieldLabel.commonForm == LabelConstants.tagsCommon {
+            if def.fieldLabel.commonForm == NotenikConstants.tagsCommon {
                 jsonWriter.write(key: def.fieldLabel.properForm, value: cleanTags)
             } else {
                 jsonWriter.write(key: def.fieldLabel.properForm, value: note.getFieldAsString(label: def.fieldLabel.commonForm))
@@ -402,7 +402,7 @@ public class NotesExporter {
             
             // Now add derived fields
             let code = Markedup(format: .htmlFragment)
-            MkdownParser.markdownToMarkedup(markdown: note.getFieldAsString(label: LabelConstants.bodyCommon),
+            MkdownParser.markdownToMarkedup(markdown: note.getFieldAsString(label: NotenikConstants.bodyCommon),
                                             wikiLinkLookup: noteIO, writer: code)
             jsonWriter.write(key: "Body as HTML", value: String(describing: code))
             
@@ -434,14 +434,14 @@ public class NotesExporter {
     func writeOutline(splitTag: String, cleanTags: String, note: Note) {
         markup.startOutlineOpen(note.title.value)
         if split {
-            addOutlineAttribute(label: LabelConstants.tag, value: splitTag)
+            addOutlineAttribute(label: NotenikConstants.tag, value: splitTag)
         }
         for def in dict.list {
-            if def.fieldLabel.commonForm == LabelConstants.tagsCommon {
+            if def.fieldLabel.commonForm == NotenikConstants.tagsCommon {
                 addOutlineAttribute(label: def.fieldLabel.properForm, value: cleanTags)
-            } else if def.fieldLabel.commonForm == LabelConstants.titleCommon {
+            } else if def.fieldLabel.commonForm == NotenikConstants.titleCommon {
                 // We've already handled the title
-            } else if def.fieldLabel.commonForm == LabelConstants.bodyCommon {
+            } else if def.fieldLabel.commonForm == NotenikConstants.bodyCommon {
                 // We'll handle the body below
             } else {
                 addOutlineAttribute(label: def.fieldLabel.properForm,
@@ -453,7 +453,7 @@ public class NotesExporter {
             
             // Now add derived fields
             let code = Markedup(format: .htmlFragment)
-            MkdownParser.markdownToMarkedup(markdown: note.getFieldAsString(label: LabelConstants.bodyCommon),
+            MkdownParser.markdownToMarkedup(markdown: note.getFieldAsString(label: NotenikConstants.bodyCommon),
                                             wikiLinkLookup: noteIO, writer: code)
             addOutlineAttribute(label: "Body as HTML", value: String(describing: code))
             
@@ -486,26 +486,26 @@ public class NotesExporter {
     
     func workToHTML(note: Note) -> String {
         let html = Markedup(format: .htmlFragment)
-        let workType = note.getFieldAsString(label: LabelConstants.workTypeCommon)
+        let workType = note.getFieldAsString(label: NotenikConstants.workTypeCommon)
         html.spanConditional(value: workType, klass: "sourcetype", prefix: "the ", suffix: " ")
-        let workTitle = note.getFieldAsString(label: LabelConstants.workTitleCommon)
+        let workTitle = note.getFieldAsString(label: NotenikConstants.workTitleCommon)
         html.spanConditional(value: workTitle, klass: "majortitle", prefix: "", suffix: "", tag: "cite")
-        let pubCity = note.getFieldAsString(label: LabelConstants.pubCityCommon)
+        let pubCity = note.getFieldAsString(label: NotenikConstants.pubCityCommon)
         html.spanConditional(value: pubCity, klass: "city", prefix: ", ", suffix: ":")
-        let publisher = note.getFieldAsString(label: LabelConstants.publisherCommon)
+        let publisher = note.getFieldAsString(label: NotenikConstants.publisherCommon)
         html.spanConditional(value: publisher, klass: "publisher", prefix: " ", suffix: "")
         let date = String(describing: note.date)
         html.spanConditional(value: date, klass: "datepublished", prefix: ", ", suffix: "")
-        let pages = note.getFieldAsString(label: LabelConstants.workPagesCommon)
+        let pages = note.getFieldAsString(label: NotenikConstants.workPagesCommon)
         html.spanConditional(value: pages, klass: "pages", prefix: ", pages&nbsp;", suffix: "")
-        let workID = note.getFieldAsString(label: LabelConstants.workIDcommon)
+        let workID = note.getFieldAsString(label: NotenikConstants.workIDcommon)
         html.spanConditional(value: workID, klass: "isbn", prefix: ", ISBN&nbsp;", suffix: "")
         return String(describing: html)
     }
     
     func workRightsToHTML(note: Note) -> String {
         let html = Markedup(format: .htmlFragment)
-        let rights = note.getFieldAsString(label: LabelConstants.workRightsCommon)
+        let rights = note.getFieldAsString(label: NotenikConstants.workRightsCommon)
         var symbol = ""
         if rights.lowercased() == "copyright" {
             symbol = " &copy;"
@@ -513,7 +513,7 @@ public class NotesExporter {
         html.spanConditional(value: rights, klass: "rights", prefix: "", suffix: symbol)
         let date = String(describing: note.date)
         html.spanConditional(value: date, klass: "datepublished", prefix: " ", suffix: "")
-        let owner = note.getFieldAsString(label: LabelConstants.workRightsHolderCommon)
+        let owner = note.getFieldAsString(label: NotenikConstants.workRightsHolderCommon)
         html.spanConditional(value: owner, klass: "rightsowner", prefix: " by ", suffix: "")
         return String(describing: html)
     }
@@ -535,7 +535,7 @@ public class NotesExporter {
                 if field != nil && field!.value.count > 0 {
                     let exportField = NoteField()
                     exportField.def = exportDef!
-                    if def.fieldLabel.commonForm == LabelConstants.tagsCommon {
+                    if def.fieldLabel.commonForm == NotenikConstants.tagsCommon {
                         _ = exportNote.setTags(cleanTags)
                     } else {
                         exportField.value = field!.value

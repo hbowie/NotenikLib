@@ -32,72 +32,72 @@ public class FieldLabel: CustomStringConvertible {
     func set(_ label: String) {
         properForm = label
         commonForm = StringUtils.toCommon(label)
-        if isAuthor && commonForm != LabelConstants.authorCommon {
-            properForm = LabelConstants.author
-            commonForm = LabelConstants.authorCommon
-        } else if isLink && commonForm != LabelConstants.linkCommon {
-            properForm = LabelConstants.link
-            commonForm = LabelConstants.linkCommon
-        } else if isRating && commonForm != LabelConstants.ratingCommon {
-            properForm = LabelConstants.rating
-            commonForm = LabelConstants.ratingCommon
-        } else if isRecurs && commonForm != LabelConstants.recursCommon {
-            properForm = LabelConstants.recurs
-            commonForm = LabelConstants.recursCommon
-        } else if isSeq && commonForm != LabelConstants.seqCommon {
-            properForm = LabelConstants.seq
-            commonForm = LabelConstants.seqCommon
-        } else if isTags && commonForm != LabelConstants.tagsCommon {
-            properForm = LabelConstants.tags
-            commonForm = LabelConstants.tagsCommon
+        if isAuthor && commonForm != NotenikConstants.authorCommon {
+            properForm = NotenikConstants.author
+            commonForm = NotenikConstants.authorCommon
+        } else if isLink && commonForm != NotenikConstants.linkCommon {
+            properForm = NotenikConstants.link
+            commonForm = NotenikConstants.linkCommon
+        } else if isRating && commonForm != NotenikConstants.ratingCommon {
+            properForm = NotenikConstants.rating
+            commonForm = NotenikConstants.ratingCommon
+        } else if isRecurs && commonForm != NotenikConstants.recursCommon {
+            properForm = NotenikConstants.recurs
+            commonForm = NotenikConstants.recursCommon
+        } else if isSeq && commonForm != NotenikConstants.seqCommon {
+            properForm = NotenikConstants.seq
+            commonForm = NotenikConstants.seqCommon
+        } else if isTags && commonForm != NotenikConstants.tagsCommon {
+            properForm = NotenikConstants.tags
+            commonForm = NotenikConstants.tagsCommon
         }
     }
     
     var isAuthor: Bool {
-        return (commonForm == LabelConstants.authorCommon
+        return (commonForm == NotenikConstants.authorCommon
             || commonForm == "by"
             || commonForm == "creator")
     }
     
     var isBody: Bool {
-        return commonForm == LabelConstants.bodyCommon
+        return commonForm == NotenikConstants.bodyCommon
     }
     
     var isCode: Bool {
-        return commonForm == LabelConstants.codeCommon
+        return commonForm == NotenikConstants.codeCommon
     }
     
     var isDate: Bool {
-        return commonForm == LabelConstants.dateCommon
+        return commonForm == NotenikConstants.dateCommon
     }
     
     var isDateAdded: Bool {
-        return commonForm == LabelConstants.dateAddedCommon
+        return commonForm == NotenikConstants.dateAddedCommon
     }
     
     var isIndex: Bool {
-        return commonForm == LabelConstants.indexCommon
+        return commonForm == NotenikConstants.indexCommon
     }
     
     var isLink: Bool {
-        return (commonForm == LabelConstants.linkCommon
+        return (commonForm == NotenikConstants.linkCommon
             || commonForm == "url")
     }
     
     var isRating: Bool {
-        return (commonForm == LabelConstants.ratingCommon
+        return (commonForm == NotenikConstants.ratingCommon
             || commonForm == "priority")
     }
     
     var isRecurs: Bool {
-        return (commonForm == LabelConstants.recursCommon
+        return (commonForm == NotenikConstants.recursCommon
             || commonForm == "every"
-            || (commonForm.hasPrefix(LabelConstants.recursCommon)
+            || (commonForm.hasPrefix(NotenikConstants.recursCommon)
                 && commonForm.hasSuffix("every")))
     }
     
     var isSeq: Bool {
-        return (commonForm == LabelConstants.seqCommon
+        return (commonForm == NotenikConstants.seqCommon
             || commonForm == "sequence"
             || commonForm == "rev"
             || commonForm == "revision"
@@ -105,39 +105,39 @@ public class FieldLabel: CustomStringConvertible {
     }
     
     var isStatus: Bool {
-        return (commonForm == LabelConstants.statusCommon)
+        return (commonForm == NotenikConstants.statusCommon)
     }
     
     var isTags: Bool {
-        return (commonForm == LabelConstants.tagsCommon
+        return (commonForm == NotenikConstants.tagsCommon
             || commonForm == "keywords"
             || commonForm == "category"
             || commonForm == "categories")
     }
     
     var isTeaser: Bool {
-        return (commonForm == LabelConstants.teaserCommon)
+        return (commonForm == NotenikConstants.teaserCommon)
     }
     
     var isTimestamp: Bool {
-        return (commonForm == LabelConstants.timestampCommon)
+        return (commonForm == NotenikConstants.timestampCommon)
     }
     
     var isTitle: Bool {
-        return commonForm == LabelConstants.titleCommon
+        return commonForm == NotenikConstants.titleCommon
         
     }
     
     var isType: Bool {
-        return commonForm == LabelConstants.typeCommon
+        return commonForm == NotenikConstants.typeCommon
     }
     
     var isWorkTitle: Bool {
-        return commonForm == LabelConstants.workTitleCommon
+        return commonForm == NotenikConstants.workTitleCommon
     }
     
     var isWorkType: Bool {
-        return commonForm == LabelConstants.workTypeCommon
+        return commonForm == NotenikConstants.workTypeCommon
     }
     
     var count: Int {

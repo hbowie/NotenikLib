@@ -68,7 +68,7 @@ public class RealmScanner {
             for itemPath in dirContents {
                 let itemFullPath = FileUtils.joinPaths(path1: folderPath,
                                                        path2: itemPath)
-                if itemPath == FileIO.infoFileName {
+                if itemPath == NotenikConstants.infoFileName {
                     infoFileFound(folderPath: folderPath, realm: realm, itemFullPath: itemFullPath)
                 } else if itemPath.hasPrefix(".") {
                     // Ignore invisible files

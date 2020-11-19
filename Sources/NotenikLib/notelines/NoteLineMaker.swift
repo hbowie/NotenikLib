@@ -49,10 +49,10 @@ public class NoteLineMaker {
             for def in note.collection.dict.list {
                 let field = note.getField(def: def)
                 if field != nil && field!.value.hasData {
-                    if def.fieldLabel.commonForm == LabelConstants.title
-                        || def.fieldLabel.commonForm == LabelConstants.body {
+                    if def.fieldLabel.commonForm == NotenikConstants.title
+                        || def.fieldLabel.commonForm == NotenikConstants.body {
                         break
-                    } else if def.fieldLabel.commonForm == LabelConstants.tags {
+                    } else if def.fieldLabel.commonForm == NotenikConstants.tags {
                         if note.fileInfo.format == .multiMarkdown {
                             break
                         } else {
@@ -79,9 +79,9 @@ public class NoteLineMaker {
         while i < note.collection.dict.count {
             let def = note.collection.dict.getDef(i)
             if def != nil &&
-                def!.fieldLabel.commonForm != LabelConstants.titleCommon &&
-                def!.fieldLabel.commonForm != LabelConstants.bodyCommon &&
-                def!.fieldLabel.commonForm != LabelConstants.tagsCommon {
+                def!.fieldLabel.commonForm != NotenikConstants.titleCommon &&
+                def!.fieldLabel.commonForm != NotenikConstants.bodyCommon &&
+                def!.fieldLabel.commonForm != NotenikConstants.tagsCommon {
                 putField(note.getField(def: def!), format: note.fileInfo.format)
             }
             i += 1
