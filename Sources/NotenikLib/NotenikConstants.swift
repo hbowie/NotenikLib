@@ -112,4 +112,5 @@ public struct NotenikConstants {
     public static let notesFolderName   = "notes"
     public static let filesFolderName     = "files"
     public static let scriptExt           = ".tcz"
+    public static let indexFileName     = "index.html"
 }
