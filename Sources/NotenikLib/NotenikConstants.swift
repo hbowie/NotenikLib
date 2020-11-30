@@ -109,8 +109,14 @@ public struct NotenikConstants {
     //-------------------------------------------------------------
     
     public static let infoFileName      = "- INFO.nnk"
+    public static let readmeFileName    = "- README.txt"
+    public static let templateFileName  = "template"
     public static let notesFolderName   = "notes"
-    public static let filesFolderName     = "files"
-    public static let scriptExt           = ".tcz"
+    public static let filesFolderName   = "files"
+    public static let mirrorFolderName  = "mirror"
+    public static let reportsFolderName = "reports"
+    public static let scriptExt         = ".tcz"
     public static let indexFileName     = "index.html"
+    
+    public static let oldSourceParms    = "pspub_source_parms.xml"
 }

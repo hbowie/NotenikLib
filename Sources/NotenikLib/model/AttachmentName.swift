@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 7/22/19.
-//  Copyright © 2019 Herb Bowie (https://powersurgepub.com)
+//  Copyright © 2019-2020 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -66,7 +66,7 @@ public class AttachmentName: Comparable, NSCopying, CustomStringConvertible {
         var index = fullName.index(fullName.startIndex, offsetBy: prefix.count)
         while index < fullName.endIndex {
             let char = fullName[index]
-            if suffix.count == 0 && (char.isWhitespace || char.isPunctuation) {
+            if suffix.count == 0 && (char.isWhitespace || char.isPunctuation || char == "|") {
                 separator.append(char)
             } else if char == "." {
                 if ext.count > 0 {
@@ -107,5 +107,9 @@ public class AttachmentName: Comparable, NSCopying, CustomStringConvertible {
     func changeNote(note: Note) {
         guard let fnBase = note.fileInfo.base else { return }
         self.prefix = fnBase
+    }
+    
+    func display() {
+        print("Attachment prefix: \(prefix), sep: \(separator), suffix: \(suffix), ext: \(ext)")
     }
 }

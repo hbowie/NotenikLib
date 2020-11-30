@@ -14,10 +14,7 @@ import Foundation
 import NotenikUtils
 
 class CollectionFile {
-    
-    static let mirrorFolderName    = "mirror"
-    static let reportsFolderName   = "reports"
-    
+        
     var dir = ""
     var name = ""
     var path = ""
@@ -32,9 +29,9 @@ class CollectionFile {
                                    path2: name)
         fileName = FileName(path)
         if FileUtils.isDir(path) {
-            if name == CollectionFile.reportsFolderName {
+            if name == NotenikConstants.reportsFolderName {
                 type = .reportsFolder
-            } else if name == CollectionFile.mirrorFolderName {
+            } else if name == NotenikConstants.mirrorFolderName {
                 type = .mirrorFolder
             } else {
                 type = .generalFolder

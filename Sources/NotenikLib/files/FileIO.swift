@@ -33,7 +33,7 @@ public class FileIO: NotenikIO, RowConsumer {
     
     public var reportsFullPath: String? {
         guard collection != nil else { return nil }
-        return FileUtils.joinPaths(path1: collection!.notesPath, path2: CollectionFile.reportsFolderName)
+        return FileUtils.joinPaths(path1: collection!.notesPath, path2: NotenikConstants.reportsFolderName)
     }
     
     public var pickLists = ValuePickLists()
@@ -517,7 +517,7 @@ public class FileIO: NotenikIO, RowConsumer {
     /// Load A list of available reports from the reports folder.
     public func loadReports() {
         reports = []
-        let reportsPath = makeFilePath(fileName: CollectionFile.reportsFolderName)
+        let reportsPath = makeFilePath(fileName: NotenikConstants.reportsFolderName)
         do {
             let reportsDirContents = try fileManager.contentsOfDirectory(atPath: reportsPath)
             
@@ -757,7 +757,7 @@ public class FileIO: NotenikIO, RowConsumer {
         str.append("\n\n")
         str.append("Learn more at https://Notenik.net")
         str.append("\n")
-        let filePath = makeFilePath(fileName: "- README.txt")
+        let filePath = makeFilePath(fileName: NotenikConstants.readmeFileName)
         
         do {
             try str.write(toFile: filePath, atomically: true, encoding: String.Encoding.utf8)
@@ -774,7 +774,11 @@ public class FileIO: NotenikIO, RowConsumer {
     /// Save the INFO file into the current collection
     func saveInfoFile() -> Bool {
         var str = "Title: " + collection!.title + "\n\n"
-        str.append("Link: " + collection!.fullPath + "\n\n")
+        var collectionLink = collection!.fullPath
+        if let folderPath = collection?.fullPathURL?.absoluteString {
+            collectionLink = folderPath
+        }
+        str.append("Link: " + collectionLink + "\n\n")
         str.append("Sort Parm: " + collection!.sortParm.str + "\n\n")
         str.append("Sort Descending: \(collection!.sortDescending)" + "\n\n")
         str.append("Other Fields Allowed: " + String(collection!.otherFields) + "\n\n")
@@ -837,7 +841,7 @@ public class FileIO: NotenikIO, RowConsumer {
             }
             str.append("\(def.fieldLabel.properForm): \(value) \n\n")
         }
-        let filePath = makeFilePath(fileName: "template." + collection!.preferredExt)
+        let filePath = makeFilePath(fileName: NotenikConstants.templateFileName + "." + collection!.preferredExt)
         do {
             try str.write(toFile: filePath, atomically: true, encoding: String.Encoding.utf8)
         } catch {
@@ -936,23 +940,14 @@ public class FileIO: NotenikIO, RowConsumer {
         
         guard deleted else { return false }
 
-        // _ = noteToDelete.fullPath
         let noteURL = noteToDelete.fileInfo.url
-        if noteURL != nil {
-            do {
-                try fileManager.removeItem(at: noteURL!)
-                // try fileManager.trashItem(at: noteURL!, resultingItemURL: nil)
-                // As of Oct 15, 2019, running on Catalina, trashing an item fails due
-                // to alleged permission errors, while removing an item works without complaint.
-            } catch {
-                Logger.shared.log(subsystem: "com.powersurgepub.notenik",
-                                  category: "FileIO",
-                                  level: .error,
-                                  message: "Could not delete note file at '\(noteURL!.path)'")
-                deleted = false
-            }
+        deleted = FileUtils.removeItem(at: noteURL)
+        if !deleted {
+            Logger.shared.log(subsystem: "com.powersurgepub.notenik",
+                              category: "FileIO",
+                              level: .error,
+                              message: "Could not delete note file at '\(noteURL!.path)'")
         }
-        
         return deleted
     }
     
