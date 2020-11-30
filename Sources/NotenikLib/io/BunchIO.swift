@@ -220,7 +220,11 @@ class BunchIO: NotenikIO, RowConsumer  {
         let parentIndex = folderIndex - 1
         let folder = collectionURL.pathComponents[folderIndex]
         let parent = collectionURL.pathComponents[parentIndex]
-        collection!.title = parent + " " + folder
+        if parent == "Documents" {
+            collection!.title = folder
+        } else {
+            collection!.title = parent + " " + folder
+        }
         
         return true
     }

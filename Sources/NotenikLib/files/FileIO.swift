@@ -587,7 +587,11 @@ public class FileIO: NotenikIO, RowConsumer {
         let parentIndex = folderIndex - 1
         let folder = collection!.fullPathURL!.pathComponents[folderIndex]
         let parent = collection!.fullPathURL!.pathComponents[parentIndex]
-        collection!.title = parent + " " + folder
+        if parent == "Documents" {
+            collection!.title = folder
+        } else {
+            collection!.title = parent + " " + folder
+        }
         
         return true
     }

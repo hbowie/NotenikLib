@@ -197,6 +197,10 @@ public class NotenikFolderList: Sequence {
         guard iCloudContainerURL != nil else { return nil }
         guard iCloudContainerExists else { return nil }
         let newFolderURL = iCloudContainerURL!.appendingPathComponent(folderName)
+        guard !fm.fileExists(atPath: newFolderURL.path) else {
+            logError("Folder named \(folderName) already exists within the Notenik iCloud container")
+            return nil
+        }
         do {
             try fm.createDirectory(at: newFolderURL, withIntermediateDirectories: true, attributes: nil)
         } catch {
