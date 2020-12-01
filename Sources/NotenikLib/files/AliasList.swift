@@ -17,8 +17,6 @@ import NotenikUtils
 /// Keeps track of a list of aliases for Notes within a Collection.
 class AliasList: RowConsumer {
     
-    static let aliasFileName = "alias.txt"
-    
     var noteIO: NotenikIO?
     
     var aliasDict = [String: String]()
@@ -46,7 +44,7 @@ class AliasList: RowConsumer {
         guard let collection = io.collection else { return }
         guard collection.hasTimestamp else { return }
         rowsLoaded = 0
-        let filePath = io.makeFilePath(fileName: AliasList.aliasFileName)
+        let filePath = io.makeFilePath(fileName: NotenikConstants.aliasFileName)
         let aliasFileExists = FileManager.default.fileExists(atPath: filePath)
         if aliasFileExists {
             let fileURL = URL(fileURLWithPath: filePath)
@@ -74,6 +72,13 @@ class AliasList: RowConsumer {
             mkdown.parse()
         }
         logInfo("Initialized Wiki Link to Timestamp Alias List with \(count) entries")
+    }
+    
+    /// Import existing entries from another Alias List.
+    func importFrom(_ importList: AliasList) {
+        for (titleID, timestamp) in importList.aliasDict {
+            add(titleID: titleID, timestamp: timestamp)
+        }
     }
     
     /// Do something with the next field produced.
@@ -104,7 +109,7 @@ class AliasList: RowConsumer {
         guard !collection.readOnly else { return true }
         guard collection.hasTimestamp else { return true }
         guard count > 0 else { return true }
-        let filePath = io.makeFilePath(fileName: AliasList.aliasFileName)
+        let filePath = io.makeFilePath(fileName: NotenikConstants.aliasFileName)
         let fileURL = URL(fileURLWithPath: filePath)
         let writer = DelimitedWriter(destination: fileURL, format: .tabDelimited)
         writer.open()

@@ -40,7 +40,7 @@ class CollectionFile {
             type = .readme
         } else if fileName.infofile {
             type = .infoFile
-        } else if name == AliasList.aliasFileName {
+        } else if name == NotenikConstants.aliasFileName {
             type = .aliasFile
         } else if fileName.dotfile {
             type = .dotFile

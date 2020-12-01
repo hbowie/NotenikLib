@@ -88,6 +88,11 @@ public class FileIO: NotenikIO, RowConsumer {
         return realm
     }
     
+    /// Import an alias list from a second instance of FileIO. 
+    public func importAliasList(from: FileIO) {
+        aliasList.importFrom(from.aliasList)
+    }
+    
     /// Open a Collection to be used as an archive for another Collection. This will
     /// be a normal open, if the archive has already been created, or will create
     /// a new Collection, if the Archive is being accessed for the first time.

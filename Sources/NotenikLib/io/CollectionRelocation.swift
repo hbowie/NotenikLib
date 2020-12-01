@@ -13,12 +13,15 @@ import Foundation
 
 import NotenikUtils
 
+/// An object that moves or copies a Collection from one path to another.
 public class CollectionRelocation {
     
     var fromPath = ""
     var fromIO = FileIO()
     var fromCollection: NoteCollection?
     var fromDict = FieldDictionary()
+    var fromFullPath = ""
+    var fromNotesPath = ""
     
     var toPath = ""
     var toIO = FileIO()
@@ -60,6 +63,8 @@ public class CollectionRelocation {
             return false
         }
         fromDict = fromCollection!.dict
+        fromFullPath = fromCollection!.fullPath
+        fromNotesPath = fromCollection!.notesPath
         
         // Open the output Collection
         guard FileUtils.ensureFolder(forDir: toPath) else {
@@ -138,6 +143,13 @@ public class CollectionRelocation {
             (nextNote, position) = fromIO.nextNote(position)
         }
         
+        // Let's carry along any timestamp aliases.
+        toIO.importAliasList(from: fromIO)
+        
+        // Now let's close the I/O modules for the from and to collections. 
+        fromIO.closeCollection()
+        toIO.closeCollection()
+        
         // If we moved the notes successfully, then let's remove
         // the standard Collection files and folders left in the
         // old location.
@@ -145,6 +157,9 @@ public class CollectionRelocation {
             removeFromItem(itemName: NotenikConstants.infoFileName)
             removeFromItem(itemName: NotenikConstants.readmeFileName)
             removeFromItem(itemName: NotenikConstants.templateFileName + "." + fromIO.collection!.preferredExt)
+            if fromItemExists(itemName: NotenikConstants.aliasFileName) {
+                removeFromItem(itemName: NotenikConstants.aliasFileName)
+            }
             if fromItemExists(itemName: NotenikConstants.oldSourceParms) {
                 removeFromItem(itemName: NotenikConstants.oldSourceParms)
             }
@@ -160,8 +175,6 @@ public class CollectionRelocation {
             }
         }
         
-        fromIO.closeCollection()
-        toIO.closeCollection()
         return errors == 0
     }
     
@@ -205,10 +218,14 @@ public class CollectionRelocation {
     /// Get the path of an item in the From Collection's folder.
     func fromItemPath(_ itemName: String) -> String {
         if itemName.count == 0 {
-            return fromIO.collection!.fullPath
+            return fromFullPath
         } else {
-            return fromIO.makeFilePath(fileName: itemName)
+            return makeFromFilePath(fileName: itemName)
         }
+    }
+    
+    func makeFromFilePath(fileName: String) -> String {
+        return FileUtils.joinPaths(path1: fromNotesPath, path2: fileName)
     }
     
     /// Try to copy a subfolder from the old collection to the new one.

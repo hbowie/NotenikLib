@@ -108,6 +108,7 @@ public struct NotenikConstants {
     //
     //-------------------------------------------------------------
     
+    public static let aliasFileName     = "alias.txt"
     public static let infoFileName      = "- INFO.nnk"
     public static let readmeFileName    = "- README.txt"
     public static let templateFileName  = "template"
