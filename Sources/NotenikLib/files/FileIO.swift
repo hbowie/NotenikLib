@@ -587,16 +587,7 @@ public class FileIO: NotenikIO, RowConsumer {
         case .web:
             collection!.notesSubFolder = true
         }
-        
-        let folderIndex = collection!.fullPathURL!.pathComponents.count - 1
-        let parentIndex = folderIndex - 1
-        let folder = collection!.fullPathURL!.pathComponents[folderIndex]
-        let parent = collection!.fullPathURL!.pathComponents[parentIndex]
-        if parent == "Documents" {
-            collection!.title = folder
-        } else {
-            collection!.title = parent + " " + folder
-        }
+        collection!.setTitleFromURL(collection!.fullPathURL!)
         
         return true
     }

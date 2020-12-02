@@ -216,15 +216,7 @@ class BunchIO: NotenikIO, RowConsumer  {
         collectionFullPath = collectionURL.path
         collection = NoteCollection(realm: realm)
         collection!.path = collectionPath
-        let folderIndex = collectionURL.pathComponents.count - 1
-        let parentIndex = folderIndex - 1
-        let folder = collectionURL.pathComponents[folderIndex]
-        let parent = collectionURL.pathComponents[parentIndex]
-        if parent == "Documents" {
-            collection!.title = folder
-        } else {
-            collection!.title = parent + " " + folder
-        }
+        collection!.setTitleFromURL(collectionURL)
         
         return true
     }

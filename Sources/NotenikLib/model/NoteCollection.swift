@@ -117,6 +117,21 @@ public class NoteCollection {
         lastStartupDate = todaysDate
     }
     
+    /// Set this Collection's title from its URL. 
+    public func setTitleFromURL(_ url: URL) {
+        let folderIndex = url.pathComponents.count - 1
+        let parentIndex = folderIndex - 1
+        let folder = url.pathComponents[folderIndex]
+        let parent = url.pathComponents[parentIndex]
+        if parent == "Documents" {
+            title = folder
+        } else if folder == "notes" {
+            title = parent
+        } else {
+            title = parent + " " + folder
+        }
+    }
+    
     /// Set new values for the Status Value configuration. 
     public func setStatusConfig(_ options: String) {
         
