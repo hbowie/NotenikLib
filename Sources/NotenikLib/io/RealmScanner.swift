@@ -96,31 +96,29 @@ public class RealmScanner {
         let initOK = infoIO.initCollection(realm: realm, collectionPath: folderPath)
         if initOK {
             let infoCollection = infoIO.collection
-            let infoURL = URL(fileURLWithPath: itemFullPath)
             if infoCollection != nil {
-                let infoNote = infoIO.readNote(collection: infoCollection!, noteURL: infoURL)
-                if infoNote != nil {
-                    let realmNote = Note(collection: realmIO.collection!)
-                    let titleOK = realmNote.setTitle(infoNote!.title.value)
-                    if !titleOK {
-                        logError("Unable to find a Title for Collection located at \(folderPath)")
-                    }
-                    let linkOK = realmNote.setLink(folderURL.absoluteString)
-                    if !linkOK {
-                        logError("Unable to record a Link for Collection located at \(folderPath)")
-                    }
-                    collectionPath = folderPath
-                    collectionTag = TagsValue.tagify(realmNote.title.value)
-                    let tagsOK = realmNote.setTags("Collections, " + collectionTag)
-                    if !tagsOK {
-                        logError("Unable to add a tag to Collection located at \(folderPath)")
-                    }
-                    let (addedNote, _) = realmIO.addNote(newNote: realmNote)
-                    if addedNote == nil {
-                        logError("Unable to record the Collection located at \(folderPath)")
-                    }
-                } else {
-                    logError("Couldn't read the INFO file for Collection located at \(folderPath)")
+                let realmNote = Note(collection: realmIO.collection!)
+                let titleOK = realmNote.setTitle(infoIO.collection!.title)
+                if !titleOK {
+                    logError("Unable to find a Title for Collection located at \(folderPath)")
+                }
+                var link = folderURL.absoluteString
+                if folderURL.lastPathComponent == NotenikConstants.notesFolderName {
+                    link = folderURL.deletingLastPathComponent().absoluteString
+                }
+                let linkOK = realmNote.setLink(link)
+                if !linkOK {
+                    logError("Unable to record a Link for Collection located at \(folderPath)")
+                }
+                collectionPath = folderPath
+                collectionTag = TagsValue.tagify(realmNote.title.value)
+                let tagsOK = realmNote.setTags("Collections, " + collectionTag)
+                if !tagsOK {
+                    logError("Unable to add a tag to Collection located at \(folderPath)")
+                }
+                let (addedNote, _) = realmIO.addNote(newNote: realmNote)
+                if addedNote == nil {
+                    logError("Unable to record the Collection located at \(folderPath)")
                 }
             } else {
                 logError("Unable to initialize Collection located at \(folderPath)")

@@ -30,7 +30,7 @@ public class NoteCollection {
     public  var readOnly    : Bool = false
             var customFields: [SortField] = []
             var hasTimestamp = false
-            var isRealmCollection = false
+    public  var isRealmCollection = false
             var noteFileFormat: NoteFileFormat = .toBeDetermined
     public  var mirror:         NoteTransformer?
     public  var mirrorAutoIndex = false

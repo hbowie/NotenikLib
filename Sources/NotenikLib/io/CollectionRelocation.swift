@@ -22,11 +22,13 @@ public class CollectionRelocation {
     var fromDict = FieldDictionary()
     var fromFullPath = ""
     var fromNotesPath = ""
+    var fromExt = ""
     
     var toPath = ""
     var toIO = FileIO()
     var toCollection: NoteCollection?
     var toDict = FieldDictionary()
+    var toNotesPath = ""
     
     var move = false
     
@@ -65,6 +67,7 @@ public class CollectionRelocation {
         fromDict = fromCollection!.dict
         fromFullPath = fromCollection!.fullPath
         fromNotesPath = fromCollection!.notesPath
+        fromExt = fromCollection!.preferredExt
         
         // Open the output Collection
         guard FileUtils.ensureFolder(forDir: toPath) else {
@@ -78,6 +81,7 @@ public class CollectionRelocation {
         }
         toCollection = toIO.collection!
         toDict = toCollection!.dict
+        toNotesPath = toCollection!.notesPath
         
         toCollection!.noteType = fromCollection!.noteType
         toCollection!.idRule = fromCollection!.idRule
@@ -156,7 +160,7 @@ public class CollectionRelocation {
         if move && errors == 0 {
             removeFromItem(itemName: NotenikConstants.infoFileName)
             removeFromItem(itemName: NotenikConstants.readmeFileName)
-            removeFromItem(itemName: NotenikConstants.templateFileName + "." + fromIO.collection!.preferredExt)
+            removeFromItem(itemName: NotenikConstants.templateFileName + "." + fromExt)
             if fromItemExists(itemName: NotenikConstants.aliasFileName) {
                 removeFromItem(itemName: NotenikConstants.aliasFileName)
             }
@@ -224,18 +228,14 @@ public class CollectionRelocation {
         }
     }
     
-    func makeFromFilePath(fileName: String) -> String {
-        return FileUtils.joinPaths(path1: fromNotesPath, path2: fileName)
-    }
-    
     /// Try to copy a subfolder from the old collection to the new one.
     func copySubfolder(folderName: String, move: Bool = false) {
         
-        let fromFolderPath = fromIO.makeFilePath(fileName: folderName)
+        let fromFolderPath = makeFromFilePath(fileName: folderName)
         guard FileUtils.isDir(fromFolderPath) else { return }
         let fromFolderURL = URL(fileURLWithPath: fromFolderPath)
         
-        let toFolderPath = toIO.makeFilePath(fileName: folderName)
+        let toFolderPath = makeToFilePath(fileName: folderName)
         let toFolderURL = URL(fileURLWithPath: toFolderPath)
         
         do {
@@ -244,9 +244,17 @@ public class CollectionRelocation {
                 try FileManager.default.removeItem(at: fromFolderURL)
             }
         } catch {
-            logError("Problems moving subfoldler named \(folderName)")
+            logError("Problems moving subfolder named \(folderName)")
             errors += 1
         }
+    }
+    
+    func makeFromFilePath(fileName: String) -> String {
+        return FileUtils.joinPaths(path1: fromNotesPath, path2: fileName)
+    }
+    
+    func makeToFilePath(fileName: String) -> String {
+        return FileUtils.joinPaths(path1: toNotesPath, path2: fileName)
     }
     
     /// Log an error message.
