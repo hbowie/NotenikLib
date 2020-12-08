@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 5/8/19.
-//  Copyright © 2019 Herb Bowie (https://powersurgepub.com)
+//  Copyright © 2019-2020 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -53,14 +53,8 @@ public class DisplayPrefs {
         
         _displayCSS = defaults.string(forKey: displayCSSKey)
         if _displayCSS == nil || _displayCSS!.count == 0 {
-            setDefaultCSS()
+            buildCSS()
         }
-    }
-    
-    func setDefaults() {
-        _ = setDefaultFont()
-        setDefaultSize()
-        setDefaultCSS()
     }
     
     public func setDefaultFont() -> String {
@@ -70,10 +64,6 @@ public class DisplayPrefs {
     
     func setDefaultSize() {
         size = defaultSize
-    }
-    
-    func setDefaultCSS() {
-        buildCSS()
     }
     
     public var longFontList: Bool {
@@ -93,7 +83,6 @@ public class DisplayPrefs {
         set {
             _displayFont = newValue
             defaults.set(_displayFont, forKey: displayFontKey)
-            buildCSS()
         }
     }
     
@@ -112,7 +101,6 @@ public class DisplayPrefs {
         set {
             _displaySize = newValue
             defaults.set(_displaySize, forKey: displaySizeKey)
-            buildCSS()
         }
     }
     
