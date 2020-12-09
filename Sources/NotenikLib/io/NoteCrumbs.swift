@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 12/12/19.
-//  Copyright © 2019 Herb Bowie (https://powersurgepub.com)
+//  Copyright © 2019-2020 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -16,86 +16,99 @@ import Foundation
 public class NoteCrumbs {
     
     var io: NotenikIO
+    
     var crumbs: [NoteID] = []
-    var lastCrumb: NoteID?
+    var lastIndex: Int { return crumbs.count - 1 }
+    
+    var lastIDReturned: NoteID?
     
     public init(io: NotenikIO) {
         self.io = io
     }
     
-    /// Let's start over. 
-    public func refresh() {
-        crumbs = []
-    }
-    
     /// Indicate the latest note visited by the user.
-    public func select(latest: Note) {
-        let latestID = latest.noteID
+    public func select(_ selected: Note) {
         
-        /// If this note is just the last one returned from this list, then don't
-        /// disturb the current order.
-        if latestID == lastCrumb { return }
+        /// If this note is just the last one returned from this list, then
+        /// leave well enough alone.
+        if selected.noteID == lastIDReturned { return }
         
-        var index = 0
-        for crumb in crumbs {
-            if latestID == crumb {
-                crumbs.remove(at: index)
-                break
-            }
-            index += 1
+        /// No? Then see if it's already in the list.
+        let index = locate(selected.noteID)
+        if index >= 0 {
+            lastIDReturned = selected.noteID
+            return
         }
-        crumbs.append(latestID)
+        
+        crumbs.append(selected.noteID)
+        lastIDReturned = selected.noteID
     }
     
     /// Go back to the prior note in the breadcrumbs.
     /// - Parameter from: The Note we're starting from.
     public func backup(from: Note) -> Note {
-        let fromID = from.noteID
-        var index = crumbs.count - 1
-        while index > 0 {
-            let crumb = crumbs[index]
-            if fromID == crumb {
-                let priorCrumb = crumbs[index - 1]
-                let priorNote = io.getNote(forID: priorCrumb)
-                if priorNote != nil {
-                    lastCrumb = priorNote!.noteID
-                    return priorNote!
-                }
-            }
+        
+        // See if we can back up within the existing breadcrumb trail.
+        var index = locate(from.noteID)
+        if index > 0 {
             index -= 1
+            if let priorNote = io.getNote(forID: crumbs[index]) {
+                lastIDReturned = priorNote.noteID
+                return priorNote
+            }
         }
+        
+        // No? Then throw out breadcrumbs and start over.
         let position = io.positionOfNote(from)
         var (priorNote, _) = io.priorNote(position)
         if priorNote == nil {
             (priorNote, _) = io.lastNote()
         }
-        lastCrumb = priorNote!.noteID
+        refresh(with: priorNote!.noteID)
         return priorNote!
     }
     
     /// Go forward to the next Note in the list.
     /// - Parameter from: The Note we're starting from.
     public func advance(from: Note) -> Note {
-        let fromID = from.noteID
-        var index = crumbs.count - 2
-        while index >= 0 {
-            let crumb = crumbs[index]
-            if fromID == crumb {
-                let nextCrumb = crumbs[index + 1]
-                let nextNote = io.getNote(forID: nextCrumb)
-                if nextNote != nil {
-                    lastCrumb = nextNote!.noteID
-                    return nextNote!
-                }
+        
+        // See if we can advance within the existing breadcrumb trail.
+        var index = locate(from.noteID)
+        if index >= 0 && index < lastIndex {
+            index += 1
+            if let nextNote = io.getNote(forID: crumbs[index]) {
+                lastIDReturned = nextNote.noteID
+                return nextNote
             }
-            index -= 1
         }
+        
+        // No? Then throw out breadcrumbs and start over.
         let position = io.positionOfNote(from)
         var (nextNote, _) = io.nextNote(position)
         if nextNote == nil {
             (nextNote, _) = io.firstNote()
         }
-        lastCrumb = nextNote!.noteID
+        refresh(with: nextNote!.noteID)
         return nextNote!
+    }
+    
+    /// Refresh breadcrumbs with an initial entry.
+    func refresh(with id: NoteID) {
+        crumbs = []
+        crumbs.append(id)
+        lastIDReturned = id
+    }
+    
+    /// Let's start over.
+    public func refresh() {
+        crumbs = []
+    }
+    
+    /// Locate the given Note ID within the list of breadcrumbs, returning -1 if not found.
+    func locate(_ id: NoteID) -> Int {
+        for index in stride(from: lastIndex, through: 0, by: -1) {
+            if id == crumbs[index] { return index }
+        }
+        return -1
     }
 }
