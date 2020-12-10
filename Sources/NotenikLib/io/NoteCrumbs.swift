@@ -31,7 +31,7 @@ public class NoteCrumbs {
         
         /// If this note is just the last one returned from this list, then
         /// leave well enough alone.
-        if selected.noteID == lastIDReturned { return }
+        if selected.noteID == lastIDReturned && crumbs.count > 0 { return }
         
         /// No? Then see if it's already in the list.
         let index = locate(selected.noteID)
@@ -40,8 +40,7 @@ public class NoteCrumbs {
             return
         }
         
-        crumbs.append(selected.noteID)
-        lastIDReturned = selected.noteID
+        append(selected.noteID)
     }
     
     /// Go back to the prior note in the breadcrumbs.
@@ -94,14 +93,19 @@ public class NoteCrumbs {
     
     /// Refresh breadcrumbs with an initial entry.
     func refresh(with id: NoteID) {
-        crumbs = []
-        crumbs.append(id)
-        lastIDReturned = id
+        refresh()
+        append(id)
     }
     
     /// Let's start over.
     public func refresh() {
         crumbs = []
+        lastIDReturned = nil
+    }
+    
+    func append(_ id: NoteID) {
+        crumbs.append(id)
+        lastIDReturned = id
     }
     
     /// Locate the given Note ID within the list of breadcrumbs, returning -1 if not found.
