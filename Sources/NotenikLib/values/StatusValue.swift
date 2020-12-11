@@ -55,7 +55,7 @@ public class StatusValue: StringValue {
     }
     
     /// Close the Note
-    func close(config: StatusValueConfig) {
+    public func close(config: StatusValueConfig) {
         let closeIndex = config.statusOptions.count - 1
         set(i: closeIndex, config: config)
     }

@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 12/4/18.
-//  Copyright © 2018 - 2020 Herb Bowie (https://powersurgepub.com)
+//  Copyright © 2018 - 2020 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -648,7 +648,7 @@ public class Note: Comparable, Identifiable, NSCopying {
     }
     
     /// Does this note have a non-blank status field?
-    func hasStatus() -> Bool {
+    public func hasStatus() -> Bool {
         return status.count > 0
     }
     

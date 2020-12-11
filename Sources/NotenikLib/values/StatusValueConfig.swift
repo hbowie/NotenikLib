@@ -18,7 +18,7 @@ public class StatusValueConfig {
     
     public var statusOptions : [String] = []
     
-    var doneThreshold = 6 
+    public var doneThreshold = 6 
     
     init() {
         statusOptions.append("Idea")             // 0
