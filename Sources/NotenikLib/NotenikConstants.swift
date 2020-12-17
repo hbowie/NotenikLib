@@ -120,4 +120,6 @@ public struct NotenikConstants {
     public static let indexFileName     = "index.html"
     
     public static let oldSourceParms    = "pspub_source_parms.xml"
+    
+    public static let urlNavPrefix      = "https://ntnk.app/"
 }

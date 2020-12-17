@@ -41,9 +41,6 @@ public protocol NotenikIO: MkdownWikiLinkLookup {
     /// Get the default realm.
     func getDefaultRealm() -> Realm
     
-    /// See what sort of path this might be. 
-    static func checkPathType(path: String) -> NotenikPathType
-    
     /// Provide an inspector that will be passed each Note as a Collection is opened.
     func setInspector(_ inspector: NoteOpenInspector)
 

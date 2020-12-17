@@ -173,11 +173,11 @@ public class FileIO: NotenikIO, RowConsumer {
             // Second pass through directory contents -- look for Notes
             pickLists.statusConfig = collection!.statusConfig
             for itemPath in dirContents {
-                let collectionFile = CollectionFile(dir: collection!.notesPath, name: itemPath)
-                let itemURL = URL(fileURLWithPath: collectionFile.path)
-                if collectionFile.type == .reportsFolder {
+                let itemLink = NotenikLink(dir: collection!.notesPath, name: itemPath)
+                guard let itemURL = itemLink.url else { continue }
+                if itemLink.type == .reportsFolder {
                     loadReports()
-                } else if collectionFile.type == .noteFile {
+                } else if itemLink.type == .noteFile {
                     let note = readNote(collection: collection!, noteURL: itemURL)
                     if note != nil && note!.hasTitle() {
                         addAttachments(to: note!)
@@ -245,12 +245,12 @@ public class FileIO: NotenikIO, RowConsumer {
     func scanDirForSpecialFiles(realm: Realm, collectionPath: String, dirContents: [String]) {
         // First pass through directory contents -- look for template and info files
         for itemPath in dirContents {
-            let collectionFile = CollectionFile(dir: collection!.notesPath, name: itemPath)
-            if collectionFile.type == .infoFile && !infoFound {
+            let itemLink = NotenikLink(dir: collection!.notesPath, name: itemPath)
+            if itemLink.type == .infoFile && !infoFound {
                 _ = loadInfoFile(realm: realm,
                                  collectionPath: collectionPath,
                                  itemPath: itemPath)
-            } else if collectionFile.type == .templateFile && !templateFound {
+            } else if itemLink.type == .templateFile && !templateFound {
                 _ = loadTemplateFile(realm: realm,
                                      collectionPath: collectionPath,
                                      itemPath: itemPath)
@@ -576,16 +576,18 @@ public class FileIO: NotenikIO, RowConsumer {
         collection!.path = collectionPath
         
         // Let's see if we have an actual path to a usable directory
-        let pathType = FileIO.checkPathType(path: collection!.fullPath)
+        guard let url = collection!.fullPathURL else { return false }
+        let link = NotenikLink(url: url)
+        link.determineCollectionType()
         
-        switch pathType {
-        case .foreign, .hopeless, .realm:
+        switch link.type {
+        case .emptyFolder, .ordinaryCollection:
+            break
+        case .webCollection:
+            collection!.notesSubFolder = true
+        default:
             logError("This path does not point to a Notenik Collection")
             return false
-        case .empty, .existing:
-            break
-        case .web:
-            collection!.notesSubFolder = true
         }
         collection!.setTitleFromURL(collection!.fullPathURL!)
         
@@ -808,15 +810,15 @@ public class FileIO: NotenikIO, RowConsumer {
         guard collection != nil else { return false }
         var ok = true
         let fromFilePath = makeFilePath(fileName: "template." + from)
-        let fromURL = StringUtils.urlFrom(str: fromFilePath)
+        let fromURL =  NotenikLink(str: fromFilePath, assume: .assumeFile)
         let toFilePath = makeFilePath(fileName: "template." + to)
-        let toURL = StringUtils.urlFrom(str: toFilePath)
-        guard fromURL != nil else { return false }
-        guard toURL != nil else { return false }
+        let toURL = NotenikLink(str: toFilePath, assume: .assumeFile)
+        guard fromURL.url != nil else { return false }
+        guard toURL.url != nil else { return false }
         do {
-            try fileManager.moveItem(at: fromURL!, to: toURL!)
+            try fileManager.moveItem(at: fromURL.url!, to: toURL.url!)
         } catch {
-            logError("Unable to rename template file from \(fromURL!) to \(toURL!) due to the following error: \(error)")
+            logError("Unable to rename template file from \(fromURL) to \(toURL) due to the following error: \(error)")
             ok = false
         }
         return ok
@@ -1347,59 +1349,5 @@ public class FileIO: NotenikIO, RowConsumer {
             collectionURL = realmURL.appendingPathComponent(path)
         }
         return collectionURL
-    }
-    
-    /// See what sort of path this might be.
-    public static func checkPathType(path: String) -> NotenikPathType {
-        
-        // See if this path even points to a folder.
-        guard FileUtils.isDir(path) else { return .hopeless }
-        
-        // See if this points to an existing Collection.
-        let infoPath = FileUtils.joinPaths(path1: path, path2: NotenikConstants.infoFileName)
-        if FileManager.default.fileExists(atPath: infoPath)
-            && FileManager.default.isReadableFile(atPath: infoPath) {
-            return .existing
-        }
-        
-        // See if there is a sub-folder containing the notes.
-        let notesPath = FileUtils.joinPaths(path1: path, path2: NotenikConstants.notesFolderName)
-        if FileManager.default.fileExists(atPath: notesPath)
-            && FileManager.default.isReadableFile(atPath: notesPath) {
-            return .web
-        }
-        
-        // Let's examine folder contents to see what else it might be.
-        var contents: [String] = []
-        do {
-            contents = try FileManager.default.contentsOfDirectory(atPath: path)
-        } catch {
-            return .hopeless
-        }
-
-        // See if the folder is truly empty.
-        if contents.count == 0 {
-            return .empty
-        }
-        
-        // If not empty, then let's see what sort of stuff it contains.
-        var foldersFound = 0
-        var notesFound = 0
-        for itemPath in contents {
-            let collectionFile = CollectionFile(dir: path, name: itemPath)
-            if collectionFile.type == .generalFolder {
-                foldersFound += 1
-            } else if collectionFile.type == .noteFile {
-                notesFound += 1
-            }
-        }
-        
-        if notesFound > 0 {
-            return .existing
-        } else if foldersFound > 0 {
-            return .realm
-        } else {
-            return .foreign
-        }
     }
 }

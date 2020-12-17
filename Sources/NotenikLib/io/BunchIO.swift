@@ -569,9 +569,4 @@ class BunchIO: NotenikIO, RowConsumer  {
     func getAttachmentsLocation() -> String? {
         return nil
     }
-    
-    /// See what sort of path this might be.
-    static func checkPathType(path: String) -> NotenikPathType {
-        return .hopeless
-    }
 }

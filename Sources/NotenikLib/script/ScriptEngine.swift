@@ -29,7 +29,6 @@ public class ScriptEngine: RowConsumer {
     var reader:     DelimitedReader!
     var rowsRead  = 0
     
-    public static let scriptExt = ".tcz"
     static let pathPlaceHolder = "#PATH#"
     
     let input    = InputModule()

@@ -17,7 +17,7 @@ public class RealmScanner {
     
     let fileManager = FileManager.default
     
-    let scriptFileExt = ScriptEngine.scriptExt
+    let scriptFileExt = NotenikConstants.scriptExt
     
     public var realmIO: NotenikIO = BunchIO()
     var realmCollection: NoteCollection? = NoteCollection()
