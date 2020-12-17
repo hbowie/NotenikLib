@@ -18,8 +18,8 @@ import NotenikUtils
 /// - To locate a file or folder stored on the user's local drive(s)
 /// - To send requests to other locally available apps
 /// This class tries to provide useful ways of dealing with all these sorts of URLs. 
-public class NotenikLink: CustomStringConvertible {
-    
+public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
+
     let fm = FileManager.default
     var bundlePrefix = ""
     
@@ -27,6 +27,7 @@ public class NotenikLink: CustomStringConvertible {
     public var str = ""
     public var type: NotenikLinkType = .unknown
     public var noteID = ""
+    public var location: NotenikFolderLocation = .undetermined
     
     var readme = false
     var infofile = false
@@ -74,13 +75,22 @@ public class NotenikLink: CustomStringConvertible {
     /// An ending slash, if one is present. */
     var linkPart5 : Substring? = nil
     
-    /// Provide a standard string value to represent this object, conforming to CustomStringConvertible.
-    public var description: String {
+    public var linkStr: String {
         if url == nil {
             return str
         } else {
             return url!.absoluteString
         }
+    }
+    
+    /// Provide a standard string value to represent this object, conforming to CustomStringConvertible.
+    public var description: String {
+        return linkStr
+    }
+    
+    /// A unique identifier for this object.
+    public var id: String {
+        return linkStr
     }
     
     /// Default initializer. Values must be set later. 
@@ -94,6 +104,7 @@ public class NotenikLink: CustomStringConvertible {
         set(with: str, assume: assume)
     }
     
+    /// Initialize with a URL. 
     public convenience init(url: URL) {
         self.init()
         set(with: url)
@@ -103,6 +114,23 @@ public class NotenikLink: CustomStringConvertible {
     public convenience init(dir: String, name: String) {
         self.init()
         set(dir: dir, name: name)
+    }
+    
+    public convenience init(url: URL, isCollection: Bool) {
+        self.init()
+        set(with: url)
+        if isCollection && type == .folder {
+            type = .ordinaryCollection
+        }
+    }
+    
+    public convenience init(url: URL,
+                            type: NotenikLinkType,
+                            location: NotenikFolderLocation) {
+        self.init()
+        set(with: url)
+        self.type = type
+        self.location = location
     }
     
     public func set(dir: String, name: String) {
@@ -656,6 +684,16 @@ public class NotenikLink: CustomStringConvertible {
         if linkPart5 != nil {
             print("  - Link Part 5: '\(linkPart5!)'")
         }
+    }
+    
+    /// Is the left-hand side less than the right-hand side?
+    public static func < (lhs: NotenikLink, rhs: NotenikLink) -> Bool {
+        return lhs.linkStr < rhs.linkStr
+    }
+    
+    /// Is the left-hand side equal to the right-hand side?
+    public static func == (lhs: NotenikLink, rhs: NotenikLink) -> Bool {
+        return lhs.linkStr == rhs.linkStr
     }
     
 }
