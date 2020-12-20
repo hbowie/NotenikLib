@@ -29,6 +29,8 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
     public var noteID = ""
     public var location: NotenikFolderLocation = .undetermined
     
+    var collectionTypeDetermined = false
+    
     var readme = false
     var infofile = false
     var indexFile = false
@@ -353,7 +355,10 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
             determineFileOrFolderSubType()
         } else if isWebLink {
             type = .weblink
+        } else if scheme == "about" {
+            type = .aboutlink
         }
+        collectionTypeDetermined = false
     }
     
     func determineFileOrFolderSubType() {
@@ -408,6 +413,7 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
     /// This method should only be called when needed in a particular context. It is not automatically
     /// performed upon initialization or when a new value is set.
     public func determineCollectionType() {
+        guard !collectionTypeDetermined else { return }
         guard type == .folder ||
               (type == .xcodeDev && isDir) else {
             return
@@ -470,15 +476,16 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
         } else if itemsFound == 0 {
             type = .emptyFolder
         }
+        collectionTypeDetermined = true
     }
     
-    var fileOrFolderName: String {
+    public var fileOrFolderName: String {
         guard isFileLink else { return "" }
         guard let defURL = url else { return "" }
         return defURL.lastPathComponent
     }
     
-    var path: String {
+    public var path: String {
         guard isFileLink else { return "" }
         guard let defURL = url else { return "" }
         return defURL.path
@@ -491,6 +498,20 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
         return FileUtils.isDir(defPath)
     }
     
+    /// Is this a local file resource that is reachable?
+    var isReachable: Bool {
+        guard isFileLink else { return false }
+        guard let defURL = url else { return false }
+        var folderReachable = false
+        do {
+            folderReachable = try defURL.checkResourceIsReachable()
+        } catch {
+            return false
+        }
+        return folderReachable
+    }
+    
+    /// Is this the sort of link that points to a local file?
     var isFileLink: Bool {
         if let defURL = url {
             return defURL.isFileURL

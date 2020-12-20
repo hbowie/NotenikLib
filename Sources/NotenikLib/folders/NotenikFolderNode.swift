@@ -18,7 +18,7 @@ public class NotenikFolderNode: Comparable, CustomStringConvertible {
     public private(set) var children: [NotenikFolderNode] = []
     public              var type:     NotenikFolderNodeType = .root
     public              var desc    = ""
-    public              var folder:   NotenikFolder?
+    public              var folder:   NotenikLink?
     
     /// Initialize with defaults.
     public init() {
@@ -26,7 +26,9 @@ public class NotenikFolderNode: Comparable, CustomStringConvertible {
     }
     
     /// Initialize with data.
-    convenience init(type: NotenikFolderNodeType, desc: String, folder: NotenikFolder? = nil) {
+    convenience init(type: NotenikFolderNodeType,
+                     desc: String,
+                     folder: NotenikLink? = nil) {
         self.init()
         self.type = type
         self.desc = desc
@@ -37,7 +39,9 @@ public class NotenikFolderNode: Comparable, CustomStringConvertible {
     public var description: String { return desc }
     
     /// Add a child given the child data. 
-    func addChild(type: NotenikFolderNodeType, desc: String, folder: NotenikFolder? = nil) -> NotenikFolderNode {
+    func addChild(type: NotenikFolderNodeType,
+                  desc: String,
+                  folder: NotenikLink? = nil) -> NotenikFolderNode {
         let newNode = NotenikFolderNode(type: type, desc: desc, folder: folder)
         return addChild(newNode: newNode)
     }

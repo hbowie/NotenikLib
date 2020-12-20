@@ -22,7 +22,7 @@ public class NotenikFolderIterator: IteratorProtocol {
     }
         
     /// Return the next Notenik Folder or nil at end of list.
-    public func next() -> NotenikFolder? {
+    public func next() -> NotenikLink? {
         if index < list.count {
             let folder = list[index]
             index += 1

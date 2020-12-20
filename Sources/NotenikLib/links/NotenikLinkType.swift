@@ -15,6 +15,7 @@ public enum NotenikLinkType {
     
     case unknown                // type is yet to be determined
     
+    case aboutlink              // a request for information about a web browser
     case weblink                // some sort of web link using http or https
     
     case filelink               // some sort of file link

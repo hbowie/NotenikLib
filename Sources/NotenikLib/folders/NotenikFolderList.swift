@@ -27,7 +27,7 @@ public class NotenikFolderList: Sequence {
     var iCloudContainerPath = ""
     var iCloudContainerExists = false
     
-    var folders: [NotenikFolder] = []
+    var folders: [NotenikLink] = []
     
     public let root = NotenikFolderNode()
     
@@ -68,7 +68,9 @@ public class NotenikFolderList: Sequence {
                                                          includingPropertiesForKeys: nil,
                                                          options: .skipsHiddenFiles)
             for doc in iCloudContents {
-                let notenikFolder = NotenikFolder(url: doc, type: .undetermined, location: .iCloudContainer)
+                let notenikFolder = NotenikLink(url: doc,
+                                                type: .folder,
+                                                location: .iCloudContainer)
                 self.add(notenikFolder)
             }
         } catch {
@@ -86,42 +88,35 @@ public class NotenikFolderList: Sequence {
     public func add(_ collection: NoteCollection) {
         let url = collection.fullPathURL
         guard url != nil else { return }
-        let newFolder = NotenikFolder(url: url!, isCollection: true)
+        let newFolder = NotenikLink(url: url!, isCollection: true)
         add(newFolder)
     }
     
     /// Add another folder to the tree, along with its specified metadata.
-    public func add(url: URL, type: NotenikFolderType, location: NotenikFolderLocation) {
-        let newFolder = NotenikFolder(url: url, type: type, location: location)
+    public func add(url: URL, type: NotenikLinkType, location: NotenikFolderLocation) {
+        let newFolder = NotenikLink(url: url, type: type, location: location)
         add(newFolder)
     }
     
     /// Add another folder to the list.
-    public func add(_ folder: NotenikFolder) {
+    public func add(_ folder: NotenikLink) {
         
         guard !folder.path.contains("Notenik.app/Contents/Resources") else {
             return
         }
         
         /// Make sure the url points to a directory.
-        guard folder.url.isFileURL
+        guard folder.isFileLink
                 // This says no just because there is no trailing slash
                 // && folder.url.hasDirectoryPath
         else {
-            logError("URL does not point to a file directory: \(folder.url.absoluteString)")
+            logError("URL does not point to a file directory: \(folder)")
             return
         }
         
         // Is this url even reachable?
-        var folderReachable = false
-        do {
-            folderReachable = try folder.url.checkResourceIsReachable()
-        } catch {
-            logError("Trouble determining URL reachability for: \(folder.url.absoluteString)")
-            return
-        }
-        guard folderReachable else {
-            logError("URL is not reachable: \(folder.url.absoluteString)")
+        guard folder.isReachable else {
+            logError("URL is not reachable: \(folder)")
             return
         }
         
@@ -138,18 +133,7 @@ public class NotenikFolderList: Sequence {
         }
         
         /// Let's see if the passed URL  points to a Notenik Collection.
-        let infoPath = FileUtils.joinPaths(path1: folder.path,
-                                           path2: NotenikConstants.infoFileName)
-        let infoURL = URL(fileURLWithPath: infoPath)
-        var folderIsACollection = false
-        do {
-            folderIsACollection = try infoURL.checkResourceIsReachable()
-            if folderIsACollection {
-                folder.type = .collection
-            }
-        } catch {
-            // Leave as-is
-        }
+        folder.determineCollectionType()
         
         if index < folders.count {
             folders.insert(folder, at: index)
@@ -163,11 +147,11 @@ public class NotenikFolderList: Sequence {
         } else {
             parent = root.addChild(type: .group, desc: "Recent")
         }
-        _ = parent.addChild(type: .folder, desc: folder.folderName, folder: folder)
+        _ = parent.addChild(type: .folder, desc: folder.fileOrFolderName, folder: folder)
     }
     
     /// Remove the given folder from our internal lists. 
-    public func remove(folder: NotenikFolder) -> Bool {
+    public func remove(folder: NotenikLink) -> Bool {
         var index = 0
         
         for existingFolder in folders {
@@ -217,7 +201,7 @@ public class NotenikFolderList: Sequence {
     }
     
     /// Make the list accessible via an index.
-    subscript(index: Int) -> NotenikFolder {
+    subscript(index: Int) -> NotenikLink {
         return folders[index]
     }
     
