@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 12/5/18.
-//  Copyright © 2018 - 2019 Herb Bowie (https://powersurgepub.com)
+//  Copyright © 2018 - 2020 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -44,7 +44,8 @@ public class AuthorValue: StringValue {
     
     /// Use a last name first arrangement for the sort key
     override var sortKey: String {
-        return lastNameFirst
+        return firstNameFirst
+        // return lastNameFirst
     }
     
     /// Return the first name first
