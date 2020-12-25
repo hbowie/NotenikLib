@@ -45,21 +45,29 @@ public class NoteDisplay: NSObject {
                     field!.value.hasData &&
                     field!.def.fieldLabel.commonForm != NotenikConstants.tagsCommon &&
                     field!.def.fieldLabel.commonForm != NotenikConstants.dateAddedCommon &&
+                    field!.def.fieldLabel.commonForm != NotenikConstants.dateModifiedCommon &&
                     field!.def.fieldLabel.commonForm != NotenikConstants.timestampCommon) {
                     code.append(display(field!, collection: collection, io: io))
                 }
             }
             i += 1
         }
-        if note.hasDateAdded() || note.hasTimestamp() {
+        if note.hasDateAdded() || note.hasTimestamp() || note.hasDateModified() {
             code.horizontalRule()
+            
             let stamp = note.getField(label: NotenikConstants.timestamp)
             if stamp != nil {
                 code.append(display(stamp!, collection: collection, io: io))
             }
+            
             let dateAdded = note.getField(label: NotenikConstants.dateAdded)
             if dateAdded != nil {
                 code.append(display(dateAdded!, collection: collection, io: io))
+            }
+            
+            let dateModified = note.getField(label: NotenikConstants.dateModified)
+            if dateModified != nil {
+                code.append(display(dateModified!, collection: collection, io: io))
             }
         }
         code.finishDoc()

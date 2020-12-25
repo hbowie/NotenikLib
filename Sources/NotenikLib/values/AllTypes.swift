@@ -20,6 +20,7 @@ public class AllTypes {
     let booleanType = BooleanType()
     let codeType    = LongTextType()
     let dateAddedType = DateAddedType()
+    let dateModifiedType = DateModifiedType()
     let dateType    = DateType()
     let indexType   = IndexType()
     let intType     = IntType()
@@ -52,15 +53,15 @@ public class AllTypes {
     /// Initialize with all of the standard types. 
     init() {
         
-        // picklist type???
-        
-        fieldTypes.append(artistType)
+fieldTypes.append(artistType)
         
         fieldTypes.append(authorType)
         
         fieldTypes.append(booleanType)
         
         fieldTypes.append(dateAddedType)
+        
+        fieldTypes.append(dateModifiedType)
         
         fieldTypes.append(dateType)
         

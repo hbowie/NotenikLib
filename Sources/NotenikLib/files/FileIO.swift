@@ -963,6 +963,7 @@ public class FileIO: NotenikIO, RowConsumer {
         guard collection != nil && collectionOpen else { return false }
         guard !note.fileInfo.isEmpty else { return false }
         
+        note.setDateModNow()
         pickLists.registerNote(note: note)
         let writer = BigStringWriter()
         let maker = NoteLineMaker(writer)

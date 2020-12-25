@@ -75,6 +75,10 @@ public class FieldLabel: CustomStringConvertible {
         return commonForm == NotenikConstants.dateAddedCommon
     }
     
+    var isDateModified: Bool {
+        return commonForm == NotenikConstants.dateModifiedCommon
+    }
+    
     var isIndex: Bool {
         return commonForm == NotenikConstants.indexCommon
     }

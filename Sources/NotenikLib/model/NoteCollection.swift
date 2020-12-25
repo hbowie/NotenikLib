@@ -173,9 +173,15 @@ public class NoteCollection {
             dict.unlock()
             def = dict.addDef(typeCatalog: typeCatalog, label: label)
             dict.lock()
+        } else if label.commonForm == NotenikConstants.dateModifiedCommon
+                    && dict.locked &&  allowDictAdds {
+            label.validLabel = true
+            dict.unlock()
+            def = dict.addDef(typeCatalog: typeCatalog, label: label)
+            dict.lock()
         } else if dict.locked || !allowDictAdds {
             // Can't add any additional labels
-        } else if label.isTitle || label.isTags || label.isLink || label.isBody || label.isDateAdded {
+        } else if label.isTitle || label.isTags || label.isLink || label.isBody || label.isDateAdded || label.isDateModified {
             label.validLabel = true
             def = dict.addDef(typeCatalog: typeCatalog, label: label)
         } else if noteType == .simple {

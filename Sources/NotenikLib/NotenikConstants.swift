@@ -33,6 +33,8 @@ public struct NotenikConstants {
     public static let dateCommon       = "date"
     static let dateAdded        = "Date Added"
     static let dateAddedCommon  = "dateadded"
+    static let dateModified     = "Date Modified"
+    static let dateModifiedCommon = "datemodified"
     static let doubleBracketParsing = "Double Bracket Parsing"
     static let doubleBracketParsingCommon = "doublebracketparsing"
     static let h1TitlesDisplay  = "Display H1 Titles"

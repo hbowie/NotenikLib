@@ -62,6 +62,15 @@ public class Note: Comparable, Identifiable, NSCopying {
         }
         set {
             _envModDate = newValue
+            let dateModifiedDef = collection.dict.getDef(NotenikConstants.dateModified)
+            if dateModifiedDef != nil {
+                let dateModifiedValue = dateModified
+                let dateModNewValue = DateValue(newValue)
+                if dateModifiedValue.value.count == 0
+                        || dateModNewValue > dateModifiedValue {
+                    _ = setDateModified(newValue)
+                }
+            }
         }
     }
     
@@ -323,6 +332,29 @@ public class Note: Comparable, Identifiable, NSCopying {
         return setField(label: NotenikConstants.dateAdded, value: dateAdded)
     }
     
+    /// Set the Note's Date Last Modified field.
+    func setDateModified(_ dateModified: String) -> Bool {
+        if collection.dict.getDef(NotenikConstants.dateModified) == nil {
+            return false
+        }
+        return setField(label: NotenikConstants.dateModified, value: dateModified)
+    }
+    
+    /// Note is being modified right now - bring field up-to-date.
+    func setDateModNow() {
+        guard let dateModifiedDef = collection.dict.getDef(NotenikConstants.dateModified) else {
+            return
+        }
+        let dateModField = getField(def: dateModifiedDef)
+        if let dateModValue = dateModField?.value as? DateTimeValue {
+            dateModValue.setToNow()
+        } else {
+            let nowValue = DateTimeValue()
+            let dateModField = NoteField(def: dateModifiedDef, value: nowValue)
+            _ = addField(dateModField)
+        }
+    }
+    
     func setTimestamp(_ timestamp: String) -> Bool {
         let ok = setField(label: NotenikConstants.timestamp, value: timestamp)
         setID()
@@ -544,12 +576,22 @@ public class Note: Comparable, Identifiable, NSCopying {
     }
     
     /// Return the date the note was originally added
-    public var dateAdded: DateValue {
+    public var dateAdded: DateTimeValue {
         let val = getFieldAsValue(label: NotenikConstants.dateAdded)
-        if val is DateValue {
-            return val as! DateValue
+        if val is DateTimeValue {
+            return val as! DateTimeValue
         } else {
-            return DateValue(val.value)
+            return DateTimeValue(val.value)
+        }
+    }
+    
+    /// Return the date the note was last modified.
+    public var dateModified: DateTimeValue {
+        let val = getFieldAsValue(label: NotenikConstants.dateModified)
+        if val is DateTimeValue {
+            return val as! DateTimeValue
+        } else {
+            return DateTimeValue(val.value)
         }
     }
     
@@ -676,6 +718,11 @@ public class Note: Comparable, Identifiable, NSCopying {
         return dateAdded.count > 0
     }
     
+    /// Does this note have a date modified?
+    func hasDateModified() -> Bool {
+        return dateModified.count > 0
+    }
+    
     func hasTimestamp() -> Bool {
         return timestamp.count > 0
     }
@@ -790,7 +837,6 @@ public class Note: Comparable, Identifiable, NSCopying {
                               typeCatalog: collection.typeCatalog,
                               statusConfig: collection.statusConfig)
         return setField(field)
-        
     }
     
     /// Set the indicated field to the passed Note Field
