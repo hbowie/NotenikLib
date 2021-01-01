@@ -27,6 +27,7 @@ public class AppPrefs {
     
     let launchingKey    = "app-launching"
     let quickDeletesKey = "quick-deletes"
+    let mediumTokenKey  = "medium-token"
     let tagsSelectKey   = "tags-to-select"
     let tagsSuppressKey = "tags-to-suppress"
     let parentRealmParentKey = "parent-realm-parent"
@@ -48,6 +49,8 @@ public class AppPrefs {
     var _appLaunching = false
     
     var _qd: Bool = false
+    
+    var _mediumToken = ""
     
     var _prp = ""
     public var parentRealmPath = ""
@@ -118,6 +121,7 @@ public class AppPrefs {
     
     func resetDefaults() {
         confirmDeletes = true
+        // mediumToken = ""
         parentRealmParent = ""
         useCount = 0
         favoritesColumns = 4
@@ -133,6 +137,11 @@ public class AppPrefs {
         _lastURL = defaults.url(forKey: lastURLKey)
         
         _qd = defaults.bool(forKey: quickDeletesKey)
+        
+        let mediumTokenDefault = defaults.string(forKey: mediumTokenKey)
+        if mediumTokenDefault != nil {
+            _mediumToken = mediumTokenDefault!
+        }
         
         let tsel = defaults.string(forKey: tagsSelectKey)
         if tsel != nil {
@@ -237,6 +246,16 @@ public class AppPrefs {
         set {
             _qd = !newValue
             defaults.set(_qd, forKey: quickDeletesKey)
+        }
+    }
+    
+    public var mediumToken: String {
+        get {
+            return _mediumToken
+        }
+        set {
+            _mediumToken = newValue
+            defaults.set(_mediumToken, forKey: mediumTokenKey)
         }
     }
     
