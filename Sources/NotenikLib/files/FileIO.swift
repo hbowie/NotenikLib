@@ -686,7 +686,10 @@ public class FileIO: NotenikIO, RowConsumer {
     ///   - label: A string containing the column heading for the field.
     ///   - value: The actual value for the field.
     public func consumeField(label: String, value: String) {
-        _ = noteToImport!.setField(label: label, value: value)
+        let ok = noteToImport!.setField(label: label, value: value)
+        if !ok {
+            logError("Could not set note field \(label) to value of \(value)")
+        }
     }
     
     /// Do something with a completed row.
@@ -695,6 +698,7 @@ public class FileIO: NotenikIO, RowConsumer {
     ///   - labels: An array of column headings.
     ///   - fields: A corresponding array of field values.
     public func consumeRow(labels: [String], fields: [String]) {
+        noteToImport!.setID()
         let (newNote, _) = addNote(newNote: noteToImport!)
         if newNote != nil {
             notesImported += 1
