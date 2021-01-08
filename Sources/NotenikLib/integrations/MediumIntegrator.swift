@@ -38,8 +38,6 @@ public class MediumIntegrator {
     /// Attempt to authenticate. 
     public func getUserDetails() {
         
-        print("MediumIntegrator.getUserDetails")
-        
         guard info.authToken.count > 0 else {
             info.status = .tokenNeeded
             info.msg = "Medium Integration Token Needed"
@@ -102,8 +100,7 @@ public class MediumIntegrator {
             
             // Convert HTTP Response Data to a simple String
             if proceeding {
-                if let gotData = gotData, let dataString = String(data: gotData, encoding: .utf8) {
-                    print("Response data string:\n \(dataString)")
+                if let gotData = gotData {
                     do {
                         self.userData = try self.decoder.decode(MediumUser.self, from: gotData)
                         self.info.status = .authenticationSucceeded
@@ -226,7 +223,7 @@ public class MediumIntegrator {
             
             // Convert HTTP Response Data
             if proceeding {
-                if let gotData = gotData, let dataString = String(data: gotData, encoding: .utf8) {
+                if let gotData = gotData {
                     do {
                         self.postResponse = try self.decoder.decode(MediumPostResponse.self, from: gotData)
                         self.info.status = .postSucceeded

@@ -179,7 +179,7 @@ public class OmniFocusPlainTextReader: RowImporter {
         
         // Now go through the omni tasks we've stored, converting to
         // Notenik fields, and passing back fields and rows.
-        for (key, task) in tasks {
+        for (_, task) in tasks {
             generateNoteRow(task)
         }
     }
