@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 5/25/19.
-//  Copyright © 2019-2020 Herb Bowie (https://hbowie.net)
+//  Copyright © 2019-2021 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -33,6 +33,7 @@ public class AppPrefs {
     let parentRealmParentKey = "parent-realm-parent"
     let useCountKey     = "use-count"
     let lastVersionPromptedForReviewKey = "last-version-prompted-for-review"
+    let lastVersionNewsReportedForKey = "last-version-news-reported-for"
     
     let favoritesColumnsKey = "favorites-columns"
     let favoritesRowsKey = "favorites-rows"
@@ -63,6 +64,7 @@ public class AppPrefs {
     var _uc = 0
     
     var _lvpfr = ""
+    var _lvnews = ""
     var currentVersion = ""
     
     var _favCols = 0
@@ -163,6 +165,12 @@ public class AppPrefs {
         let lvpfr = defaults.string(forKey: lastVersionPromptedForReviewKey)
         if lvpfr != nil {
             _lvpfr = lvpfr!
+        }
+        
+        // Get the Last Version News Was Reported For.
+        let lvnews = defaults.string(forKey: lastVersionNewsReportedForKey)
+        if lvnews != nil {
+            _lvnews = lvnews!
         }
         
         // Get Favorites Defaults
@@ -338,6 +346,24 @@ public class AppPrefs {
         set {
             _lvpfr = newValue
             defaults.set(_lvpfr, forKey: lastVersionPromptedForReviewKey)
+        }
+    }
+    
+    public func userShownNews() {
+        lastVersionShownNews = currentVersion
+    }
+    
+    public var newVersionForNews: Bool {
+        return currentVersion > lastVersionShownNews
+    }
+    
+    var lastVersionShownNews: String {
+        get {
+            return _lvnews
+        }
+        set {
+            _lvnews = newValue
+            defaults.set(_lvnews, forKey: lastVersionNewsReportedForKey)
         }
     }
     

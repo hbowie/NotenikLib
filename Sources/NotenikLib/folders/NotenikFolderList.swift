@@ -31,7 +31,7 @@ public class NotenikFolderList: Sequence {
     
     public let root = NotenikFolderNode()
     
-    var count: Int { return folders.count }
+    public var count: Int { return folders.count }
     
     /// Initialize.
     private init() {
