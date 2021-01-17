@@ -20,8 +20,6 @@ public class NoteCrumbs {
     var crumbs: [NoteID] = []
     var lastIndex: Int { return crumbs.count - 1 }
     
-    var lastIDReturned: NoteID?
-    
     public init(io: NotenikIO) {
         self.io = io
     }
@@ -31,16 +29,13 @@ public class NoteCrumbs {
         
         /// If this note is just the last one returned from this list, then
         /// leave well enough alone.
-        if selected.noteID == lastIDReturned && crumbs.count > 0 { return }
+        guard crumbs.count == 0 || selected.noteID != crumbs[lastIndex] else { return }
         
-        /// No? Then see if it's already in the list.
         let index = locate(selected.noteID)
         if index >= 0 {
-            lastIDReturned = selected.noteID
-            return
+            crumbs.remove(at: index)
         }
-        
-        append(selected.noteID)
+        crumbs.append(selected.noteID)
     }
     
     /// Go back to the prior note in the breadcrumbs.
@@ -52,7 +47,6 @@ public class NoteCrumbs {
         if index > 0 {
             index -= 1
             if let priorNote = io.getNote(forID: crumbs[index]) {
-                lastIDReturned = priorNote.noteID
                 return priorNote
             }
         }
@@ -76,7 +70,6 @@ public class NoteCrumbs {
         if index >= 0 && index < lastIndex {
             index += 1
             if let nextNote = io.getNote(forID: crumbs[index]) {
-                lastIDReturned = nextNote.noteID
                 return nextNote
             }
         }
@@ -93,20 +86,15 @@ public class NoteCrumbs {
     
     /// Refresh breadcrumbs with an initial entry.
     func refresh(with id: NoteID) {
-        refresh()
-        append(id)
+        crumbs = []
+        crumbs.append(id)
     }
     
     /// Let's start over.
     public func refresh() {
         crumbs = []
-        lastIDReturned = nil
     }
     
-    func append(_ id: NoteID) {
-        crumbs.append(id)
-        lastIDReturned = id
-    }
     
     /// Locate the given Note ID within the list of breadcrumbs, returning -1 if not found.
     func locate(_ id: NoteID) -> Int {
