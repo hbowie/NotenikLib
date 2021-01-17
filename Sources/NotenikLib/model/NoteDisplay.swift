@@ -104,11 +104,16 @@ public class NoteDisplay: NSObject {
                 code.append(": ")
                 code.finishParagraph()
             }
-            let md = MkdownParser(field.value.value)
-            md.wikiLinkLookup = io
-            md.parse()
-            code.append(md.html)
-            counts = md.counts
+            if format == .htmlDoc || format == .htmlFragment {
+                let md = MkdownParser(field.value.value)
+                md.wikiLinkLookup = io
+                md.parse()
+                code.append(md.html)
+                counts = md.counts
+            } else {
+                code.append(field.value.value)
+                code.newLine()
+            }
         } else if field.def.fieldType is LinkType {
             code.startParagraph()
             code.append(field.def.fieldLabel.properForm)
@@ -130,7 +135,12 @@ public class NoteDisplay: NSObject {
             code.append(field.def.fieldLabel.properForm)
             code.append(": ")
             code.finishParagraph()
-            MkdownParser.markdownToMarkedup(markdown: field.value.value, wikiLinkLookup: io, writer: code)
+            if format == .htmlDoc || format == .htmlFragment {
+                MkdownParser.markdownToMarkedup(markdown: field.value.value, wikiLinkLookup: io, writer: code)
+            } else {
+                code.append(field.value.value)
+                code.newLine()
+            }
         } else if field.def.fieldType.typeString == NotenikConstants.dateType {
             code.startParagraph()
             code.append(field.def.fieldLabel.properForm)
