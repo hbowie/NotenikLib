@@ -16,17 +16,17 @@ import NotenikUtils
 /// The file name for a Note stored on disk.
 public class NoteFileInfo {
     
-    var note: Note
-    var collection: NoteCollection
+            var note: Note
+            var collection: NoteCollection
     
-    public var format: NoteFileFormat = .toBeDetermined
-    var mmdMetaStartLine = ""
-    var mmdMetaEndLine = ""
+    public  var format: NoteFileFormat = .toBeDetermined
+            var mmdMetaStartLine = ""
+            var mmdMetaEndLine = ""
     
     /// This should contain the file name (without the path) plus the file extension
-    public var base: String?
-    var ext:  String?
-    var matchesIDSource = true
+    public  var base: String?
+            var ext:  String?
+            var matchesIDSource = true
     
     public init(note: Note) {
         self.note = note
@@ -71,6 +71,8 @@ public class NoteFileInfo {
         guard collection.preferredExt.count > 0 else { return }
         let source = note.noteID.source
         guard source.count > 0 else { return }
+        
+        // ??? Why consistently use title here? 
         if note.hasTitle() {
             base = StringUtils.toReadableFilename(note.title.value)
             ext = collection.preferredExt

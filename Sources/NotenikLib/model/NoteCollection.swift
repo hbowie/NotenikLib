@@ -20,7 +20,7 @@ public class NoteCollection {
             var realm       : Realm
             var noteType    : NoteType = .general
     public  var dict        : FieldDictionary
-            var idRule      : NoteIDRule
+    public  var idFieldDef  : FieldDefinition
     public  var sortParm    : NoteSortParm
             var sortDescending: Bool
     public  var typeCatalog  = AllTypes()
@@ -44,7 +44,7 @@ public class NoteCollection {
     public init () {
         realm = Realm()
         dict = FieldDictionary()
-        idRule = NoteIDRule.fromTitle
+        idFieldDef = FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.title)
         sortParm = .title
         sortDescending = false
         statusConfig = StatusValueConfig()

@@ -16,9 +16,9 @@ import NotenikUtils
 /// The unique identifier for a Note.
 public class NoteID: CustomStringConvertible, Equatable, Comparable {
     
-    var rule: NoteIDRule = .fromTitle
     var source = ""
     var identifier = ""
+    var fieldType: AnyType = StringType()
     
     /// Initialize without a starting value, then set the value later.
     init() {
@@ -40,14 +40,14 @@ public class NoteID: CustomStringConvertible, Equatable, Comparable {
     
     /// Set the ID using information from the Note.
     func set(from note: Note) {
-        rule = note.collection.idRule
-        switch rule {
-        case .fromDate:
-            source = note.timestamp.value
-        case .fromTitle:
-            source = note.title.value
+        guard let field = note.getField(def: note.collection.idFieldDef) else {
+            source = ""
+            identifier = ""
+            return
         }
+        source = field.value.value
         identifier = StringUtils.toCommon(source)
+        fieldType = field.def.fieldType
     }
     
     /// If we have a duplicate, then add a number to the end, and increment it,
@@ -85,28 +85,19 @@ public class NoteID: CustomStringConvertible, Equatable, Comparable {
         }
         let original = source[source.startIndex..<originalEnd]
         var modified = ""
-        switch rule {
-        case .fromDate:
-            modified = "\(original)-\(number)"
-        case .fromTitle:
-            modified = "\(original) \(number)"
-        }
+        modified = "\(original)\(fieldType.idIncSep)\(number)"
         source = modified
         identifier = StringUtils.toCommon(source)
         return modified
     }
     
     func updateSource(note: Note) {
-        switch rule {
-        case .fromDate:
-            _ = note.setTimestamp(source)
-        case .fromTitle:
-            _ = note.setTitle(source)
-        }
+        guard let field = note.getField(def: note.collection.idFieldDef) else { return }
+        field.value.set(source)
     }
     
     func display() {
-        print("NoteID Rule: \(rule), Source: \(source), ID: \(identifier)")
+        print("Source: \(source), ID: \(identifier)")
     }
     
     public static func == (lhs: NoteID, rhs: NoteID) -> Bool {

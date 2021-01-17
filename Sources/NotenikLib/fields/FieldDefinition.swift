@@ -12,7 +12,7 @@
 import Foundation
 
 /// The label used to identify this field, along with the field type.
-public class FieldDefinition {
+public class FieldDefinition: Comparable {
     
     var typeCatalog: AllTypes!
     
@@ -52,9 +52,27 @@ public class FieldDefinition {
         fieldType = typeCatalog.assignType(label: fieldLabel, type: type)
     }
     
+    public func copy() -> FieldDefinition {
+        let copy = FieldDefinition(typeCatalog: typeCatalog)
+        copy.fieldLabel = self.fieldLabel.copy()
+        copy.fieldType  = self.fieldType
+        copy.pickList   = self.pickList
+        return copy
+    }
+    
     func display() {
         print("FieldDefinition")
         fieldLabel.display()
         print("Field Type String: \(fieldType.typeString)")
+    }
+    
+    /// See if one field label is less than another, using the common form of the label.
+    public static func < (lhs: FieldDefinition, rhs: FieldDefinition) -> Bool {
+        return lhs.fieldLabel < rhs.fieldLabel
+    }
+    
+    /// See if one field label is equal to another, using the common form of the label.
+    public static func == (lhs: FieldDefinition, rhs: FieldDefinition) -> Bool {
+        return lhs.fieldLabel == rhs.fieldLabel
     }
 }

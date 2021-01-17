@@ -200,7 +200,7 @@ public class NotesExporter {
         exportDict = exportCollection.dict
         
         exportCollection.noteType = collection.noteType
-        exportCollection.idRule = collection.idRule
+        exportCollection.idFieldDef = collection.idFieldDef.copy()
         exportCollection.sortParm = collection.sortParm
         exportCollection.sortDescending = collection.sortDescending
         exportCollection.statusConfig = collection.statusConfig

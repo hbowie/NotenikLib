@@ -38,4 +38,10 @@ class TimestampType: AnyType {
         return TimestampValue(str)
     }
     
+    /// Return the value to use between the original value of an ID field and
+    /// the appended increment used for uniqueness.
+    override var idIncSep: String {
+        return "-"
+    }
+    
 }

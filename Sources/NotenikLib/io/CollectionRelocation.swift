@@ -84,7 +84,7 @@ public class CollectionRelocation {
         toNotesPath = toCollection!.notesPath
         
         toCollection!.noteType = fromCollection!.noteType
-        toCollection!.idRule = fromCollection!.idRule
+        toCollection!.idFieldDef = fromCollection!.idFieldDef.copy()
         toCollection!.sortParm = fromCollection!.sortParm
         toCollection!.sortDescending = fromCollection!.sortDescending
         toCollection!.statusConfig = fromCollection!.statusConfig

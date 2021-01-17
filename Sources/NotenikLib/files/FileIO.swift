@@ -16,7 +16,7 @@ import NotenikUtils
 /// Retrieve and save Notes from and to files stored locally.
 public class FileIO: NotenikIO, RowConsumer {
     
-    let templateID          = "template"
+    let mergeTemplateID          = "template"
     
     let fileManager = FileManager.default
     
@@ -153,11 +153,11 @@ public class FileIO: NotenikIO, RowConsumer {
         
         var templateNote = loadTemplateFile(realm: realm,
                                             collectionPath: collectionPath,
-                                            itemPath: "template.txt")
+                                            itemPath: NotenikConstants.templateFileName + ".txt")
         if templateNote == nil {
             templateNote = loadTemplateFile(realm: realm,
                                             collectionPath: collectionPath,
-                                            itemPath: "template.md")
+                                            itemPath: NotenikConstants.templateFileName + ".md")
         }
         
         do {
@@ -542,7 +542,7 @@ public class FileIO: NotenikIO, RowConsumer {
                     report.reportName = fileName.base
                     report.reportType = fileName.ext
                     reports.append(report)
-                } else if !scriptsFound && fileName.baseLower.contains(templateID) {
+                } else if !scriptsFound && fileName.baseLower.contains(mergeTemplateID) {
                     let report = MergeReport()
                     report.reportName = fileName.base
                     report.reportType = fileName.ext
@@ -813,9 +813,9 @@ public class FileIO: NotenikIO, RowConsumer {
     public func changePreferredExt(from: String, to: String) -> Bool {
         guard collection != nil else { return false }
         var ok = true
-        let fromFilePath = makeFilePath(fileName: "template." + from)
+        let fromFilePath = makeFilePath(fileName: NotenikConstants.templateFileName + "." + from)
         let fromURL =  NotenikLink(str: fromFilePath, assume: .assumeFile)
-        let toFilePath = makeFilePath(fileName: "template." + to)
+        let toFilePath = makeFilePath(fileName: NotenikConstants.templateFileName + "." + to)
         let toURL = NotenikLink(str: toFilePath, assume: .assumeFile)
         guard fromURL.url != nil else { return false }
         guard toURL.url != nil else { return false }
@@ -1327,6 +1327,11 @@ public class FileIO: NotenikIO, RowConsumer {
         if collection!.mirror != nil {
             print("Collection has a Notes Transformer")
         }
+    }
+    
+    public func makeTemplateFilePath() -> String {
+        guard collection != nil else { return NotenikConstants.templateFileName + ".txt" }
+        return makeFilePath(fileName: NotenikConstants.templateFileName + "." + collection!.preferredExt)
     }
     
     public func makeFilePath(fileName: String) -> String {

@@ -793,6 +793,13 @@ public class Note: Comparable, Identifiable, NSCopying {
         return fields[def.fieldLabel.commonForm]
     }
     
+    /// Get the Note Field for a particular Field Label.
+    /// - Parameter fieldLabel: The Field Label of interest.
+    /// - Returns: The Note Field having that label, or nil if unable to match. 
+    public func getField(fieldLabel: FieldLabel) -> NoteField? {
+        return fields[fieldLabel.commonForm]
+    }
+    
     
     /// Add a field to the note, given a definition and a String value.
     ///

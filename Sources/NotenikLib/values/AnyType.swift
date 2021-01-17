@@ -54,4 +54,10 @@ public class AnyType {
         return (typeString == "longtext" || typeString == "body" || typeString == "code")
     }
     
+    /// Return the value to use between the original value of an ID field and
+    /// the appended increment used for uniqueness. 
+    var idIncSep: String {
+        return " "
+    }
+    
 }

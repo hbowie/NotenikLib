@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 11/30/18.
-//  Copyright © 2018 - 2019 Herb Bowie (https://powersurgepub.com)
+//  Copyright © 2018 - 2021 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -14,7 +14,7 @@ import Foundation
 import NotenikUtils
 
 /// A label used to identify a particular field within a collection of items.
-public class FieldLabel: CustomStringConvertible {
+public class FieldLabel: CustomStringConvertible, Comparable  {
     
     public var properForm = ""
     public var commonForm = ""
@@ -162,5 +162,21 @@ public class FieldLabel: CustomStringConvertible {
     
     func display() {
         print("FieldLabel | Proper Form: \(properForm), Common Form: \(commonForm), Valid? \(validLabel)")
+    }
+    
+    /// Make a copy of this instance.
+    func copy() -> FieldLabel {
+        let copy = FieldLabel(self.properForm)
+        return copy
+    }
+    
+    /// See if one field label is less than another, using the common form of the label.
+    public static func < (lhs: FieldLabel, rhs: FieldLabel) -> Bool {
+        return lhs.commonForm < rhs.commonForm
+    }
+    
+    /// See if one field label is equal to another, using the common form of the label.
+    public static func == (lhs: FieldLabel, rhs: FieldLabel) -> Bool {
+        return lhs.commonForm == rhs.commonForm
     }
 }
