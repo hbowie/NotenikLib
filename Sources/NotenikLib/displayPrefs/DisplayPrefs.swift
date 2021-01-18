@@ -131,6 +131,7 @@ public class DisplayPrefs {
     /// Apply the CSS to the entire body. 
     public var bodyCSS: String? {
         var tempCSS = "body { "
+        tempCSS.append("\ntab-size: 4; ")
         if css != nil {
             tempCSS.append(css!)
         }
