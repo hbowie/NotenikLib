@@ -117,6 +117,17 @@ public class DisplayPrefs {
         css = tempCSS
     }
     
+    public func buildCSS(f: String, s: String) -> String {
+        var tempCSS = ""
+        tempCSS += "font-family: "
+        tempCSS += "\"" + f + "\""
+        tempCSS += ", \"Helvetica Neue\", Helvetica, Arial, sans-serif;\n"
+        tempCSS += "font-size: "
+        tempCSS += s
+        tempCSS += "pt"
+        return tempCSS
+    }
+    
     /// Apply the CSS to the entire body. 
     public var bodyCSS: String? {
         var tempCSS = "body { "
@@ -124,6 +135,16 @@ public class DisplayPrefs {
             tempCSS.append(css!)
         }
         tempCSS.append(" }")
+        // tempCSS.append("\ncode { overflow: auto }")
+        return tempCSS
+    }
+    
+    /// Apply the given CSS to the entire body.
+    public func buildBodyCSS(_ css: String) -> String {
+        var tempCSS = "body { "
+        tempCSS.append(css)
+        tempCSS.append(" }")
+        // tempCSS.append("\ncode { overflow: auto }")
         return tempCSS
     }
     
