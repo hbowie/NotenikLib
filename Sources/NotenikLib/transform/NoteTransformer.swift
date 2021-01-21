@@ -423,7 +423,7 @@ public class NoteTransformer {
           let proper = field.fieldLabel.properForm
           let common = field.fieldLabel.commonForm
           let type = field.fieldType.typeString
-          if common == "title" {
+            if common == NotenikConstants.titleCommon {
               markup.heading(level: 2, text: "=$title\(shortMods)$=")
           } else if common == "body" || type == "longtext" {
               markup.startParagraph()

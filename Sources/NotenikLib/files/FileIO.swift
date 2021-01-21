@@ -237,6 +237,7 @@ public class FileIO: NotenikIO, RowConsumer {
                 logInfo("Mirroring Engaged")
             }
             aliasList.loadFromDisk()
+            collection!.display()
             return collection
         }
     }
@@ -331,7 +332,6 @@ public class FileIO: NotenikIO, RowConsumer {
     func loadTemplateFile(realm: Realm, collectionPath: String, itemPath: String) -> Note? {
         let dict = collection!.dict
         let types = collection!.typeCatalog
-        _ = dict.addDef(typeCatalog: types, label: NotenikConstants.title)
         let itemFullPath = makeFilePath(fileName: itemPath)
         let fileName = FileName(itemFullPath)
         let itemURL = URL(fileURLWithPath: itemFullPath)
@@ -343,26 +343,9 @@ public class FileIO: NotenikIO, RowConsumer {
 
         templateFound = true
         _ = dict.addDef(typeCatalog: types, label: NotenikConstants.body)
-        for def in collection!.dict.list {
-            if def.fieldLabel.commonForm == NotenikConstants.timestampCommon {
-                collection!.hasTimestamp = true
-            }
-            let val = templateNote.getFieldAsValue(label: def.fieldLabel.commonForm)
-            if val.value.hasPrefix("<") && val.value.hasSuffix(">") {
-                var typeStr = ""
-                for char in val.value {
-                    if char != "<" && char != ">" {
-                        typeStr.append(char)
-                    }
-                }
-                def.fieldType = collection!.typeCatalog.assignType(label: def.fieldLabel, type: typeStr)
-            } else if val.value.hasPrefix("pick-from: ") {
-                let pickList = PickList(values: val.value)
-                if pickList.count > 0 {
-                    def.pickList = pickList
-                }
-            }
-        }
+        let applyTemplateValues = ApplyTemplateValues(templateNote: templateNote)
+        applyTemplateValues.applyValuesToDict(collection: collection!)
+        
         if !collection!.otherFields {
             collection!.dict.lock()
         }

@@ -222,7 +222,7 @@ public class XMLNoteImporter: NSObject, XMLParserDelegate {
                     bodyValue.append(value)
                 }
             }
-        case "title":
+        case NotenikConstants.titleCommon:
             if parentLabel != "source" {
                 _ = note!.setTitle(value)
             }

@@ -18,13 +18,13 @@ class TitleType: AnyType {
         super.init()
         
         /// A string identifying this particular field type.
-        typeString  = "title"
+        typeString  = NotenikConstants.titleCommon
         
         /// The proper label typically assigned to fields of this type.
-        properLabel = "Title"
+        properLabel = NotenikConstants.title
         
         /// The common label typically assigned to fields of this type.
-        commonLabel = "title"
+        commonLabel = NotenikConstants.titleCommon
     }
     
     /// A factory method to create a new value of this type with no initial value.

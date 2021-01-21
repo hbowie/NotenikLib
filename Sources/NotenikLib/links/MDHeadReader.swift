@@ -55,7 +55,7 @@ public class MDHeadReader: RowImporter {
     ///
     /// - Parameter lineReader: A line reader ready to be opened.
     func read(lineReader: LineReader) {
-        labels.append("Title")
+        labels.append(NotenikConstants.title)
         labels.append("Level")
         labels.append("Body")
         priorLine = nil

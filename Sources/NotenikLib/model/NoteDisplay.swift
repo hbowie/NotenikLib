@@ -81,7 +81,7 @@ public class NoteDisplay: NSObject {
     /// - Returns: A String containing the code that can be used to display this field.
     func display(_ field: NoteField, collection: NoteCollection, io: NotenikIO) -> String {
         let code = Markedup(format: format)
-        if field.def.fieldLabel.commonForm == NotenikConstants.titleCommon {
+        if field.def == collection.idFieldDef {
             if collection.h1Titles {
                 code.heading(level: 1, text: field.value.value)
             } else {

@@ -207,4 +207,18 @@ public class NoteCollection {
         }
         return def
     }
+    
+    /// Useful for debugging. 
+    func display() {
+        print(" ")
+        print("Collection info")
+        print("  - Title: \(title)")
+        print("  - Preferred ext: \(preferredExt)")
+        print("  - ID Field: \(idFieldDef.fieldLabel.properForm)")
+        print("  - Has time stamp? \(hasTimestamp)")
+        print("  - Field Definitions: ")
+        for def in dict.list {
+            print("    - Label: \(def.fieldLabel.properForm), common: \(def.fieldLabel.commonForm), type: \(def.fieldType.typeString)")
+        }
+    }
 }

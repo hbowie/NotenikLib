@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 7/11/19.
-//  Copyright © 2019 Herb Bowie (https://powersurgepub.com)
+//  Copyright © 2019 - 2021 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -11,7 +11,7 @@
 
 import Foundation
 
-/// A list of values that can be picked from.
+/// A list of values to choose from.
 public class PickList {
     
     public static let pickFromLiteral = "pick-from: "
@@ -39,15 +39,18 @@ public class PickList {
     }
     
     /// Initialize with a list of values separated by commas or semi-colons.
+    /// Ignore  leading less than symbol, and treat greater than sign as another delimiter.
     public init(values: String) {
         var i = values.startIndex
         if values.hasPrefix(PickList.pickFromLiteral) {
             i = values.index(i, offsetBy: PickList.pickFromLiteral.count)
+        } else if values.hasPrefix("<" + PickList.pickFromLiteral) {
+            i = values.index(i, offsetBy: PickList.pickFromLiteral.count + 1)
         }
         var nextValue = ""
         while i < values.endIndex {
             let c = values[i]
-            if c == "," || c == ";" {
+            if c == "," || c == ";" || c == ">" {
                 if nextValue.count > 0 {
                     registerValue(nextValue)
                     nextValue = ""
