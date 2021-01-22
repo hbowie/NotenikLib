@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 12/4/18.
-//  Copyright © 2019-2020 Herb Bowie (https://hbowie.net)
+//  Copyright © 2019-2021 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -20,7 +20,6 @@ public class NoteCollection {
             var realm       : Realm
             var noteType    : NoteType = .general
     public  var dict        : FieldDictionary
-    public  var idFieldDef  : FieldDefinition
     public  var sortParm    : NoteSortParm
             var sortDescending: Bool
     public  var typeCatalog  = AllTypes()
@@ -39,6 +38,9 @@ public class NoteCollection {
     public  var h1Titles = false
     public  var lastStartupDate = ""
             var todaysDate = ""
+    
+    public  var idFieldDef: FieldDefinition
+            var pickLists: [FieldDefinition] = []
     
     /// Default initialization of a new Collection.
     public init () {
@@ -208,6 +210,16 @@ public class NoteCollection {
         return def
     }
     
+    /// Finalize things after all dictionary definitions have been loaded. 
+    func finalize() {
+        pickLists = []
+        for def in dict.list {
+            if def.pickList != nil {
+                pickLists.append(def)
+            }
+        }
+    }
+    
     /// Useful for debugging. 
     func display() {
         print(" ")
@@ -218,7 +230,13 @@ public class NoteCollection {
         print("  - Has time stamp? \(hasTimestamp)")
         print("  - Field Definitions: ")
         for def in dict.list {
-            print("    - Label: \(def.fieldLabel.properForm), common: \(def.fieldLabel.commonForm), type: \(def.fieldType.typeString)")
+            var choices = 0
+            var pickerStr = ""
+            if def.pickList != nil {
+                choices = def.pickList!.count
+                pickerStr = ", pick list count: \(choices)"
+            }
+            print("    - Label: \(def.fieldLabel.properForm), common: \(def.fieldLabel.commonForm), type: \(def.fieldType.typeString)\(pickerStr)")
         }
     }
 }

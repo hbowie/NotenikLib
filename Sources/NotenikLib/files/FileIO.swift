@@ -343,6 +343,7 @@ public class FileIO: NotenikIO, RowConsumer {
 
         templateFound = true
         _ = dict.addDef(typeCatalog: types, label: NotenikConstants.body)
+        
         let applyTemplateValues = ApplyTemplateValues(templateNote: templateNote)
         applyTemplateValues.applyValuesToDict(collection: collection!)
         
@@ -356,6 +357,7 @@ public class FileIO: NotenikIO, RowConsumer {
             config.set(templateStatusValue)
             collection!.typeCatalog.statusValueConfig = config
         }
+        collection!.finalize()
         return templateNote
     }
     
@@ -821,12 +823,14 @@ public class FileIO: NotenikIO, RowConsumer {
                 collection!.hasTimestamp = true
             } else if def.fieldLabel.commonForm == NotenikConstants.statusCommon {
                 value = collection!.statusConfig.statusOptionsAsString
-            } else if def.pickList != nil {
+            } else if def.pickList != nil && def.fieldType.typeString != NotenikConstants.authorCommon {
                 value = def.pickList!.valueString
             } else if def.fieldLabel.commonForm == NotenikConstants.bodyCommon {
                 value = ""
             } else if def.fieldType is LongTextType {
                 value = "<longtext>"
+            } else if def.fieldType.typeString != NotenikConstants.stringType {
+                value = "<\(def.fieldType.typeString)>"
             }
             str.append("\(def.fieldLabel.properForm): \(value) \n\n")
         }

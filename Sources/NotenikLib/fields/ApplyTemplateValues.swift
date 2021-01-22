@@ -49,6 +49,7 @@ class ApplyTemplateValues {
                     }
                 } else {
                     def.fieldType = collection.typeCatalog.assignType(label: def.fieldLabel, type: typeStr)
+                    def.pickList = def.fieldType.genPickList()
                 }
             } else if val.value.hasPrefix(PickList.pickFromLiteral) || val.value.hasPrefix("<" + PickList.pickFromLiteral) {
                 let pickList = PickList(values: val.value)

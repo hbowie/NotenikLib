@@ -49,4 +49,10 @@ class AuthorType: AnyType {
         }
     }
     
+    /// Return an appropriate pick list (if any) for this field type.
+    /// - Returns: An instance of PickList, or nil. 
+    override func genPickList() -> PickList? {
+        return AuthorPickList()
+    }
+    
 }

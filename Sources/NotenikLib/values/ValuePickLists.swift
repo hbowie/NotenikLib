@@ -15,19 +15,25 @@ public class ValuePickLists {
     
     public var statusConfig = StatusValueConfig()
     public var tagsPickList = TagsPickList()
-    public var authorPickList = AuthorPickList()
     public var workTitlePickList = WorkTitlePickList()
     
     /// Register the relevant values from another Note. 
     func registerNote(note: Note) {
-        if note.hasAuthor() {
-            authorPickList.registerAuthor(note.author)
-        }
         if note.hasTags() {
             tagsPickList.registerTags(note.tags)
         }
         if note.hasWorkTitle() {
             workTitlePickList.registerWork(note)
+        }
+        
+        for def in note.collection.pickLists {
+            guard let list = def.pickList else { continue }
+            guard let field = note.getField(def: def) else { continue }
+            if let authors = def.pickList as? AuthorPickList, let author = field.value as? AuthorValue {
+                authors.registerAuthor(author)
+                continue
+            }
+            list.registerValue(field.value)
         }
     }
 }

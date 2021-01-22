@@ -60,4 +60,10 @@ public class AnyType {
         return " "
     }
     
+    /// Return an appropriate pick list (if any) for this field type.
+    /// - Returns: An instance of PickList, or nil. 
+    func genPickList() -> PickList? {
+        return nil
+    }
+    
 }

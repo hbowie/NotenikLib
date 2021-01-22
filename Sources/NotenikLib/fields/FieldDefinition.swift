@@ -36,6 +36,7 @@ public class FieldDefinition: Comparable {
         self.init(typeCatalog: typeCatalog)
         fieldLabel.set(label)
         fieldType = typeCatalog.assignType(label: fieldLabel, type: nil)
+        pickList = fieldType.genPickList()
     }
     
     /// Initialize with a FieldLabel object
@@ -43,6 +44,7 @@ public class FieldDefinition: Comparable {
         self.init(typeCatalog: typeCatalog)
         self.fieldLabel = label
         fieldType = typeCatalog.assignType(label: label, type: nil)
+        pickList = fieldType.genPickList()
     }
     
     /// Initialize with a string label and an integer type
@@ -50,6 +52,7 @@ public class FieldDefinition: Comparable {
         self.init(typeCatalog: typeCatalog)
         fieldLabel.set(label)
         fieldType = typeCatalog.assignType(label: fieldLabel, type: type)
+        pickList = fieldType.genPickList()
     }
     
     public func copy() -> FieldDefinition {

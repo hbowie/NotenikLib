@@ -54,9 +54,7 @@ public class FieldLabel: CustomStringConvertible, Comparable  {
     }
     
     var isAuthor: Bool {
-        return (commonForm == NotenikConstants.authorCommon
-            || commonForm == "by"
-            || commonForm == "creator")
+        return commonForm == NotenikConstants.authorCommon
     }
     
     var isBody: Bool {
