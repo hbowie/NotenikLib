@@ -16,7 +16,7 @@ public class AllTypes {
     
     let artistType  = ArtistType()
     let authorType  = AuthorType()
-    let bodyType    = LongTextType()
+    let bodyType    = BodyType()
     let booleanType = BooleanType()
     let codeType    = LongTextType()
     let dateAddedType = DateAddedType()
@@ -57,6 +57,8 @@ fieldTypes.append(artistType)
         
         fieldTypes.append(authorType)
         
+        fieldTypes.append(bodyType)
+        
         fieldTypes.append(booleanType)
         
         fieldTypes.append(dateAddedType)
@@ -75,11 +77,6 @@ fieldTypes.append(artistType)
         fieldTypes.append(linkType)
         
         fieldTypes.append(longTextType)
-        
-        bodyType.typeString = "body"
-        bodyType.properLabel = "Body"
-        bodyType.commonLabel = "body"
-        fieldTypes.append(bodyType)
         
         codeType.typeString = "code"
         codeType.properLabel = "Code"

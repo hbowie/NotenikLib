@@ -12,7 +12,7 @@
 import Foundation
 
 /// The label used to identify this field, along with the field type.
-public class FieldDefinition: Comparable {
+public class FieldDefinition: Comparable, CustomStringConvertible {
     
     var typeCatalog: AllTypes!
     
@@ -55,12 +55,20 @@ public class FieldDefinition: Comparable {
         pickList = fieldType.genPickList()
     }
     
+    var isBody: Bool {
+        return fieldType.isBody
+    }
+    
     public func copy() -> FieldDefinition {
         let copy = FieldDefinition(typeCatalog: typeCatalog)
         copy.fieldLabel = self.fieldLabel.copy()
         copy.fieldType  = self.fieldType
         copy.pickList   = self.pickList
         return copy
+    }
+    
+    public var description: String {
+        return("Proper: \(fieldLabel.properForm), Common: \(fieldLabel.commonForm), type: \(fieldType.typeString)")
     }
     
     func display() {

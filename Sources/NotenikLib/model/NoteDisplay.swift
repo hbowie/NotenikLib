@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 1/22/19.
-//  Copyright © 2019 - 2020 Herb Bowie (https://powersurgepub.com)
+//  Copyright © 2019 - 2021 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -34,7 +34,7 @@ public class NoteDisplay: NSObject {
         code.startDoc(withTitle: note.title.value, withCSS: displayPrefs.bodyCSS)
         var i = 0
         if note.hasTags() {
-            let tagsField = note.getField(label: NotenikConstants.tags)
+            let tagsField = note.getTagsAsField()
             code.append(display(tagsField!, collection: collection, io: io))
         }
         while i < dict.count {
@@ -43,10 +43,10 @@ public class NoteDisplay: NSObject {
                 let field = note.getField(def: def!)
                 if (field != nil &&
                     field!.value.hasData &&
-                    field!.def.fieldLabel.commonForm != NotenikConstants.tagsCommon &&
-                    field!.def.fieldLabel.commonForm != NotenikConstants.dateAddedCommon &&
-                    field!.def.fieldLabel.commonForm != NotenikConstants.dateModifiedCommon &&
-                    field!.def.fieldLabel.commonForm != NotenikConstants.timestampCommon) {
+                        field!.def != collection.tagsFieldDef &&
+                        field!.def.fieldLabel.commonForm != NotenikConstants.dateAddedCommon &&
+                        field!.def.fieldLabel.commonForm != NotenikConstants.dateModifiedCommon &&
+                        field!.def.fieldLabel.commonForm != NotenikConstants.timestampCommon) {
                     code.append(display(field!, collection: collection, io: io))
                 }
             }
@@ -81,7 +81,7 @@ public class NoteDisplay: NSObject {
     /// - Returns: A String containing the code that can be used to display this field.
     func display(_ field: NoteField, collection: NoteCollection, io: NotenikIO) -> String {
         let code = Markedup(format: format)
-        if field.def == collection.idFieldDef {
+        if field.def == collection.titleFieldDef {
             if collection.h1Titles {
                 code.heading(level: 1, text: field.value.value)
             } else {
@@ -91,13 +91,13 @@ public class NoteDisplay: NSObject {
                 code.finishStrong()
                 code.finishParagraph()
             }
-        } else if field.def.fieldLabel.commonForm == NotenikConstants.tagsCommon {
+        } else if field.def == collection.tagsFieldDef {
             code.startParagraph()
             code.startEmphasis()
             code.append(field.value.value)
             code.finishEmphasis()
             code.finishParagraph()
-        } else if field.def.fieldLabel.commonForm == NotenikConstants.bodyCommon {
+        } else if field.def.fieldType.typeString == NotenikConstants.bodyCommon {
             if collection.bodyLabel {
                 code.startParagraph()
                 code.append(field.def.fieldLabel.properForm)

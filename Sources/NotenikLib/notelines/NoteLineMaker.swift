@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 2/11/19.
-//  Copyright © 2019 Herb Bowie (https://powersurgepub.com)
+//  Copyright © 2019 - 2021 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -75,13 +75,15 @@ public class NoteLineMaker {
         if note.hasTags() {
             putTags(note)
         }
+        
+        let collection = note.collection
         var i = 0
-        while i < note.collection.dict.count {
-            let def = note.collection.dict.getDef(i)
+        while i < collection.dict.count {
+            let def = collection.dict.getDef(i)
             if def != nil &&
-                def!.fieldLabel.commonForm != NotenikConstants.titleCommon &&
-                def!.fieldLabel.commonForm != NotenikConstants.bodyCommon &&
-                def!.fieldLabel.commonForm != NotenikConstants.tagsCommon {
+                def! != collection.titleFieldDef &&
+                def! != collection.bodyFieldDef &&
+                def! != collection.tagsFieldDef {
                 putField(note.getField(def: def!), format: note.fileInfo.format)
             }
             i += 1

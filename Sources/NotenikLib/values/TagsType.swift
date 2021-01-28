@@ -18,13 +18,13 @@ class TagsType: AnyType {
         super.init()
         
         /// A string identifying this particular field type.
-        typeString  = "tags"
+        typeString  = NotenikConstants.tagsCommon
         
         /// The proper label typically assigned to fields of this type.
-        properLabel = "Tags"
+        properLabel = NotenikConstants.tags
         
         /// The common label typically assigned to fields of this type.
-        commonLabel = "tags"
+        commonLabel = NotenikConstants.tagsCommon
     }
     
     /// A factory method to create a new value of this type with no initial value.

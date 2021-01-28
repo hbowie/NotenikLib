@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 12/11/18.
-//  Copyright © 2018 - 2020 Herb Bowie (https://powersurgepub.com)
+//  Copyright © 2018 - 2021 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -24,7 +24,7 @@ public struct NotenikConstants {
     public static let author    = "Author"
     static let authorCommon     = "author"
     public static let body      = "Body"
-    static let bodyCommon       = "body"
+    public static let bodyCommon = "body"
     static let bodyLabelDisplay = "Display Body Label"
     static let bodyLabelDisplayCommon = "displaybodylabel"
     public static let code      = "Code"
@@ -70,7 +70,7 @@ public struct NotenikConstants {
     static let tag              = "Tag"
     static let tagCommon        = "tag"
     public static let tags      = "Tags"
-    static let tagsCommon       = "tags"
+    public static let tagsCommon = "tags"
     public static let teaser    = "Teaser"
     static let teaserCommon     = "teaser"
     public static let timestamp = "Timestamp"
@@ -79,6 +79,8 @@ public struct NotenikConstants {
     public static let titleCommon = "title"
     public static let type      = "Type"
     static let typeCommon       = "type"
+    public static let url       = "URL"
+    public static let urlCommon = "url"
     static let workID           = "Work ID"
     static let workIDcommon     = "workid"
     static let workLink         = "Work Link"
@@ -94,15 +96,24 @@ public struct NotenikConstants {
     static let workType         = "Work Type"
     static let workTypeCommon   = "worktype"
     
-    static let dateType         = "date"
-    
     //-------------------------------------------------------------
     //
     // Field Type strings (if different from label)
     //
     //-------------------------------------------------------------
     
-    static let stringType       = "string"
+    public static let dateType          = "date"
+    public static let longTextType      = "longtext"
+    public static let stringType        = "string"
+    public static let pickFromType      = "pickfrom"
+    
+    //-------------------------------------------------------------
+    //
+    // Other constants
+    //
+    //-------------------------------------------------------------
+    
+    public static let idFieldIdentifier = "id"
     
     //-------------------------------------------------------------
     //

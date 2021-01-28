@@ -39,14 +39,28 @@ public class NoteCollection {
     public  var lastStartupDate = ""
             var todaysDate = ""
     
-    public  var idFieldDef: FieldDefinition
-            var pickLists: [FieldDefinition] = []
+    // Store some important field definitions for easy access.
+    public  var idFieldDef:     FieldDefinition
+    public  var titleFieldDef:  FieldDefinition
+    public  var tagsFieldDef:   FieldDefinition
+    public  var dateFieldDef:   FieldDefinition
+    public  var statusFieldDef: FieldDefinition
+    public  var bodyFieldDef:   FieldDefinition
+    
+            var pickLists:     [FieldDefinition] = []
     
     /// Default initialization of a new Collection.
     public init () {
         realm = Realm()
         dict = FieldDictionary()
+        
         idFieldDef = FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.title)
+        titleFieldDef = FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.title)
+        tagsFieldDef = FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.tags)
+        dateFieldDef = FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.date)
+        statusFieldDef = FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.status)
+        bodyFieldDef = FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.body)
+        
         sortParm = .title
         sortDescending = false
         statusConfig = StatusValueConfig()
@@ -227,6 +241,10 @@ public class NoteCollection {
         print("  - Title: \(title)")
         print("  - Preferred ext: \(preferredExt)")
         print("  - ID Field: \(idFieldDef.fieldLabel.properForm)")
+        print("  - Title Field: \(titleFieldDef.fieldLabel.properForm)")
+        print("  - Tags Field: \(tagsFieldDef.fieldLabel.properForm)")
+        print("  - Status Field: \(statusFieldDef.fieldLabel.properForm)")
+        print("  - Body Field: \(bodyFieldDef.fieldLabel.properForm)")
         print("  - Has time stamp? \(hasTimestamp)")
         print("  - Field Definitions: ")
         for def in dict.list {

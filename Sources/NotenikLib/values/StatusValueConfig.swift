@@ -33,7 +33,7 @@ public class StatusValueConfig {
         statusOptions.append("Closed")           // 9
     }
     
-    convenience init (_ options : String) {
+    convenience init (_ options: String) {
         self.init()
         set(options)
     }
@@ -150,7 +150,7 @@ public class StatusValueConfig {
     
     /// Return the corresponding index for the passed label (or partial label),
     /// or -1 if the label is invalid. 
-    public func get(_ label : String) -> Int {
+    public func get(_ label: String) -> Int {
         if label.count > 0 {
             let firstChar = StringUtils.charAt(index: 0, str: label)
             var index = 0

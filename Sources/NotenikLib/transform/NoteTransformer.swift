@@ -425,7 +425,7 @@ public class NoteTransformer {
           let type = field.fieldType.typeString
             if common == NotenikConstants.titleCommon {
               markup.heading(level: 2, text: "=$title\(shortMods)$=")
-          } else if common == "body" || type == "longtext" {
+            } else if common == NotenikConstants.bodyCommon || type == NotenikConstants.longTextType {
               markup.startParagraph()
               markup.startStrong()
               markup.write(proper)

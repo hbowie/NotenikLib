@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 12/4/18.
-//  Copyright © 2018 - 2020 Herb Bowie (https://hbowie.net)
+//  Copyright © 2018 - 2021 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -236,20 +236,6 @@ public class Note: Comparable, Identifiable, NSCopying {
             status.close(config: collection.statusConfig)
         }
     }
-    
-    /// Toggle the Note's status between least complete and most complete.
-    public func toggleStatus() {
-        if hasStatus() {
-            status.toggle(config: collection.statusConfig)
-        }
-    }
-    
-    /// Bump this Note's status up to the next valid value for this Collection. 
-    public func incrementStatus() {
-        if hasStatus() {
-            status.increment(config: collection.statusConfig)
-        }
-    }
         
     /// Apply the recurs rule to the note
     public func recur() {
@@ -261,36 +247,14 @@ public class Note: Comparable, Identifiable, NSCopying {
         }
     }
     
-    /// Set the Note's Title value
-    public func setTitle(_ title: String) -> Bool {
-        let ok = setField(label: NotenikConstants.title, value: title)
-        setID()
-        return ok
-    }
-    
     /// Set the Note's Link value
     public func setLink(_ link: String) -> Bool {
         return setField(label: NotenikConstants.link, value: link)
     }
     
-    /// Set the Note's Tags value
-    public func setTags(_ tags: String) -> Bool {
-        return setField(label: NotenikConstants.tags, value: tags)
-    }
-    
     /// Set the note's author value. 
     public func setAuthor(_ author: String) -> Bool {
         return setField(label: NotenikConstants.author, value: author)
-    }
-    
-    /// Set the Note's Status value
-    func setStatus(_ status: String) -> Bool {
-        return setField(label: NotenikConstants.status, value: status)
-    }
-    
-    /// Set the Note's Date value
-    public func setDate(_ date: String) -> Bool {
-        return setField(label: NotenikConstants.date, value: date)
     }
     
     /// Set the Note's Sequence value
@@ -320,11 +284,6 @@ public class Note: Comparable, Identifiable, NSCopying {
     /// Set the Note's Code value
     func setCode(_ code: String) -> Bool {
         return setField(label: NotenikConstants.code, value: code)
-    }
-    
-    /// Set the Note's Body value
-    public func setBody(_ body: String) -> Bool {
-        return setField(label: NotenikConstants.body, value: body)
     }
     
     /// Set the Note's Date Added field
@@ -399,16 +358,6 @@ public class Note: Comparable, Identifiable, NSCopying {
             return artist.value
         } else {
             return ""
-        }
-    }
-    
-    /// Return the Note's Date Value
-    public var date: DateValue {
-        let val = getFieldAsValue(label: NotenikConstants.date)
-        if val is DateValue {
-            return val as! DateValue
-        } else {
-            return DateValue(val.value)
         }
     }
     
@@ -490,53 +439,6 @@ public class Note: Comparable, Identifiable, NSCopying {
         }
     }
     
-    /// Is the user done with this item? 
-    public var isDone: Bool {
-        let val = getFieldAsValue(label: NotenikConstants.status)
-        guard let status = val as? StatusValue else { return false }
-        return status.isDone(config: collection.statusConfig)
-    }
-    
-    public var doneXorT: String {
-        var val = " "
-        if status.isDone(config: collection.statusConfig) {
-            val = "X"
-        } else if date.isToday {
-            return "T"
-        }
-        return val
-    }
-    
-    /// Return the Note's Status Value
-    public var status: StatusValue {
-        let val = getFieldAsValue(label: NotenikConstants.status)
-        if val is StatusValue {
-            return val as! StatusValue
-        } else {
-            return StatusValue(val.value)
-        }
-    }
-    
-    /// Return the Note's Title Value
-    public var title: TitleValue {
-        let val = getFieldAsValue(label: NotenikConstants.title)
-        if val is TitleValue {
-            return val as! TitleValue
-        } else {
-            return TitleValue(val.value)
-        }
-    }
-    
-    /// Return the Note's Tags Value
-    public var tags: TagsValue {
-        let val = getFieldAsValue(label: NotenikConstants.tags)
-        if val is TagsValue {
-            return val as! TagsValue
-        } else {
-            return TagsValue(val.value)
-        }
-    }
-    
     /// Return the Note's Work Title Value
     public var workTitle: WorkTitleValue {
         let val = getFieldAsValue(label: NotenikConstants.workTitle)
@@ -562,16 +464,6 @@ public class Note: Comparable, Identifiable, NSCopying {
             return val as! WorkTypeValue
         } else {
             return WorkTypeValue(val.value)
-        }
-    }
-    
-    /// Return the Body of the Note
-    public var body: LongTextValue {
-        let val = getFieldAsValue(label: NotenikConstants.body)
-        if val is LongTextValue {
-            return val as! LongTextValue
-        } else {
-            return LongTextValue(val.value)
         }
     }
     
@@ -654,19 +546,9 @@ public class Note: Comparable, Identifiable, NSCopying {
         }
     }
     
-    /// Does this note have a non-blank title field?
-    public func hasTitle() -> Bool {
-        return title.count > 0
-    }
-    
     /// Does this note have a link?
     public func hasLink() -> Bool {
         return link.count > 0
-    }
-    
-    /// Does this note have a non-blank tags field?
-    public func hasTags() -> Bool {
-        return tags.count > 0
     }
     
     // Does this note have a non-blank Sequence field?
@@ -679,19 +561,9 @@ public class Note: Comparable, Identifiable, NSCopying {
         return index.count > 0
     }
     
-    /// Does this note have a non-blank date field?
-    public func hasDate() -> Bool {
-        return date.count > 0
-    }
-    
     /// Does this note have a non-blank recurs field?
     public func hasRecurs() -> Bool {
         return recurs.count > 0
-    }
-    
-    /// Does this note have a non-blank status field?
-    public func hasStatus() -> Bool {
-        return status.count > 0
     }
     
     func hasArtist() -> Bool {
@@ -708,11 +580,6 @@ public class Note: Comparable, Identifiable, NSCopying {
         return workTitle.count > 0
     }
     
-    /// Does this note have a non-blank body?
-    public func hasBody() -> Bool {
-        return body.count > 0
-    }
-    
     /// Does this note have a date added?
     func hasDateAdded() -> Bool {
         return dateAdded.count > 0
@@ -727,30 +594,196 @@ public class Note: Comparable, Identifiable, NSCopying {
         return timestamp.count > 0
     }
     
+    //
+    // Task-related functions involving multiple fields. 
+    //
+    
+    public var doneXorT: String {
+        if isDone {
+            return "X"
+        } else if date.isToday {
+            return "T"
+        } else {
+            return " "
+        }
+    }
+    
+    //
+    // Functions and variables concerning the Note's title.
+    //
+    
+    /// Return the Note's Title Value
+    public var title: TitleValue {
+        let val = getFieldAsValue(def: collection.titleFieldDef)
+        if val is TitleValue {
+            return val as! TitleValue
+        } else {
+            return TitleValue(val.value)
+        }
+    }
+    
+    /// Does this note have a non-blank title field?
+    public func hasTitle() -> Bool {
+        return title.count > 0
+    }
+    
     /// Does this Note contain a title?
     func containsTitle() -> Bool {
-        return contains(label: NotenikConstants.title)
+        return contains(def: collection.titleFieldDef)
     }
     
     /// Get the Title field, if one exists
     func getTitleAsField() -> NoteField? {
-        return getField(label: NotenikConstants.title)
+        return getField(def: collection.titleFieldDef)
+    }
+    
+    /// Set the Note's Title value
+    public func setTitle(_ title: String) -> Bool {
+        let ok = setField(label: collection.titleFieldDef.fieldLabel.commonForm, value: title)
+        setID()
+        return ok
+    }
+    
+    //
+    // Functions and variables concerning the Note's tags.
+    //
+    
+    /// Does this note have a non-blank tags field?
+    public func hasTags() -> Bool {
+        return tags.count > 0
+    }
+    
+    /// Set the Note's Tags value
+    public func setTags(_ tags: String) -> Bool {
+        return setField(label: collection.tagsFieldDef.fieldLabel.commonForm, value: tags)
     }
     
     func getTagsAsField() -> NoteField? {
-        return getField(label: NotenikConstants.tags)
+        return getField(def: collection.tagsFieldDef)
+    }
+    
+    /// Return the Note's Tags Value
+    public var tags: TagsValue {
+        let val = getFieldAsValue(def: collection.tagsFieldDef)
+        if val is TagsValue {
+            return val as! TagsValue
+        } else {
+            return TagsValue(val.value)
+        }
+    }
+    
+    //
+    // Functions and variables concerning the Note's first or only Date field
+    //
+    
+    /// Does this note have a non-blank date field?
+    public func hasDate() -> Bool {
+        return date.count > 0
+    }
+    
+    /// Set the Note's Date value
+    public func setDate(_ date: String) -> Bool {
+        return setField(label: collection.dateFieldDef.fieldLabel.commonForm, value: date)
+    }
+    
+    public func getDateAsField() -> NoteField? {
+        return getField(def: collection.dateFieldDef)
+    }
+    
+    /// Return the Note's Date Value
+    public var date: DateValue {
+        let val = getFieldAsValue(def: collection.dateFieldDef)
+        if val is DateValue {
+            return val as! DateValue
+        } else {
+            return DateValue(val.value)
+        }
+    }
+    
+    //
+    // Functions and variables concerning the Note's status field.
+    //
+    
+    /// Does this note have a non-blank status field?
+    public func hasStatus() -> Bool {
+        return status.count > 0
+    }
+    
+    /// Toggle the Note's status between least complete and most complete.
+    public func toggleStatus() {
+        if hasStatus() {
+            status.toggle(config: collection.statusConfig)
+        }
+    }
+    
+    /// Bump this Note's status up to the next valid value for this Collection.
+    public func incrementStatus() {
+        if hasStatus() {
+            status.increment(config: collection.statusConfig)
+        }
+    }
+    
+    /// Set the Note's Status value
+    func setStatus(_ status: String) -> Bool {
+        return setField(label: collection.statusFieldDef.fieldLabel.commonForm, value: status)
+    }
+    
+    /// Is the user done with this item?
+    public var isDone: Bool {
+        let stat = status
+        let done = stat.isDone(config: collection.statusConfig)
+        return done
+    }
+    
+    /// Return the Note's Status Value
+    public var status: StatusValue {
+        let val = getFieldAsValue(def: collection.statusFieldDef)
+        if val is StatusValue {
+            return val as! StatusValue
+        } else {
+            return StatusValue(val.value)
+        }
+    }
+    
+    //
+    // Functions and variables concerning the Note's body.
+    //
+    
+    /// Does this note have a non-blank body?
+    public func hasBody() -> Bool {
+        return body.count > 0
+    }
+    
+    /// Set the Note's Body value
+    public func setBody(_ body: String) -> Bool {
+        return setField(label: collection.bodyFieldDef.fieldLabel.commonForm, value: body)
+    }
+    
+    /// Return the Body of the Note
+    public var body: LongTextValue {
+        let val = getFieldAsValue(label: collection.bodyFieldDef.fieldLabel.commonForm)
+        if val is LongTextValue {
+            return val as! LongTextValue
+        } else {
+            return LongTextValue(val.value)
+        }
     }
     
     /// Get the body field, if one exists
     public func getBodyAsField() -> NoteField? {
-        return getField(label: NotenikConstants.body)
+        return getField(label: collection.bodyFieldDef.fieldLabel.commonForm)
+    }
+    
+    func contains(def: FieldDefinition) -> Bool {
+        let field = fields[def.fieldLabel.commonForm]
+        return field != nil && field!.value.hasData
     }
     
     /// See if the note contains a field with the given label.
     ///
     /// - Parameter label: A string label expressed in either its proper or common form.
     /// - Returns: True if the note has such a field and the value is non-blank, false otherwise.
-    func contains(label : String) -> Bool {
+    func contains(label: String) -> Bool {
         let fieldLabel = FieldLabel(label)
         let field = fields[fieldLabel.commonForm]
         return field != nil && field!.value.hasData
@@ -764,6 +797,11 @@ public class Note: Comparable, Identifiable, NSCopying {
         } else {
             return field!.value.value
         }
+    }
+    
+    func getFieldAsValue(def: FieldDefinition) -> StringValue {
+        guard let field = getField(def: def) else { return StringValue("")}
+        return field.value
     }
     
     /// Return the value for the Note field identified by the passed label.

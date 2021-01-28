@@ -48,12 +48,12 @@ public class NoteLineParser {
         
         self.collection = collection
         self.dict = collection.dict
-        let typeCat = collection.typeCatalog
         
-        let tagsDef = dict.getDef(NotenikConstants.tags)
-        if tagsDef == nil {
-            _ = dict.addDef(typeCatalog: typeCat, label: NotenikConstants.tags)
-        }
+        // let typeCat = collection.typeCatalog
+        // let tagsDef = dict.getDef(NotenikConstants.tags)
+        // if tagsDef == nil {
+        //     _ = dict.addDef(typeCatalog: typeCat, label: NotenikConstants.tags)
+        // }
         
         self.reader = reader
         
@@ -141,7 +141,7 @@ public class NoteLineParser {
                 label = noteLine.label
                 def   = noteLine.definition!
                 value = noteLine.value
-                if label.isBody {
+                if def.fieldType.typeString == NotenikConstants.bodyCommon {
                     bodyStarted = true
                 }
             } else if noteLine.blankLine {
@@ -159,7 +159,7 @@ public class NoteLineParser {
                 }
             } else if label.validLabel {
                 appendNonBlankLine()
-                if label.isBody {
+                if def.isBody {
                     value.append(reader.remaining)
                     captureLastField()
                     noteComplete = true
@@ -179,7 +179,7 @@ public class NoteLineParser {
             }
             
             // Don't allow the title field to consume multiple lines. 
-            if value.count > 0 && (label.isTitle || label.isDate)  {
+            if value.count > 0 && (def.fieldType.typeString == NotenikConstants.titleCommon || def.fieldType.typeString == NotenikConstants.dateCommon) {
                 valueComplete = true
             }
             
@@ -190,7 +190,7 @@ public class NoteLineParser {
         } while !noteComplete
         
         reader.close()
-        if !note.hasTitle() {
+        if !note.hasTitle() && defaultTitle.count > 0 && defaultTitle != NotenikConstants.templateFileName {
             _ = note.setTitle(defaultTitle)
         }
         return note

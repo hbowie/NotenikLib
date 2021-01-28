@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 12/14/18.
-//  Copyright © 2018 - 2020 Herb Bowie (https://powersurgepub.com)
+//  Copyright © 2018 - 2021 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -342,21 +342,21 @@ public class FileIO: NotenikIO, RowConsumer {
         guard collection!.dict.count > 0 else { return nil }
 
         templateFound = true
-        _ = dict.addDef(typeCatalog: types, label: NotenikConstants.body)
+        
+        collection!.display()
         
         let applyTemplateValues = ApplyTemplateValues(templateNote: templateNote)
         applyTemplateValues.applyValuesToDict(collection: collection!)
+        
+        let bodyDef = dict.getDef(collection!.bodyFieldDef)
+        if bodyDef == nil {
+            _ = dict.addDef(typeCatalog: types, label: NotenikConstants.body)
+        }
         
         if !collection!.otherFields {
             collection!.dict.lock()
         }
         collection!.preferredExt = fileName.extLower
-        let templateStatusValue = templateNote.status.value
-        if templateStatusValue.count > 1 {
-            let config = collection!.statusConfig
-            config.set(templateStatusValue)
-            collection!.typeCatalog.statusValueConfig = config
-        }
         collection!.finalize()
         return templateNote
     }

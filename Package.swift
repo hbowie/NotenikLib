@@ -29,8 +29,5 @@ let package = Package(
         .target(
             name: "NotenikLib",
             dependencies: ["NotenikUtils", "NotenikMkdown", "NotenikTextile", "Down", "Ink", "CoreXLSX"]),
-        .testTarget(
-            name: "NotenikLibTests",
-            dependencies: ["NotenikUtils", "NotenikLib", "NotenikMkdown", "NotenikTextile", "Down", "Ink", "CoreXLSX"]),
     ]
 )

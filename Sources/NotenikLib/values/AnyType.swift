@@ -51,7 +51,11 @@ public class AnyType {
     
     // Is this field type a text block?
     var isTextBlock: Bool {
-        return (typeString == "longtext" || typeString == "body" || typeString == "code")
+        return (typeString == NotenikConstants.longTextType || typeString == NotenikConstants.bodyCommon || typeString == NotenikConstants.codeCommon)
+    }
+    
+    var isBody: Bool {
+        return (typeString == NotenikConstants.bodyCommon)
     }
     
     /// Return the value to use between the original value of an ID field and

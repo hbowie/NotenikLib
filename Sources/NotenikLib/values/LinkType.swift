@@ -44,7 +44,9 @@ class LinkType: AnyType {
      /// - Parameter type: The type string (if one is available)
      override func appliesTo(label: FieldLabel, type: String?) -> Bool {
          if type == nil || type!.count == 0 {
-            return (label.commonForm == commonLabel || label.commonForm == "url" || label.commonForm.range(of: "link") != nil)
+            return (label.commonForm == commonLabel
+                        || label.commonForm == NotenikConstants.urlCommon
+                        || label.commonForm.range(of: "link") != nil)
          } else {
              return (type! == typeString)
          }

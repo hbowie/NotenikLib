@@ -82,8 +82,7 @@ public class FieldLabel: CustomStringConvertible, Comparable  {
     }
     
     var isLink: Bool {
-        return (commonForm == NotenikConstants.linkCommon
-            || commonForm == "url")
+        return (commonForm == NotenikConstants.linkCommon)
     }
     
     var isRating: Bool {
@@ -111,10 +110,7 @@ public class FieldLabel: CustomStringConvertible, Comparable  {
     }
     
     var isTags: Bool {
-        return (commonForm == NotenikConstants.tagsCommon
-            || commonForm == "keywords"
-            || commonForm == "category"
-            || commonForm == "categories")
+        return (commonForm == NotenikConstants.tagsCommon)
     }
     
     var isTeaser: Bool {
@@ -147,7 +143,7 @@ public class FieldLabel: CustomStringConvertible, Comparable  {
     }
     
     public var description: String {
-        return properForm
+        return "\(properForm), \(commonForm), valid: \(validLabel)"
     }
     
     var isEmpty: Bool {
