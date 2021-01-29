@@ -18,7 +18,7 @@ public class AllTypes {
     let authorType  = AuthorType()
     let bodyType    = BodyType()
     let booleanType = BooleanType()
-    let codeType    = LongTextType()
+    let codeType    = CodeType()
     let dateAddedType = DateAddedType()
     let dateModifiedType = DateModifiedType()
     let dateType    = DateType()
@@ -36,6 +36,7 @@ public class AllTypes {
     let teaserType  = LongTextType()
     let titleType   = TitleType()
     let timestampType = TimestampType()
+    let workLinkType = WorkLinkType()
     let workTitleType = WorkTitleType()
     let workTypeType = WorkTypeType()
     
@@ -55,11 +56,21 @@ public class AllTypes {
         
 fieldTypes.append(artistType)
         
+        fieldTypes.append(workLinkType)
+        
+        fieldTypes.append(workTitleType)
+        
+        fieldTypes.append(workTypeType)
+        
+        fieldTypes.append(artistType)
+        
         fieldTypes.append(authorType)
         
         fieldTypes.append(bodyType)
         
         fieldTypes.append(booleanType)
+        
+        fieldTypes.append(codeType)
         
         fieldTypes.append(dateAddedType)
         
@@ -77,11 +88,6 @@ fieldTypes.append(artistType)
         fieldTypes.append(linkType)
         
         fieldTypes.append(longTextType)
-        
-        codeType.typeString = "code"
-        codeType.properLabel = "Code"
-        codeType.commonLabel = "code"
-        fieldTypes.append(codeType)
         
         teaserType.properLabel = "Teaser"
         teaserType.commonLabel = "teaser"
@@ -102,10 +108,6 @@ fieldTypes.append(artistType)
         fieldTypes.append(timestampType)
         
         fieldTypes.append(titleType)
-        
-        fieldTypes.append(workTitleType)
-        
-        fieldTypes.append(workTypeType)
         
     }
     

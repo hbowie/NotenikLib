@@ -45,7 +45,6 @@ public class AuthorValue: StringValue {
     /// Use a last name first arrangement for the sort key
     override var sortKey: String {
         return firstNameFirst
-        // return lastNameFirst
     }
     
     /// Return the first name first

@@ -18,13 +18,13 @@ class TimestampType: AnyType {
         super.init()
         
         /// A string identifying this particular field type.
-        typeString  = "timestamp"
+        typeString  = NotenikConstants.timestampCommon
         
         /// The proper label typically assigned to fields of this type.
-        properLabel = "Timestamp"
+        properLabel = NotenikConstants.timestamp
         
         /// The common label typically assigned to fields of this type.
-        commonLabel = "timestamp"
+        commonLabel = NotenikConstants.timestampCommon
     }
 
     /// A factory method to create a new value of this type with no initial value.

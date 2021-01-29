@@ -37,7 +37,6 @@ public class NoteLineMaker {
     /// - Parameter note: The note to be written.
     /// - Returns: The number of fields written.
     public func putNote(_ note: Note) -> Int {
-        
         if note.fileInfo.format == .toBeDetermined {
             note.fileInfo.format = .notenik
         }
@@ -64,6 +63,7 @@ public class NoteLineMaker {
                 }
             }
         }
+        
         fieldsWritten = 0
         writer.open()
         if note.fileInfo.format == .multiMarkdown && note.fileInfo.mmdMetaStartLine.count > 0 {
@@ -84,7 +84,8 @@ public class NoteLineMaker {
                 def! != collection.titleFieldDef &&
                 def! != collection.bodyFieldDef &&
                 def! != collection.tagsFieldDef {
-                putField(note.getField(def: def!), format: note.fileInfo.format)
+                let field = note.getField(def: def!)
+                putField(field, format: note.fileInfo.format)
             }
             i += 1
         }

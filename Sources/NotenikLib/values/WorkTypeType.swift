@@ -18,13 +18,13 @@ class WorkTypeType: AnyType {
         super.init()
         
         /// A string identifying this particular field type.
-        typeString  = "worktype"
+        typeString  = NotenikConstants.workTypeCommon
         
         /// The proper label typically assigned to fields of this type.
-        properLabel = "Work Type"
+        properLabel = NotenikConstants.workType
         
         /// The common label typically assigned to fields of this type.
-        commonLabel = "worktype"
+        commonLabel = NotenikConstants.workTypeCommon
     }
     
     /// A factory method to create a new value of this type with no initial value.

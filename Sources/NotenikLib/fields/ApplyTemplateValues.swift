@@ -36,47 +36,93 @@ class ApplyTemplateValues {
         self.dict = collection.dict
         
         var dateCount = 0
+        var linkCount = 0
 
         for def in dict.list {
+            
+            // Attempt to parse the value field, if there is one.
             let val = templateNote.getFieldAsValue(label: def.fieldLabel.commonForm)
             if val.count > 0 {
                 parseValue(def: def, value: val.value)
             }
             
-            if def.fieldType.typeString == NotenikConstants.titleCommon
-                    && collection.idFieldDef.fieldLabel.commonForm == NotenikConstants.titleCommon {
-                collection.idFieldDef = def
-            }
+            //
+            // If needed, update the various singular field definitions for the Collection.
+            //
             
-            if def.fieldType.typeString == NotenikConstants.titleCommon
-                    && collection.titleFieldDef.fieldLabel.commonForm == NotenikConstants.titleCommon {
-                collection.titleFieldDef = def
-            }
+            switch def.fieldType.typeString {
             
-            if def.fieldType.typeString == NotenikConstants.tagsCommon
-                && collection.tagsFieldDef.fieldLabel.commonForm == NotenikConstants.tagsCommon {
-                collection.tagsFieldDef = def
-            }
+            case NotenikConstants.artistCommon:
+                collection.creatorFieldDef = def
+                
+            case NotenikConstants.authorCommon:
+                collection.creatorFieldDef = def
+                
+            case NotenikConstants.bodyCommon:
+                if collection.bodyFieldDef.fieldLabel.commonForm == NotenikConstants.bodyCommon {
+                    collection.bodyFieldDef = def
+                }
             
-            if def.fieldType.typeString == NotenikConstants.dateCommon {
+            case NotenikConstants.dateCommon:
                 dateCount += 1
                 if dateCount == 1 {
                     collection.dateFieldDef = def
                 }
-            }
-            
-            if def.fieldType.typeString == NotenikConstants.statusCommon
-                && collection.statusFieldDef.fieldLabel.commonForm == NotenikConstants.statusCommon {
-                collection.statusFieldDef = def
-            }
-            
-            if def.fieldType.typeString == NotenikConstants.bodyCommon
-                    && collection.bodyFieldDef.fieldLabel.commonForm == NotenikConstants.bodyCommon {
-                collection.bodyFieldDef = def
-            }
-            
-            if def.fieldType is TimestampType {
+                
+            case NotenikConstants.indexCommon:
+                if collection.indexFieldDef.fieldLabel.commonForm == NotenikConstants.indexCommon {
+                    collection.indexFieldDef = def
+                }
+                
+            case NotenikConstants.linkCommon:
+                linkCount += 1
+                if linkCount == 1 {
+                    collection.linkFieldDef = def
+                }
+                
+            case NotenikConstants.recursCommon:
+                if collection.recursFieldDef.fieldLabel.commonForm == NotenikConstants.recursCommon {
+                    collection.recursFieldDef = def
+                }
+                
+            case NotenikConstants.seqCommon:
+                if collection.seqFieldDef.fieldLabel.commonForm == NotenikConstants.seqCommon {
+                    collection.seqFieldDef = def
+                }
+                
+            case NotenikConstants.statusCommon:
+                if collection.statusFieldDef.fieldLabel.commonForm == NotenikConstants.statusCommon {
+                    collection.statusFieldDef = def
+                }
+                
+            case NotenikConstants.tagsCommon:
+                if collection.tagsFieldDef.fieldLabel.commonForm == NotenikConstants.tagsCommon {
+                    collection.tagsFieldDef = def
+                }
+                
+            case NotenikConstants.timestampCommon:
                 collection.hasTimestamp = true
+                
+            case NotenikConstants.titleCommon:
+                if collection.idFieldDef.fieldLabel.commonForm == NotenikConstants.titleCommon {
+                    collection.idFieldDef = def
+                }
+                if collection.titleFieldDef.fieldLabel.commonForm == NotenikConstants.titleCommon {
+                    collection.titleFieldDef = def
+                }
+                
+            case NotenikConstants.workLinkCommon:
+                collection.workLinkFieldDef = def
+                
+            case NotenikConstants.workTitleCommon:
+                collection.workTitleFieldDef = def
+                
+            case NotenikConstants.workTypeCommon:
+                collection.workTypeFieldDef = def
+                
+            default:
+                break
+                
             }
             
         } // end of for loop through field definitions

@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 10/27/19.
-//  Copyright © 2019 Herb Bowie (https://powersurgepub.com)
+//  Copyright © 2019 - 2021 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -18,13 +18,13 @@ class WorkTitleType: AnyType {
         super.init()
         
         /// A string identifying this particular field type.
-        typeString  = "work"
+        typeString  = "worktitle"
         
         /// The proper label typically assigned to fields of this type.
-        properLabel = "Work"
+        properLabel = "Work Title"
         
         /// The common label typically assigned to fields of this type.
-        commonLabel = "work"
+        commonLabel = "worktitle"
     }
     
     /// A factory method to create a new value of this type with no initial value.
@@ -45,7 +45,7 @@ class WorkTitleType: AnyType {
     override func appliesTo(label: FieldLabel, type: String?) -> Bool {
         if type == nil || type!.count == 0 {
            return (label.commonForm == commonLabel
-            || label.commonForm == "worktitle")
+            || label.commonForm == "work")
         } else {
             return (type! == typeString)
         }

@@ -86,23 +86,15 @@ public class FieldLabel: CustomStringConvertible, Comparable  {
     }
     
     var isRating: Bool {
-        return (commonForm == NotenikConstants.ratingCommon
-            || commonForm == "priority")
+        return (commonForm == NotenikConstants.ratingCommon)
     }
     
     var isRecurs: Bool {
-        return (commonForm == NotenikConstants.recursCommon
-            || commonForm == "every"
-            || (commonForm.hasPrefix(NotenikConstants.recursCommon)
-                && commonForm.hasSuffix("every")))
+        return (commonForm == NotenikConstants.recursCommon)
     }
     
     var isSeq: Bool {
-        return (commonForm == NotenikConstants.seqCommon
-            || commonForm == "sequence"
-            || commonForm == "rev"
-            || commonForm == "revision"
-            || commonForm == "version")
+        return (commonForm == NotenikConstants.seqCommon)
     }
     
     var isStatus: Bool {

@@ -17,13 +17,13 @@ class AuthorType: AnyType {
         super.init()
         
         /// A string identifying this particular field type.
-        typeString  = "author"
+        typeString  = NotenikConstants.authorCommon
         
         /// The proper label typically assigned to fields of this type.
-        properLabel = "Author"
+        properLabel = NotenikConstants.author
         
         /// The common label typically assigned to fields of this type.
-        commonLabel = "author"
+        commonLabel = NotenikConstants.authorCommon
     }
     
     /// A factory method to create a new value of this type with no initial value.

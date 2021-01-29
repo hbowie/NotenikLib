@@ -39,12 +39,20 @@ public class NoteCollection {
     public  var lastStartupDate = ""
             var todaysDate = ""
     
-    // Store some important field definitions for easy access.
+    // Store some key and singular field definitions for easy access.
     public  var idFieldDef:     FieldDefinition
     public  var titleFieldDef:  FieldDefinition
     public  var tagsFieldDef:   FieldDefinition
+    public  var linkFieldDef:   FieldDefinition
     public  var dateFieldDef:   FieldDefinition
+    public  var recursFieldDef: FieldDefinition
     public  var statusFieldDef: FieldDefinition
+    public  var seqFieldDef:    FieldDefinition
+    public  var indexFieldDef:  FieldDefinition
+    public  var creatorFieldDef: FieldDefinition
+    public  var workLinkFieldDef: FieldDefinition
+    public  var workTitleFieldDef: FieldDefinition
+    public  var workTypeFieldDef: FieldDefinition
     public  var bodyFieldDef:   FieldDefinition
     
             var pickLists:     [FieldDefinition] = []
@@ -54,12 +62,20 @@ public class NoteCollection {
         realm = Realm()
         dict = FieldDictionary()
         
-        idFieldDef = FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.title)
-        titleFieldDef = FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.title)
-        tagsFieldDef = FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.tags)
-        dateFieldDef = FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.date)
+        idFieldDef =     FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.title)
+        titleFieldDef =  FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.title)
+        tagsFieldDef =   FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.tags)
+        linkFieldDef =   FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.link)
+        dateFieldDef =   FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.date)
+        recursFieldDef = FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.recurs)
         statusFieldDef = FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.status)
-        bodyFieldDef = FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.body)
+        seqFieldDef =    FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.seq)
+        indexFieldDef =  FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.index)
+        workTitleFieldDef = FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.workTitle)
+        workTypeFieldDef = FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.workType)
+        workLinkFieldDef = FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.workLink)
+        creatorFieldDef = FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.artist)
+        bodyFieldDef =   FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.body)
         
         sortParm = .title
         sortDescending = false
@@ -235,7 +251,7 @@ public class NoteCollection {
     }
     
     /// Useful for debugging. 
-    func display() {
+    public func display() {
         print(" ")
         print("Collection info")
         print("  - Title: \(title)")
@@ -243,7 +259,16 @@ public class NoteCollection {
         print("  - ID Field: \(idFieldDef.fieldLabel.properForm)")
         print("  - Title Field: \(titleFieldDef.fieldLabel.properForm)")
         print("  - Tags Field: \(tagsFieldDef.fieldLabel.properForm)")
+        print("  - Link Field: \(linkFieldDef.fieldLabel.properForm)")
+        print("  - Date Field: \(dateFieldDef.fieldLabel.properForm)")
+        print("  - Recurs Field: \(recursFieldDef.fieldLabel.properForm)")
         print("  - Status Field: \(statusFieldDef.fieldLabel.properForm)")
+        print("  - Seq Field: \(seqFieldDef.fieldLabel.properForm)")
+        print("  - Index Field: \(indexFieldDef.fieldLabel.properForm)")
+        print("  - Work Title Field: \(workTitleFieldDef)")
+        print("  - Work Type Field: \(workTypeFieldDef)")
+        print("  - Work Link Field: \(workLinkFieldDef)")
+        print("  - Creator Field: \(creatorFieldDef.fieldLabel.properForm)")
         print("  - Body Field: \(bodyFieldDef.fieldLabel.properForm)")
         print("  - Has time stamp? \(hasTimestamp)")
         print("  - Field Definitions: ")

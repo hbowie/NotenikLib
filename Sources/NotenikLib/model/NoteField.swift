@@ -12,7 +12,7 @@
 import Foundation
 
 /// A particular field, consisting of a definition and a value, belonging to a particular Note. 
-public class NoteField {
+public class NoteField: CustomStringConvertible {
     
     public var def:   FieldDefinition
     public var value: StringValue
@@ -47,6 +47,10 @@ public class NoteField {
         self.init()
         self.def = FieldDefinition(typeCatalog: typeCatalog, label: label)
         self.value = def.fieldType.createValue(value)
+    }
+    
+    public var description: String {
+        return "\(def.fieldLabel), type: \(type(of: value)), value: \(value.value)"
     }
     
     func display() {

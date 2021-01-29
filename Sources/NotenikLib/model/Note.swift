@@ -228,59 +228,6 @@ public class Note: Comparable, Identifiable, NSCopying {
         _noteID.updateSource(note: self)
     }
     
-    /// Close the note, either by applying the recurs rule, or changing the status to 9
-    public func close() {
-        if hasDate() && hasRecurs() {
-            recur()
-        } else if hasStatus()  {
-            status.close(config: collection.statusConfig)
-        }
-    }
-        
-    /// Apply the recurs rule to the note
-    public func recur() {
-        if hasDate() && hasRecurs() {
-            let dateVal = date
-            let recursVal = recurs
-            let newDate = recursVal.recur(dateVal)
-            dateVal.set(String(describing: newDate))
-        }
-    }
-    
-    /// Set the Note's Link value
-    public func setLink(_ link: String) -> Bool {
-        return setField(label: NotenikConstants.link, value: link)
-    }
-    
-    /// Set the note's author value. 
-    public func setAuthor(_ author: String) -> Bool {
-        return setField(label: NotenikConstants.author, value: author)
-    }
-    
-    /// Set the Note's Sequence value
-    public func setSeq(_ seq: String) -> Bool {
-        return setField(label: NotenikConstants.seq, value: seq)
-    }
-    
-    /// Set the Note's Index value
-    func setIndex(_ index: String) -> Bool {
-        return setField(label: NotenikConstants.index, value: index)
-    }
-    
-    /// Append additional data to the Index Value
-    func appendToIndex(_ index: String) {
-        let field = getField(label: NotenikConstants.index)
-        if field == nil {
-            _ = setIndex(index)
-        } else {
-            let val = field!.value
-            if val is IndexValue {
-                let indexVal = val as! IndexValue
-                indexVal.append(index)
-            }
-        }
-    }
-    
     /// Set the Note's Code value
     func setCode(_ code: String) -> Bool {
         return setField(label: NotenikConstants.code, value: code)
@@ -318,153 +265,6 @@ public class Note: Comparable, Identifiable, NSCopying {
         let ok = setField(label: NotenikConstants.timestamp, value: timestamp)
         setID()
         return ok
-    }
-    
-    /// Return the Note's Artist Value
-    public var artist: ArtistValue {
-        let val = getFieldAsValue(label: NotenikConstants.artist)
-        if val is ArtistValue {
-            return val as! ArtistValue
-        } else {
-            return ArtistValue(val.value)
-        }
-    }
-    
-    /// Return the Note's Author Value
-    public var author: AuthorValue {
-        let val = getFieldAsValue(label: NotenikConstants.author)
-        if val is AuthorValue {
-            return val as! AuthorValue
-        } else {
-            return AuthorValue(val.value)
-        }
-    }
-    
-    /// Return the Note's Code Value
-    public var code: LongTextValue {
-        let val = getFieldAsValue(label: NotenikConstants.code)
-        if val is LongTextValue {
-            return val as! LongTextValue
-        } else {
-            return LongTextValue(val.value)
-        }
-    }
-    
-    /// Return the Creator: either Author or Artist
-    public var creatorValue: String {
-        if hasAuthor() {
-            return author.value
-        } else if hasArtist() {
-            return artist.value
-        } else {
-            return ""
-        }
-    }
-    
-    /// Does this note recur on a daily basis?
-    public var daily: Bool {
-        guard let recursVal = getFieldAsValue(label: NotenikConstants.recurs) as? RecursValue else { return false }
-        return recursVal.daily
-    }
-    
-    /// Return the Note's Recurs Value
-    public var recurs: RecursValue {
-        let val = getFieldAsValue(label: NotenikConstants.recurs)
-        if val is RecursValue {
-            return val as! RecursValue
-        } else {
-            return RecursValue(val.value)
-        }
-    }
-    
-    /// Return the Note's Link Value
-    public var link: LinkValue {
-        let val = getFieldAsValue(label: NotenikConstants.link)
-        if val is LinkValue {
-            return val as! LinkValue
-        } else {
-            return LinkValue(val.value)
-        }
-    }
-    
-    /// Return the Note's Link Value (if any) as a possible URL
-    public var linkAsURL: URL? {
-        let val = getFieldAsValue(label: NotenikConstants.link)
-        if val is LinkValue {
-            let linkVal = val as! LinkValue
-            return linkVal.url
-        } else {
-            return nil
-        }
-    }
-    
-    /// Return the first available link value from this note.
-    public var firstLinkAsURL: URL? {
-        let dict = collection.dict
-        let defs = dict.list
-        for definition in defs {
-            let fieldType = definition.fieldType
-            let linkType = fieldType as? LinkType
-            if linkType != nil {
-                let linkField = getField(def: definition)
-                if linkField != nil {
-                    if let linkVal = linkField!.value as? LinkValue {
-                        if let linkURL = linkVal.url {
-                            return linkURL
-                        }
-                    }
-                }
-            }
-        }
-        return nil
-    }
-    
-    /// Return the Note's Sequence Value
-    public var seq: SeqValue {
-        let val = getFieldAsValue(label: NotenikConstants.seq)
-        if val is SeqValue {
-            return val as! SeqValue
-        } else {
-            return SeqValue(val.value)
-        }
-    }
-    
-    /// Return the Note's Index Value
-    public var index: IndexValue {
-        let val = getFieldAsValue(label: NotenikConstants.index)
-        if val is IndexValue {
-            return val as! IndexValue
-        } else {
-            return IndexValue(val.value)
-        }
-    }
-    
-    /// Return the Note's Work Title Value
-    public var workTitle: WorkTitleValue {
-        let val = getFieldAsValue(label: NotenikConstants.workTitle)
-        if val is WorkTitleValue {
-            return val as! WorkTitleValue
-        } else {
-            return WorkTitleValue(val.value)
-        }
-    }
-    
-    public var workLink: LinkValue {
-        let val = getFieldAsValue(label: NotenikConstants.workLinkCommon)
-        if val is LinkValue {
-            return val as! LinkValue
-        } else {
-            return LinkValue(val.value)
-        }
-    }
-    
-    public var workType: WorkTypeValue {
-        let val = getFieldAsValue(label: NotenikConstants.workTypeCommon)
-        if val is WorkTypeValue {
-            return val as! WorkTypeValue
-        } else {
-            return WorkTypeValue(val.value)
-        }
     }
     
     /// Return the date the note was originally added
@@ -519,13 +319,7 @@ public class Note: Comparable, Identifiable, NSCopying {
                 + title.sortKey
                 + status.sortKey)
         case .author:
-            var creatorKey = ""
-            if hasAuthor() {
-                creatorKey = author.sortKey
-            } else if hasArtist() {
-                creatorKey = artist.sortKey
-            }
-            return (creatorKey
+            return (creatorSortKey
                 + date.sortKey
                 + title.sortKey)
         case .tagsPlusSeq:
@@ -544,40 +338,6 @@ public class Note: Comparable, Identifiable, NSCopying {
             }
             return key
         }
-    }
-    
-    /// Does this note have a link?
-    public func hasLink() -> Bool {
-        return link.count > 0
-    }
-    
-    // Does this note have a non-blank Sequence field?
-    public func hasSeq() -> Bool {
-        return seq.count > 0
-    }
-    
-    /// Does this note have a non-blank Index field?
-    func hasIndex() -> Bool {
-        return index.count > 0
-    }
-    
-    /// Does this note have a non-blank recurs field?
-    public func hasRecurs() -> Bool {
-        return recurs.count > 0
-    }
-    
-    func hasArtist() -> Bool {
-        return artist.count > 0
-    }
-    
-    /// Does this note have a non-blank author field?
-    func hasAuthor() -> Bool {
-        return author.count > 0
-    }
-    
-    /// Does this note have a non-blank work title field?
-    func hasWorkTitle() -> Bool {
-        return workTitle.count > 0
     }
     
     /// Does this note have a date added?
@@ -605,6 +365,25 @@ public class Note: Comparable, Identifiable, NSCopying {
             return "T"
         } else {
             return " "
+        }
+    }
+    
+    /// Close the note, either by applying the recurs rule, or changing the status to 9
+    public func close() {
+        if hasDate() && hasRecurs() {
+            recur()
+        } else if hasStatus()  {
+            status.close(config: collection.statusConfig)
+        }
+    }
+        
+    /// Apply the recurs rule to the note
+    public func recur() {
+        if hasDate() && hasRecurs() {
+            let dateVal = date
+            let recursVal = recurs
+            let newDate = recursVal.recur(dateVal)
+            dateVal.set(String(describing: newDate))
         }
     }
     
@@ -673,6 +452,62 @@ public class Note: Comparable, Identifiable, NSCopying {
     }
     
     //
+    // Functions and variables concerning the Note's first or only Link field
+    //
+    
+    /// Does this note have a link?
+    public func hasLink() -> Bool {
+        return link.count > 0
+    }
+    
+    /// Set the Note's Link value
+    public func setLink(_ link: String) -> Bool {
+        return setField(label: collection.linkFieldDef.fieldLabel.commonForm, value: link)
+    }
+    
+    /// Return the Note's Link Value
+    public var link: LinkValue {
+        let val = getFieldAsValue(def: collection.linkFieldDef)
+        if val is LinkValue {
+            return val as! LinkValue
+        } else {
+            return LinkValue(val.value)
+        }
+    }
+    
+    /// Return the Note's Link Value (if any) as a possible URL
+    public var linkAsURL: URL? {
+        let val = getFieldAsValue(def: collection.linkFieldDef)
+        if val is LinkValue {
+            let linkVal = val as! LinkValue
+            return linkVal.url
+        } else {
+            return nil
+        }
+    }
+    
+    /// Return the first available link value from this note.
+    public var firstLinkAsURL: URL? {
+        let dict = collection.dict
+        let defs = dict.list
+        for definition in defs {
+            let fieldType = definition.fieldType
+            let linkType = fieldType as? LinkType
+            if linkType != nil {
+                let linkField = getField(def: definition)
+                if linkField != nil {
+                    if let linkVal = linkField!.value as? LinkValue {
+                        if let linkURL = linkVal.url {
+                            return linkURL
+                        }
+                    }
+                }
+            }
+        }
+        return nil
+    }
+    
+    //
     // Functions and variables concerning the Note's first or only Date field
     //
     
@@ -697,6 +532,31 @@ public class Note: Comparable, Identifiable, NSCopying {
             return val as! DateValue
         } else {
             return DateValue(val.value)
+        }
+    }
+    
+    //
+    // Functions and variables concerning the Note's recurs field.
+    //
+    
+    /// Does this note have a non-blank recurs field?
+    public func hasRecurs() -> Bool {
+        return recurs.count > 0
+    }
+    
+    /// Does this note recur on a daily basis?
+    public var daily: Bool {
+        guard let recursVal = getFieldAsValue(def: collection.recursFieldDef) as? RecursValue else { return false }
+        return recursVal.daily
+    }
+    
+    /// Return the Note's Recurs Value
+    public var recurs: RecursValue {
+        let val = getFieldAsValue(def: collection.recursFieldDef)
+        if val is RecursValue {
+            return val as! RecursValue
+        } else {
+            return RecursValue(val.value)
         }
     }
     
@@ -742,6 +602,167 @@ public class Note: Comparable, Identifiable, NSCopying {
             return val as! StatusValue
         } else {
             return StatusValue(val.value)
+        }
+    }
+    
+    //
+    // Functions and variables concerning the Note's seq field.
+    //
+    
+    // Does this note have a non-blank Sequence field?
+    public func hasSeq() -> Bool {
+        return seq.count > 0
+    }
+    
+    /// Set the Note's Sequence value
+    public func setSeq(_ seq: String) -> Bool {
+        return setField(label: collection.seqFieldDef.fieldLabel.commonForm, value: seq)
+    }
+    
+    /// Return the Note's Sequence Value
+    public var seq: SeqValue {
+        let val = getFieldAsValue(def: collection.seqFieldDef)
+        if val is SeqValue {
+            return val as! SeqValue
+        } else {
+            return SeqValue(val.value)
+        }
+    }
+    
+    //
+    // Functions and variables concerning the Note's index field.
+    //
+    
+    /// Does this note have a non-blank Index field?
+    func hasIndex() -> Bool {
+        return index.count > 0
+    }
+    
+    /// Append additional data to the Index Value
+    func appendToIndex(_ index: String) {
+        let field = getField(label: collection.indexFieldDef.fieldLabel.commonForm)
+        if field == nil {
+            _ = setIndex(index)
+        } else {
+            let val = field!.value
+            if val is IndexValue {
+                let indexVal = val as! IndexValue
+                indexVal.append(index)
+            }
+        }
+    }
+    
+    /// Set the Note's Index value
+    func setIndex(_ index: String) -> Bool {
+        return setField(label: collection.indexFieldDef.fieldLabel.commonForm, value: index)
+    }
+    
+    /// Return the Note's Index Value
+    public var index: IndexValue {
+        let val = getFieldAsValue(def: collection.indexFieldDef)
+        if val is IndexValue {
+            return val as! IndexValue
+        } else {
+            return IndexValue(val.value)
+        }
+    }
+    
+    //
+    // Functions and variables concerning the Note's author, artist or creator.
+    //
+    
+    /// Return the Creator: either Author or Artist
+    public var creatorValue: String {
+        let val = getFieldAsValue(def: collection.creatorFieldDef)
+        return val.value
+    }
+    
+    /// Return the appropriate sort key for an artist or author.
+    public var creatorSortKey: String {
+        return creator.sortKey
+    }
+    
+    /// Return the Creator: either Author or Artist
+    public var creator: StringValue {
+        let val = getFieldAsValue(def: collection.creatorFieldDef)
+        if val is ArtistValue {
+            return val as! ArtistValue
+        } else if val is AuthorValue {
+            return val as! AuthorValue
+        } else {
+            return ArtistValue(val.value)
+        }
+    }
+    
+    /// Does this note have a non-blank Artist field?
+    func hasArtist() -> Bool {
+        return artist.count > 0
+    }
+    
+    /// Return the Note's Artist Value
+    public var artist: ArtistValue {
+        let val = getFieldAsValue(label: NotenikConstants.artist)
+        if val is ArtistValue {
+            return val as! ArtistValue
+        } else {
+            return ArtistValue(val.value)
+        }
+    }
+    
+    /// Does this note have a non-blank Author field?
+    func hasAuthor() -> Bool {
+        return author.count > 0
+    }
+    
+    /// Set the note's author value.
+    public func setAuthor(_ author: String) -> Bool {
+        return setField(label: NotenikConstants.author, value: author)
+    }
+    
+    /// Return the Note's Author Value
+    public var author: AuthorValue {
+        let val = getFieldAsValue(label: NotenikConstants.author)
+        if val is AuthorValue {
+            return val as! AuthorValue
+        } else {
+            return AuthorValue(val.value)
+        }
+    }
+    
+    //
+    // Functions and variables concerning a Note's fields describing a creative work.
+    //
+    
+    /// Does this note have a non-blank work title field?
+    func hasWorkTitle() -> Bool {
+        return workTitle.count > 0
+    }
+    
+    /// Return the Note's Work Title Value
+    public var workTitle: WorkTitleValue {
+        let val = getFieldAsValue(def: collection.workTitleFieldDef)
+        if val is WorkTitleValue {
+            return val as! WorkTitleValue
+        } else {
+            return WorkTitleValue(val.value)
+        }
+    }
+    
+    public var workLink: LinkValue {
+        let val = getFieldAsValue(def: collection.workLinkFieldDef)
+        if val is LinkValue {
+            return val as! LinkValue
+        } else {
+            return LinkValue(val.value)
+        }
+    }
+    
+    public var workType: WorkTypeValue {
+        let val = getFieldAsValue(def: collection.workTypeFieldDef)
+        if val is WorkTypeValue {
+            return val as! WorkTypeValue
+        } else {
+            return WorkTypeValue(val.value)
         }
     }
     
@@ -877,10 +898,13 @@ public class Note: Comparable, Identifiable, NSCopying {
     
     /// Set a Note field given a label and a value
     func setField(label: String, value: String) -> Bool {
-        let field = NoteField(label: label,
-                              value: value,
-                              typeCatalog: collection.typeCatalog,
-                              statusConfig: collection.statusConfig)
+        var def: FieldDefinition?
+        def = collection.dict.getDef(label)
+        if def == nil {
+            def = FieldDefinition(typeCatalog: collection.typeCatalog, label: label)
+        }
+        let val = def!.fieldType.createValue(value)
+        let field = NoteField(def: def!, value: val)
         return setField(field)
     }
     

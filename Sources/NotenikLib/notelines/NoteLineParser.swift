@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 12/10/18.
-//  Copyright © 2018 - 2020 Herb Bowie (https://powersurgepub.com)
+//  Copyright © 2018 - 2021 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -204,7 +204,7 @@ public class NoteLineParser {
         let fieldInDict = collection.dict.contains(def)
         if fieldInDict || allowDictAdds {
             let field = NoteField(def: def, value: value, statusConfig: collection.statusConfig)
-            if field.def.fieldLabel.isIndex {
+            if field.def.fieldType.typeString == NotenikConstants.indexCommon {
                 if indexStarted {
                     note.appendToIndex(value)
                 } else {

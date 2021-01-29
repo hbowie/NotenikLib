@@ -18,13 +18,13 @@ class RatingType: AnyType {
         super.init()
         
         /// A string identifying this particular field type.
-        typeString  = "rating"
+        typeString  = NotenikConstants.ratingCommon
         
         /// The proper label typically assigned to fields of this type.
-        properLabel = "Rating"
+        properLabel = NotenikConstants.rating
         
         /// The common label typically assigned to fields of this type.
-        commonLabel = "rating"
+        commonLabel = NotenikConstants.ratingCommon
     }
     
     /// A factory method to create a new value of this type with no initial value.

@@ -124,13 +124,13 @@ public class NoteDisplay: NSObject {
             }
             code.link(text: pathDisplay!, path: field.value.value)
             code.finishParagraph()
-        } else if field.def.fieldLabel.commonForm == NotenikConstants.codeCommon {
+        } else if field.def.fieldType.typeString == NotenikConstants.codeCommon {
             code.startParagraph()
             code.append(field.def.fieldLabel.properForm)
             code.append(": ")
             code.finishParagraph()
             code.codeBlock(field.value.value)
-        } else if field.def.fieldType.typeString == "longtext" {
+        } else if field.def.fieldType.typeString == NotenikConstants.longTextType {
             code.startParagraph()
             code.append(field.def.fieldLabel.properForm)
             code.append(": ")
