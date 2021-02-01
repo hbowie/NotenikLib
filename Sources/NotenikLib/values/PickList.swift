@@ -82,7 +82,6 @@ public class PickList {
     /// Register a new value. Add if not already present in the list.
     /// - Parameter value: Return the matching StringValue found or added.
     func registerValue(_ value: StringValue) -> StringValue {
-        print("PickList.registerValue of \(value.value)")
         var index = 0
         var bottom = 0
         var top = values.count - 1
@@ -121,13 +120,10 @@ public class PickList {
         }
         
         if index >= values.count {
-            print("  - appending to end of list")
             values.append(value)
         } else if index < 0 {
-            print("  - inserting at start of list")
             values.insert(value, at: 0)
         } else {
-            print("  - inserting at position \(index)")
             values.insert(value, at: index)
         }
         return value

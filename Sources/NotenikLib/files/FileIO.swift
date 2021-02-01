@@ -237,7 +237,6 @@ public class FileIO: NotenikIO, RowConsumer {
                 logInfo("Mirroring Engaged")
             }
             aliasList.loadFromDisk()
-            collection!.display()
             return collection
         }
     }
@@ -342,8 +341,6 @@ public class FileIO: NotenikIO, RowConsumer {
         guard collection!.dict.count > 0 else { return nil }
 
         templateFound = true
-        
-        collection!.display()
         
         let applyTemplateValues = ApplyTemplateValues(templateNote: templateNote)
         applyTemplateValues.applyValuesToDict(collection: collection!)
