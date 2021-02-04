@@ -33,7 +33,7 @@ public class ValuePickLists {
                 authors.registerAuthor(author)
                 continue
             }
-            list.registerValue(field.value)
+            _ = list.registerValue(field.value)
         }
     }
 }
