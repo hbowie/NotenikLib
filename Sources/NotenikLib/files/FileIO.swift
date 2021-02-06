@@ -173,7 +173,7 @@ public class FileIO: NotenikIO, RowConsumer {
             // Second pass through directory contents -- look for Notes
             pickLists.statusConfig = collection!.statusConfig
             for itemPath in dirContents {
-                let itemLink = NotenikLink(dir: collection!.notesPath, name: itemPath)
+                let itemLink = NotenikLink(dir: collection!.notesPath, name: itemPath, prefExt: collection!.preferredExt)
                 guard let itemURL = itemLink.url else { continue }
                 if itemLink.type == .reportsFolder {
                     loadReports()
@@ -795,6 +795,7 @@ public class FileIO: NotenikIO, RowConsumer {
     public func changePreferredExt(from: String, to: String) -> Bool {
         guard collection != nil else { return false }
         var ok = true
+        var errors = 0
         let fromFilePath = makeFilePath(fileName: NotenikConstants.templateFileName + "." + from)
         let fromURL =  NotenikLink(str: fromFilePath, assume: .assumeFile)
         let toFilePath = makeFilePath(fileName: NotenikConstants.templateFileName + "." + to)
@@ -803,11 +804,43 @@ public class FileIO: NotenikIO, RowConsumer {
         guard toURL.url != nil else { return false }
         do {
             try fileManager.moveItem(at: fromURL.url!, to: toURL.url!)
+            errors = changeAllNoteExtensions(to: to)
         } catch {
             logError("Unable to rename template file from \(fromURL) to \(toURL) due to the following error: \(error)")
             ok = false
         }
+        if ok && errors > 0 {
+            ok = false
+        }
         return ok
+    }
+    
+    func changeAllNoteExtensions(to newFileExt: String) -> Int {
+        guard collection != nil && collectionOpen else { return 0 }
+        var (note, position) = firstNote()
+        var errors = 0
+        while note != nil {
+            let oldURL = note!.fileInfo.url
+            if oldURL != nil {
+                let newURL = URL(fileURLWithPath: oldURL!.path).deletingPathExtension().appendingPathExtension(newFileExt)
+                do {
+                    try fileManager.moveItem(at: oldURL!, to: newURL)
+                    note!.fileInfo.ext = newFileExt
+                } catch {
+                    errors += 1
+                    logError("Unable to rename note file from \(oldURL!) to \(newURL) due to the following error: \(error)")
+                }
+            } else {
+                errors += 1
+            }
+            
+            // more to do here
+            
+            let (nextNt, nextPos) = nextNote(position)
+            note = nextNt
+            position = nextPos
+        }
+        return errors
     }
     
     /// Save the template file into the current collection

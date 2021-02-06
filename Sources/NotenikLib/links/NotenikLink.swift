@@ -3,7 +3,7 @@
 //
 //  Created by Herb Bowie on 12/14/20.
 
-//  Copyright © 2020 Herb Bowie (https://hbowie.net)
+//  Copyright © 2020-2021 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -22,6 +22,7 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
 
     let fm = FileManager.default
     var bundlePrefix = ""
+    var preferredExt: String?
     
     public var url: URL?
     public var str = ""
@@ -113,8 +114,9 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
     }
     
     /// Initialize with a path to a directory and the name of an item within that directory.
-    public convenience init(dir: String, name: String) {
+    public convenience init(dir: String, name: String, prefExt: String? = nil) {
         self.init()
+        preferredExt = prefExt
         set(dir: dir, name: name)
     }
     
@@ -273,6 +275,9 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
     }
     
     var isNoteExt: Bool {
+        if preferredExt != nil && preferredExt! == extLower {
+            return true
+        }
         switch extLower {
         case "txt", "text", "markdown", "md", "mdown", "mkdown", "mdtext", "notenik", "nnk":
             return true
