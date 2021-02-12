@@ -225,7 +225,7 @@ class BunchIO: NotenikIO, RowConsumer  {
     ///
     /// The passed collection should already have been initialized
     /// via a call to initCollection above.
-    func newCollection(collection: NoteCollection) -> Bool {
+    func newCollection(collection: NoteCollection, withFirstNote: Bool = true) -> Bool {
         self.collection = collection
         bunch = BunchOfNotes(collection: collection)
         collectionOpen = true

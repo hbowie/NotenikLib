@@ -23,9 +23,9 @@ public class NotenikFolderList: Sequence {
     let fm = FileManager.default
     
     var ubiquityIdentityToken: Any?
-    var iCloudContainerURL: URL?
-    var iCloudContainerPath = ""
-    var iCloudContainerExists = false
+    public var iCloudContainerURL: URL?
+    public var iCloudContainerPath = ""
+    public var iCloudContainerExists = false
     
     var folders: [NotenikLink] = []
     

@@ -217,7 +217,7 @@ public class NotesExporter {
             exportDef.fieldType = def.fieldType
             _ = exportDict.addDef(exportDef)
         }
-        let ok = exportIO.newCollection(collection: exportCollection)
+        let ok = exportIO.newCollection(collection: exportCollection, withFirstNote: false)
         guard ok else {
             logError("Could not open requested output folder at \(destination.path) as a new Notenik collection")
             exportErrors += 1

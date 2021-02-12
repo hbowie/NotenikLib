@@ -3,7 +3,7 @@
 //  NotenikLib
 //
 //  Created by Herb Bowie on 11/26/20.
-//  Copyright © 2020 Herb Bowie (https://hbowie.net)
+//  Copyright © 2020-2021 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -81,7 +81,6 @@ public class CollectionRelocation {
         }
         toCollection = toIO.collection!
         toDict = toCollection!.dict
-        toNotesPath = toCollection!.notesPath
         
         toCollection!.noteType = fromCollection!.noteType
         toCollection!.idFieldDef = fromCollection!.idFieldDef.copy()
@@ -91,6 +90,10 @@ public class CollectionRelocation {
         toCollection!.preferredExt = fromCollection!.preferredExt
         toCollection!.otherFields = fromCollection!.otherFields
         toCollection!.notesSubFolder = fromCollection!.notesSubFolder
+        toCollection!.mirrorAutoIndex = fromCollection!.mirrorAutoIndex
+        
+        toNotesPath = toCollection!.notesPath
+
         let caseMods = ["u", "u", "l"]
         for def in fromDict.list {
             let proper = def.fieldLabel.properForm
@@ -102,7 +105,7 @@ public class CollectionRelocation {
             toDef.fieldType = def.fieldType
             _ = toDict.addDef(toDef)
         }
-        guard toIO.newCollection(collection: toCollection!) else {
+        guard toIO.newCollection(collection: toCollection!, withFirstNote: false) else {
             logError("Could not open requested output folder at \(toPath) as a new Notenik collection")
             return false
         }
@@ -157,25 +160,30 @@ public class CollectionRelocation {
         // If we moved the notes successfully, then let's remove
         // the standard Collection files and folders left in the
         // old location.
-        if move && errors == 0 {
-            removeFromItem(itemName: NotenikConstants.infoFileName)
-            removeFromItem(itemName: NotenikConstants.readmeFileName)
-            removeFromItem(itemName: NotenikConstants.templateFileName + "." + fromExt)
-            if fromItemExists(itemName: NotenikConstants.aliasFileName) {
-                removeFromItem(itemName: NotenikConstants.aliasFileName)
-            }
-            if fromItemExists(itemName: NotenikConstants.oldSourceParms) {
-                removeFromItem(itemName: NotenikConstants.oldSourceParms)
-            }
-            copySubfolder(folderName: NotenikConstants.reportsFolderName, move: move)
-            copySubfolder(folderName: NotenikConstants.mirrorFolderName, move: move)
-            if fromItemExists(itemName: NotenikConstants.filesFolderName) {
-                if fromItemIsEmpty(itemName: NotenikConstants.filesFolderName) {
-                    removeFromItem(itemName: NotenikConstants.filesFolderName)
+        if errors == 0 {
+            if move {
+                removeFromItem(itemName: NotenikConstants.infoFileName)
+                removeFromItem(itemName: NotenikConstants.readmeFileName)
+                removeFromItem(itemName: NotenikConstants.templateFileName + "." + fromExt)
+                if fromItemExists(itemName: NotenikConstants.aliasFileName) {
+                    removeFromItem(itemName: NotenikConstants.aliasFileName)
                 }
-            }
-            if fromItemIsEmpty(itemName: "") {
-                removeFromItem(itemName: "")
+                if fromItemExists(itemName: NotenikConstants.oldSourceParms) {
+                    removeFromItem(itemName: NotenikConstants.oldSourceParms)
+                }
+                copySubfolder(folderName: NotenikConstants.reportsFolderName, move: move)
+                copySubfolder(folderName: NotenikConstants.mirrorFolderName, move: move)
+                if fromItemExists(itemName: NotenikConstants.filesFolderName) {
+                    if fromItemIsEmpty(itemName: NotenikConstants.filesFolderName) {
+                        removeFromItem(itemName: NotenikConstants.filesFolderName)
+                    }
+                }
+                if fromItemIsEmpty(itemName: "") {
+                    removeFromItem(itemName: "")
+                }
+            } else {
+                copySubfolder(folderName: NotenikConstants.reportsFolderName, move: move)
+                copySubfolder(folderName: NotenikConstants.mirrorFolderName, move: move)
             }
         }
         

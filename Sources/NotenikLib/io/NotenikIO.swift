@@ -67,7 +67,7 @@ public protocol NotenikIO: MkdownWikiLinkLookup {
     func loadReports()
     
     /// Open a New Collection
-    func newCollection(collection: NoteCollection) -> Bool
+    func newCollection(collection: NoteCollection, withFirstNote: Bool) -> Bool
     
     /// Open a Collection to be used as an archive for another Collection. This will
     /// be a normal open, if the archive has already been created, or will create

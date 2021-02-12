@@ -170,19 +170,22 @@ public class Note: Comparable, Identifiable, NSCopying {
     /// - Parameter note2: The Note to be updated with this Note's field values.
     public func copyDefinedFields(to note2: Note) {
 
-        let dict = note2.collection.dict
-        let defs = dict.list
-        for definition in defs {
-            let field = getField(def: definition)
-            let field2 = note2.getField(def: definition)
-            if field == nil && field2 == nil {
+        let toDict = note2.collection.dict
+        let toDefs = toDict.list
+        for toDef in toDefs {
+            var fromField = getField(def: toDef)
+            if fromField == nil {
+                fromField = getFieldByType(def: toDef)
+            }
+            let toField = note2.getField(def: toDef)
+            if fromField == nil && toField == nil {
                 // Nothing to do here -- just move on
-            } else if field == nil && field2 != nil {
-                field2!.value.set("")
-            } else if field != nil && field2 == nil {
-                _ = note2.addField(def: definition, strValue: field!.value.value)
+            } else if fromField == nil && toField != nil {
+                toField!.value.set("")
+            } else if fromField != nil && toField == nil {
+                _ = note2.addField(def: toDef, strValue: fromField!.value.value)
             } else {
-                field2!.value.set(field!.value.value)
+                toField!.value.set(fromField!.value.value)
             }
         }
         note2.setID()
@@ -857,6 +860,17 @@ public class Note: Comparable, Identifiable, NSCopying {
     /// - Returns: The Note Field having that label, or nil if unable to match. 
     public func getField(fieldLabel: FieldLabel) -> NoteField? {
         return fields[fieldLabel.commonForm]
+    }
+    
+    /// Return the first field of the specified type, ignoring the label.
+    func getFieldByType(def: FieldDefinition) -> NoteField? {
+        let desiredType = def.fieldType.typeString
+        for field in fields {
+            if field.value.def.fieldType.typeString == desiredType {
+                return field.value
+            }
+        }
+        return nil
     }
     
     

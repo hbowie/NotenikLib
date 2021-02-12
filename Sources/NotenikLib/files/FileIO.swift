@@ -592,7 +592,7 @@ public class FileIO: NotenikIO, RowConsumer {
     ///
     /// The passed collection should already have been initialized
     /// via a call to initCollection above.
-    public func newCollection(collection: NoteCollection) -> Bool {
+    public func newCollection(collection: NoteCollection, withFirstNote: Bool = true) -> Bool {
         
         self.collection = collection
         
@@ -604,6 +604,8 @@ public class FileIO: NotenikIO, RowConsumer {
             return false
         }
         
+        _ = FileUtils.ensureFolder(forDir: collection.notesPath)
+        
         ok = saveReadMe()
         guard ok else { return ok }
         
@@ -613,13 +615,33 @@ public class FileIO: NotenikIO, RowConsumer {
         ok = saveTemplateFile()
         guard ok else { return ok }
         
-        let firstNote = Note(collection: collection)
+        bunch = BunchOfNotes(collection: collection)
+        
+        if withFirstNote {
+            ok = writeFirstNote()
+        } else {
+            collectionOpen = true
+        }
+        
+        guard ok else { return ok }
+        
+        bunch!.sortParm = collection.sortParm
+        bunch!.sortDescending = collection.sortDescending
+        
+        return ok
+    }
+    
+    func writeFirstNote() -> Bool {
+        
+        guard collection != nil else { return false }
+        guard bunch != nil else { return false }
+        
+        let firstNote = Note(collection: collection!)
         _ = firstNote.setTitle("Notenik")
         _ = firstNote.setLink("https://notenik.net")
         _ = firstNote.setTags("Software.Groovy")
         _ = firstNote.setBody("A note-taking system cunningly devised by Herb Bowie of PowerSurge Publishing")
         
-        bunch = BunchOfNotes(collection: collection)
         let added = bunch!.add(note: firstNote)
         guard added else {
             Logger.shared.log(subsystem: "com.powersurgepub.notenik",
@@ -631,7 +653,7 @@ public class FileIO: NotenikIO, RowConsumer {
         
         firstNote.fileInfo.genFileName()
         collectionOpen = true
-        ok = writeNote(firstNote)
+        let ok = writeNote(firstNote)
         guard ok else {
             Logger.shared.log(subsystem: "com.powersurgepub.notenik",
                               category: "FileIO",
@@ -640,12 +662,7 @@ public class FileIO: NotenikIO, RowConsumer {
             collectionOpen = false
             return ok
         }
-        
-        collectionOpen = true
-        bunch!.sortParm = collection.sortParm
-        bunch!.sortDescending = collection.sortDescending
-        
-        return ok
+        return true
     }
     
     /// Import Notes from a CSV or tab-delimited file
