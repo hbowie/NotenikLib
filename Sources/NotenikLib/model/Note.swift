@@ -30,6 +30,22 @@ public class Note: Comparable, Identifiable, NSCopying {
         fileInfo = NoteFileInfo(note: self)
     }
     
+    public var dateAddedValue: String {
+        if collection.dateAddedFieldDef == nil {
+            return envCreateDate
+        } else {
+            return getFieldAsValue(def: collection.dateAddedFieldDef!).value
+        }
+    }
+    
+    public var dateAddedSortKey: String {
+        if collection.dateAddedFieldDef == nil {
+            return envCreateDate
+        } else {
+            return getFieldAsValue(def: collection.dateAddedFieldDef!).sortKey
+        }
+    }
+    
     /// The note's creation date, as reported from the note's environment (file system, etc.)
     var envCreateDate: String {
         get {
@@ -329,6 +345,8 @@ public class Note: Comparable, Identifiable, NSCopying {
             return (tags.sortKey + " "
                 + seq.sortKey + " "
                 + title.sortKey)
+        case .dateAdded:
+            return dateAddedSortKey
         case .custom:
             var key = ""
             for sortField in collection.customFields {

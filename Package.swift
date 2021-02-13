@@ -19,7 +19,7 @@ let package = Package(
     dependencies: [.package(url: "https://github.com/hbowie/NotenikUtils", from: "0.1.0"),
                    .package(url: "https://github.com/hbowie/NotenikMkdown", from: "0.1.0"),
                    .package(url: "https://github.com/hbowie/NotenikTextile", from: "0.1.0"),
-                   .package(url: "https://github.com/iwasrobbed/Down", from: "0.9.0"),
+                   .package(url: "https://github.com/johnxnguyen/Down", from: "0.9.0"),
                    .package(url: "https://github.com/JohnSundell/Ink", from: "0.3.0"),
                    .package(url: "https://github.com/CoreOffice/CoreXLSX.git", from: "0.13.0")
         ],

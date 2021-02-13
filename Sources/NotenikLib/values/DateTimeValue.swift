@@ -79,6 +79,10 @@ public class DateTimeValue: StringValue {
         return customFormatter.string(from: dateAndTime)
     }
     
+    public var ymdhmsFormat: String {
+        return ymdhmsFormatter.string(from: dateAndTime)
+    }
+    
     /// See if two of these objects have equal keys
     static func == (lhs: DateTimeValue, rhs: DateTimeValue) -> Bool {
         return lhs.dateAndTime == rhs.dateAndTime

@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 12/27/18.
-//  Copyright © 2018 - 2019 Herb Bowie (https://powersurgepub.com)
+//  Copyright © 2018 - 2021 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -20,6 +20,7 @@ public enum NoteSortParm : Int {
     case tagsPlusTitle = 5
     case tagsPlusSeq   = 6
     case custom        = 7
+    case dateAdded     = 8
     
     // Get or set with a String containing the raw value
     var str: String {

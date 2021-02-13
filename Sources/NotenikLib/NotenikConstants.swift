@@ -32,7 +32,7 @@ public struct NotenikConstants {
     public static let date          = "Date"
     public static let dateCommon = "date"
     public static let dateAdded = "Date Added"
-    static let dateAddedCommon  = "dateadded"
+    public static let dateAddedCommon  = "dateadded"
     public static let dateModified = "Date Modified"
     static let dateModifiedCommon = "datemodified"
     static let doubleBracketParsing = "Double Bracket Parsing"

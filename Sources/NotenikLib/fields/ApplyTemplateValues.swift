@@ -102,6 +102,9 @@ class ApplyTemplateValues {
                 
             case NotenikConstants.timestampCommon:
                 collection.hasTimestamp = true
+                if collection.dateAddedFieldDef == nil {
+                    collection.dateAddedFieldDef = def
+                }
                 
             case NotenikConstants.titleCommon:
                 if collection.idFieldDef.fieldLabel.commonForm == NotenikConstants.titleCommon {
@@ -119,6 +122,9 @@ class ApplyTemplateValues {
                 
             case NotenikConstants.workTypeCommon:
                 collection.workTypeFieldDef = def
+                
+            case NotenikConstants.dateAddedCommon:
+                collection.dateAddedFieldDef = def
                 
             default:
                 break

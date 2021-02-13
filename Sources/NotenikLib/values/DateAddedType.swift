@@ -18,13 +18,13 @@ class DateAddedType: AnyType {
         super.init()
         
         /// A string identifying this particular field type.
-        typeString  = "dateadded"
+        typeString  = NotenikConstants.dateAddedCommon
         
         /// The proper label typically assigned to fields of this type.
-        properLabel = "Date Added"
+        properLabel = NotenikConstants.dateAdded
         
         /// The common label typically assigned to fields of this type.
-        commonLabel = "dateadded"
+        commonLabel = NotenikConstants.dateAddedCommon
     }
     
     /// A factory method to create a new value of this type with no initial value.
