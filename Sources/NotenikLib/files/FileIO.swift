@@ -785,7 +785,7 @@ public class FileIO: NotenikIO, RowConsumer {
     
     /// Save the INFO file into the current collection
     func saveInfoFile() -> Bool {
-        guard collection != nil && bunch != nil else { return false }
+        guard collection != nil else { return false }
         let str = NoteString(title: collection!.title)
         var collectionLink = collection!.fullPath
         if let folderPath = collection?.fullPathURL?.absoluteString {
@@ -795,7 +795,9 @@ public class FileIO: NotenikIO, RowConsumer {
         str.append(label: "Sort Parm", value: collection!.sortParm.str)
         str.append(label: "Sort Descending", value: "\(collection!.sortDescending)")
         str.append(label: "Other Fields Allowed", value: String(collection!.otherFields))
-        str.append(label: NotenikConstants.lastIndexSelected, value: "\(bunch!.listIndex)")
+        if bunch != nil {
+            str.append(label: NotenikConstants.lastIndexSelected, value: "\(bunch!.listIndex)")
+        }
         str.append(label: NotenikConstants.mirrorAutoIndex,   value: "\(collection!.mirrorAutoIndex)")
         str.append(label: NotenikConstants.bodyLabelDisplay,  value: "\(collection!.bodyLabel)")
         str.append(label: NotenikConstants.h1TitlesDisplay,   value: "\(collection!.h1Titles)")
