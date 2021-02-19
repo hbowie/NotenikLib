@@ -38,6 +38,8 @@ public class FileIO: NotenikIO, RowConsumer {
     
     public var pickLists = ValuePickLists()
     
+    var lastIndexSelected = -1
+    
     var bunch          : BunchOfNotes?
     var aliasList      = AliasList()
     var templateFound  = false
@@ -73,8 +75,6 @@ public class FileIO: NotenikIO, RowConsumer {
         pickLists.statusConfig = collection!.statusConfig
         realm.name = NSUserName()
         realm.path = NSHomeDirectory()
-        // let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
-        // let docDir = paths[0]
         closeCollection()
     }
     
@@ -232,11 +232,14 @@ public class FileIO: NotenikIO, RowConsumer {
             let transformer = NoteTransformer(io: self)
             collection!.mirror = transformer
             if collection!.mirror != nil {
-            //     logInfo("No Mirroring")
-            // } else {
                 logInfo("Mirroring Engaged")
             }
             aliasList.loadFromDisk()
+            if lastIndexSelected > 0 {
+                _ = selectNote(at: lastIndexSelected)
+            } else {
+                _ = firstNote()
+            }
             return collection
         }
     }
@@ -322,6 +325,10 @@ public class FileIO: NotenikIO, RowConsumer {
         
         let lastStartupDate = infoNote.getFieldAsString(label: NotenikConstants.lastStartupDateCommon)
         collection!.lastStartupDate = lastStartupDate
+        
+        let lastSelIndexStr = infoNote.getFieldAsString(label: NotenikConstants.lastIndexSelected)
+        let lastSelIndex = Int(lastSelIndexStr) ?? -1
+        lastIndexSelected = lastSelIndex
         
         infoFound = true
         return infoNote
@@ -778,34 +785,31 @@ public class FileIO: NotenikIO, RowConsumer {
     
     /// Save the INFO file into the current collection
     func saveInfoFile() -> Bool {
-        var str = "Title: " + collection!.title + "\n\n"
+        guard collection != nil && bunch != nil else { return false }
+        let str = NoteString(title: collection!.title)
         var collectionLink = collection!.fullPath
         if let folderPath = collection?.fullPathURL?.absoluteString {
             collectionLink = folderPath
         }
-        str.append("Link: " + collectionLink + "\n\n")
-        str.append("Sort Parm: " + collection!.sortParm.str + "\n\n")
-        str.append("Sort Descending: \(collection!.sortDescending)" + "\n\n")
-        str.append("Other Fields Allowed: " + String(collection!.otherFields) + "\n\n")
-        str.append("\(NotenikConstants.mirrorAutoIndex): \(collection!.mirrorAutoIndex)\n\n")
-        str.append("\(NotenikConstants.bodyLabelDisplay): \(collection!.bodyLabel)\n\n")
-        str.append("\(NotenikConstants.h1TitlesDisplay): \(collection!.h1Titles)\n\n")
+        str.appendLink(collectionLink)
+        str.append(label: "Sort Parm", value: collection!.sortParm.str)
+        str.append(label: "Sort Descending", value: "\(collection!.sortDescending)")
+        str.append(label: "Other Fields Allowed", value: String(collection!.otherFields))
+        str.append(label: NotenikConstants.lastIndexSelected, value: "\(bunch!.listIndex)")
+        str.append(label: NotenikConstants.mirrorAutoIndex,   value: "\(collection!.mirrorAutoIndex)")
+        str.append(label: NotenikConstants.bodyLabelDisplay,  value: "\(collection!.bodyLabel)")
+        str.append(label: NotenikConstants.h1TitlesDisplay,   value: "\(collection!.h1Titles)")
         if collection!.lastStartupDate.count > 0 {
-            str.append("\(NotenikConstants.lastStartupDate): \(collection!.lastStartupDate)\n\n")
+            str.append(label: NotenikConstants.lastStartupDate, value: collection!.lastStartupDate)
         }
         
         let filePath = makeFilePath(fileName: NotenikConstants.infoFileName)
         
-        do {
-            try str.write(toFile: filePath, atomically: true, encoding: String.Encoding.utf8)
-        } catch {
-            Logger.shared.log(subsystem: "com.powersurgepub.notenik",
-                              category: "FileIO",
-                              level: .error,
-                              message: "Problem writing INFO file to disk!")
-            return false
-        }
-        return true
+        return str.write(toFile: filePath)
+    }
+    
+    func appendInfoField(str: String, label: String, value: String) -> String {
+        return str + label + ": " + value + "\n\n"
     }
     
     /// Change the preferred file extension for the Collection.
@@ -899,6 +903,7 @@ public class FileIO: NotenikIO, RowConsumer {
 
         guard collection != nil else { return }
         if !collection!.readOnly {
+            _ = saveInfoFile()
             _ = aliasList.saveToDisk()
         }
 
