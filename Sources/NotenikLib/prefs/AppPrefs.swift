@@ -116,7 +116,7 @@ public class AppPrefs {
             appLaunching = true
             loadDefaults()
         }
-        if #available(OSX 10.14, *) {
+        if #available(OSX 10.14, iOS 12.0, *) {
             initNetworkMonitor()
         }
     }
@@ -439,6 +439,7 @@ public class AppPrefs {
     var networkMonitor: Any?
     public var networkAvailable = true
     
+    @available(iOS 12.0, *)
     @available(OSX 10.14, *)
     func initNetworkMonitor() {
         networkMonitor = NWPathMonitor()
