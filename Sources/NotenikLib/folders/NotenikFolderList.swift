@@ -3,7 +3,7 @@
 //
 //  Created by Herb Bowie on 8/26/20.
 
-//  Copyright © 2020 Herb Bowie (https://hbowie.net)
+//  Copyright © 2020 - 2021 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -18,8 +18,6 @@ public class NotenikFolderList: Sequence {
     
     public static let shared = NotenikFolderList()
     
-    public static let helpFolderDesc = "Help Notes"
-    
     let fm = FileManager.default
     
     var ubiquityIdentityToken: Any?
@@ -31,6 +29,12 @@ public class NotenikFolderList: Sequence {
     
     public let root = NotenikFolderNode()
     
+    public var helpParent = NotenikFolderNode()
+    public var introNode = NotenikFolderNode()
+    public var userGuideNode = NotenikFolderNode()
+    public var fieldsNode = NotenikFolderNode()
+    public var markdownNode = NotenikFolderNode()
+    
     public var count: Int { return folders.count }
     
     /// Initialize.
@@ -39,11 +43,38 @@ public class NotenikFolderList: Sequence {
         loadICloudContainerFolders()
     }
     
+    /// Load the help notes stored in the application's bundle.
     func loadHelpNotes() {
-        let helpGroup = NotenikFolderNode(type: .group, desc: "Help")
-        let helpParent = root.addChild(newNode: helpGroup)
-        let helpNotes = NotenikFolderNode(type: .folder, desc: NotenikFolderList.helpFolderDesc)
-        _ = helpParent.addChild(newNode: helpNotes)
+        
+        let helpGroup = NotenikFolderNode(type: .group, desc: "Help Notes")
+        helpParent = root.addChild(newNode: helpGroup)
+        
+        #if os(OSX)
+            
+            introNode = NotenikFolderNode(bundlePath: NotenikConstants.macIntroPath,
+                                              desc: NotenikConstants.macIntroDesc)
+            _ = helpParent.addChild(newNode: introNode)
+            
+            userGuideNode = NotenikFolderNode(bundlePath: NotenikConstants.macUserGuidePath,
+                                           desc: NotenikConstants.macUserGuideDesc)
+            _ = helpParent.addChild(newNode: userGuideNode)
+            
+            fieldsNode = NotenikFolderNode(bundlePath: NotenikConstants.fieldNotesPath,
+                                               desc: NotenikConstants.fieldNotesDesc)
+            _ = helpParent.addChild(newNode: fieldsNode)
+            
+            markdownNode = NotenikFolderNode(bundlePath: NotenikConstants.markdownSpecPath,
+                                           desc: NotenikConstants.markdownSpecDesc)
+            _ = helpParent.addChild(newNode: markdownNode)
+            
+        #elseif os(iOS)
+            
+            introNode = NotenikFolderNode(bundlePath: NotenikConstants.iosIntroPath,
+                                              desc: NotenikConstants.iosIntroDesc)
+            _ = helpParent.addChild(newNode: introNode)
+            
+        #endif
+    
     }
     
     /// Load the folders found in Notenik's iCloud containter.

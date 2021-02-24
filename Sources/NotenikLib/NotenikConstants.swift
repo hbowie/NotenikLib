@@ -151,4 +151,25 @@ public struct NotenikConstants {
     public static let oldSourceParms    = "pspub_source_parms.xml"
     
     public static let urlNavPrefix      = "https://ntnk.app/"
+    
+    //-------------------------------------------------------------
+    //
+    // Paths and Labels for Collections of Help Notes
+    //
+    //-------------------------------------------------------------
+    
+    public static let macIntroPath        = "intro"
+    public static let macIntroDesc        = "Introduction to Notenik"
+    
+    public static let macUserGuidePath    = "notenik-swift-intro"
+    public static let macUserGuideDesc    = "User Guide"
+    
+    public static let fieldNotesPath      = "fields"
+    public static let fieldNotesDesc      = "Field Labels and Types"
+    
+    public static let markdownSpecPath    = "markdown-spec"
+    public static let markdownSpecDesc    = "Markdown Spec"
+    
+    public static let iosIntroPath        = "intro-ios"
+    public static let iosIntroDesc        = "Introduction to Notenik"
 }

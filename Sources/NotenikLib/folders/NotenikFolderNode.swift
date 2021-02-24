@@ -35,8 +35,27 @@ public class NotenikFolderNode: Comparable, CustomStringConvertible {
         self.folder = folder
     }
     
+    /// Initialize a folder node with a path pointing to a bundle Collection. 
+    convenience init(bundlePath: String, desc: String) {
+        self.init()
+        self.type = .folder
+        self.desc = desc
+        if let url = Bundle.main.url(forResource: bundlePath, withExtension: nil) {
+            folder = NotenikLink(url: url, type: .ordinaryCollection, location: .appBundle)
+        }
+    }
+    
     /// Conform to CustomStringConvertible by returning a String description.
     public var description: String { return desc }
+    
+    /// Return the file path to the folder. 
+    public var path: String {
+        if folder == nil {
+            return ""
+        } else {
+            return folder!.path
+        }
+    }
     
     /// Add a child given the child data. 
     func addChild(type: NotenikFolderNodeType,
