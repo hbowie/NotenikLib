@@ -57,7 +57,7 @@ class NoteReader: RowImporter {
         } else {
             collectionURL = fileURL.deletingLastPathComponent()
         }
-        collection = io.openCollection(realm: realm, collectionPath: collectionURL.path)
+        collection = io.openCollection(realm: realm, collectionPath: collectionURL.path, readOnly: true)
         if collection == nil {
             logError("Problems opening the collection at " + collectionURL.path)
             return

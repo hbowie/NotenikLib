@@ -256,6 +256,7 @@ public class NoteCollection {
         print(" ")
         print("Collection info")
         print("  - Title: \(title)")
+        print("  - Path: \(path)")
         print("  - Preferred ext: \(preferredExt)")
         print("  - ID Field: \(idFieldDef.fieldLabel.properForm)")
         print("  - Title Field: \(titleFieldDef.fieldLabel.properForm)")

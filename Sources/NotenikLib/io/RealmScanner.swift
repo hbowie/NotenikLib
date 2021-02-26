@@ -40,7 +40,7 @@ public class RealmScanner {
         realm.name = path
         
         realmIO = BunchIO()
-        realmCollection = realmIO.openCollection(realm: realm, collectionPath: "")
+        realmCollection = realmIO.openCollection(realm: realm, collectionPath: "", readOnly: true)
         
         if realmCollection != nil {
             scanFolder(folderPath: path, realm: realm)
@@ -93,7 +93,7 @@ public class RealmScanner {
     func infoFileFound(folderPath: String, realm: Realm, itemFullPath: String) {
         let folderURL = URL(fileURLWithPath: folderPath)
         let infoIO = FileIO()
-        let initOK = infoIO.initCollection(realm: realm, collectionPath: folderPath)
+        let initOK = infoIO.initCollection(realm: realm, collectionPath: folderPath, readOnly: true)
         if initOK {
             let infoCollection = infoIO.collection
             if infoCollection != nil {

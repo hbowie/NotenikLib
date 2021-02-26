@@ -188,7 +188,8 @@ public class NotesExporter {
         realm.path = ""
         
         let initOK = exportIO.initCollection(realm: realm,
-                                             collectionPath: destination.path)
+                                             collectionPath: destination.path,
+                                             readOnly: false)
         guard initOK else {
             logError("Could not open requested output folder at \(destination.path) as a new Notenik collection")
             exportErrors += 1

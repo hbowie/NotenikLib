@@ -372,6 +372,8 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
         // } else
         if str.hasSuffix("/Notenik.app/") {
             type = .notenikApp
+        // } else if str.contains("/Notenik-iOS.app/") {
+        //     type = .notenikApp
         } else if FileUtils.isDir(path) {
             type = .folder
             determineFolderSubType()
@@ -693,6 +695,7 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
         print("  - is directory? \(isDir)")
         print("  - is web  link? \(isWebLink)")
         print("  - type = \(type)")
+        print("  - location = \(location)")
         print("  - sort key = '\(sortKey)'")
         print("  - file or folder name = \(fileOrFolderName)")
         if linkPart1 != nil {

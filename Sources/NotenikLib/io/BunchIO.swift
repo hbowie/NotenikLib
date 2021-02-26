@@ -109,7 +109,7 @@ class BunchIO: NotenikIO, RowConsumer  {
         
         let primeCollection = primeIO.collection!
         let primeRealm = primeCollection.realm
-        var newOK = initCollection(realm: primeRealm, collectionPath: archivePath)
+        var newOK = initCollection(realm: primeRealm, collectionPath: archivePath, readOnly: false)
         guard newOK else { return nil }
         let archiveCollection = collection
         archiveCollection!.sortParm = primeCollection.sortParm
@@ -172,9 +172,9 @@ class BunchIO: NotenikIO, RowConsumer  {
     /// - Parameter collectionPath: The path identifying the collection within this realm
     /// - Returns: A NoteCollection object, if the collection was opened successfully;
     ///            otherwise nil.
-    func openCollection(realm: Realm, collectionPath: String) -> NoteCollection? {
+    func openCollection(realm: Realm, collectionPath: String, readOnly: Bool) -> NoteCollection? {
         
-        let initOK = initCollection(realm: realm, collectionPath: collectionPath)
+        let initOK = initCollection(realm: realm, collectionPath: collectionPath, readOnly: readOnly)
         guard initOK else { return nil }
         bunch = BunchOfNotes(collection: collection!)
         collectionOpen = true
@@ -186,7 +186,7 @@ class BunchIO: NotenikIO, RowConsumer  {
     /// - Parameter realm: The realm housing the collection to be opened.
     /// - Parameter collectionPath: The path identifying the collection within this realm
     /// - Returns: True if successful, false otherwise.
-    func initCollection(realm: Realm, collectionPath: String) -> Bool {
+    func initCollection(realm: Realm, collectionPath: String, readOnly: Bool) -> Bool {
         closeCollection()
         Logger.shared.log(subsystem: "com.powersurgepub.notenik",
                           category: "BunchIO",

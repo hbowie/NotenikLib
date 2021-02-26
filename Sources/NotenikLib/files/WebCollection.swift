@@ -41,7 +41,7 @@ public class WebCollection {
         let result = makeNotesFolder()
         guard result != .failure else { return false }
 
-        var ok = io.initCollection(realm: realm, collectionPath: notesFolderURL.path)
+        var ok = io.initCollection(realm: realm, collectionPath: notesFolderURL.path, readOnly: false)
         guard ok else { return false }
         
         collection = io.collection

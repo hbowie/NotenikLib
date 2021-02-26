@@ -59,7 +59,7 @@ public class CollectionRelocation {
         fromIO = FileIO()
         let realm = fromIO.getDefaultRealm()
         realm.path = ""
-        fromCollection = fromIO.openCollection(realm: realm, collectionPath: from)
+        fromCollection = fromIO.openCollection(realm: realm, collectionPath: from, readOnly: true)
         guard fromCollection != nil else {
             logError("Problems opening the from collection at " + fromPath)
             return false
@@ -75,7 +75,7 @@ public class CollectionRelocation {
             return false
         }
         toIO = FileIO()
-        guard toIO.initCollection(realm: realm, collectionPath: toPath) else {
+        guard toIO.initCollection(realm: realm, collectionPath: toPath, readOnly: false) else {
             logError("Could not open requested output folder at \(toPath) as a new Notenik collection")
             return false
         }

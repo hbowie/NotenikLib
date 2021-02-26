@@ -106,11 +106,11 @@ public class FileIO: NotenikIO, RowConsumer {
         // See if the archive already exists
         let primeCollection = primeIO.collection!
         let primeRealm = primeCollection.realm
-        var archiveCollection = openCollection(realm: primeRealm, collectionPath: archivePath)
+        var archiveCollection = openCollection(realm: primeRealm, collectionPath: archivePath, readOnly: false)
         guard archiveCollection == nil else { return archiveCollection }
         
         // If not, then create a new one
-        var newOK = initCollection(realm: primeRealm, collectionPath: archivePath)
+        var newOK = initCollection(realm: primeRealm, collectionPath: archivePath, readOnly: false)
         guard newOK else { return nil }
         archiveCollection = collection
         archiveCollection!.sortParm = primeCollection.sortParm
@@ -133,9 +133,9 @@ public class FileIO: NotenikIO, RowConsumer {
     /// - Parameter collectionPath: The path identifying the collection within this realm
     /// - Returns: A NoteCollection object, if the collection was opened successfully;
     ///            otherwise nil.
-    public func openCollection(realm: Realm, collectionPath: String) -> NoteCollection? {
+    public func openCollection(realm: Realm, collectionPath: String, readOnly: Bool) -> NoteCollection? {
         
-        let initOK = initCollection(realm: realm, collectionPath: collectionPath)
+        let initOK = initCollection(realm: realm, collectionPath: collectionPath, readOnly: readOnly)
         guard initOK else { return nil }
         
         aliasList = AliasList(io: self)
@@ -551,7 +551,7 @@ public class FileIO: NotenikIO, RowConsumer {
     /// - Parameter realm: The realm housing the collection to be opened.
     /// - Parameter collectionPath: The path identifying the collection within this realm
     /// - Returns: True if successful, false otherwise.
-    public func initCollection(realm: Realm, collectionPath: String) -> Bool {
+    public func initCollection(realm: Realm, collectionPath: String, readOnly: Bool) -> Bool {
         closeCollection()
         logInfo("Initializing Collection")
         self.realm = realm
@@ -563,6 +563,7 @@ public class FileIO: NotenikIO, RowConsumer {
         
         collection = NoteCollection(realm: realm)
         collection!.path = collectionPath
+        collection!.readOnly = readOnly
         
         // Let's see if we have an actual path to a usable directory
         guard let url = collection!.fullPathURL else { return false }
@@ -786,6 +787,8 @@ public class FileIO: NotenikIO, RowConsumer {
     /// Save the INFO file into the current collection
     func saveInfoFile() -> Bool {
         guard collection != nil else { return false }
+        guard collection!.path.count > 0 else { return false }
+        guard !collection!.readOnly else { return false }
         let str = NoteString(title: collection!.title)
         var collectionLink = collection!.fullPath
         if let folderPath = collection?.fullPathURL?.absoluteString {
