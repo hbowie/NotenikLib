@@ -108,7 +108,7 @@ class BunchIO: NotenikIO, RowConsumer  {
     func openArchive(primeIO: NotenikIO, archivePath: String) -> NoteCollection? {
         
         let primeCollection = primeIO.collection!
-        let primeRealm = primeCollection.realm
+        let primeRealm = primeCollection.lib.realm
         var newOK = initCollection(realm: primeRealm, collectionPath: archivePath, readOnly: false)
         guard newOK else { return nil }
         let archiveCollection = collection

@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 12/14/18.
-//  Copyright © 2018 - 2019 Herb Bowie (https://powersurgepub.com)
+//  Copyright © 2018 - 2021 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -17,6 +17,12 @@ import NotenikMkdown
 /// Read and write notes from/to some sort of data store. 
 public protocol NotenikIO: MkdownWikiLinkLookup {
     
+    // -----------------------------------------------------------
+    //
+    // MARK: Variables required by NotenikIO
+    //
+    // -----------------------------------------------------------
+    
     /// The currently open collection, if any
     var collection: NoteCollection? { get }
     
@@ -29,28 +35,28 @@ public protocol NotenikIO: MkdownWikiLinkLookup {
     /// A list of reports available for the currently open Collection. 
     var reports: [MergeReport] { get }
     
-    var reportsFullPath: String? { get }
-    
+    /// A list of notes in the Collection.
     var notesList: NotesList { get }
+    
+    /// The number of notes in the current collection
+    var notesCount: Int { get }
     
     var pickLists: ValuePickLists { get }
     
-    /// Get information about the provider.
-    func getProvider() -> Provider
+    /// Get or Set the NoteSortParm for this collection.
+    var sortParm: NoteSortParm { get set }
     
-    /// Get the default realm.
-    func getDefaultRealm() -> Realm
+    /// Should the list be in descending sequence?
+    var sortDescending: Bool { get set }
+    
+    // -----------------------------------------------------------
+    //
+    // MARK: Initializers
+    //
+    // -----------------------------------------------------------
     
     /// Provide an inspector that will be passed each Note as a Collection is opened.
     func setInspector(_ inspector: NoteOpenInspector)
-
-    /// Attempt to open the collection at the provided path.
-    ///
-    /// - Parameter realm: The realm housing the collection to be opened. 
-    /// - Parameter path: The path identifying the collection within this
-    /// - Returns: A NoteCollection object, if the collection was opened successfully;
-    ///            otherwise nil.
-    func openCollection(realm: Realm, collectionPath: String, readOnly: Bool) -> NoteCollection?
     
     /// Attempt to initialize the collection at the provided path.
     ///
@@ -63,11 +69,46 @@ public protocol NotenikIO: MkdownWikiLinkLookup {
     /// Title, Tags, Link and Body
     func addDefaultDefinitions()
     
-    /// Load the list of reports available for this collection. 
-    func loadReports()
+    // -----------------------------------------------------------
+    //
+    // MARK: Accessors providing info to other classes
+    //
+    // -----------------------------------------------------------
     
+    /// Get information about the provider.
+    func getProvider() -> Provider
+    
+    /// Get the default realm.
+    func getDefaultRealm() -> Realm
+    
+    // -----------------------------------------------------------
+    //
+    // MARK: Create and Save Routines
+    //
+    // -----------------------------------------------------------
+
     /// Open a New Collection
     func newCollection(collection: NoteCollection, withFirstNote: Bool) -> Bool
+    
+    /// Save some of the collection info to make it persistent
+    func persistCollectionInfo()
+    
+    // -----------------------------------------------------------
+    //
+    // MARK: Open and Close routines
+    //
+    // -----------------------------------------------------------
+    
+    /// Attempt to open the collection at the provided path.
+    ///
+    /// - Parameter realm: The realm housing the collection to be opened. 
+    /// - Parameter path: The path identifying the collection within this
+    /// - Returns: A NoteCollection object, if the collection was opened successfully;
+    ///            otherwise nil.
+    func openCollection(realm: Realm, collectionPath: String, readOnly: Bool) -> NoteCollection?
+    
+    /// Close the currently collection, if one is open
+    func closeCollection()
     
     /// Open a Collection to be used as an archive for another Collection. This will
     /// be a normal open, if the archive has already been created, or will create
@@ -79,48 +120,50 @@ public protocol NotenikIO: MkdownWikiLinkLookup {
     /// - Returns: The Archive Note Collection, if collection opened successfully.
     func openArchive(primeIO: NotenikIO, archivePath: String) -> NoteCollection?
     
-    /// Purge closed notes from the collection, optionally writing them
-    /// to an archive collection.
+    // -----------------------------------------------------------
+    //
+    // MARK: Attachments
+    //
+    // -----------------------------------------------------------
+    
+    /// Add the specified attachment to the given note.
     ///
-    /// - Parameter archiveIO: An optional I/O module already set up
-    ///                        for an archive collection.
-    /// - Returns: The number of notes purged.
-    func purgeClosed(archiveIO: NotenikIO?) -> Int
+    /// - Parameters:
+    ///   - from: The location of the file to be attached.
+    ///   - to: The Note to which the file is to be attached.
+    ///   - with: The unique identifier for this attachment for this note.
+    /// - Returns: True if attachment added successfully, false if any sort of failure.
+    func addAttachment(from: URL, to: Note, with: String) -> Bool
     
-    /// Import Notes from a CSV or tab-delimited file
+    /// Reattach the attachments for this note to make sure they are attached
+    /// to the new note.
     ///
-    /// - Parameter importer: A Row importer that will return rows and columns.
-    /// - Parameter fileURL: The URL of the file to be imported.
-    /// - Returns: The number of rows imported.
-    func importRows(importer: RowImporter, fileURL: URL) -> Int
+    /// - Parameters:
+    ///   - note1: The Note to which the files were previously attached.
+    ///   - note2: The Note to wich the files should now be attached.
+    /// - Returns: True if successful, false otherwise.
+    func reattach(from: Note, to: Note) -> Bool
     
-    /// Close the currently collection, if one is open
-    func closeCollection()
+    /// If possible, return a URL to locate the indicated attachment.
+    func getURLforAttachment(attachmentName: AttachmentName) -> URL?
     
-    /// Save some of the collection info to make it persistent
-    func persistCollectionInfo()
+    /// If possible, return a URL to locate the indicated attachment.
+    func getURLforAttachment(fileName: String) -> URL?
     
-    /// Get or Set the NoteSortParm for this collection.
-    var sortParm: NoteSortParm {
-        get
-        set 
-    }
+    // -----------------------------------------------------------
+    //
+    // MARK: Load Reports.
+    //
+    // -----------------------------------------------------------
     
-    /// Should the list be in descending sequence?
-    var sortDescending: Bool {
-        get
-        set
-    }
+    /// Load the list of reports available for this collection. 
+    func loadReports()
     
-    /// Return the number of notes in the current collection.
-    ///
-    /// - Returns: The number of notes in the current collection
-    var notesCount: Int {
-        get
-    }
-    
-    /// Reload the note in memory from the backing data store.
-    func reloadNote(_ noteToReload: Note) -> Note?
+    // -----------------------------------------------------------
+    //
+    // MARK: Read, write and update notes.
+    //
+    // -----------------------------------------------------------
     
     /// Register modifications to the old note to make the new note.
     ///
@@ -137,9 +180,20 @@ public protocol NotenikIO: MkdownWikiLinkLookup {
     ///            otherwise nil and -1.
     func addNote(newNote: Note) -> (Note?, NotePosition)
     
+    /// Write a note to its data store within its collection.
+    ///
+    /// - Parameter note: The Note to be saved.
+    /// - Returns: True if saved successfully, false otherwise.
+    func writeNote(_ note: Note) -> Bool
+    
     /// Check for uniqueness and, if necessary, Increment the suffix
     /// for this Note's ID until it becomes unique.
-    func ensureUniqueID(for newNote: Note) 
+    func ensureUniqueID(for newNote: Note)
+    
+    /// Delete the currently selected Note, plus any attachments it might have.
+    ///
+    /// - Returns: The new Note on which the collection should be positioned.
+    func deleteSelectedNote() -> (Note?, NotePosition)
     
     /// Delete the given note
     ///
@@ -147,43 +201,14 @@ public protocol NotenikIO: MkdownWikiLinkLookup {
     /// - Returns: True if delete was successful, false otherwise.
     func deleteNote(_ oldNote: Note) -> Bool
     
-    /// Write a note to its data store within its collection.
-    ///
-    /// - Parameter note: The Note to be saved.
-    /// - Returns: True if saved successfully, false otherwise.
-    func writeNote(_ note: Note) -> Bool
+    /// Reload the note in memory from the backing data store.
+    func reloadNote(_ noteToReload: Note) -> Note?
     
-    /// Select the note at the given position in the sorted list.
-    ///
-    /// - Parameter index: An index value pointing to a position in the list.
-    /// - Returns: A tuple containing the indicated note, along with its index position.
-    ///            - If the list is empty, return nil and -1.
-    ///            - If the index is too high, return the last note.
-    ///            - If the index is too low, return the first note.
-    func selectNote(at index: Int) -> (Note?, NotePosition)
-    
-    /// Return the note at the specified position in the sorted list, if possible.
-    ///
-    /// - Parameter at: An index value pointing to a note in the list
-    /// - Returns: Either the note at that position, or nil, if the index is out of range.
-    func getNote(at: Int) -> Note?
-    
-    /// Get the existing note with the specified ID.
-    ///
-    /// - Parameter id: The ID we are looking for.
-    /// - Returns: The Note with this key, if one exists; otherwise nil.
-    func getNote(forID id: NoteID) -> Note?
-    
-    /// Get the existing note with the specified ID.
-    ///
-    /// - Parameter id: The ID we are looking for.
-    /// - Returns: The Note with this key, if one exists; otherwise nil.
-    func getNote(forID id: String) -> Note?
-    
-    /// Get the existing note with the specified timestamp, if one exists.
-    /// - Parameter stamp: The timestamp we are looking for.
-    /// - Returns: The Note with this timestamp, if one exists; otherwise nil. 
-    func getNote(forTimestamp stamp: String) -> Note?
+    // -----------------------------------------------------------
+    //
+    // MARK: Access Notes
+    //
+    // -----------------------------------------------------------
     
     /// Return the first note in the sorted list, along with its index position.
     ///
@@ -215,43 +240,75 @@ public protocol NotenikIO: MkdownWikiLinkLookup {
     /// - Returns: A Note Position
     func positionOfNote(_ note: Note) -> NotePosition
     
+    /// Select the note at the given position in the sorted list.
+    ///
+    /// - Parameter index: An index value pointing to a position in the list.
+    /// - Returns: A tuple containing the indicated note, along with its index position.
+    ///            - If the list is empty, return nil and -1.
+    ///            - If the index is too high, return the last note.
+    ///            - If the index is too low, return the first note.
+    func selectNote(at index: Int) -> (Note?, NotePosition)
+    
     /// Return the note currently selected.
     ///
     /// If no note is selected, return a nil Note and an index posiiton of -1.
     func getSelectedNote() -> (Note?, NotePosition)
     
-    /// Delete the currently selected Note, plus any attachments it might have. 
+    /// Return the note at the specified position in the sorted list, if possible.
     ///
-    /// - Returns: The new Note on which the collection should be positioned.
-    func deleteSelectedNote() -> (Note?, NotePosition)
+    /// - Parameter at: An index value pointing to a note in the list
+    /// - Returns: Either the note at that position, or nil, if the index is out of range.
+    func getNote(at: Int) -> Note?
     
-    /// Add the specified attachment to the given note.
+    /// Get the existing note with the specified ID.
     ///
-    /// - Parameters:
-    ///   - from: The location of the file to be attached.
-    ///   - to: The Note to which the file is to be attached.
-    ///   - with: The unique identifier for this attachment for this note.
-    /// - Returns: True if attachment added successfully, false if any sort of failure.
-    func addAttachment(from: URL, to: Note, with: String) -> Bool
+    /// - Parameter id: The ID we are looking for.
+    /// - Returns: The Note with this key, if one exists; otherwise nil.
+    func getNote(forID id: NoteID) -> Note?
     
-    
-    /// Reattach the attachments for this note to make sure they are attached
-    /// to the new note.
+    /// Get the existing note with the specified ID.
     ///
-    /// - Parameters:
-    ///   - note1: The Note to which the files were previously attached.
-    ///   - note2: The Note to wich the files should now be attached.
-    /// - Returns: True if successful, false otherwise.
-    func reattach(from: Note, to: Note) -> Bool
+    /// - Parameter id: The ID we are looking for.
+    /// - Returns: The Note with this key, if one exists; otherwise nil.
+    func getNote(forID id: String) -> Note?
     
-    /// If possible, return a URL to locate the indicated attachment.
-    func getURLforAttachment(attachmentName: AttachmentName) -> URL?
+    /// Get the existing note with the specified timestamp, if one exists.
+    /// - Parameter stamp: The timestamp we are looking for.
+    /// - Returns: The Note with this timestamp, if one exists; otherwise nil.
+    func getNote(forTimestamp stamp: String) -> Note?
     
-    /// If possible, return a URL to locate the indicated attachment.
-    func getURLforAttachment(fileName: String) -> URL?
+    // -----------------------------------------------------------
+    //
+    // MARK: Import new Notes into the Collection
+    //
+    // -----------------------------------------------------------
     
-    /// Return a path to the storage location for attachments.
-    func getAttachmentsLocation() -> String?
+    /// Import Notes from a CSV or tab-delimited file
+    ///
+    /// - Parameter importer: A Row importer that will return rows and columns.
+    /// - Parameter fileURL: The URL of the file to be imported.
+    /// - Returns: The number of rows imported.
+    func importRows(importer: RowImporter, fileURL: URL) -> Int
+    
+    // -----------------------------------------------------------
+    //
+    // MARK: Bulk Functions
+    //
+    // -----------------------------------------------------------
+    
+    /// Purge closed notes from the collection, optionally writing them
+    /// to an archive collection.
+    ///
+    /// - Parameter archiveIO: An optional I/O module already set up
+    ///                        for an archive collection.
+    /// - Returns: The number of notes purged.
+    func purgeClosed(archiveIO: NotenikIO?) -> Int
+    
+    // -----------------------------------------------------------
+    //
+    // MARK: Access the Tags
+    //
+    // -----------------------------------------------------------
     
     /// Return the root of the Tags tree
     func getTagsNodeRoot() -> TagsNode?

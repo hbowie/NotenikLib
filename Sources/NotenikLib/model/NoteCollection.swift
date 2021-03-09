@@ -17,7 +17,7 @@ import NotenikUtils
 public class NoteCollection {
     
     public  var title       = ""
-            var realm       : Realm
+    public  var lib:          ResourceLibrary!
             var noteType    : NoteType = .general
     public  var dict        : FieldDictionary
     public  var sortParm    : NoteSortParm
@@ -60,7 +60,7 @@ public class NoteCollection {
     
     /// Default initialization of a new Collection.
     public init () {
-        realm = Realm()
+        lib = ResourceLibrary()
         dict = FieldDictionary()
         
         idFieldDef =     FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.title)
@@ -91,54 +91,26 @@ public class NoteCollection {
     /// Convenience initialization that identifies the Realm. 
     public convenience init (realm: Realm) {
         self.init()
-        self.realm = realm
+        lib.realm = realm
     }
     
     /// Get and set a path for the collection.
     public  var path: String {
         get {
-            return _path
+            return lib.getPath(type: .collection)
         }
         set {
-            _path = newValue
-            setPaths()
-        }
-    }
-    var _path        = ""
-    
-    /// Indicate whether the notes reside in a subfolder named notes.
-    public var notesSubFolder: Bool {
-        get {
-            return _notesSubfolder
-        }
-        set {
-            _notesSubfolder = newValue
-            setPaths()
-        }
-    }
-    var _notesSubfolder  = false
-    
-    /// Set paths
-    func setPaths() {
-        fullPathURL = FileIO.urlFrom(realm: realm, path: _path)
-        guard fullPathURL != nil else { return }
-        fullPath = fullPathURL!.path
-        parentURL = fullPathURL!.deletingLastPathComponent()
-        if _notesSubfolder {
-            notesPath = FileUtils.joinPaths(path1: fullPath,
-                                            path2: NotenikConstants.notesFolderName)
-            notesPathURL = URL(fileURLWithPath: notesPath)
-        } else {
-            notesPath = fullPath
-            notesPathURL = fullPathURL
+            lib.pathWithinRealm = newValue
         }
     }
     
-    public private(set) var fullPath    = ""
-    public private(set) var fullPathURL:  URL?
-    public private(set) var notesPath   = ""
-    public private(set) var notesPathURL: URL?
-    public private(set) var parentURL:    URL?
+    public var fullPath: String {
+        return lib.getPath(type: .collection)
+    }
+    
+    public var fullPathURL: URL? {
+        return lib.getURL(type: .collection)
+    }
     
     /// Is this today's first startup?
     public var startupToday: Bool {

@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 5/16/19.
-//  Copyright © 2019 Herb Bowie (https://powersurgepub.com)
+//  Copyright © 2019 - 2021 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -13,11 +13,10 @@ import Foundation
 
 import NotenikUtils
 
+/// Scan a folder looking for possible Notenik Collections that might be contained within.
 public class RealmScanner {
     
     let fileManager = FileManager.default
-    
-    let scriptFileExt = NotenikConstants.scriptExt
     
     public var realmIO: NotenikIO = BunchIO()
     var realmCollection: NoteCollection? = NoteCollection()
@@ -68,7 +67,7 @@ public class RealmScanner {
             for itemPath in dirContents {
                 let itemFullPath = FileUtils.joinPaths(path1: folderPath,
                                                        path2: itemPath)
-                if itemPath == NotenikConstants.infoFileName {
+                if itemPath == ResourceFileSys.infoFileName {
                     infoFileFound(folderPath: folderPath, realm: realm, itemFullPath: itemFullPath)
                 } else if itemPath.hasPrefix(".") {
                     // Ignore invisible files
@@ -76,7 +75,7 @@ public class RealmScanner {
                     // Ignore application bundles
                 } else if itemPath.hasSuffix(".dmg") {
                     // Ignore disk image bundles
-                } else if itemPath.hasSuffix(scriptFileExt) {
+                } else if itemPath.hasSuffix(ResourceFileSys.scriptExt) {
                     scriptFileFound(folderPath: folderPath, realm: realm, itemFullPath: itemFullPath)
                 } else if FileUtils.isDir(itemFullPath) {
                     if !foldersToSkip.contains(itemPath) {
@@ -103,7 +102,7 @@ public class RealmScanner {
                     logError("Unable to find a Title for Collection located at \(folderPath)")
                 }
                 var link = folderURL.absoluteString
-                if folderURL.lastPathComponent == NotenikConstants.notesFolderName {
+                if folderURL.lastPathComponent == ResourceFileSys.notesFolderName {
                     link = folderURL.deletingLastPathComponent().absoluteString
                 }
                 let linkOK = realmNote.setLink(link)

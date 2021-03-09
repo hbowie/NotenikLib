@@ -65,8 +65,9 @@ public class CollectionRelocation {
             return false
         }
         fromDict = fromCollection!.dict
-        fromFullPath = fromCollection!.fullPath
-        fromNotesPath = fromCollection!.notesPath
+        fromFullPath = fromCollection!.lib.getPath(type: .collection)
+        fromNotesPath = fromCollection!.lib.getPath(type: .notes)
+        fromNotesPath = fromCollection!.lib.getPath(type: .notes)
         fromExt = fromCollection!.preferredExt
         
         // Open the output Collection
@@ -89,10 +90,10 @@ public class CollectionRelocation {
         toCollection!.statusConfig = fromCollection!.statusConfig
         toCollection!.preferredExt = fromCollection!.preferredExt
         toCollection!.otherFields = fromCollection!.otherFields
-        toCollection!.notesSubFolder = fromCollection!.notesSubFolder
+        // toCollection!.notesSubFolder = fromCollection!.notesSubFolder
         toCollection!.mirrorAutoIndex = fromCollection!.mirrorAutoIndex
         
-        toNotesPath = toCollection!.notesPath
+        toNotesPath = toCollection!.lib.getPath(type: .notes)
 
         let caseMods = ["u", "u", "l"]
         for def in fromDict.list {
@@ -162,28 +163,28 @@ public class CollectionRelocation {
         // old location.
         if errors == 0 {
             if move {
-                removeFromItem(itemName: NotenikConstants.infoFileName)
-                removeFromItem(itemName: NotenikConstants.readmeFileName)
-                removeFromItem(itemName: NotenikConstants.templateFileName + "." + fromExt)
-                if fromItemExists(itemName: NotenikConstants.aliasFileName) {
-                    removeFromItem(itemName: NotenikConstants.aliasFileName)
+                removeFromItem(itemName: ResourceFileSys.infoFileName)
+                removeFromItem(itemName: ResourceFileSys.readmeFileName)
+                removeFromItem(itemName: ResourceFileSys.templateFileName + "." + fromExt)
+                if fromItemExists(itemName: ResourceFileSys.aliasFileName) {
+                    removeFromItem(itemName: ResourceFileSys.aliasFileName)
                 }
-                if fromItemExists(itemName: NotenikConstants.oldSourceParms) {
-                    removeFromItem(itemName: NotenikConstants.oldSourceParms)
+                if fromItemExists(itemName: ResourceFileSys.oldSourceParms) {
+                    removeFromItem(itemName: ResourceFileSys.oldSourceParms)
                 }
-                copySubfolder(folderName: NotenikConstants.reportsFolderName, move: move)
-                copySubfolder(folderName: NotenikConstants.mirrorFolderName, move: move)
-                if fromItemExists(itemName: NotenikConstants.filesFolderName) {
-                    if fromItemIsEmpty(itemName: NotenikConstants.filesFolderName) {
-                        removeFromItem(itemName: NotenikConstants.filesFolderName)
+                copySubfolder(folderName: ResourceFileSys.reportsFolderName, move: move)
+                copySubfolder(folderName: ResourceFileSys.mirrorFolderName, move: move)
+                if fromItemExists(itemName: ResourceFileSys.filesFolderName) {
+                    if fromItemIsEmpty(itemName: ResourceFileSys.filesFolderName) {
+                        removeFromItem(itemName: ResourceFileSys.filesFolderName)
                     }
                 }
                 if fromItemIsEmpty(itemName: "") {
                     removeFromItem(itemName: "")
                 }
             } else {
-                copySubfolder(folderName: NotenikConstants.reportsFolderName, move: move)
-                copySubfolder(folderName: NotenikConstants.mirrorFolderName, move: move)
+                copySubfolder(folderName: ResourceFileSys.reportsFolderName, move: move)
+                copySubfolder(folderName: ResourceFileSys.mirrorFolderName, move: move)
             }
         }
         

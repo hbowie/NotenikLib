@@ -32,7 +32,7 @@ public class StatusValueConfig {
         statusOptions.append("Canceled")         // 8
         statusOptions.append("Closed")           // 9
     }
-    
+        
     convenience init (_ options: String) {
         self.init()
         set(options)
@@ -193,5 +193,18 @@ public class StatusValueConfig {
             return -1
         }
     }
+    
+    func display() {
+        print("")
+        print("Display for StatusValueConfig")
+        var i = 0
+        print("  Done Threshold = \(doneThreshold)")
+        print("  Status Values: ")
+        while i < 10 {
+            print("  \(i). \(statusOptions[i])")
+            i += 1
+        }
+    }
+
     
 }

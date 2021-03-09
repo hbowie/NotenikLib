@@ -100,12 +100,27 @@ public class NotenikFolderList: Sequence {
                                                          options: .skipsHiddenFiles)
             for doc in iCloudContents {
                 let notenikFolder = NotenikLink(url: doc,
-                                                type: .folder,
                                                 location: .iCloudContainer)
-                self.add(notenikFolder)
+                switch notenikFolder.type {
+                case .folder, .ordinaryCollection, .webCollection, .realm:
+                    self.add(notenikFolder)
+                default:
+                    break
+                }
             }
         } catch {
             logError("Error reading contents of iCloud drive folder")
+        }
+    }
+    
+    public func downloadFolders() {
+        for folder in folders {
+            do {
+                try fm.startDownloadingUbiquitousItem(at: folder.url!)
+            } catch {
+                print("Error downloading folder \(folder.path)")
+                print("Error: \(error)")
+            }
         }
     }
     
@@ -117,7 +132,7 @@ public class NotenikFolderList: Sequence {
     
     /// Add another collection to the list of known collections.
     public func add(_ collection: NoteCollection) {
-        let url = collection.fullPathURL
+        let url = collection.lib.getURL(type: .collection)
         guard url != nil else { return }
         let newFolder = NotenikLink(url: url!, isCollection: true)
         add(newFolder)

@@ -70,7 +70,7 @@ public class WebCollection {
         ok = io.newCollection(collection: collection!)
         
         guard ok else {
-            communicateError("Problems initializing the new collection at " + collection!.fullPath)
+            communicateError("Problems initializing the new collection at " + webFolderURL.path)
             return false
         }
         
@@ -79,8 +79,7 @@ public class WebCollection {
         
         io.pickLists.statusConfig = collection!.statusConfig
         
-        logInfo("New Collection successfully initialized at \(collection!.fullPath)")
-        collection!.notesSubFolder = true
+        logInfo("New Collection successfully initialized at \(collection!.lib.getPath(type: .collection))")
         collection!.path = webFolderURL.path
         
         if collection!.mirror != nil {

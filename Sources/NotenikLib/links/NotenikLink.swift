@@ -137,6 +137,13 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
         self.location = location
     }
     
+    public convenience init(url: URL,
+                            location: NotenikFolderLocation) {
+        self.init()
+        set(with: url)
+        self.location = location
+    }
+    
     public func set(dir: String, name: String) {
         let joined = FileUtils.joinPaths(path1: dir,
                                          path2: name)
@@ -399,7 +406,7 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
             type = .readmeFile
         } else if infofile {
             type = .infoFile
-        } else if name == NotenikConstants.aliasFileName {
+        } else if name == ResourceFileSys.aliasFileName {
             type = .aliasFile
         } else if isNoteExt {
             type = .noteFile
@@ -410,9 +417,9 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
     
     func determineFolderSubType() {
         let name = fileOrFolderName
-        if name == NotenikConstants.reportsFolderName {
+        if name == ResourceFileSys.reportsFolderName {
             type = .reportsFolder
-        } else if name == NotenikConstants.mirrorFolderName {
+        } else if name == ResourceFileSys.mirrorFolderName {
             type = .mirrorFolder
         }
     }
@@ -422,25 +429,28 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
     public func determineCollectionType() {
         guard !collectionTypeDetermined else { return }
         guard type == .folder ||
-              (type == .xcodeDev && isDir) else {
+                type == .ordinaryCollection ||
+               (type == .xcodeDev && isDir) else {
+            collectionTypeDetermined = true
             return
         }
         
         let folderPath = path
         
         // See if this points to an existing Collection.
-        let infoPath = FileUtils.joinPaths(path1: folderPath, path2: NotenikConstants.infoFileName)
-        if fm.fileExists(atPath: infoPath)
-            && fm.isReadableFile(atPath: infoPath) {
+        let infoFile = ResourceFileSys(folderPath: folderPath, fileName: ResourceFileSys.infoFileName)
+        if infoFile.exists && infoFile.isReadable {
             type = .ordinaryCollection
+            collectionTypeDetermined = true
             return
         }
         
         // See if there is a sub-folder containing the notes.
-        let notesPath = FileUtils.joinPaths(path1: folderPath, path2: NotenikConstants.notesFolderName)
+        let notesPath = FileUtils.joinPaths(path1: folderPath, path2: ResourceFileSys.notesFolderName)
         if fm.fileExists(atPath: notesPath)
             && fm.isReadableFile(atPath: notesPath) {
             type = .webCollection
+            collectionTypeDetermined = true
             return
         }
         
@@ -449,12 +459,14 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
         do {
             contents = try fm.contentsOfDirectory(atPath: folderPath)
         } catch {
+            print("  - Error reading contents of directory")
             return
         }
 
         // See if the folder is truly empty.
         if contents.count == 0 {
             type = .emptyFolder
+            collectionTypeDetermined = true
             return
         }
         
@@ -533,9 +545,9 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
     
     var hasScriptExt: Bool {
         if let defURL = url {
-            return defURL.lastPathComponent.hasSuffix(NotenikConstants.scriptExt)
+            return defURL.lastPathComponent.hasSuffix(ResourceFileSys.scriptExt)
         } else {
-            return str.hasSuffix(NotenikConstants.scriptExt)
+            return str.hasSuffix(ResourceFileSys.scriptExt)
         }
     }
     

@@ -190,7 +190,7 @@ public class NoteLineParser {
         } while !noteComplete
         
         reader.close()
-        if !note.hasTitle() && defaultTitle.count > 0 && defaultTitle != NotenikConstants.templateFileName {
+        if !note.hasTitle() && defaultTitle.count > 0 && defaultTitle != ResourceFileSys.templateFileName {
             _ = note.setTitle(defaultTitle)
         }
         return note

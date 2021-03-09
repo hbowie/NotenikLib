@@ -1,9 +1,9 @@
 //
-//  NoteFileName.swift
+//  NoteFileInfo.swift
 //  Notenik
 //
 //  Created by Herb Bowie on 1/6/20.
-//  Copyright © 2020 Herb Bowie (https://powersurgepub.com)
+//  Copyright © 2020 - 2021 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -47,7 +47,7 @@ public class NoteFileInfo {
         if self.isEmpty {
             return nil
         } else {
-            return FileUtils.joinPaths(path1: note.collection.notesPath, path2: baseDotExt!)
+            return FileUtils.joinPaths(path1: note.collection.lib.getPath(type: .notes), path2: baseDotExt!)
         }
     }
     

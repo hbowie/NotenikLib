@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 2/6/20.
-//  Copyright © 2020 Herb Bowie (https://powersurgepub.com)
+//  Copyright © 2020 - 2021 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -65,11 +65,13 @@ public class NoteTransformer {
         
         guard self.io!.collectionOpen else { return nil }
         
+        guard let lib = self.io.collection?.lib else { return nil }
+        guard lib.hasAvailable(type: .mirror) else { return nil }
+        
+        let mirrorPath = lib.getPath(type: .mirror)
+        
         // See if we can get a list of the contents of the mirror folder.
-        guard let contents1 = DirContents(path1: self.io!.collection!.notesPath,
-                                          path2: NoteTransformer.mirrorFolderName) else {
-            return nil
-        }
+        guard let contents1 = DirContents(path: mirrorPath) else { return nil }
         mirrorContents = contents1
         
         // Now see if we can get a list of the contents of the mirror/templates folder.
@@ -106,7 +108,7 @@ public class NoteTransformer {
             }
         }
         
-        let qlabel = "com.powersurgepub.notenik.q4: \(io.collection!.notesPath)"
+        let qlabel = "com.powersurgepub.notenik.q4: \(lib.getPath(type: .notes))"
         dispatchQueue = DispatchQueue(label: qlabel,
                                       qos: .userInitiated)
     }
@@ -142,7 +144,7 @@ public class NoteTransformer {
             return errors
         }
         
-        template.supplyData(notesList: list, dataSource: io.collection!.notesPath)
+        template.supplyData(notesList: list, dataSource: io.collection!.lib.getPath(type: .notes))
         
         ok = template.generateOutput()
         guard ok else {
@@ -178,7 +180,7 @@ public class NoteTransformer {
                 return errors
             }
             
-            template.supplyData(notesList: io.notesList, dataSource: io.collection!.notesPath)
+            template.supplyData(notesList: io.notesList, dataSource: io.collection!.lib.getPath(type: .notes))
             
             ok = template.generateOutput()
             guard ok else {
@@ -229,13 +231,13 @@ public class NoteTransformer {
         }
         guard fileIO.collectionOpen else { return nil }
         let collection = io.collection!
-        let collectionPath = collection.notesPath
+        let collectionPath = collection.lib.getPath(type: .notes)
         let dict = collection.dict
         var upToWebFolder = ""
         var downToNotesFolder = ""
-        if collection.notesSubFolder {
+        if collection.lib.hasAvailable(type: .notesSubfolder) {
             upToWebFolder = "../"
-            downToNotesFolder = "\(NotenikConstants.notesFolderName)/"
+            downToNotesFolder = "\(ResourceFileSys.notesFolderName)/"
         }
         
         // First let's create a css styles file.
@@ -507,9 +509,10 @@ public class NoteTransformer {
     
     /// Generate a URL pointing to the Report Template Sample and ensure the Reports folder exists.
     public static func getReportTemplateSampleURL(io: NotenikIO, markdown: Bool = false) -> URL? {
-        guard let reportsFolder = io.reportsFullPath else { return nil }
-        guard FileUtils.ensureFolder(forDir: reportsFolder) else { return nil }
-        let reportsFolderURL = URL(fileURLWithPath: reportsFolder)
+        guard io.collection != nil else { return nil }
+        let reportsResource = io.collection!.lib.getResource(type: .reports)
+        guard reportsResource.ensureExistence() else { return nil }
+        guard let reportsFolderURL = reportsResource.url else { return nil }
         let fileExt = NoteTransformer.getFileExt(markdown: markdown)
         return reportsFolderURL.appendingPathComponent(sampleReportTemplateFileName + "." + fileExt)
     }
@@ -522,4 +525,5 @@ public class NoteTransformer {
             return "html"
         }
     }
+    
 }

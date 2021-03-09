@@ -225,7 +225,7 @@ public class NotesExporter {
             return
         }
         
-        logNormal("New Collection successfully initialized at \(exportCollection.fullPath)")
+        logNormal("New Collection successfully initialized at \(exportCollection.lib.getPath(type: .collection))")
         
     }
     

@@ -43,15 +43,14 @@ class AliasList: RowConsumer {
         guard let io = noteIO as? FileIO else { return }
         guard let collection = io.collection else { return }
         guard collection.hasTimestamp else { return }
+        guard let lib = collection.lib else { return }
         rowsLoaded = 0
-        let filePath = io.makeFilePath(fileName: NotenikConstants.aliasFileName)
-        let aliasFileExists = FileManager.default.fileExists(atPath: filePath)
-        if aliasFileExists {
-            let fileURL = URL(fileURLWithPath: filePath)
-            let reader = DelimitedReader()
-            reader.setContext(consumer: self)
-            reader.read(fileURL: fileURL)
-            logInfo("Loaded \(rowsLoaded) alias entries from \(filePath)")
+        var loaded = false
+        if lib.hasAvailable(type: .alias) {
+            loaded = lib.getDelimited(type: .alias, consumer: self)
+        }
+        if loaded {
+            logInfo("Loaded \(rowsLoaded) alias entries from \(ResourceFileSys.aliasFileName)")
         } else {
             initFromExistingNotes()
         }
@@ -109,8 +108,7 @@ class AliasList: RowConsumer {
         guard !collection.readOnly else { return true }
         guard collection.hasTimestamp else { return true }
         guard count > 0 else { return true }
-        let filePath = io.makeFilePath(fileName: NotenikConstants.aliasFileName)
-        let fileURL = URL(fileURLWithPath: filePath)
+        guard let fileURL = collection.lib.getURL(type: .alias) else { return false }
         let writer = DelimitedWriter(destination: fileURL, format: .tabDelimited)
         writer.open()
         writer.write(value: "Title ID")
@@ -124,7 +122,7 @@ class AliasList: RowConsumer {
             rowsSaved += 1
         }
         let ok = writer.close()
-        logInfo("Saved \(rowsSaved) alias entries to \(filePath)")
+        logInfo("Saved \(rowsSaved) alias entries to \(ResourceFileSys.aliasFileName)")
         return ok
     }
     
