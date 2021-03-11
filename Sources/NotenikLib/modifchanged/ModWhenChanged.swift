@@ -11,6 +11,7 @@
 
 import Foundation
 
+import NotenikMkdown
 import NotenikUtils
 
 /// A Bridge between a User Interface and an Input/Output Module
@@ -92,6 +93,19 @@ public class ModWhenChanged {
                 modified = true
             }
             i += 1
+        }
+        
+        if modNote.hasBody() && collection.minutesToReadDef != nil {
+            let body = modNote.body
+            let mdBodyParser = MkdownParser(body.value)
+            mdBodyParser.parse()
+            let newMinutes = MinutesToReadValue(with: mdBodyParser.counts)
+            let oldMinutes = modNote.getField(def: collection.minutesToReadDef!)
+            if oldMinutes == nil || oldMinutes!.value != newMinutes {
+                let minutesField = NoteField(def: collection.minutesToReadDef!, value: newMinutes)
+                _ = modNote.setField(minutesField)
+                modified = true
+            }
         }
         
         // Were any fields modified?

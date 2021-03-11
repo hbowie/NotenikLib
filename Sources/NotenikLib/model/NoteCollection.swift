@@ -55,6 +55,8 @@ public class NoteCollection {
     public  var workTypeFieldDef: FieldDefinition
     public  var bodyFieldDef:   FieldDefinition
     public  var dateAddedFieldDef: FieldDefinition?
+    public  var imageNameFieldDef: FieldDefinition?
+    public  var minutesToReadDef: FieldDefinition?
     
             var pickLists:     [FieldDefinition] = []
     

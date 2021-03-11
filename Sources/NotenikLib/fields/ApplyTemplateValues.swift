@@ -69,6 +69,11 @@ class ApplyTemplateValues {
                     collection.dateFieldDef = def
                 }
                 
+            case NotenikConstants.imageNameCommon:
+                if collection.imageNameFieldDef == nil {
+                    collection.imageNameFieldDef = def
+                }
+                
             case NotenikConstants.indexCommon:
                 if collection.indexFieldDef.fieldLabel.commonForm == NotenikConstants.indexCommon {
                     collection.indexFieldDef = def
@@ -78,6 +83,11 @@ class ApplyTemplateValues {
                 linkCount += 1
                 if linkCount == 1 {
                     collection.linkFieldDef = def
+                }
+                
+            case NotenikConstants.minutesToReadCommon:
+                if collection.minutesToReadDef == nil {
+                    collection.minutesToReadDef = def
                 }
                 
             case NotenikConstants.recursCommon:

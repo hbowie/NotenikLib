@@ -20,8 +20,8 @@ public class AttachmentName: Comparable, NSCopying, CustomStringConvertible {
     
     var prefix = ""
     var separator = " | "
-    var suffix = ""
-    var ext = ""
+    public var suffix = ""
+    public var ext = ""
     
     /// Standard string representation to conform to CustomStringConvertible.
     public var description: String {

@@ -143,6 +143,19 @@ public class Note: Comparable, Identifiable, NSCopying {
         return result
     }
     
+    public func getURLforAttachment(attachmentName: String) -> URL? {
+        for attachment in attachments {
+            if attachmentName == attachment.fullName || attachmentName == attachment.suffix {
+                let attachmentsFolder = collection.lib.getResource(type: .attachments)
+                let attachmentResource = ResourceFileSys(parent: attachmentsFolder,
+                                                         fileName: attachment.fullName,
+                                                         type: .attachment)
+                return attachmentResource.url
+            }
+        }
+        return nil
+    }
+    
     /// Make a copy of this Note
     public func copy(with zone: NSZone? = nil) -> Any {
         let newNote = Note(collection: collection)
@@ -929,7 +942,7 @@ public class Note: Comparable, Identifiable, NSCopying {
     }
     
     /// Set a Note field given a label and a value
-    func setField(label: String, value: String) -> Bool {
+    public func setField(label: String, value: String) -> Bool {
         var def: FieldDefinition?
         def = collection.dict.getDef(label)
         if def == nil {
@@ -944,7 +957,7 @@ public class Note: Comparable, Identifiable, NSCopying {
     ///
     /// - Parameter field: The Note field we want to set.
     /// - Returns: True if the field was set, false otherwise.
-    func setField(_ field: NoteField) -> Bool {
+    public func setField(_ field: NoteField) -> Bool {
         if (field.def.fieldType.typeString == "status"
             && field.value.value.count > 0
             && field.value is StatusValue) {

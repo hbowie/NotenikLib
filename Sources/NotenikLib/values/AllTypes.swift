@@ -22,11 +22,13 @@ public class AllTypes {
     let dateAddedType = DateAddedType()
     let dateModifiedType = DateModifiedType()
     let dateType    = DateType()
+    let imageNameType = ImageNameType()
     let indexType   = IndexType()
     let intType     = IntType()
     let labelType   = StringType()
     let linkType    = LinkType()
     let longTextType = LongTextType()
+    let minutesToReadType = MinutesToReadType()
     let ratingType  = RatingType()
     let recursType  = RecursType()
     let seqType     = SeqType()
@@ -57,58 +59,39 @@ public class AllTypes {
 fieldTypes.append(artistType)
         
         fieldTypes.append(workLinkType)
-        
         fieldTypes.append(workTitleType)
-        
         fieldTypes.append(workTypeType)
-        
         fieldTypes.append(artistType)
-        
         fieldTypes.append(authorType)
-        
         fieldTypes.append(bodyType)
-        
         fieldTypes.append(booleanType)
-        
         fieldTypes.append(codeType)
-        
         fieldTypes.append(dateAddedType)
-        
         fieldTypes.append(dateModifiedType)
-        
         fieldTypes.append(dateType)
-        
+        fieldTypes.append(imageNameType)
         fieldTypes.append(indexType)
-        
         fieldTypes.append(intType)
         
         labelType.typeString = "label"
         fieldTypes.append(labelType)
         
         fieldTypes.append(linkType)
-        
         fieldTypes.append(longTextType)
         
         teaserType.properLabel = "Teaser"
         teaserType.commonLabel = "teaser"
         fieldTypes.append(teaserType)
         
+        fieldTypes.append(minutesToReadType)
         fieldTypes.append(ratingType)
-        
         fieldTypes.append(recursType)
-        
         fieldTypes.append(seqType)
-        
         fieldTypes.append(statusType)
-        
         fieldTypes.append(stringType)
-        
         fieldTypes.append(tagsType)
-        
         fieldTypes.append(timestampType)
-        
         fieldTypes.append(titleType)
-        
     }
     
     /// Assign a field type based on a field label and, optionally, a type string. 
