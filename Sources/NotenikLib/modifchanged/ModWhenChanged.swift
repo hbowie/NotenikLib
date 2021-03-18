@@ -171,7 +171,7 @@ public class ModWhenChanged {
             if !attachmentsOK {
                 logError("Problems renaming attachments for \(modNote.title)")
             }
-            let (_, _) = io.deleteSelectedNote()
+            let (_, _) = io.deleteSelectedNote(preserveAttachments: true)
             let (addedNote, _) = io.addNote(newNote: modNote)
             if addedNote != nil {
                 return (outcome, addedNote)

@@ -171,6 +171,32 @@ public class TemplateUtil {
         outputOpen = true
     }
     
+    /// Copy a file from one location to another. 
+    func copyFile(fromPath: String, toPath: String) {
+        let absFromPath = templateFileName.resolveRelative(path: fromPath)
+        let fromResource = ResourceFileSys(folderPath: absFromPath, fileName: "", type: .attachment)
+        guard fromResource.isAvailable else {
+            logError("Could not find a file to copy at: \(fromResource.normalPath)")
+            return
+        }
+        
+        let absToPath = templateFileName.resolveRelative(path: toPath)
+        
+        let toURL = URL(fileURLWithPath: absToPath)
+        let toFolder = toURL.deletingLastPathComponent()
+        let toFolderResource = ResourceFileSys(folderPath: toFolder.path, fileName: "")
+        _ = toFolderResource.ensureExistence()
+        
+        let toResource = ResourceFileSys(folderPath: absToPath, fileName: "", type: .attachment)
+        if toResource.exists {
+            _ = toResource.remove()
+        }
+        let ok = fromResource.copyTo(to: toResource)
+        if !ok {
+            logError("Could not complete copyfile command")
+        }
+    }
+    
     /// Include another file into this one.
     ///
     /// - Parameter filePath: The complete path to the file to be included.
@@ -858,6 +884,13 @@ public class TemplateUtil {
         if field == nil {
             return nil
         } else {
+            if varName == NotenikConstants.imageNameCommon {
+                for attachment in fromNote.attachments {
+                    if attachment.suffix.lowercased() == field!.value.value.lowercased() {
+                        return attachment.fullName
+                    }
+                }
+            }
             return field!.value.value
         }
     }

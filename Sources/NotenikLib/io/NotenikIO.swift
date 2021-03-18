@@ -193,7 +193,7 @@ public protocol NotenikIO: MkdownWikiLinkLookup {
     /// Delete the currently selected Note, plus any attachments it might have.
     ///
     /// - Returns: The new Note on which the collection should be positioned.
-    func deleteSelectedNote() -> (Note?, NotePosition)
+    func deleteSelectedNote(preserveAttachments: Bool) -> (Note?, NotePosition)
     
     /// Delete the given note
     ///

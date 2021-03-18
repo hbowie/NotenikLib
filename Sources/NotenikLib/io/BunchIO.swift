@@ -470,7 +470,7 @@ class BunchIO: NotenikIO, RowConsumer  {
     /// Delete the currently selected Note
     ///
     /// - Returns: The new Note on which the collection should be positioned.
-    func deleteSelectedNote() -> (Note?, NotePosition) {
+    func deleteSelectedNote(preserveAttachments: Bool) -> (Note?, NotePosition) {
         
         // Make sure we have an open collection available to us
         guard collection != nil && collectionOpen else { return (nil, NotePosition(index: -1)) }

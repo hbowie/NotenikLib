@@ -803,7 +803,7 @@ public class FileIO: NotenikIO, RowConsumer {
     /// Delete the currently selected Note, plus any attachments it might have.
     ///
     /// - Returns: The new Note on which the collection should be positioned.
-    public func deleteSelectedNote() -> (Note?, NotePosition) {
+    public func deleteSelectedNote(preserveAttachments: Bool) -> (Note?, NotePosition) {
         
         // Make sure we have an open collection available to us
         guard collection != nil && collectionOpen else { return (nil, NotePosition(index: -1)) }
@@ -832,14 +832,16 @@ public class FileIO: NotenikIO, RowConsumer {
         let noteResource = lib.getNoteResource(note: noteToDelete!)
         guard noteResource != nil && noteResource!.isAvailable else { return (nil, NotePosition(index: -1)) }
         
-        for attachment in noteToDelete!.attachments {
-            let attachmentResource = lib.getAttachmentResource(fileName: attachment.fullName)
-            if attachmentResource == nil {
-                logError("Problems deleting attachment named \(attachment.fullName)")
-            } else {
-                let deleted = attachmentResource!.remove()
-                if !deleted {
+        if !preserveAttachments {
+            for attachment in noteToDelete!.attachments {
+                let attachmentResource = lib.getAttachmentResource(fileName: attachment.fullName)
+                if attachmentResource == nil {
                     logError("Problems deleting attachment named \(attachment.fullName)")
+                } else {
+                    let deleted = attachmentResource!.remove()
+                    if !deleted {
+                        logError("Problems deleting attachment named \(attachment.fullName)")
+                    }
                 }
             }
         }
@@ -893,11 +895,13 @@ public class FileIO: NotenikIO, RowConsumer {
         guard collection != nil && collectionOpen else { return nil }
         guard let lib = collection?.lib else { return nil }
         guard let fileName = noteToReload.fileInfo.baseDotExt else { return nil }
+        saveAttachments(from: noteToReload)
         let reloaded = lib.getNote(type: .note, collection: collection!, fileName: fileName, reportErrors: true)
         guard reloaded != nil && reloaded!.hasTitle() else { return nil }
         var ok = false
         ok = bunch!.delete(note: noteToReload)
         guard ok else { return nil }
+        restoreAttachments(to: reloaded!)
         ok = bunch!.add(note: reloaded!)
 
         if ok {
@@ -905,6 +909,22 @@ public class FileIO: NotenikIO, RowConsumer {
         } else {
             return nil
         }
+    }
+    
+    var savedAttachments: [AttachmentName] = []
+    
+    func saveAttachments(from note: Note) {
+        savedAttachments = []
+        for attachment in note.attachments {
+            savedAttachments.append(attachment)
+        }
+    }
+    
+    func restoreAttachments(to note: Note) {
+        for attachment in savedAttachments {
+            note.attachments.append(attachment)
+        }
+        savedAttachments = []
     }
     
     // -----------------------------------------------------------

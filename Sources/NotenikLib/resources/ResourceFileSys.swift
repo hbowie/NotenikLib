@@ -350,6 +350,7 @@ public class ResourceFileSys: CustomStringConvertible, Comparable {
     func remove() -> Bool {
         guard exists else { return false }
         guard let urlToRemove = url else { return false }
+        print("ResourceFileSys.remove \(urlToRemove.path)")
         do {
             try fm.removeItem(at: urlToRemove)
         } catch {
@@ -371,6 +372,17 @@ public class ResourceFileSys: CustomStringConvertible, Comparable {
         }
         toResource.checkStatus(preferredNoteExt: to)
         return toResource
+    }
+    
+    func copyTo(to: ResourceFileSys) -> Bool {
+        guard isAvailable else { return false }
+        do {
+            try fm.copyItem(atPath: actualPath, toPath: to.proposedPath)
+        } catch {
+            logError("Unable to copy item \nfrom \(actualPath) \nto \(to.proposedPath) \ndue to following error: \(error)")
+            return false
+        }
+        return true
     }
     
     // -----------------------------------------------------------

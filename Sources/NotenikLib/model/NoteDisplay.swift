@@ -173,26 +173,10 @@ public class NoteDisplay: NSObject {
             }
             code.finishParagraph()
         } else if field.def.fieldType.typeString == NotenikConstants.imageNameCommon {
-            let attachmentsFolder = collection.lib.getResource(type: .attachments)
-            var attachmentName: AttachmentName?
-            for attachment in note.attachments {
-                if attachment.suffix == field.value.value {
-                    attachmentName = attachment
-                    break
-                }
-            }
             code.startParagraph()
             code.append(field.def.fieldLabel.properForm)
             code.append(": ")
-            if attachmentName != nil {
-                // let attachmentResource = ResourceFileSys(parent: attachmentsFolder, fileName: attachmentName!.fullName, type: .attachment)
-                // code.startLink(path: attachmentResource.url!.absoluteString)
-            }
             code.append(field.value.value)
-            if attachmentName != nil {
-                // code.finishLink()
-            }
-            
             code.finishParagraph()
         } else if field.def == collection.minutesToReadDef {
             code.startParagraph()

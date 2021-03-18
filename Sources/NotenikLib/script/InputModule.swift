@@ -139,9 +139,30 @@ class InputModule: RowConsumer {
     }
     
     func openNotenik(openURL: URL) {
-        let reader = NoteReader()
-        reader.setContext(consumer: self, workspace: workspace)
-        reader.read(fileURL: openURL)
+        let io: NotenikIO = FileIO()
+        let realm = io.getDefaultRealm()
+        realm.path = ""
+        var collectionURL: URL
+        if FileUtils.isDir(openURL.path) {
+            collectionURL = openURL
+        } else {
+            collectionURL = openURL.deletingLastPathComponent()
+        }
+        let collection = io.openCollection(realm: realm, collectionPath: collectionURL.path, readOnly: true)
+        if collection == nil {
+            logError("Problems opening the collection at " + collectionURL.path)
+            return
+        }
+        workspace.collection = collection!
+        workspace.typeCatalog = workspace.collection.typeCatalog
+        
+        var (note, position) = io.firstNote()
+        while note != nil {
+            workspace.list.append(note!)
+            notesInput += 1
+            (note, position) = io.nextNote(position)
+        }
+        io.closeCollection()
         logInfo("\(notesInput) rows read from \(openURL.path)")
     }
     

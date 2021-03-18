@@ -13,6 +13,7 @@ import Foundation
 
 enum TemplateCommand: String {
     case comment     = "*"
+    case copyfile    = "copyfile"
     case debug       = "debug"
     case definegroup = "definegroup"
     case delims      = "delims"

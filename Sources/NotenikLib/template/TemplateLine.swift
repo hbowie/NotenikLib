@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 6/4/19.
-//  Copyright © 2019 - 2020 Herb Bowie (https://powersurgepub.com)
+//  Copyright © 2019 - 2020 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -144,6 +144,8 @@ class TemplateLine {
     /// Process a Template Command Line
     func processCommand(note: Note) {
         switch command! {
+        case .copyfile:
+            processCopyFileCommand(note: note)
         case .delims:
             processDelimsCommand()
         case .debug:
@@ -181,6 +183,15 @@ class TemplateLine {
         default:
             processDefault()
         }
+    }
+    
+    /// Process a command to copy a file.
+    func processCopyFileCommand(note: Note) {
+        guard !util.skippingData else { return }
+        guard tokens.count > 2 else { return }
+        let copyFromPath = util.replaceVariables(str: String(tokens[1]), note: note).line
+        let copyToPath   = util.replaceVariables(str: String(tokens[2]), note: note).line
+        util.copyFile(fromPath: copyFromPath, toPath: copyToPath)
     }
     
     /// Process a Delims (delimiters) Command

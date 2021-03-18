@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 12/7/18.
-//  Copyright © 2018 - 2019 Herb Bowie (https://powersurgepub.com)
+//  Copyright © 2018 - 2019 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).

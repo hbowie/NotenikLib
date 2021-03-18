@@ -948,8 +948,18 @@ public class Note: Comparable, Identifiable, NSCopying {
         if def == nil {
             def = FieldDefinition(typeCatalog: collection.typeCatalog, label: label)
         }
-        let val = def!.fieldType.createValue(value)
+        var val = StringValue()
+        if (def!.fieldType.typeString == NotenikConstants.pickFromType
+                && def!.pickList != nil) {
+            let pickListValue = def!.fieldType.createValue() as! PickListValue
+            pickListValue.pickList = def!.pickList!
+            pickListValue.set(value)
+            val = pickListValue
+        } else {
+            val = def!.fieldType.createValue(value)
+        }
         let field = NoteField(def: def!, value: val)
+
         return setField(field)
     }
     
@@ -958,6 +968,7 @@ public class Note: Comparable, Identifiable, NSCopying {
     /// - Parameter field: The Note field we want to set.
     /// - Returns: True if the field was set, false otherwise.
     public func setField(_ field: NoteField) -> Bool {
+        
         if (field.def.fieldType.typeString == "status"
             && field.value.value.count > 0
             && field.value is StatusValue) {
@@ -966,6 +977,7 @@ public class Note: Comparable, Identifiable, NSCopying {
                 statusVal.set(str: field.value.value, config: collection.statusConfig)
             }
         }
+        
         if collection.dict.contains(field.def) {
             fields[field.def.fieldLabel.commonForm] = field
             return true

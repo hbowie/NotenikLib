@@ -184,6 +184,7 @@ class ApplyTemplateValues {
             let pickList = PickList(values: typeValues.str)
             if pickList.count > 0 {
                 def.pickList = pickList
+                def.fieldType = collection.typeCatalog.assignType(label: def.fieldLabel, type: typeStrCommon)
             }
         } else {
             def.fieldType = collection.typeCatalog.assignType(label: def.fieldLabel, type: typeStrCommon)
