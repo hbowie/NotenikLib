@@ -595,7 +595,10 @@ public class FileIO: NotenikIO, RowConsumer {
         while i < attachments!.count && looking {
             if attachments![i].fileName.hasPrefix(base) {
                 let attachmentName = AttachmentName()
-                attachmentName.setName(note: note, fullName: attachments![i].fileName)
+                guard attachmentName.setName(note: note, fullName: attachments![i].fileName) else {
+                    i += 1
+                    continue
+                }
                 note.attachments.append(attachmentName)
                 attachments!.remove(at: i)
             } else if base < attachments![i].fileName {

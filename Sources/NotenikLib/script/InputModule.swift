@@ -96,7 +96,11 @@ class InputModule: RowConsumer {
         case "markdown-with-headers":
             openMarkdownWithHeaders(openURL: openURL)
         case "notenik", "notenik-defined", "notenik+", "notenik-general":
-            openNotenik(openURL: openURL)
+            if workspace.explodeTags {
+                openNotenikSplitTags(openURL: openURL)
+            } else {
+                openNotenik(openURL: openURL)
+            }
         case "notenik-index":
             openNotenikIndex(openURL: openURL)
         case "notenik-split-tags":
@@ -175,7 +179,6 @@ class InputModule: RowConsumer {
     
     func openNotenikSplitTags(openURL: URL) {
         let reader = NoteReader()
-        reader.split = true
         reader.setContext(consumer: self, workspace: workspace)
         reader.read(fileURL: openURL)
         logInfo("\(notesInput) rows read from \(openURL.path)")

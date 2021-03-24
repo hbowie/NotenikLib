@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 7/10/19.
-//  Copyright © 2019 Herb Bowie (https://powersurgepub.com)
+//  Copyright © 2019 - 2021 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -51,7 +51,7 @@ public class TagValue: StringValue {
     ///          the default, but may be overridden.
     /// - Returns: The starting anchor tag, including the href, the tags
     ///            to be linked, and the ending anchor tag.
-    func getLinkedTag(parent: String, ext: String = "html") -> String {
+    func getLinkedTag(parent: String, htmlClass: String, ext: String = "html") -> String {
         var linkExt = ""
         if ext.count > 0 {
             if ext.hasPrefix(".") {
@@ -70,7 +70,11 @@ public class TagValue: StringValue {
             str.append(level)
             link.append(StringUtils.toCommonFileName(level))
         }
-        return "<a href='" + parent + link + linkExt + "' rel='tag'>" + str + "</a>"
+        var klass = ""
+        if htmlClass.count > 0 {
+            klass = " class='" + htmlClass + "'"
+        }
+        return "<a\(klass) href='" + parent + link + linkExt + "' rel='tag'>" + str + "</a>"
     }
     
 }

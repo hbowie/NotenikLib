@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 12/4/18.
-//  Copyright © 2018 - 2019 Herb Bowie (https://powersurgepub.com)
+//  Copyright © 2018 - 2021 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -120,13 +120,13 @@ public class TagsValue: StringValue {
     ///          the default, but may be overridden.
     /// - Returns: For each tag: The starting anchor tag, including the href,
     ///            the tags to be linked, and the ending anchor tag.
-    func getLinkedTags(parent: String, ext: String = "html") -> String {
+    func getLinkedTags(parent: String, htmlClass: String, ext: String = "html") -> String {
         var html = ""
         for tag in tags {
-            if html.count > 0 {
+            if html.count > 0 && htmlClass.count == 0 {
                 html.append(", ")
             }
-            html.append(tag.getLinkedTag(parent: parent, ext: ext))
+            html.append(tag.getLinkedTag(parent: parent, htmlClass: htmlClass, ext: ext))
         }
         return html
     }

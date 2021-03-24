@@ -20,6 +20,7 @@ public class AttachmentName: Comparable, NSCopying, CustomStringConvertible {
     
     var prefix = ""
     var separator = " | "
+    var sepCharFound = false
     public var suffix = ""
     public var ext = ""
     
@@ -56,18 +57,22 @@ public class AttachmentName: Comparable, NSCopying, CustomStringConvertible {
     
     /// Given a Note and the full file name for an attachment,
     /// separate out the name into its constituent parts.
-    func setName(note: Note, fullName: String) {
+    func setName(note: Note, fullName: String) -> Bool {
         prefix = ""
         separator = ""
+        sepCharFound = false
         suffix = ""
         ext = ""
-        guard let fnBase = note.fileInfo.base else { return }
+        guard let fnBase = note.fileInfo.base else { return false }
         prefix = fnBase
         var index = fullName.index(fullName.startIndex, offsetBy: prefix.count)
         while index < fullName.endIndex {
             let char = fullName[index]
             if suffix.count == 0 && (char.isWhitespace || char.isPunctuation || char == "|") {
                 separator.append(char)
+                if !char.isWhitespace {
+                    sepCharFound = true
+                }
             } else if char == "." {
                 if ext.count > 0 {
                     suffix.append(ext)
@@ -76,11 +81,16 @@ public class AttachmentName: Comparable, NSCopying, CustomStringConvertible {
                 ext.append(char)
             } else if ext.count > 0 {
                 ext.append(char)
-            } else {
+            } else if sepCharFound {
                 suffix.append(char)
+            } else {
+                // Something wrong here.
+                return false
             }
             index = fullName.index(after: index)
         }
+        guard sepCharFound && suffix.count > 0 else { return false }
+        return true
     }
     
     /// Set the various components of the Attachment Name.

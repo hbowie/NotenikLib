@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 6/3/19.
-//  Copyright © 2019 Herb Bowie (https://powersurgepub.com)
+//  Copyright © 2019 - 2021 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -579,6 +579,8 @@ public class TemplateUtil {
         
         var linkedTags = false
         var linkedTagsPath = ""
+        var linkedTagsPathDone = false
+        var linkedTagsClass = ""
         
         var formatFileName = false
         var readableFileName = false
@@ -614,7 +616,13 @@ public class TemplateUtil {
                     varyStage = 4
                 }
             } else if linkedTags {
-                linkedTagsPath.append(char)
+                if char == ";" {
+                    linkedTagsPathDone = true
+                } else if linkedTagsPathDone {
+                    linkedTagsClass.append(char)
+                } else {
+                    linkedTagsPath.append(char)
+                }
             } else if wordDemarcationPending {
                 if charLower == "u" || charLower == "l" || charLower == "a" {
                     if wordCaseIndex < 3 {
@@ -626,7 +634,18 @@ public class TemplateUtil {
                 }
             } else if char == "_" {
                 modifiedValue = StringUtils.underscoresForSpaces(modifiedValue)
-            } else if char == "a" {
+            } else if char == "a" && (nextChar == "1" || nextChar == "2") {
+                let authorValue = AuthorValue(modifiedValue)
+                switch nextChar {
+                case "1":
+                    modifiedValue = authorValue.lastName
+                case "2":
+                    modifiedValue = authorValue.lastNameFirst
+                default:
+                    break
+                }
+                inc = 2
+            } else if charLower == "a" {
                 formatString.append(char)
             } else if charLower == "b" {
                 let fileName = FileName(modifiedValue)
@@ -746,7 +765,7 @@ public class TemplateUtil {
                 && !linkedTagsPath.hasSuffix(endVar)) {
                 linkedTagsPath.append("/")
             }
-            modifiedValue = tags.getLinkedTags(parent: relative + linkedTagsPath)
+            modifiedValue = tags.getLinkedTags(parent: relative + linkedTagsPath, htmlClass: linkedTagsClass)
         }
         
         if formatString.count > 0 {
