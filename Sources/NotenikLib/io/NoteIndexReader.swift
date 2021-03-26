@@ -70,12 +70,14 @@ class NoteIndexReader: RowImporter {
         labels.append("Lower Case Term")
         labels.append("Term Link")
         labels.append("Page")
+        labels.append("Page Type")
         labels.append("Anchor")
         
         var (note, position) = io.firstNote()
         while note != nil {
             if note!.hasTitle() && note!.hasIndex() {
-                indexCollection.add(page: note!.title.value, index: note!.index)
+                let pageType = note!.getFieldAsString(label: NotenikConstants.typeCommon)
+                indexCollection.add(page: note!.title.value, pageType: pageType, index: note!.index)
             }
             (note, position) = io.nextNote(position)
         }
@@ -102,7 +104,10 @@ class NoteIndexReader: RowImporter {
                 consumer!.consumeField(label: labels[4], value: ref.page)
                 fields.append(ref.page)
                 
-                consumer!.consumeField(label: labels[5], value: ref.anchor)
+                consumer!.consumeField(label: labels[5], value: ref.pageType)
+                fields.append(ref.pageType)
+                
+                consumer!.consumeField(label: labels[6], value: ref.anchor)
                 fields.append(ref.anchor)
                 
                 consumer!.consumeRow(labels: labels, fields: fields)

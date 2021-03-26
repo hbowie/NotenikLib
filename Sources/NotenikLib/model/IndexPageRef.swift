@@ -13,13 +13,15 @@ import Foundation
 
 class IndexPageRef {
     
-    var term   = IndexTerm()
-    var page   = ""
-    var anchor = ""
+    var term     = IndexTerm()
+    var page     = ""
+    var pageType = ""
+    var anchor   = ""
     
-    init(term: IndexTerm, page: String, anchor: String) {
+    init(term: IndexTerm, page: String, pageType: String, anchor: String) {
         self.term = term
         self.page = page
+        self.pageType = pageType
         self.anchor = anchor
     }
     

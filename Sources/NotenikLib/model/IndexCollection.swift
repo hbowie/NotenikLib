@@ -34,7 +34,7 @@ class IndexCollection {
         return term != nil
     }
     
-    func add(page: String, index: IndexValue) {
+    func add(page: String, pageType: String, index: IndexValue) {
         clearTermVars()
         for c in index.value {
             switch c {
@@ -55,7 +55,7 @@ class IndexCollection {
             case "#":
                 position = .anchor
             case ";":
-                endOfTermEntry(page: page)
+                endOfTermEntry(page: page, pageType: pageType)
             case " ":
                 pendingSpaces += 1
             default:
@@ -69,7 +69,7 @@ class IndexCollection {
                 pendingSpaces = 0
             }
         }
-        endOfTermEntry(page: page)
+        endOfTermEntry(page: page, pageType: pageType)
     }
     
     func append(_ c: Character) {
@@ -94,7 +94,7 @@ class IndexCollection {
         }
     }
     
-    func endOfTermEntry(page: String) {
+    func endOfTermEntry(page: String, pageType: String) {
         if term.count > 0 {
             var indexTerm = dict[term]
             if indexTerm == nil {
@@ -105,7 +105,10 @@ class IndexCollection {
             if link.count > 0 {
                 indexTerm!.link = link
             }
-            let ref = IndexPageRef(term: indexTerm!, page: page, anchor: anchor)
+            let ref = IndexPageRef(term: indexTerm!,
+                                   page: page,
+                                   pageType: pageType,
+                                   anchor: anchor)
             indexTerm!.addRef(ref)
         }
         clearTermVars()
