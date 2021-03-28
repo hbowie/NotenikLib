@@ -91,18 +91,12 @@ public class Note: Comparable, Identifiable, NSCopying {
     }
     
     public static func < (lhs: Note, rhs: Note) -> Bool {
-        if lhs.collection.sortDescending {
-            if lhs.collection.sortParm == .custom {
-                return compareCustomFields(lhs: lhs, rhs: rhs) > 0
-            } else {
-                return lhs.sortKey > rhs.sortKey
-            }
+        if lhs.collection.sortParm == .custom {
+            return compareCustomFields(lhs: lhs, rhs: rhs) < 0
+        } else if lhs.collection.sortDescending {
+            return lhs.sortKey > rhs.sortKey
         } else {
-            if lhs.collection.sortParm == .custom {
-                return compareCustomFields(lhs: lhs, rhs: rhs) < 0
-            } else {
-                return lhs.sortKey < rhs.sortKey
-            }
+            return lhs.sortKey < rhs.sortKey
         }
     }
     
