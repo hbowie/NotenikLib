@@ -14,7 +14,7 @@ import Foundation
 /// A single Note. 
 public class Note: Comparable, Identifiable, NSCopying {
     
-    public unowned var collection: NoteCollection
+    public var collection: NoteCollection
     
     var fields = [:] as [String: NoteField]
     public var attachments: [AttachmentName] = []

@@ -160,17 +160,29 @@ public class ResourceFileSys: CustomStringConvertible, Comparable {
                 s2 = newValue.index(newValue.startIndex, offsetBy: 1)
             }
             _fName = String(newValue[s2..<newValue.endIndex])
-            let pieces = _fName.components(separatedBy: ".")
+            
+            var s3 = newValue.endIndex
+            var s4 = newValue.endIndex
+            var c: Character = " "
+            while s4 > s2 && c != "." {
+                s3 = s4
+                s4 = newValue.index(before: s3)
+                c = newValue[s4]
+            }
+            
             base = ""
             baseLower = ""
+            var ext = ""
             extLower = ""
-            if pieces.count > 0 {
-                base = pieces[0]
-                baseLower = base.lowercased()
-                if pieces.count > 1 {
-                    extLower = pieces[1].lowercased()
-                }
+            
+            if c == "." {
+                base = String(newValue[s2..<s4])
+                ext = String(newValue[s3..<newValue.endIndex])
+                extLower = ext.lowercased()
+            } else {
+                base = _fName
             }
+            baseLower = base.lowercased()
         }
     }
     var _fName = ""

@@ -120,6 +120,7 @@ public class TemplateUtil {
             templateOK = true
         } catch {
             logError("Error reading Template from \(templateURL)")
+            logError("Template Read Error: \(error)")
             templateOK = false
         }
         return templateOK
