@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 6/6/19.
-//  Copyright © 2019 Herb Bowie (https://powersurgepub.com)
+//  Copyright © 2019 - 2021 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -13,6 +13,7 @@ import Foundation
 
 enum TemplateCommand: String {
     case comment     = "*"
+    case allFields   = "allfields"
     case copyfile    = "copyfile"
     case debug       = "debug"
     case definegroup = "definegroup"

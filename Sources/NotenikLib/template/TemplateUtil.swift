@@ -75,6 +75,10 @@ public class TemplateUtil {
     let noBreakConverter = StringConverter()
     let markedup = Markedup(format: .htmlFragment)
     
+    var noteFieldsToHTML: NoteFieldsToHTML
+    
+    var io: NotenikIO?
+    
     var wikiStyle: Character = "0"
     
     /// Initialize things.
@@ -84,6 +88,7 @@ public class TemplateUtil {
         xmlConverter.addXML()
         emailSingleQuoteConverter.addEmailQuotes()
         noBreakConverter.addNoBreaks()
+        noteFieldsToHTML = NoteFieldsToHTML(displayPrefs: DisplayPrefs.shared)
         resetGroupValues()
         resetGroupBreaks()
     }
@@ -196,6 +201,11 @@ public class TemplateUtil {
         if !ok {
             logError("Could not complete copyfile command")
         }
+    }
+    
+    func allFieldsToHTML(note: Note) {
+        let fields = noteFieldsToHTML.fieldsToHTML(note, io: io, format: .htmlFragment)
+        outputLines.append(fields)
     }
     
     /// Include another file into this one.
@@ -332,16 +342,28 @@ public class TemplateUtil {
     /// Close the output file, writing it out to disk if it was open.
     func closeOutput() {
         if outputOpen && textOutURL != nil {
+            var bypassWrite = false
             do {
-                let textOutFolder = textOutURL!.deletingLastPathComponent()
-                if !fileManager.fileExists(atPath: textOutFolder.path) {
-                    try fileManager.createDirectory(at: textOutFolder, withIntermediateDirectories: true, attributes: nil)
+                let existing = try String(contentsOf: textOutURL!, encoding: .utf8)
+                if existing == outputLines {
+                    logInfo("No change to output file at \(textOutURL!.path)")
+                    bypassWrite = true
                 }
-                try outputLines.write(to: textOutURL!, atomically: false, encoding: .utf8)
-                logInfo("\(outputLineCount) lines written to \(textOutURL!.path)")
-            } catch let error {
-                logError("Problems writing to output file at \(textOutURL!.path)")
-                logError("Error is \(error)")
+            } catch {
+                print("Could not read file at \(textOutURL!.path)")
+            }
+            if !bypassWrite {
+                do {
+                    let textOutFolder = textOutURL!.deletingLastPathComponent()
+                    if !fileManager.fileExists(atPath: textOutFolder.path) {
+                        try fileManager.createDirectory(at: textOutFolder, withIntermediateDirectories: true, attributes: nil)
+                    }
+                    try outputLines.write(to: textOutURL!, atomically: false, encoding: .utf8)
+                    logInfo("\(outputLineCount) lines written to \(textOutURL!.path)")
+                } catch let error {
+                    logError("Problems writing to output file at \(textOutURL!.path)")
+                    logError("Error is \(error)")
+                }
             }
         }
         outputLines = ""

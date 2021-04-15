@@ -144,6 +144,8 @@ class TemplateLine {
     /// Process a Template Command Line
     func processCommand(note: Note) {
         switch command! {
+        case .allFields:
+            processAllFieldsCommand(note: note)
         case .copyfile:
             processCopyFileCommand(note: note)
         case .delims:
@@ -183,6 +185,10 @@ class TemplateLine {
         default:
             processDefault()
         }
+    }
+    
+    func processAllFieldsCommand(note: Note) {
+        util.allFieldsToHTML(note: note)
     }
     
     /// Process a command to copy a file.
