@@ -54,6 +54,12 @@ public class Template {
         return util.openTemplate(templateURL: templateURL)
     }
     
+    /// Open a template supplied as a string.
+    /// - Parameter templateContents: The contents of a template file previously read from disk. 
+    public func openTemplate(templateContents: String) {
+        util.openTemplate(templateContents: templateContents)
+    }
+    
     /// Supply the Notenik data to be used with the template.
     ///
     /// - Parameters:

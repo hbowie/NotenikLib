@@ -35,6 +35,7 @@ public class TemplateUtil {
     public var textOutURL: URL?
     var textOutFileName = FileName()
     var outputLines = ""
+    var linesToOutput = ""
     var outputOpen = false
     var outputLineCount = 0
     
@@ -129,6 +130,20 @@ public class TemplateUtil {
             templateOK = false
         }
         return templateOK
+    }
+    
+    /// Open a template supplied as a string.
+    /// - Parameter templateContents: The contents of a previously-read template file.
+    func openTemplate(templateContents: String) {
+        resetGroupValues()
+        resetGroupBreaks()
+        
+        templateURL = nil
+        templateFileName = FileName()
+        lineCount = 0
+        lineReader = BigStringReader(templateContents)
+        lineReader.open()
+        templateOK = true
     }
     
     /// Return the next template line, if there are any left.
@@ -365,6 +380,8 @@ public class TemplateUtil {
                     logError("Error is \(error)")
                 }
             }
+        } else {
+            linesToOutput = outputLines
         }
         outputLines = ""
         outputLineCount = 0

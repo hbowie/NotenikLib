@@ -19,6 +19,8 @@ public enum ResourceType {
     case attachments
     case collection
     case collectionParms
+    case display
+    case displayCSS
     case info
     case license
     case mirror

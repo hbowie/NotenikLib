@@ -373,6 +373,13 @@ public class FileIO: NotenikIO, RowConsumer {
         
         _ = loadInfoFile()
         _ = loadTemplateFile()
+        loadDisplayTemplate()
+        loadDisplayCSS()
+        if collection!.displayTemplate.count > 0 {
+            logInfo("Display tab will be formatted using HTML template named \(ResourceFileSys.displayHTMLFileName)")
+        } else if collection!.displayCSS.count > 0 {
+            logInfo("Display Template will be formatted using CSS file named \(ResourceFileSys.displayCSSFileName)")
+        }
         if resourceLib.reportsFolder.isAvailable {
             loadReports()
         }
@@ -522,6 +529,18 @@ public class FileIO: NotenikIO, RowConsumer {
         collection!.preferredExt = collection!.lib.templateExt
         collection!.finalize()
         return templateNote
+    }
+    
+    func loadDisplayCSS() {
+        collection!.displayCSS = ""
+        guard collection!.lib.hasAvailable(type: .displayCSS) else { return }
+        collection!.displayCSS = collection!.lib.displayCSSFile.getText()
+    }
+    
+    func loadDisplayTemplate() {
+        collection!.displayTemplate = ""
+        guard collection!.lib.hasAvailable(type: .display) else { return }
+        collection!.displayTemplate = collection!.lib.displayFile.getText()
     }
     
     /// Close the current collection, if one is open

@@ -17,16 +17,14 @@ import NotenikMkdown
 
 /// Generate the coding necessary to display a Note in a readable format.
 public class NoteFieldsToHTML
-    // NSObject
+    // NSObject - Not sure why I needed this???
     {
     
     public var format: MarkedupFormat = .htmlDoc
     
     var displayPrefs: DisplayPrefs?
     
-    var mdBodyParser: MkdownParser?
-    
-    public var counts = MkdownCounts()
+    var bodyHTML: String?
     
     var minutesToRead: MinutesToReadValue?
     
@@ -42,12 +40,22 @@ public class NoteFieldsToHTML
     ///
     /// - Parameter note: The note to be displayed.
     /// - Returns: A string containing the encoded note.
-    public func fieldsToHTML(_ note: Note, io: NotenikIO?, format: MarkedupFormat = .htmlDoc) -> String {
+    public func fieldsToHTML(_ note: Note,
+                             io: NotenikIO?,
+                             format: MarkedupFormat = .htmlDoc,
+                             bodyHTML: String? = nil,
+                             minutesToRead: MinutesToReadValue? = nil) -> String {
+        
+        self.bodyHTML = bodyHTML
+        self.minutesToRead = minutesToRead
+        
         let collection = note.collection
         let dict = collection.dict
         let code = Markedup(format: format)
         var css: String?
-        if displayPrefs != nil {
+        if collection.displayCSS.count > 0 {
+            css = collection.displayCSS
+        } else if displayPrefs != nil {
             css = displayPrefs!.bodyCSS
         }
         
@@ -56,20 +64,6 @@ public class NoteFieldsToHTML
         if note.hasTags() {
             let tagsField = note.getTagsAsField()
             code.append(display(tagsField!, note: note, collection: collection, io: io))
-        }
-        
-        minutesToRead = nil
-        
-        // Pre-parse the body field if we're creating HTML.
-        if format == .htmlDoc || format == .htmlFragment {
-            let body = note.body
-            mdBodyParser = MkdownParser(body.value)
-            mdBodyParser!.wikiLinkLookup = io
-            mdBodyParser!.parse()
-            counts = mdBodyParser!.counts
-            if collection.minutesToReadDef != nil {
-                minutesToRead = MinutesToReadValue(with: counts)
-            }
         }
         
         var i = 0
@@ -145,7 +139,13 @@ public class NoteFieldsToHTML
                 code.finishParagraph()
             }
             if format == .htmlDoc || format == .htmlFragment {
-                code.append(mdBodyParser!.html)
+                if bodyHTML != nil {
+                    code.append(bodyHTML!)
+                } else {
+                    MkdownParser.markdownToMarkedup(markdown: field.value.value,
+                                                    wikiLinkLookup: io,
+                                                    writer: code)
+                }
             } else {
                 code.append(field.value.value)
                 code.newLine()
@@ -173,7 +173,9 @@ public class NoteFieldsToHTML
             code.append(": ")
             code.finishParagraph()
             if format == .htmlDoc || format == .htmlFragment {
-                MkdownParser.markdownToMarkedup(markdown: field.value.value, wikiLinkLookup: io, writer: code)
+                MkdownParser.markdownToMarkedup(markdown: field.value.value,
+                                                wikiLinkLookup: io,
+                                                writer: code)
             } else {
                 code.append(field.value.value)
                 code.newLine()

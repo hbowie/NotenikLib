@@ -28,6 +28,8 @@ public class ResourceFileSys: CustomStringConvertible, Comparable {
     static let aliasFileName     = "alias.txt"
     static let cloudyPrefix      = "."
     static let cloudySuffix      = ".icloud"
+    public static let displayCSSFileName = "display.css"
+    public static let displayHTMLFileName = "display.html"
     static let dsstoreFileName   = ".DS_Store"
     static let filesFolderName   = "files"
     static let infoFileName      = "- INFO.nnk"
@@ -321,6 +323,18 @@ public class ResourceFileSys: CustomStringConvertible, Comparable {
         return true
     }
     
+    func getText() -> String {
+        guard isAvailable else { return "" }
+        guard !isDirectory else { return "" }
+        guard let textURL = url else { return "" }
+        do {
+            let text = try String(contentsOf: textURL)
+            return text
+        } catch {
+            return ""
+        }
+    }
+    
     // -----------------------------------------------------------
     //
     // MARK: Store and Update Routines
@@ -362,7 +376,6 @@ public class ResourceFileSys: CustomStringConvertible, Comparable {
     func remove() -> Bool {
         guard exists else { return false }
         guard let urlToRemove = url else { return false }
-        print("ResourceFileSys.remove \(urlToRemove.path)")
         do {
             try fm.removeItem(at: urlToRemove)
         } catch {
@@ -453,6 +466,10 @@ public class ResourceFileSys: CustomStringConvertible, Comparable {
             type = .alias
         } else if (_fName == ResourceFileSys.infoFileName) {
             type = .info
+        } else if (_fName == ResourceFileSys.displayHTMLFileName) {
+            type = .display
+        } else if (_fName == ResourceFileSys.displayCSSFileName) {
+            type = .displayCSS
         } else if baseLower == ResourceFileSys.templateFileName && extLower.count > 0 {
             type = .template
         } else {

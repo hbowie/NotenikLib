@@ -41,6 +41,8 @@ public class ResourceLibrary {
     var readmeFile        = ResourceFileSys()
     var infoFile          = ResourceFileSys()
     var templateFile      = ResourceFileSys()
+    var displayFile       = ResourceFileSys()
+    var displayCSSFile    = ResourceFileSys()
     var aliasFile         = ResourceFileSys()
     var attachmentsFolder = ResourceFileSys()
     var mirrorFolder      = ResourceFileSys()
@@ -61,6 +63,8 @@ public class ResourceLibrary {
         readmeFile      = ResourceFileSys()
         infoFile        = ResourceFileSys()
         templateFile    = ResourceFileSys()
+        displayFile     = ResourceFileSys()
+        displayCSSFile  = ResourceFileSys()
         aliasFile       = ResourceFileSys()
         attachmentsFolder = ResourceFileSys()
         mirrorFolder    = ResourceFileSys()
@@ -113,6 +117,10 @@ public class ResourceLibrary {
             return attachmentsFolder.isAvailable
         case .collection:
             return collection.isAvailable
+        case .display:
+            return displayFile.isAvailable
+        case .displayCSS:
+            return displayCSSFile.isAvailable
         case .info:
             return infoFile.isAvailable
         case .mirror:
@@ -142,6 +150,10 @@ public class ResourceLibrary {
             return attachmentsFolder.actualPath
         case .collection:
             return collection.actualPath
+        case .display:
+            return displayFile.actualPath
+        case .displayCSS:
+            return displayCSSFile.actualPath
         case .info:
             return infoFile.actualPath
         case .mirror:
@@ -171,6 +183,10 @@ public class ResourceLibrary {
             return attachmentsFolder.url
         case .collection:
             return collection.url
+        case .display:
+            return displayFile.url
+        case .displayCSS:
+            return displayCSSFile.url
         case .info:
             return infoFile.url
         case .mirror:
@@ -200,6 +216,10 @@ public class ResourceLibrary {
             return attachmentsFolder
         case .collection:
             return collection
+        case .display:
+            return displayFile
+        case .displayCSS:
+            return displayCSSFile
         case .info:
             return infoFile
         case .mirror:
@@ -496,6 +516,10 @@ public class ResourceLibrary {
                 itemsFound += 1
             } else {
                 switch resource.type {
+                case .display:
+                    displayFile = resource
+                case .displayCSS:
+                    displayCSSFile = resource
                 case .info:
                     if !infoFile.isAvailable {
                         infoFile = resource

@@ -39,6 +39,9 @@ public class NoteCollection {
     public  var lastStartupDate = ""
             var todaysDate = ""
     
+    public  var displayTemplate = ""
+    public  var displayCSS = ""
+    
     // Store some key and singular field definitions for easy access.
     public  var idFieldDef:     FieldDefinition
     public  var titleFieldDef:  FieldDefinition

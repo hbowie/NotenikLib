@@ -15,6 +15,9 @@ import NotenikUtils
 import NotenikMkdown
 
 /// Generate the coding necessary to display a Note in a readable format.
+///
+/// Used by NoteDisplayViewController to display a Note on the Display tab, but also used by
+/// ShareViewController to share a Note in one of a number of different formats.
 public class NoteDisplay: NSObject {
     
     public var format: MarkedupFormat = .htmlDoc
@@ -22,16 +25,79 @@ public class NoteDisplay: NSObject {
     let displayPrefs = DisplayPrefs.shared
     
     var mdBodyParser: MkdownParser?
+    var bodyHTML:     String?
     
     public var counts = MkdownCounts()
     
     var minutesToRead: MinutesToReadValue?
-
+    
     /// Get the code used to display this entire note as a web page, including html tags.
     ///
     /// - Parameter note: The note to be displayed.
     /// - Returns: A string containing the encoded note.
     public func display(_ note: Note, io: NotenikIO) -> String {
+        let collection = note.collection
+        minutesToRead = nil
+        mdBodyParser = nil
+        bodyHTML = nil
+        
+        // Pre-parse the body field if we're generating HTML.
+        if format == .htmlDoc || format == .htmlFragment {
+            let body = note.body
+            mdBodyParser = MkdownParser(body.value)
+            mdBodyParser!.setWikiLinkFormatting(prefix: mdBodyParser!.interNoteDomain,
+                                                format: .common,
+                                                suffix: "",
+                                                lookup: io)
+            // mdBodyParser!.wikiLinkLookup = io
+            mdBodyParser!.parse()
+            counts = mdBodyParser!.counts
+            if collection.minutesToReadDef != nil {
+                minutesToRead = MinutesToReadValue(with: counts)
+            }
+            bodyHTML = mdBodyParser!.html
+        }
+        
+        if collection.displayTemplate.count > 0 {
+            return displayWithTemplate(note, io: io)
+        } else {
+            return displayWithoutTemplate(note, io: io)
+        }
+    }
+    
+    func displayWithTemplate(_ note: Note, io: NotenikIO) -> String {
+        let template = Template()
+        template.openTemplate(templateContents: note.collection.displayTemplate)
+        let notesList = NotesList()
+        notesList.append(note)
+        template.supplyData(notesList: notesList, dataSource: note.collection.title)
+        let ok = template.generateOutput()
+        if !ok {
+            Logger.shared.log(subsystem: "NotenikLib",
+                              category: "NoteDisplay",
+                              level: .error,
+                              message: "Template generation failed")
+        }
+        // print("Output Lines: ")
+        // print (template.util.linesToOutput)
+        return template.util.linesToOutput
+    }
+    
+    func displayWithoutTemplate(_ note: Note, io: NotenikIO) -> String {
+        let displayPrefs = DisplayPrefs.shared
+        let fieldsToHTML = NoteFieldsToHTML(displayPrefs: displayPrefs)
+        return fieldsToHTML.fieldsToHTML(note,
+                                         io: io,
+                                         format: .htmlDoc,
+                                         bodyHTML: bodyHTML,
+                                         minutesToRead: minutesToRead)
+    }
+
+    /// Get the code used to display this entire note as a web page, including html tags.
+    ///
+    /// - Parameter note: The note to be displayed.
+    /// - Returns: A string containing the encoded note.
+    public func displayOld(_ note: Note, io: NotenikIO) -> String {
         let collection = note.collection
         let dict = collection.dict
         let code = Markedup(format: format)
