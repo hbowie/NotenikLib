@@ -60,6 +60,19 @@ public class Template {
         util.openTemplate(templateContents: templateContents)
     }
     
+    public func supplyData(_ note: Note,
+                             dataSource: String,
+                             io: NotenikIO?,
+                             bodyHTML: String? = nil,
+                             minutesToRead: MinutesToReadValue? = nil) {
+        self.notesList = NotesList()
+        notesList.append(note)
+        util.dataFileName = FileName(dataSource)
+        util.io = io
+        util.bodyHTML = bodyHTML
+        util.minutesToRead = minutesToRead
+    }
+    
     /// Supply the Notenik data to be used with the template.
     ///
     /// - Parameters:
@@ -68,6 +81,8 @@ public class Template {
     public func supplyData(notesList: NotesList, dataSource: String) {
         self.notesList = notesList
         util.dataFileName = FileName(dataSource)
+        util.bodyHTML = nil
+        util.minutesToRead = nil
     }
     
     /// Merge the supplied data with the template to generate output.

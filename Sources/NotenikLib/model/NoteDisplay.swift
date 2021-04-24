@@ -70,7 +70,11 @@ public class NoteDisplay: NSObject {
         template.openTemplate(templateContents: note.collection.displayTemplate)
         let notesList = NotesList()
         notesList.append(note)
-        template.supplyData(notesList: notesList, dataSource: note.collection.title)
+        template.supplyData(note,
+                            dataSource: note.collection.title,
+                            io: io,
+                            bodyHTML: bodyHTML,
+                            minutesToRead: minutesToRead)
         let ok = template.generateOutput()
         if !ok {
             Logger.shared.log(subsystem: "NotenikLib",

@@ -80,6 +80,9 @@ public class TemplateUtil {
     
     var io: NotenikIO?
     
+    var bodyHTML: String?
+    var minutesToRead: MinutesToReadValue?
+    
     var wikiStyle: Character = "0"
     
     /// Initialize things.
@@ -219,7 +222,12 @@ public class TemplateUtil {
     }
     
     func allFieldsToHTML(note: Note) {
-        let fields = noteFieldsToHTML.fieldsToHTML(note, io: io, format: .htmlFragment)
+        
+        let fields = noteFieldsToHTML.fieldsToHTML(note,
+                                             io: io,
+                                             format: .htmlFragment,
+                                             bodyHTML: bodyHTML,
+                                             minutesToRead: minutesToRead)
         outputLines.append(fields)
     }
     
@@ -588,7 +596,9 @@ public class TemplateUtil {
         replacementValue = replaceVarWithValue(inLine: toLine, varName: varNameCommon, note: note)
         
         if replacementValue != nil {
-            replacementValue = applyModifiers(replacementValue: replacementValue!, mods: mods)
+            replacementValue = applyModifiers(varNameCommon: varNameCommon,
+                                              replacementValue: replacementValue!,
+                                              mods: mods)
             toLine.line.append(replacementValue!)
         }
         
@@ -600,7 +610,7 @@ public class TemplateUtil {
     ///   - replacementValue: The value to be modified.
     ///   - mods: A string containing zero or more modifiers.
     /// - Returns: The modified value.
-    func applyModifiers(replacementValue: String, mods: String) -> String {
+    func applyModifiers(varNameCommon: String, replacementValue: String, mods: String) -> String {
         
         var modifiedValue = replacementValue
         
@@ -720,7 +730,11 @@ public class TemplateUtil {
             } else if charLower == "n" {
                 modifiedValue = noBreakConverter.convert(from: modifiedValue)
             } else if charLower == "o" {
-                modifiedValue = convertMarkdownToHTML(modifiedValue)
+                if varNameCommon == NotenikConstants.bodyCommon && bodyHTML != nil {
+                    modifiedValue = bodyHTML!
+                } else {
+                    modifiedValue = convertMarkdownToHTML(modifiedValue)
+                }
                 if nextChar == "-" {
                     modifiedValue = removeParagraphTags(modifiedValue)
                     inc = 2
@@ -885,6 +899,12 @@ public class TemplateUtil {
         return String(html[start..<end])
     }
     
+    /// Replace a variable name with the corresponding value.
+    /// - Parameters:
+    ///   - inLine: The output line as it exists so far.
+    ///   - varName: The name of the variable.
+    ///   - note: The Note supplying the values.
+    /// - Returns: The output line being built, with the variable name replaced.
     func replaceVarWithValue(inLine: LineWithBreak, varName: String, note: Note) -> String? {
 
         var value: String?
@@ -921,6 +941,12 @@ public class TemplateUtil {
             return dataFileName.folder
         case "today":
             return DateUtils.shared.ymdToday
+        case NotenikConstants.minutesToReadCommon:
+            if minutesToRead != nil {
+                return String(describing: minutesToRead)
+            } else {
+                return nil
+            }
         case "relative":
             if relativePathToRoot == nil {
                 return nil
