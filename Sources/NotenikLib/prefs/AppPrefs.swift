@@ -28,6 +28,8 @@ public class AppPrefs {
     let launchingKey    = "app-launching"
     let quickDeletesKey = "quick-deletes"
     let mediumTokenKey  = "medium-token"
+    let microBlogUserKey = "micro-blog-user"
+    let microBlogTokenKey = "micro-blog-token"
     let tagsSelectKey   = "tags-to-select"
     let tagsSuppressKey = "tags-to-suppress"
     let parentRealmParentKey = "parent-realm-parent"
@@ -52,6 +54,9 @@ public class AppPrefs {
     var _qd: Bool = false
     
     var _mediumToken = ""
+    
+    var _microBlogUser = ""
+    var _microBlogToken = ""
     
     var _prp = ""
     public var parentRealmPath = ""
@@ -123,7 +128,6 @@ public class AppPrefs {
     
     func resetDefaults() {
         confirmDeletes = true
-        // mediumToken = ""
         parentRealmParent = ""
         useCount = 0
         favoritesColumns = 4
@@ -143,6 +147,16 @@ public class AppPrefs {
         let mediumTokenDefault = defaults.string(forKey: mediumTokenKey)
         if mediumTokenDefault != nil {
             _mediumToken = mediumTokenDefault!
+        }
+        
+        let microBlogUserDefault = defaults.string(forKey: microBlogUserKey)
+        if microBlogUserDefault != nil {
+            _microBlogUser = microBlogUserDefault!
+        }
+        
+        let microBlogTokenDefault = defaults.string(forKey: microBlogTokenKey)
+        if microBlogTokenDefault != nil {
+            _microBlogToken = microBlogTokenDefault!
         }
         
         let tsel = defaults.string(forKey: tagsSelectKey)
@@ -264,6 +278,26 @@ public class AppPrefs {
         set {
             _mediumToken = newValue
             defaults.set(_mediumToken, forKey: mediumTokenKey)
+        }
+    }
+    
+    public var microBlogUser: String {
+        get {
+            return _microBlogUser
+        }
+        set {
+            _microBlogUser = newValue
+            defaults.set(_microBlogUser, forKey: microBlogUserKey)
+        }
+    }
+    
+    public var microBlogToken: String {
+        get {
+            return _microBlogToken
+        }
+        set {
+            _microBlogToken = newValue
+            defaults.set(_microBlogToken, forKey: microBlogTokenKey)
         }
     }
     
