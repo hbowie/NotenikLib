@@ -122,7 +122,9 @@ class AliasList: RowConsumer {
             rowsSaved += 1
         }
         let ok = writer.close()
-        logInfo("Saved \(rowsSaved) alias entries to \(ResourceFileSys.aliasFileName)")
+        if ok {
+            logInfo("Saved \(rowsSaved) alias entries to \(ResourceFileSys.aliasFileName)")
+        }
         return ok
     }
     

@@ -494,6 +494,9 @@ public class ResourceLibrary {
         // Set the location for a possible mirror folder.
         mirrorFolder = ResourceFileSys(parent: notesFolder, fileName: ResourceFileSys.mirrorFolderName)
         
+        // Set the location for a possible alias file.
+        aliasFile = ResourceFileSys(parent: notesFolder, fileName: ResourceFileSys.aliasFileName, type: .alias)
+        
         // See if we can find a template file.
         templateFile = ResourceFileSys(folderPath: notesFolder.actualPath, fileName: ResourceFileSys.templateFileName + ".txt")
         if !templateFile.isAvailable {
@@ -516,6 +519,8 @@ public class ResourceLibrary {
                 itemsFound += 1
             } else {
                 switch resource.type {
+                case .alias:
+                    aliasFile = resource
                 case .display:
                     displayFile = resource
                 case .displayCSS:
