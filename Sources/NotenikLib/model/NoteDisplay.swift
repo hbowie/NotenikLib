@@ -82,8 +82,6 @@ public class NoteDisplay: NSObject {
                               level: .error,
                               message: "Template generation failed")
         }
-        // print("Output Lines: ")
-        // print (template.util.linesToOutput)
         return template.util.linesToOutput
     }
     
