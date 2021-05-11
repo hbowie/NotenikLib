@@ -136,6 +136,7 @@ public struct NotenikConstants {
     //-------------------------------------------------------------
     
     static let lastIndexSelected = "Last Index Selected"
+    static let shortcut = "Shortcut"
     
     //-------------------------------------------------------------
     //

@@ -17,6 +17,7 @@ import NotenikUtils
 public class NoteCollection {
     
     public  var title       = ""
+    public  var shortcut    = ""
     public  var lib:          ResourceLibrary!
             var noteType    : NoteType = .general
     public  var dict        : FieldDictionary

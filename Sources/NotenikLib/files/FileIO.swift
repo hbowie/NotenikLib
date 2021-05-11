@@ -277,6 +277,9 @@ public class FileIO: NotenikIO, RowConsumer {
         if collection!.lastStartupDate.count > 0 {
             str.append(label: NotenikConstants.lastStartupDate, value: collection!.lastStartupDate)
         }
+        if collection!.shortcut.count > 0 {
+            str.append(label: NotenikConstants.shortcut, value: collection!.shortcut)
+        }
 
         return lib.saveInfo(str: str.str)
     }
@@ -497,6 +500,9 @@ public class FileIO: NotenikIO, RowConsumer {
         let lastSelIndexStr = infoNote.getFieldAsString(label: NotenikConstants.lastIndexSelected)
         let lastSelIndex = Int(lastSelIndexStr) ?? -1
         lastIndexSelected = lastSelIndex
+        
+        let collectionShortcut = infoNote.getFieldAsString(label: NotenikConstants.shortcut)
+        collection!.shortcut = collectionShortcut
         
         infoFound = true
         return infoNote
