@@ -49,6 +49,9 @@ public class AppPrefs {
     let lastURLKey = "last-collection"
     var _lastURL: URL?
     
+    let shortcutsKey = "shortcuts"
+    var _shortcuts = ""
+    
     var _appLaunching = false
     
     var _qd: Bool = false
@@ -171,6 +174,11 @@ public class AppPrefs {
         let defaultprp = defaults.string(forKey: parentRealmParentKey)
         if defaultprp != nil {
             _prp = defaultprp!
+        }
+        
+        let scuts = defaults.string(forKey: shortcutsKey)
+        if scuts != nil {
+            _shortcuts = scuts!
         }
         
         _uc = defaults.integer(forKey: useCountKey)
@@ -324,6 +332,16 @@ public class AppPrefs {
                 _prp = newValue!.path
                 defaults.set(_prp, forKey: parentRealmParentKey)
             }
+        }
+    }
+    
+    public var shortcuts: String {
+        get {
+            return _shortcuts
+        }
+        set {
+            _shortcuts = newValue
+            defaults.set(_shortcuts, forKey: shortcutsKey)
         }
     }
     

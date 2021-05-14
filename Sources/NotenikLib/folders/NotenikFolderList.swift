@@ -113,6 +113,46 @@ public class NotenikFolderList: Sequence {
         }
     }
     
+    public func loadShortcutsFromPrefs() {
+        let shortcutStr = AppPrefs.shared.shortcuts
+        let shortcuts = shortcutStr.components(separatedBy: "; ")
+        for shortcut in shortcuts {
+            let shortcutSplit = shortcut.components(separatedBy: ", ")
+            if shortcutSplit.count == 2 {
+                let id = shortcutSplit[0]
+                let linkStr = shortcutSplit[1]
+                updateWithShortcut(linkStr: linkStr, shortcut: id)
+            }
+        }
+    }
+    
+    public func savePrefs() {
+        var shortcuts = ""
+        for folder in folders {
+            if folder.shortcut.count > 0 {
+                if shortcuts.count > 0 {
+                    shortcuts.append("; ")
+                }
+                shortcuts.append(folder.shortcut)
+                shortcuts.append(", ")
+                shortcuts.append(folder.linkStr)
+            }
+        }
+        AppPrefs.shared.shortcuts = shortcuts
+    }
+    
+    public func updateWithShortcut(linkStr: String, shortcut: String) {
+        let folder = NotenikLink(str: linkStr, assume: .assumeFile)
+        for existingFolder in folders {
+            if folder == existingFolder {
+                existingFolder.shortcut = shortcut
+                return
+            } else if folder < existingFolder {
+                return
+            } 
+        }
+    }
+    
     public func downloadFolders() {
         for folder in folders {
             do {
@@ -135,6 +175,7 @@ public class NotenikFolderList: Sequence {
         let url = collection.lib.getURL(type: .collection)
         guard url != nil else { return }
         let newFolder = NotenikLink(url: url!, isCollection: true)
+        newFolder.shortcut = collection.shortcut
         add(newFolder)
     }
     

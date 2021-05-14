@@ -178,6 +178,14 @@ class BunchOfNotes {
         }
     }
     
+    
+    /// Return the note at the specified position in the sorted list, if possible.
+    /// - Parameter at: The specified position from which the Note is to be retrieved.
+    /// - Returns: The Note, if the position was valid, otherwise nil.
+    func getNote(at: NotePosition) -> Note? {
+        return getNote(at: at.index)
+    }
+    
     /// Return the note at the specified position in the sorted list, if possible.
     ///
     /// - Parameter at: An index value pointing to a note in the list

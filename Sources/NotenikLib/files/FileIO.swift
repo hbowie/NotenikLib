@@ -503,6 +503,9 @@ public class FileIO: NotenikIO, RowConsumer {
         
         let collectionShortcut = infoNote.getFieldAsString(label: NotenikConstants.shortcut)
         collection!.shortcut = collectionShortcut
+        if collectionShortcut.count > 0 {
+            NotenikFolderList.shared.updateWithShortcut(linkStr: collection!.fullPath, shortcut: collectionShortcut)
+        }
         
         infoFound = true
         return infoNote

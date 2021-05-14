@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 4/5/19.
-//  Copyright © 2019 Herb Bowie (https://powersurgepub.com)
+//  Copyright © 2019 - 2021 Herb Bowie (https://powersurgepub.com)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -109,7 +109,7 @@ public class ModWhenChanged {
         }
         
         // Were any fields modified?
-        if modified {
+        if modified || newNoteRequested {
             outcome = .modify
             modNote.setID()
             let modID = modNote.noteID
@@ -127,10 +127,6 @@ public class ModWhenChanged {
             }
             if newID {
                 io.ensureUniqueID(for: modNote)
-                // existingNote = io.getNote(forID: modID)
-                // if existingNote != nil {
-                    // outcome = .idAlreadyExists
-                // }
             }
             if outcome == .modify {
                 if startingNote.sortKey != modNote.sortKey {

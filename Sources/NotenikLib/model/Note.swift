@@ -12,7 +12,7 @@
 import Foundation
 
 /// A single Note. 
-public class Note: Comparable, Identifiable, NSCopying {
+public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying {
     
     public var collection: NoteCollection
     
@@ -88,6 +88,36 @@ public class Note: Comparable, Identifiable, NSCopying {
                 }
             }
         }
+    }
+    
+    /// See if the supplied sort key is greater than the sort key for this Note.
+    /// - Parameter str: A sort key for comparison.
+    /// - Returns: True if the supplied key is greater than this Note's.
+    public func sortKeyGreaterThan(_ str: String) -> Bool {
+        if collection.sortDescending {
+            return str > sortKey
+        } else {
+            return sortKey > str
+        }
+    }
+    
+    /// See if the supplied sort key is less than the sort key for this Note.
+    /// - Parameter str: A sort key for comparison.
+    /// - Returns: True if the supplied key is less than this Note's.
+    public func sortKeyLessThan(_ str: String) -> Bool {
+        if collection.sortDescending {
+            return str < sortKey
+        } else {
+            return sortKey < str
+        }
+    }
+    
+    
+    /// See if the supplied sort key is equal to this Note's.
+    /// - Parameter str: A sort key for comparison.
+    /// - Returns: True if the keys match exactly.
+    public func sortKeyEquals(_ str: String) -> Bool {
+        return str == sortKey
     }
     
     public static func < (lhs: Note, rhs: Note) -> Bool {
@@ -323,8 +353,13 @@ public class Note: Comparable, Identifiable, NSCopying {
         }
     }
     
+    /// This variable provides compliance with the CustomStringConvertible protocol.
+    public var description: String {
+        return sortKey
+    }
+    
     /// Return a String containing the current sort key for the Note
-    var sortKey: String {
+    public var sortKey: String {
         switch collection.sortParm {
         case .title:
             return title.sortKey

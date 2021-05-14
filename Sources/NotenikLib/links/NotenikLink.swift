@@ -26,6 +26,7 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
     
     public var url: URL?
     public var str = ""
+    public var shortcut = ""
     public var type: NotenikLinkType = .unknown
     public var noteID = ""
     public var location: NotenikFolderLocation = .undetermined
