@@ -18,7 +18,7 @@ public class ScriptWorkspace {
     
     var parentPath = ""
     
-    var scriptURL:     URL?
+    public var scriptURL:     URL?
     
     var scriptWriter: DelimitedWriter?
     
@@ -124,7 +124,7 @@ public class ScriptWorkspace {
         return "  ## ERROR: " + msg
     }
     
-    func writeLineToLog(_ line: String) {
+    public func writeLineToLog(_ line: String) {
         scriptLog.append(line + "\n")
     }
     
