@@ -9,7 +9,7 @@
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
 //
 
-import Foundation
+import Cocoa
 
 import NotenikUtils
 
@@ -124,11 +124,29 @@ public class ScriptEngine: RowConsumer {
             template.playCommand(workspace: workspace, command: command)
         case .output:
             output.playCommand(workspace: workspace, command: command)
+        case .browse:
+            browse(workspace: workspace, command: command)
         default:
             break
         }
         lastCommandModule = command.module
         lastCommandAction = command.action
+    }
+    
+    
+    /// Process a Browse command.
+    /// - Parameters:
+    ///   - workspace: The shared workspace to be used.
+    ///   - command: The command to be executed.
+    func browse(workspace: ScriptWorkspace, command: ScriptCommand) {
+        guard let url = URL(string: command.value) else {
+            logError("Cannot Browse a URL with a value of \(command.value)")
+            return
+        }
+        guard NSWorkspace.shared.open(url) else {
+            logError("Could not Browse the specified URL: \(command.value)")
+            return
+        }
     }
     
     /// Play a command to be executed by the Scripting Engine itself.

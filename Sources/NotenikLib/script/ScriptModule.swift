@@ -21,4 +21,5 @@ public enum ScriptModule: String {
     case sort     = "sort"
     case template = "template"
     case output   = "output"
+    case browse   = "browse"
 }
