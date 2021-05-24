@@ -3,7 +3,7 @@
 //
 //  Created by Herb Bowie on 12/14/20.
 
-//  Copyright © 2020-2021 Herb Bowie (https://hbowie.net)
+//  Copyright © 2020 - 2021 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -363,6 +363,8 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
             type = .wikiLink
             let notePath = String(urlString.dropFirst(bundlePrefix.count))
             noteID = StringUtils.toCommon(notePath)
+        } else if description.starts(with: NotenikConstants.notenikURLScheme) {
+            type = .notenikScheme
         } else if isFileLink {
             type = .filelink
             determineFileOrFolderSubType()
@@ -460,7 +462,10 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
         do {
             contents = try fm.contentsOfDirectory(atPath: folderPath)
         } catch {
-            print("  - Error reading contents of directory")
+            Logger.shared.log(subsystem: "com.powersurgepub.notenik.macos",
+                              category: "NotenikLink",
+                              level: .error,
+                              message: "Error reading contents of directory")
             return
         }
 

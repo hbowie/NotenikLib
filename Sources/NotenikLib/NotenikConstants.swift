@@ -148,6 +148,8 @@ public struct NotenikConstants {
     
     public static let urlNavPrefix      = "https://ntnk.app/"
     
+    public static let notenikURLScheme  = "notenik"
+    
     //-------------------------------------------------------------
     //
     // Paths and Labels for Collections of Help Notes

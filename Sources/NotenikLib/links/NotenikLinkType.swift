@@ -3,7 +3,7 @@
 //
 //  Created by Herb Bowie on 12/14/20.
 
-//  Copyright © 2020 Herb Bowie (https://hbowie.net)
+//  Copyright © 2020 - 2021 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -48,6 +48,8 @@ public enum NotenikLinkType {
     case wikiLink               // a pseudo-link to another note within notenik
     
     case notenikApp             // a webkit link to the notenik app itself
+    
+    case notenikScheme          // a link using the custom 'notenik://' URL scheme. 
     
 }
 

@@ -1,5 +1,6 @@
 //
 //  NotenikFolderList.swift
+//  NotenikLib
 //
 //  Created by Herb Bowie on 8/26/20.
 
@@ -103,7 +104,7 @@ public class NotenikFolderList: Sequence {
                                                 location: .iCloudContainer)
                 switch notenikFolder.type {
                 case .folder, .ordinaryCollection, .webCollection, .realm:
-                    self.add(notenikFolder)
+                    add(notenikFolder)
                 default:
                     break
                 }
@@ -113,6 +114,7 @@ public class NotenikFolderList: Sequence {
         }
     }
     
+    /// Load the Collection shortcuts last saved by the user.
     public func loadShortcutsFromPrefs() {
         let shortcutStr = AppPrefs.shared.shortcuts
         let shortcuts = shortcutStr.components(separatedBy: "; ")
@@ -148,7 +150,8 @@ public class NotenikFolderList: Sequence {
                 existingFolder.shortcut = shortcut
                 return
             } else if folder < existingFolder {
-                return
+                folder.shortcut = shortcut
+                add(folder)
             } 
         }
     }
@@ -158,8 +161,8 @@ public class NotenikFolderList: Sequence {
             do {
                 try fm.startDownloadingUbiquitousItem(at: folder.url!)
             } catch {
-                print("Error downloading folder \(folder.path)")
-                print("Error: \(error)")
+                logError("Error downloading folder at \(folder.path)")
+                logError("Error: \(error)")
             }
         }
     }
@@ -279,6 +282,28 @@ public class NotenikFolderList: Sequence {
             return nil
         }
         return newFolderURL
+    }
+    
+    public func getFolderFor(shortcut: String) -> NotenikLink? {
+        for folder in folders {
+            if folder.shortcut == shortcut {
+                return folder
+            }
+        }
+        return nil
+    }
+    
+    public func getFolderFor(path: String) -> NotenikLink? {
+        var target = path
+        if !target.starts(with: "file://") {
+            target = "file://" + path
+        }
+        for folder in folders {
+            if folder.str == target {
+                return folder
+            }
+        }
+        return nil
     }
     
     /// Is iCloud available?
