@@ -838,7 +838,6 @@ public class FileIO: NotenikIO, RowConsumer {
     /// - Returns: The new Note on which the collection should be positioned.
     public func deleteSelectedNote(preserveAttachments: Bool) -> (Note?, NotePosition) {
         
-        print("FileIO.deleteSelectedNote")
         // Make sure we have an open collection available to us
         guard collection != nil && collectionOpen else { return (nil, NotePosition(index: -1)) }
         guard let lib = collection?.lib else { return (nil, NotePosition(index: -1)) }

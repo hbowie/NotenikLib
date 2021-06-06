@@ -47,7 +47,7 @@ class LevelType: AnyType {
     override func appliesTo(label: FieldLabel, type: String?) -> Bool {
         if type == nil || type!.count == 0 {
            return (label.commonForm == commonLabel
-            || label.commonForm == "depth"))
+            || label.commonForm == "depth")
         } else {
             return (type! == typeString)
         }

@@ -47,13 +47,13 @@ public class FieldDictionary {
     }
     
     /// Does the dictionary contain a definition for this field label?
-    func contains (_ def: FieldDefinition) -> Bool {
+    public func contains (_ def: FieldDefinition) -> Bool {
         let def = dict[def.fieldLabel.commonForm]
         return def != nil
     }
     
     /// Does the dictionary contain a definition for this field label?
-    func contains (_ label: FieldLabel) -> Bool {
+    public func contains (_ label: FieldLabel) -> Bool {
         let def = dict[label.commonForm]
         return def != nil
     }
