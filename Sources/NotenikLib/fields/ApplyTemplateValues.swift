@@ -105,6 +105,11 @@ class ApplyTemplateValues {
                     collection.statusFieldDef = def
                 }
                 
+            case NotenikConstants.levelCommon:
+                if collection.levelFieldDef.fieldLabel.commonForm == NotenikConstants.levelCommon {
+                    collection.levelFieldDef = def
+                }
+                
             case NotenikConstants.tagsCommon:
                 if collection.tagsFieldDef.fieldLabel.commonForm == NotenikConstants.tagsCommon {
                     collection.tagsFieldDef = def
@@ -166,10 +171,13 @@ class ApplyTemplateValues {
             }
         }
         
-        if leftAngle == " " && def.fieldLabel.commonForm == NotenikConstants.statusCommon && typeStr.count > 0 && typeValues.count == 0 {
+        if leftAngle == " " &&
+            (def.fieldLabel.commonForm == NotenikConstants.statusCommon
+                || def.fieldLabel.commonForm == NotenikConstants.levelCommon)
+                && typeStr.count > 0 && typeValues.count == 0 {
             leftAngle = "<"
             typeValues = SolidString(typeStr)
-            typeStr = SolidString(NotenikConstants.statusCommon)
+            typeStr = SolidString(def.fieldLabel.commonForm)
         }
         
         let typeStrCommon = typeStr.common
@@ -196,6 +204,14 @@ class ApplyTemplateValues {
                 let config = collection.statusConfig
                 config.set(typeValues.str)
                 collection.typeCatalog.statusValueConfig = config
+            }
+        }
+        
+        if def.fieldType.typeString == NotenikConstants.levelCommon {
+            if typeValues.count > 0 {
+                let config = collection.levelConfig
+                config.set(typeValues.str)
+                collection.typeCatalog.levelValueConfig = config
             }
         }
         

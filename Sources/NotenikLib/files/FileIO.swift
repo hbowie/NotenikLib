@@ -298,6 +298,8 @@ public class FileIO: NotenikIO, RowConsumer {
                 collection!.hasTimestamp = true
             } else if def.fieldLabel.commonForm == NotenikConstants.statusCommon {
                 value = collection!.statusConfig.statusOptionsAsString
+            } else if def.fieldLabel.commonForm == NotenikConstants.levelCommon {
+                value = "<level: \(collection!.levelConfig.intsWithLabels)>"
             } else if def.pickList != nil && def.fieldType.typeString != NotenikConstants.authorCommon {
                 value = def.pickList!.valueString
             } else if def.fieldLabel.commonForm == NotenikConstants.bodyCommon {
@@ -836,6 +838,7 @@ public class FileIO: NotenikIO, RowConsumer {
     /// - Returns: The new Note on which the collection should be positioned.
     public func deleteSelectedNote(preserveAttachments: Bool) -> (Note?, NotePosition) {
         
+        print("FileIO.deleteSelectedNote")
         // Make sure we have an open collection available to us
         guard collection != nil && collectionOpen else { return (nil, NotePosition(index: -1)) }
         guard let lib = collection?.lib else { return (nil, NotePosition(index: -1)) }

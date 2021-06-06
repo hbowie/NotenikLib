@@ -81,6 +81,10 @@ public class FieldLabel: CustomStringConvertible, Comparable  {
         return commonForm == NotenikConstants.indexCommon
     }
     
+    var isLevel: Bool {
+        return commonForm == NotenikConstants.levelCommon
+    }
+    
     var isLink: Bool {
         return (commonForm == NotenikConstants.linkCommon)
     }

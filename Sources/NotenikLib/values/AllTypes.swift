@@ -26,6 +26,7 @@ public class AllTypes {
     let indexType   = IndexType()
     let intType     = IntType()
     let labelType   = StringType()
+    let levelType   = LevelType()
     let linkType    = LinkType()
     let longTextType = LongTextType()
     let minutesToReadType = MinutesToReadType()
@@ -54,6 +55,15 @@ public class AllTypes {
         }
     }
     
+    var levelValueConfig: IntWithLabelConfig {
+        get {
+            return levelType.config
+        }
+        set {
+            levelType.config = newValue
+        }
+    }
+    
     /// Initialize with all of the standard types. 
     init() {
         
@@ -76,6 +86,8 @@ fieldTypes.append(artistType)
         
         labelType.typeString = "label"
         fieldTypes.append(labelType)
+        
+        fieldTypes.append(levelType)
         
         fieldTypes.append(linkType)
         fieldTypes.append(longTextType)

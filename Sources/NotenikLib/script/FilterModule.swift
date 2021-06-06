@@ -63,7 +63,9 @@ class FilterModule {
             for rule in workspace.currentRules {
                 var field = note.getField(def: rule.field!)
                 if field == nil {
-                    field = NoteField(def: rule.field!, value: "", statusConfig: workspace.collection.statusConfig)
+                    field = NoteField(def: rule.field!, value: "",
+                                      statusConfig: workspace.collection.statusConfig,
+                                      levelConfig: workspace.collection.levelConfig)
                 }
                 var passed = false
                 if field != nil {

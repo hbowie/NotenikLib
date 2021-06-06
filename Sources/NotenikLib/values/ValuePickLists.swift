@@ -13,6 +13,7 @@ import Foundation
 
 public class ValuePickLists {
     
+    public var levelConfig = IntWithLabelConfig()
     public var statusConfig = StatusValueConfig()
     public var tagsPickList = TagsPickList()
     public var workTitlePickList = WorkTitlePickList()

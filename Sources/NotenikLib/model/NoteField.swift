@@ -28,13 +28,13 @@ public class NoteField: CustomStringConvertible {
         self.value = value
     }
     
-    convenience init(def: FieldDefinition, statusConfig: StatusValueConfig) {
+    convenience init(def: FieldDefinition, statusConfig: StatusValueConfig, levelConfig: IntWithLabelConfig) {
         self.init()
         self.def = def
         value = def.fieldType.createValue("")
     }
     
-    convenience init(def: FieldDefinition, value: String, statusConfig: StatusValueConfig) {
+    convenience init(def: FieldDefinition, value: String, statusConfig: StatusValueConfig, levelConfig: IntWithLabelConfig) {
         self.init()
         self.def = def
         self.value = def.fieldType.createValue(value)
@@ -43,7 +43,8 @@ public class NoteField: CustomStringConvertible {
     convenience init(label: String,
                      value: String,
                      typeCatalog: AllTypes,
-                     statusConfig: StatusValueConfig) {
+                     statusConfig: StatusValueConfig,
+                     levelConfig: IntWithLabelConfig) {
         self.init()
         self.def = FieldDefinition(typeCatalog: typeCatalog, label: label)
         self.value = def.fieldType.createValue(value)

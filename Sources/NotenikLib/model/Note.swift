@@ -364,7 +364,7 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
         case .title:
             return title.sortKey
         case .seqPlusTitle:
-            return seq.sortKey + title.sortKey
+            return seq.sortKey + title.sortKey + level.sortKey
         case .tasksByDate:
             return (status.doneX(config: collection.statusConfig)
                 + date.sortKey
@@ -669,6 +669,43 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     }
     
     //
+    // Functions and variables concerning the Note's level field.
+    //
+    public func hasLevel() -> Bool {
+        guard let levelField = fields[collection.levelFieldDef.fieldLabel.commonForm] else { return false }
+        guard let levelValue = levelField.value as? LevelValue else { return false }
+        let config = collection.levelConfig
+        let level = levelValue.getInt()
+        guard level >= config.low && level <= config.high else { return false }
+        return true
+    }
+    
+    public func incrementLevel() {
+        guard let levelField = fields[collection.levelFieldDef.fieldLabel.commonForm] else { return }
+        guard let levelValue = levelField.value as? LevelValue else { return }
+        let config = collection.levelConfig
+        var level = levelValue.getInt()
+        guard level >= config.low && level < config.high else { return }
+        level += 1
+        levelValue.set(i: level, config: config)
+    }
+    
+    /// Set the Note's Level Value.
+    public func setLevel(_ level: String) -> Bool {
+        return setField(label: collection.levelFieldDef.fieldLabel.commonForm, value: level)
+    }
+    
+    /// Return the Note's Level Value.
+    public var level: LevelValue {
+        let val = getFieldAsValue(def: collection.levelFieldDef)
+        if val is LevelValue {
+            return val as! LevelValue
+        } else {
+            return LevelValue(val.value)
+        }
+    }
+    
+    //
     // Functions and variables concerning the Note's seq field.
     //
     
@@ -941,7 +978,9 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     ///   - strValue: A String containing the intended value for this field.
     /// - Returns: True if added successfully, false otherwise.
     func addField(def: FieldDefinition, strValue: String) -> Bool {
-        let field = NoteField(def: def, value: strValue, statusConfig: collection.statusConfig)
+        let field = NoteField(def: def, value: strValue,
+                              statusConfig: collection.statusConfig,
+                              levelConfig: collection.levelConfig)
         return addField(field)
     }
     

@@ -203,7 +203,7 @@ public class NoteLineParser {
         guard label.validLabel && value.count > 0 else { return }
         let fieldInDict = collection.dict.contains(def)
         if fieldInDict || allowDictAdds {
-            let field = NoteField(def: def, value: value, statusConfig: collection.statusConfig)
+            let field = NoteField(def: def, value: value, statusConfig: collection.statusConfig, levelConfig: collection.levelConfig)
             if field.def.fieldType.typeString == NotenikConstants.indexCommon {
                 if indexStarted {
                     note.appendToIndex(value)

@@ -34,7 +34,8 @@ public class ModWhenChanged {
     public func modIfChanged(newNoteRequested: Bool,
                       startingNote: Note,
                       modViews: [ModView],
-                      statusConfig: StatusValueConfig) -> (modIfChangedOutcome, Note?) {
+                      statusConfig: StatusValueConfig,
+                      levelConfig: IntWithLabelConfig) -> (modIfChangedOutcome, Note?) {
         
         var outcome: modIfChangedOutcome = .notReady
         
@@ -69,6 +70,8 @@ public class ModWhenChanged {
             if field != nil {
                 if field!.def.fieldType.typeString == "status" {
                     noteValue = statusConfig.getFullString(fromLabel: field!.value.value)
+                } else if field!.def.fieldType.typeString == NotenikConstants.levelCommon {
+                    noteValue = levelConfig.intWithLabel(forLabel: field!.value.value)
                 } else {
                     noteValue = field!.value.value
                 }
@@ -81,7 +84,7 @@ public class ModWhenChanged {
             if userValue != noteValue {
                 let newValue = def.fieldType.createValue(userValue)
                 if field == nil {
-                    let newField = NoteField(def: def, statusConfig: statusConfig)
+                    let newField = NoteField(def: def, statusConfig: statusConfig, levelConfig: levelConfig)
                     newField.value = newValue
                     let addOK = modNote.addField(newField)
                     if !addOK {

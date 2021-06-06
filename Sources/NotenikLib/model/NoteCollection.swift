@@ -25,6 +25,7 @@ public class NoteCollection {
             var sortDescending: Bool
     public  var typeCatalog  = AllTypes()
     public  var statusConfig: StatusValueConfig
+    public  var levelConfig:  IntWithLabelConfig
     public  var preferredExt: String = "txt"
     public  var otherFields = false
     public  var readOnly    : Bool = false
@@ -51,6 +52,7 @@ public class NoteCollection {
     public  var dateFieldDef:   FieldDefinition
     public  var recursFieldDef: FieldDefinition
     public  var statusFieldDef: FieldDefinition
+    public  var levelFieldDef:  FieldDefinition
     public  var seqFieldDef:    FieldDefinition
     public  var indexFieldDef:  FieldDefinition
     public  var creatorFieldDef: FieldDefinition
@@ -76,6 +78,7 @@ public class NoteCollection {
         dateFieldDef =   FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.date)
         recursFieldDef = FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.recurs)
         statusFieldDef = FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.status)
+        levelFieldDef  = FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.level)
         seqFieldDef =    FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.seq)
         indexFieldDef =  FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.index)
         workTitleFieldDef = FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.workTitle)
@@ -87,6 +90,7 @@ public class NoteCollection {
         sortParm = .title
         sortDescending = false
         statusConfig = StatusValueConfig()
+        levelConfig  = IntWithLabelConfig()
         
         let today = Date()
         let format = DateFormatter()
@@ -159,6 +163,21 @@ public class NoteCollection {
         }
     }
     
+    public func setLevelConfig(_ configString: String) {
+        
+        levelConfig.set(configString)
+        
+        typeCatalog.levelValueConfig = levelConfig
+        
+        var levelLabel = FieldLabel(NotenikConstants.level)
+        let fieldDef = getDef(label: &levelLabel, allowDictAdds: false)
+        if fieldDef != nil {
+            if let levelType = fieldDef!.fieldType as? LevelType {
+                levelType.config = levelConfig
+            }
+        }
+    }
+    
     /// Attempt to obtain or create a Field Definition for the given Label.
     ///
     /// Note that the Collection's Field Dictionary may be updated as part of this call.
@@ -201,6 +220,7 @@ public class NoteCollection {
                 || label.isCode
                 || label.isDate
                 || label.isIndex
+                || label.isLevel
                 || label.isRating
                 || label.isRecurs
                 || label.isSeq
@@ -243,6 +263,7 @@ public class NoteCollection {
         print("  - Date Field: \(dateFieldDef.fieldLabel.properForm)")
         print("  - Recurs Field: \(recursFieldDef.fieldLabel.properForm)")
         print("  - Status Field: \(statusFieldDef.fieldLabel.properForm)")
+        print("  - Level Field: \(levelFieldDef.fieldLabel.properForm)")
         print("  - Seq Field: \(seqFieldDef.fieldLabel.properForm)")
         print("  - Index Field: \(indexFieldDef.fieldLabel.properForm)")
         print("  - Work Title Field: \(workTitleFieldDef)")

@@ -205,6 +205,5 @@ public class StatusValueConfig {
             i += 1
         }
     }
-
     
 }
