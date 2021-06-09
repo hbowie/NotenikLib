@@ -65,7 +65,7 @@ public class IntWithLabelConfig {
     }
     
     /// Set the label for a given index
-    func set (i: Int, label: String, firstInt: inout Bool) {
+    func set(i: Int, label: String, firstInt: inout Bool) {
         if i >= 0 && i <= 9 {
             labels[i] = StringUtils.trim(label)
             if firstInt {
@@ -109,6 +109,11 @@ public class IntWithLabelConfig {
         return labels[i]
     }
     
+    public func intWithLabel(forIntOrLabel intOrLabel: String) -> String {
+        let i = get(intOrLabel)
+        return intWithLabel(forInt: i)
+    }
+    
     /// Format a String starting with the status integer, followed by a hyphen,
     /// followed by the standard label.
     public func intWithLabel(forLabel label: String) -> String {
@@ -118,7 +123,7 @@ public class IntWithLabelConfig {
     
     /// Format a String starting with the status integer, followed by a hyphen,
     /// followed by the standard label.
-    func intWithLabel(forInt i: Int) -> String {
+    public func intWithLabel(forInt i: Int) -> String {
         guard i >= low && i <= high else { return "" }
         return("\(i) - \(labels[i])")
     }
