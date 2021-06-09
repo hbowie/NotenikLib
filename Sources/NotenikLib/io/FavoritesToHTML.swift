@@ -83,7 +83,7 @@ public class FavoritesToHTML {
                         if lineCount + 2 + tagsNode!.countChildren >= maxLines {
                             newColumn()
                         }
-                        let text = htmlConverter.convert(from: tagsNode!.tag!)
+                        let text = htmlConverter.convert(from: tagsNode!.tag!.forDisplay)
                         markedup.heading(level: 2, text: text)
                         lineCount += 2
                     }

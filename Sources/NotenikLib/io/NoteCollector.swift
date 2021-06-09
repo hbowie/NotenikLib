@@ -23,7 +23,7 @@ public class NoteCollector: NoteOpenInspector {
     public func inspect(_ note: Note) {
         let tags = note.tags
         for tag in tags.tags {
-            if tag.levels.count >= 1 && tag.levels[0] == "Launch at Startup" {
+            if tag.levels.count >= 1 && tag.levels[0].text == "Launch at Startup" {
                 notes.append(note)
             }
         }

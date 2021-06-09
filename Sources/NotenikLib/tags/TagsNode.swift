@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 2/5/19.
-//  Copyright © 2019 Herb Bowie (https://powersurgepub.com)
+//  Copyright © 2019 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -29,17 +29,23 @@ public class TagsNode: Comparable, CustomStringConvertible {
     private(set) weak   var parent:   TagsNode?
     public private(set) var children: [TagsNode] = []
     public              var type:     TagsNodeType = .root
-    public              var tag:      String?
+    public              var tag:      TagLevel?
     public              var note:     Note?
     
     init() {
         
     }
     
-    convenience init(tag: String) {
+    convenience init(tag: TagLevel) {
         self.init()
         type = .tag
         self.tag = tag
+    }
+    
+    convenience init(tag: String) {
+        self.init()
+        type = .tag
+        self.tag = TagLevel(tag)
     }
     
     convenience init(note: Note) {
@@ -53,7 +59,7 @@ public class TagsNode: Comparable, CustomStringConvertible {
         case .root:
             return "root"
         case .tag:
-            return tag!
+            return tag!.forDisplay
         case .note:
             return note!.title.value
         }
@@ -80,6 +86,11 @@ public class TagsNode: Comparable, CustomStringConvertible {
         } else {
             return TagsNode.thisEqualsThat
         }
+    }
+    
+    func addChild(tagLevel: TagLevel) -> TagsNode {
+        let tagNode = TagsNode(tag: tagLevel)
+        return addChild(node: tagNode)
     }
     
     func addChild(tagLevel: String) -> TagsNode {

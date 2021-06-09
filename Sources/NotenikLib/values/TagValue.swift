@@ -16,19 +16,24 @@ import NotenikUtils
 /// Class representing one Tag (with possibly multiple levels)
 public class TagValue: StringValue {
     
-    public var levels: [String] = []
+    public var levels: [TagLevel] = []
     
     /// The number of levels in the tag
     override var count: Int {
         return levels.count
     }
     
-    /// Add another level to this tag.
-    func addLevel(_ level : String) {
+    func addLevel(_ level: TagLevel) {
         levels.append(level)
-        if value.count > 0 {
-            value.append(".")
-        }
+        if value.count > 0 { value.append(".") }
+        value.append(level.forDisplay)
+    }
+    
+    /// Add another level to this tag.
+    func addLevel(_ level: String) {
+        let tagLevel = TagLevel(level)
+        levels.append(tagLevel)
+        if value.count > 0 { value.append(".") }
         value.append(level)
     }
     
@@ -67,8 +72,8 @@ public class TagValue: StringValue {
                 str.append(".")
                 link.append("-")
             }
-            str.append(level)
-            link.append(StringUtils.toCommonFileName(level))
+            str.append(level.forDisplay)
+            link.append(StringUtils.toCommonFileName(level.forDisplay))
         }
         var klass = ""
         if htmlClass.count > 0 {

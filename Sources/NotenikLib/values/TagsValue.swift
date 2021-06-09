@@ -103,7 +103,7 @@ public class TagsValue: StringValue {
                 if y > 0 {
                     value.append(".")
                 }
-                value.append(level)
+                value.append(level.forDisplay)
                 y += 1
             }
             x += 1
@@ -139,7 +139,12 @@ public class TagsValue: StringValue {
         }
     }
     
-    func getLevel(tagIndex: Int, levelIndex : Int) -> String? {
+    func getLevel(tagIndex: Int, levelIndex: Int) -> String? {
+        guard let level = getLevelObject(tagIndex: tagIndex, levelIndex: levelIndex) else { return nil }
+        return level.forDisplay
+    }
+    
+    func getLevelObject(tagIndex: Int, levelIndex: Int) -> TagLevel? {
         if tagIndex < 0 || tagIndex >= tags.count {
             return nil
         } else {
@@ -155,7 +160,7 @@ public class TagsValue: StringValue {
     /// Remove any characters that have a special meaning within a tag,
     /// to ensure that the string returned can itself be used as
     /// a single, single-level tag.
-    static func tagify(_ str: String) -> String {
+    public static func tagify(_ str: String) -> String {
         var tag = ""
         for char in str {
             if char == "," || char == ";" || char == "/" || char == "." {
