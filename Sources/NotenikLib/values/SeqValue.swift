@@ -114,9 +114,10 @@ public class SeqValue: StringValue {
     public func increment (onLeft: Bool) {
 
         // Determine where to begin incrementing
-        var i = value.count - 1
+        var i = value.index(before: value.endIndex)
         if onLeft && positionOfFirstDecimal >= 0 {
-            i = positionOfFirstDecimal - 1
+            let offset = positionOfFirstDecimal - 1
+            i = value.index(value.startIndex, offsetBy: offset)
         }
         
         if hasData {
@@ -127,14 +128,14 @@ public class SeqValue: StringValue {
             // Keep incrementing as long as we have 1 to carry to the next column to the left
             while carryon {
                 // Get the character to be incremented on this pass
-                if i < 0 {
+                if i < value.startIndex {
                     if digits {
                         c = "0"
                     } else {
                         c = " "
                     }
                     value.insert(c, at: value.startIndex)
-                    i = 0
+                    i = value.startIndex
                     positionsToLeftOfDecimal += 1
                     if positionOfFirstDecimal >= 0 {
                         positionOfFirstDecimal += 1
@@ -143,18 +144,27 @@ public class SeqValue: StringValue {
                         positionOfLastDecimal += 1
                     }
                 } else {
-                    c = StringUtils.charAt(index: i, str: value)
+                    c = value[i]
                 }
                 
                 // Now try to increment it
-                let newChar = StringUtils.increment(c)
-                if newChar == c {
+                if c == "." {
+                    let insertPosition = value.index(after: i)
+                    value.insert("1", at: insertPosition)
                     carryon = false
                 } else {
-                    StringUtils.replaceChar(i: i, str: &value, newChar: newChar)
-                    carryon = newChar < c
+                    let newChar = StringUtils.increment(c)
+                    if newChar == c {
+                        carryon = false
+                    } else {
+                        value.remove(at: i)
+                        value.insert(newChar, at: i)
+                        carryon = newChar < c
+                    }
                 }
-                i -= 1
+                if carryon {
+                    i = value.index(before: i)
+                }
             } // end while carrying on
         } // if we have any data to increment
     } // end function increment
