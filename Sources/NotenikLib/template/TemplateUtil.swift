@@ -226,6 +226,7 @@ public class TemplateUtil {
         let fields = noteFieldsToHTML.fieldsToHTML(note,
                                              io: io,
                                              format: .htmlFragment,
+                                             topOfPage: "",
                                              bodyHTML: bodyHTML,
                                              minutesToRead: minutesToRead)
         outputLines.append(fields)

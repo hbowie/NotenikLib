@@ -274,6 +274,7 @@ public class FileIO: NotenikIO, RowConsumer {
         str.append(label: NotenikConstants.mirrorAutoIndex,   value: "\(collection!.mirrorAutoIndex)")
         str.append(label: NotenikConstants.bodyLabelDisplay,  value: "\(collection!.bodyLabel)")
         str.append(label: NotenikConstants.h1TitlesDisplay,   value: "\(collection!.h1Titles)")
+        str.append(label: NotenikConstants.streamlinedReading, value: "\(collection!.streamlined)")
         if collection!.lastStartupDate.count > 0 {
             str.append(label: NotenikConstants.lastStartupDate, value: collection!.lastStartupDate)
         }
@@ -484,6 +485,12 @@ public class FileIO: NotenikIO, RowConsumer {
         if h1TitlesField != nil {
             let h1Titles = BooleanValue(h1TitlesField!.value.value)
             collection!.h1Titles = h1Titles.isTrue
+        }
+        
+        let streamlinedField = infoNote.getField(label: NotenikConstants.streamlinedReadingCommon)
+        if streamlinedField != nil {
+            let streamlined = BooleanValue(streamlinedField!.value.value)
+            collection!.streamlined = streamlined.isTrue
         }
         
         let noteFileFormatField = infoNote.getField(label: NotenikConstants.noteFileFormat)

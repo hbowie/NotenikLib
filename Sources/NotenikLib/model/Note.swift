@@ -716,12 +716,16 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     
     /// Set the Note's Sequence value
     public func setSeq(_ seq: String) -> Bool {
-        return setField(label: collection.seqFieldDef.fieldLabel.commonForm, value: seq)
+        guard collection.seqFieldDef != nil else { return false }
+        return setField(label: collection.seqFieldDef!.fieldLabel.commonForm, value: seq)
     }
     
     /// Return the Note's Sequence Value
     public var seq: SeqValue {
-        let val = getFieldAsValue(def: collection.seqFieldDef)
+        guard collection.seqFieldDef != nil else {
+            return SeqValue()
+        }
+        let val = getFieldAsValue(def: collection.seqFieldDef!)
         if val is SeqValue {
             return val as! SeqValue
         } else {

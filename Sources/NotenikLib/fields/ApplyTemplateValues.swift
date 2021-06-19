@@ -96,7 +96,7 @@ class ApplyTemplateValues {
                 }
                 
             case NotenikConstants.seqCommon:
-                if collection.seqFieldDef.fieldLabel.commonForm == NotenikConstants.seqCommon {
+                if collection.seqFieldDef == nil {
                     collection.seqFieldDef = def
                 }
                 

@@ -38,6 +38,7 @@ public class NoteCollection {
 
     public  var bodyLabel = true
     public  var h1Titles = false
+    public  var streamlined = false
     public  var lastStartupDate = ""
             var todaysDate = ""
     
@@ -53,7 +54,7 @@ public class NoteCollection {
     public  var recursFieldDef: FieldDefinition
     public  var statusFieldDef: FieldDefinition
     public  var levelFieldDef:  FieldDefinition
-    public  var seqFieldDef:    FieldDefinition
+    public  var seqFieldDef:    FieldDefinition?
     public  var indexFieldDef:  FieldDefinition
     public  var creatorFieldDef: FieldDefinition
     public  var workLinkFieldDef: FieldDefinition
@@ -79,7 +80,6 @@ public class NoteCollection {
         recursFieldDef = FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.recurs)
         statusFieldDef = FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.status)
         levelFieldDef  = FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.level)
-        seqFieldDef =    FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.seq)
         indexFieldDef =  FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.index)
         workTitleFieldDef = FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.workTitle)
         workTypeFieldDef = FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.workType)
@@ -264,7 +264,9 @@ public class NoteCollection {
         print("  - Recurs Field: \(recursFieldDef.fieldLabel.properForm)")
         print("  - Status Field: \(statusFieldDef.fieldLabel.properForm)")
         print("  - Level Field: \(levelFieldDef.fieldLabel.properForm)")
-        print("  - Seq Field: \(seqFieldDef.fieldLabel.properForm)")
+        if seqFieldDef != nil {
+            print("  - Seq Field: \(seqFieldDef!.fieldLabel.properForm)")
+        }
         print("  - Index Field: \(indexFieldDef.fieldLabel.properForm)")
         print("  - Work Title Field: \(workTitleFieldDef)")
         print("  - Work Type Field: \(workTypeFieldDef)")

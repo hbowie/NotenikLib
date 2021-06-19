@@ -462,6 +462,7 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
         do {
             contents = try fm.contentsOfDirectory(atPath: folderPath)
         } catch {
+            print("Unexpected error: \(error)")
             Logger.shared.log(subsystem: "com.powersurgepub.notenik.macos",
                               category: "NotenikLink",
                               level: .error,

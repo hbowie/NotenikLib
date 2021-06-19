@@ -58,11 +58,60 @@ public class NoteDisplay: NSObject {
             bodyHTML = mdBodyParser!.html
         }
         
+        let position = io.positionOfNote(note)
+        let topHTML = formatTopOfPage(note, io: io)
+        let bottomHTML = formatBottomOfPage(note, io: io)
+        if position.valid {
+            io.selectNote(at: position.index)
+        }
+        
         if collection.displayTemplate.count > 0 {
             return displayWithTemplate(note, io: io)
         } else {
-            return displayWithoutTemplate(note, io: io)
+            return displayWithoutTemplate(note, io: io, topOfPage: topHTML, bottomOfPage: bottomHTML)
         }
+    }
+    
+    func formatTopOfPage(_ note: Note, io: NotenikIO) -> String {
+        guard note.hasLevel() else { return "" }
+        let noteLevel = note.level.level
+        guard noteLevel > 1 else { return "" }
+        var currentPosition = io.positionOfNote(note)
+        var parent = ""
+        while currentPosition.valid {
+            let (priorNote, priorPosition) = io.priorNote(currentPosition)
+            currentPosition = priorPosition
+            guard priorPosition.valid && priorNote != nil else { break }
+            guard priorNote!.hasLevel() else { continue }
+            if priorNote!.level.level < noteLevel {
+                parent = priorNote!.title.value
+                break
+            }
+        }
+        guard !parent.isEmpty else { return "" }
+        let parentID = StringUtils.toCommon(parent)
+        let topHTML = Markedup()
+        topHTML.startParagraph()
+        topHTML.link(text: parent, path: "https://ntnk.app/\(parentID)")
+        topHTML.append("&nbsp;")
+        topHTML.append("&#8593;")
+        topHTML.finishParagraph()
+        return topHTML.code
+    }
+    
+    func formatBottomOfPage(_ note: Note, io: NotenikIO) -> String {
+        guard note.collection.seqFieldDef != nil else { return "" }
+        let currentPosition = io.positionOfNote(note)
+        let (nextNote, nextPosition) = io.nextNote(currentPosition)
+        guard nextPosition.valid && nextNote != nil else { return "" }
+        let nextTitle = nextNote!.title.value
+        let nextID = StringUtils.toCommon(nextTitle)
+        let bottomHTML = Markedup()
+        bottomHTML.startParagraph()
+        bottomHTML.append("Next: ")
+        bottomHTML.link(text: nextTitle, path: "https://ntnk.app/\(nextID)")
+        bottomHTML.finishParagraph()
+        return bottomHTML.code
     }
     
     func displayWithTemplate(_ note: Note, io: NotenikIO) -> String {
@@ -85,14 +134,19 @@ public class NoteDisplay: NSObject {
         return template.util.linesToOutput
     }
     
-    func displayWithoutTemplate(_ note: Note, io: NotenikIO) -> String {
+    func displayWithoutTemplate(_ note: Note,
+                                io: NotenikIO,
+                                topOfPage: String,
+                                bottomOfPage: String) -> String {
         let displayPrefs = DisplayPrefs.shared
         let fieldsToHTML = NoteFieldsToHTML(displayPrefs: displayPrefs)
         return fieldsToHTML.fieldsToHTML(note,
                                          io: io,
                                          format: .htmlDoc,
+                                         topOfPage: topOfPage,
                                          bodyHTML: bodyHTML,
-                                         minutesToRead: minutesToRead)
+                                         minutesToRead: minutesToRead,
+                                         bottomOfPage: bottomOfPage)
     }
 
     /// Get the code used to display this entire note as a web page, including html tags.

@@ -26,6 +26,8 @@ public class NoteFieldsToHTML
     
     var bodyHTML: String?
     
+    var streamlined = false
+    
     var minutesToRead: MinutesToReadValue?
     
     public init() {
@@ -43,11 +45,14 @@ public class NoteFieldsToHTML
     public func fieldsToHTML(_ note: Note,
                              io: NotenikIO?,
                              format: MarkedupFormat = .htmlDoc,
+                             topOfPage: String,
                              bodyHTML: String? = nil,
-                             minutesToRead: MinutesToReadValue? = nil) -> String {
+                             minutesToRead: MinutesToReadValue? = nil,
+                             bottomOfPage: String = "") -> String {
         
         self.bodyHTML = bodyHTML
         self.minutesToRead = minutesToRead
+        streamlined = note.collection.streamlined
         
         let collection = note.collection
         let dict = collection.dict
@@ -61,7 +66,11 @@ public class NoteFieldsToHTML
         
         code.startDoc(withTitle: note.title.value, withCSS: css)
         
-        if note.hasTags() {
+        if !topOfPage.isEmpty {
+            code.append(topOfPage)
+        }
+        
+        if note.hasTags() && topOfPage.isEmpty && !streamlined {
             let tagsField = note.getTagsAsField()
             code.append(display(tagsField!, note: note, collection: collection, io: io))
         }
@@ -70,22 +79,32 @@ public class NoteFieldsToHTML
         while i < dict.count {
             let def = dict.getDef(i)
             if def != nil {
-                let field = note.getField(def: def!)
-                if (field != nil &&
-                    field!.value.hasData &&
-                        field!.def != collection.tagsFieldDef &&
-                        field!.def.fieldLabel.commonForm != NotenikConstants.dateAddedCommon &&
-                        field!.def.fieldLabel.commonForm != NotenikConstants.dateModifiedCommon &&
-                        field!.def.fieldLabel.commonForm != NotenikConstants.timestampCommon) {
-                    code.append(display(field!, note: note, collection: collection, io: io))
-                } else if def == collection.minutesToReadDef && minutesToRead != nil {
+                if def == collection.minutesToReadDef && minutesToRead != nil {
                     let minutesToReadField = NoteField(def: def!, value: minutesToRead!)
                     code.append(display(minutesToReadField, note: note, collection: collection, io: io))
+                } else {
+                    let field = note.getField(def: def!)
+                    if field != nil && field!.value.hasData {
+                        if field!.def == collection.tagsFieldDef {
+                            if !topOfPage.isEmpty {
+                                code.append(display(field!, note: note, collection: collection, io: io))
+                            }
+                        } else if field!.def.fieldLabel.commonForm == NotenikConstants.dateAddedCommon {
+                            // ignore for now
+                        } else if field!.def.fieldLabel.commonForm == NotenikConstants.dateModifiedCommon {
+                            // ignore for now
+                        } else if field!.def.fieldLabel.commonForm == NotenikConstants.timestampCommon {
+                            // ignore for now
+                        } else {
+                            code.append(display(field!, note: note, collection: collection, io: io))
+                        }
+                    }
                 }
             }
             i += 1
         }
-        if note.hasDateAdded() || note.hasTimestamp() || note.hasDateModified() {
+        
+        if !streamlined && (note.hasDateAdded() || note.hasTimestamp() || note.hasDateModified()) {
             code.horizontalRule()
             
             let stamp = note.getField(label: NotenikConstants.timestamp)
@@ -103,6 +122,10 @@ public class NoteFieldsToHTML
                 code.append(display(dateModified!, note: note, collection: collection, io: io))
             }
         }
+        if !bottomOfPage.isEmpty {
+            code.horizontalRule()
+            code.append(bottomOfPage)
+        }
         code.finishDoc()
         return String(describing: code)
     }
@@ -116,16 +139,20 @@ public class NoteFieldsToHTML
         
         let code = Markedup(format: format)
         if field.def == collection.titleFieldDef {
+            var titleToDisplay = field.value.value
+            if streamlined && note.hasSeq() {
+                titleToDisplay = note.seq.value + " " + field.value.value
+            }
             if collection.h1Titles {
-                code.heading(level: 1, text: field.value.value)
+                code.heading(level: 1, text: titleToDisplay)
             } else {
                 code.startParagraph()
                 code.startStrong()
-                code.append(field.value.value)
+                code.append(titleToDisplay)
                 code.finishStrong()
                 code.finishParagraph()
             }
-        } else if field.def == collection.tagsFieldDef {
+        } else if field.def == collection.tagsFieldDef && !streamlined {
             code.startParagraph()
             code.startEmphasis()
             code.append(field.value.value)
@@ -206,6 +233,14 @@ public class NoteFieldsToHTML
                 code.append(field.value.value)
             }
             code.finishParagraph()
+        } else if streamlined && collection.seqFieldDef != nil && field.def == collection.seqFieldDef! {
+            // ignore the seq field if streamlined
+        } else if streamlined && field.def == collection.levelFieldDef {
+            // ignore if streamlined
+        } else if streamlined && field.def == collection.indexFieldDef {
+            // ignore if streamlined
+        } else if streamlined && field.def == collection.tagsFieldDef {
+            // ignore if streamlined
         } else {
             code.startParagraph()
             code.append(field.def.fieldLabel.properForm)

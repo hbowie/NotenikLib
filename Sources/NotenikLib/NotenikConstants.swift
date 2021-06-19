@@ -37,8 +37,6 @@ public struct NotenikConstants {
     public static let dateModifiedCommon = "datemodified"
     static let doubleBracketParsing     = "Double Bracket Parsing"
     static let doubleBracketParsingCommon = "doublebracketparsing"
-    static let h1TitlesDisplay          = "Display H1 Titles"
-    static let h1TitlesDisplayCommon    = "displayh1titles"
     public static let imageName         = "Image Name"
     public static let imageNameCommon   = "imagename"
     public static let index             = "Index"
@@ -139,6 +137,10 @@ public struct NotenikConstants {
     
     static let lastIndexSelected = "Last Index Selected"
     static let shortcut = "Shortcut"
+    static let h1TitlesDisplay          = "Display H1 Titles"
+    static let h1TitlesDisplayCommon    = "displayh1titles"
+    static let streamlinedReading       = "Streamlined Reading"
+    static let streamlinedReadingCommon = "streamlinedreading"
     
     //-------------------------------------------------------------
     //
