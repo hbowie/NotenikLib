@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 3/10/20.
-//  Copyright © 2020 Herb Bowie (https://powersurgepub.com)
+//  Copyright © 2021 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -29,6 +29,20 @@ class SeqStack {
     /// The maximum allowable value for an index into the array, based on its current size.
     var max: Int {
         return segments.count - 1
+    }
+    
+    var value: String {
+        if segments.count == 0 {
+            return ""
+        } else if segments.count == 1 {
+            return segments[0].valueWithPunctuation
+        } else {
+            var str = ""
+            for segment in segments {
+                str.append(segment.valueWithPunctuation)
+            }
+            return str
+        }
     }
     
     /// A sort key for the stack, with appropriate padding added to each segment. 

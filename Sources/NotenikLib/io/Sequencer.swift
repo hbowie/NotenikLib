@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 9/20/19.
-//  Copyright © 2019 - 2020 Herb Bowie (https://powersurgepub.com)
+//  Copyright © 2019 - 2021 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -28,15 +28,16 @@ public class Sequencer {
         
         guard io.collectionOpen else { return 0 }
         guard io.collection != nil else { return 0 }
+        guard startingNote.hasSeq() else { return 0 }
+        
         let sortParm = io.collection!.sortParm
         guard sortParm == .seqPlusTitle || sortParm == .tasksBySeq else { return 0 }
-        guard startingNote.hasSeq() else { return 0 }
         
         var newSeqs: [SeqValue] = []
         var notes:   [Note] = []
         
         var incrementing = true
-        var incrementingOnLeft = true
+        var incDepth = 0
         var position = io.positionOfNote(startingNote)
         var note: Note? = startingNote
         var (nextNote, nextPosition) = io.nextNote(position)
@@ -48,19 +49,16 @@ public class Sequencer {
             // Special logic for first note processed
             if starting {
                 lastSeq = SeqValue(seq.value)
-                if seq.positionsToRightOfDecimal > 0 {
-                    incrementingOnLeft = incMajor
+                if incMajor {
+                    incDepth = 0
+                } else {
+                    incDepth = seq.seqStack.max
                 }
                 starting = false
             }
             
             // See if the current sequence is already greater than the last one
-            var greater = (seq > lastSeq!)
-            if greater {
-                if incrementingOnLeft {
-                    greater = (seq.left > lastSeq!.left)
-                }
-            }
+            let greater = (seq > lastSeq!)
             
             // See if we're done, or need to keep going
             if greater {
@@ -68,7 +66,7 @@ public class Sequencer {
             } else {
                 incrementing = true
                 let newSeq = SeqValue(seq.value)
-                newSeq.increment(onLeft: incrementingOnLeft)
+                newSeq.increment(atDepth: incDepth)
                 newSeqs.append(newSeq)
                 notes.append(note!)
                 lastSeq = SeqValue(newSeq.value)
