@@ -76,6 +76,8 @@ public class NoteDisplay: NSObject {
         guard note.hasLevel() else { return "" }
         let noteLevel = note.level.level
         guard noteLevel > 1 else { return "" }
+        let sortParm = note.collection.sortParm
+        guard sortParm == .seqPlusTitle else { return "" }
         var currentPosition = io.positionOfNote(note)
         var parent = ""
         while currentPosition.valid {
@@ -101,6 +103,8 @@ public class NoteDisplay: NSObject {
     
     func formatBottomOfPage(_ note: Note, io: NotenikIO) -> String {
         guard note.collection.seqFieldDef != nil else { return "" }
+        let sortParm = note.collection.sortParm
+        guard sortParm == .seqPlusTitle else { return "" }
         let currentPosition = io.positionOfNote(note)
         let (nextNote, nextPosition) = io.nextNote(currentPosition)
         guard nextPosition.valid && nextNote != nil else { return "" }
