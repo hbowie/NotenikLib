@@ -90,28 +90,23 @@ class SeqSegment {
     /// Increment the sequence value by 1, at the indicated depth.
     public func increment() {
             
+        guard value.count > 0 else {
+            value = "1"
+            return
+        }
+ 
         var carryon = true
         var c: Character = " "
+        var newChar: Character = "1"
         var i = value.index(before: value.endIndex)
         
         // Keep incrementing as long as we have 1 to carry to the next column to the left
         while carryon {
             // Get the character to be incremented on this pass
-            if i < value.startIndex {
-                if digits {
-                    c = "0"
-                } else {
-                    c = " "
-                }
-                value.insert(c, at: value.startIndex)
-                i = value.startIndex
-            } else {
-                c = value[i]
-            }
+            c = value[i]
             
-            // Now try to increment it
-
-            let newChar = StringUtils.increment(c)
+            // Now try to increment it.
+            newChar = StringUtils.increment(c)
             if newChar == c {
                 carryon = false
             } else {
@@ -119,8 +114,21 @@ class SeqSegment {
                 value.insert(newChar, at: i)
                 carryon = newChar < c
             }
+            
+            // Now decrement the index as needed.
             if carryon {
-                i = value.index(before: i)
+                if i > value.startIndex {
+                    i = value.index(before: i)
+                } else {
+                    if digits {
+                        c = "0"
+                    } else {
+                        c = " "
+                    }
+                    newChar = StringUtils.increment(c)
+                    value.insert(newChar, at: value.startIndex)
+                    carryon = false
+                }
             }
         } // end while carrying on
     } // end function increment
