@@ -11,7 +11,8 @@
 
 import Foundation
 
-class IndexTerm {
+class IndexTerm: Comparable, Equatable {
+    
     var term = ""
     var link = ""
     var refs: [IndexPageRef] = []
@@ -43,5 +44,13 @@ class IndexTerm {
         if looking {
             refs.append(ref)
         }
+    }
+    
+    static func == (lhs: IndexTerm, rhs: IndexTerm) -> Bool {
+        return lhs.term == rhs.term
+    }
+    
+    static func < (lhs: IndexTerm, rhs: IndexTerm) -> Bool {
+        return lhs.key < rhs.key
     }
 }

@@ -123,6 +123,10 @@ class IndexCollection {
         pendingSpaces = 0
     }
     
+    func sort() {
+        list.sort()
+    }
+    
     enum IndexPosition {
         case term
         case link
