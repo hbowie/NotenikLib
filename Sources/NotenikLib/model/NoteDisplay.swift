@@ -62,7 +62,7 @@ public class NoteDisplay: NSObject {
         let topHTML = formatTopOfPage(note, io: io)
         let bottomHTML = formatBottomOfPage(note, io: io)
         if position.valid {
-            io.selectNote(at: position.index)
+            _ = io.selectNote(at: position.index)
         }
         
         if collection.displayTemplate.count > 0 {
@@ -72,45 +72,88 @@ public class NoteDisplay: NSObject {
         }
     }
     
+    /// If we have a note level greater than 1, then try to display the preceding Note just higher in
+    /// the implied hierarchy.
     func formatTopOfPage(_ note: Note, io: NotenikIO) -> String {
+        guard note.collection.streamlined else { return "" }
         guard note.hasLevel() else { return "" }
         let noteLevel = note.level.level
         guard noteLevel > 1 else { return "" }
         let sortParm = note.collection.sortParm
         guard sortParm == .seqPlusTitle else { return "" }
         var currentPosition = io.positionOfNote(note)
-        var parent = ""
+        var parentTitle = ""
+        var parentSeq = ""
+        
         while currentPosition.valid {
             let (priorNote, priorPosition) = io.priorNote(currentPosition)
             currentPosition = priorPosition
             guard priorPosition.valid && priorNote != nil else { break }
             guard priorNote!.hasLevel() else { continue }
             if priorNote!.level.level < noteLevel {
-                parent = priorNote!.title.value
+                parentTitle = priorNote!.title.value
+                parentSeq = priorNote!.seq.value
                 break
             }
         }
-        guard !parent.isEmpty else { return "" }
-        let parentID = StringUtils.toCommon(parent)
+        guard !parentTitle.isEmpty else { return "" }
+        let parentID = StringUtils.toCommon(parentTitle)
         let topHTML = Markedup()
         topHTML.startParagraph()
-        topHTML.link(text: parent, path: "https://ntnk.app/\(parentID)")
+        if parentSeq.count > 0 {
+            topHTML.append("\(parentSeq) ")
+        }
+        topHTML.link(text: parentTitle, path: "https://ntnk.app/\(parentID)")
         topHTML.append("&nbsp;")
         topHTML.append("&#8593;")
         topHTML.finishParagraph()
         return topHTML.code
     }
     
+    /// In a sequenced list, show upcoming Notes.
     func formatBottomOfPage(_ note: Note, io: NotenikIO) -> String {
+        
+        // See if we meet necessary conditions.
+        guard note.collection.streamlined else { return "" }
         guard note.collection.seqFieldDef != nil else { return "" }
         let sortParm = note.collection.sortParm
         guard sortParm == .seqPlusTitle else { return "" }
         let currentPosition = io.positionOfNote(note)
         let (nextNote, nextPosition) = io.nextNote(currentPosition)
         guard nextPosition.valid && nextNote != nil else { return "" }
+        
+        let bottomHTML = Markedup()
         let nextTitle = nextNote!.title.value
         let nextID = StringUtils.toCommon(nextTitle)
-        let bottomHTML = Markedup()
+        let nextLevel = nextNote!.level
+        let nextSeq = nextNote!.seq
+        var tocNotes: [Note] = []
+        if nextLevel > note.level && nextSeq > note.seq {
+            tocNotes.append(nextNote!)
+            let tocLevel = nextLevel
+            var (anotherNote, anotherPosition) = io.nextNote(nextPosition)
+            while anotherNote != nil && anotherNote!.level >= tocLevel {
+                if anotherNote!.level == tocLevel {
+                    tocNotes.append(anotherNote!)
+                }
+                (anotherNote, anotherPosition) = io.nextNote(anotherPosition)
+            }
+            if tocNotes.count > 1 {
+                bottomHTML.heading(level: 4, text: "Contents")
+                bottomHTML.startUnorderedList(klass: nil)
+                for tocNote in tocNotes {
+                    let tocTitle = tocNote.title.value
+                    let tocID = StringUtils.toCommon(tocTitle)
+                    let tocSeq = tocNote.seq
+                    bottomHTML.startListItem()
+                    bottomHTML.append("\(tocSeq) ")
+                    bottomHTML.link(text: tocTitle, path: "https://ntnk.app/\(tocID)")
+                    bottomHTML.finishListItem()
+                }
+                bottomHTML.finishUnorderedList()
+                bottomHTML.horizontalRule()
+            }
+        }
         bottomHTML.startParagraph()
         bottomHTML.append("Next: ")
         bottomHTML.link(text: nextTitle, path: "https://ntnk.app/\(nextID)")
