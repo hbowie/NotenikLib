@@ -35,11 +35,13 @@ class SeqStack {
         if segments.count == 0 {
             return ""
         } else if segments.count == 1 {
-            return segments[0].valueWithPunctuation
+            return segments[0].valueWithPunctuation(position: 0)
         } else {
             var str = ""
+            var position = 0
             for segment in segments {
-                str.append(segment.valueWithPunctuation)
+                str.append(segment.valueWithPunctuation(position: position))
+                position += 1
             }
             return str
         }

@@ -26,15 +26,17 @@ public class SeqValue: StringValue {
         super.set(value)
         seqStack = SeqStack()
         var nextSegment = SeqSegment()
+        var lastPunctuation = ""
         
         for c in value {
             nextSegment.append(c)
             if nextSegment.endedByPunctuation {
+                lastPunctuation = nextSegment.punctuation
                 seqStack.append(nextSegment)
                 nextSegment = SeqSegment()
             }
         }
-        if nextSegment.count > 0 {
+        if nextSegment.count > 0 || lastPunctuation.count > 0 {
             seqStack.append(nextSegment)
         }
         super.set(seqStack.value)

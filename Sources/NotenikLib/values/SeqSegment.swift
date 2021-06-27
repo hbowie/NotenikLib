@@ -63,8 +63,15 @@ class SeqSegment {
         return !punctuation.isEmpty
     }
     
-    var valueWithPunctuation: String {
-        return value + punctuation
+    func valueWithPunctuation(position: Int) -> String {
+        var str = ""
+        
+        if value.count == 0 && (position > 0 || punctuation.count > 0) {
+            str = "0" + punctuation
+        } else {
+            str = value + punctuation
+        }
+        return str
     }
     
     func pad(padChar: Character, padTo: Int, padLeft: Bool = true) -> String {
