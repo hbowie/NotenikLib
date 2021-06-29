@@ -63,7 +63,11 @@ class SeqStack {
             segIndex += 1
         }
         while segIndex < 4 {
-            key.append("0000.")
+            if segIndex == 0 {
+                key.append("00000000.")
+            } else {
+                key.append("0000.")
+            }
             segIndex += 1
         }
         return key

@@ -524,7 +524,6 @@ public class FileIO: NotenikIO, RowConsumer {
     func loadTemplateFile() -> Note? {
 
         guard let templateNote = collection!.lib.getNote(type: .template, collection: collection!) else { return nil }
-        guard templateNote.fields.count > 0 else { return nil }
         guard collection!.dict.count > 0 else { return nil }
 
         templateFound = true

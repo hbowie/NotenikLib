@@ -20,9 +20,13 @@ public class SeqValue: StringValue {
     
     var seqStack = SeqStack()
     
+    public convenience init (_ value: String) {
+        self.init()
+        set(value)
+    }
+    
     /// Set this sequence value to the provided string
     override func set (_ value : String) {
-        
         super.set(value)
         seqStack = SeqStack()
         var nextSegment = SeqSegment()
