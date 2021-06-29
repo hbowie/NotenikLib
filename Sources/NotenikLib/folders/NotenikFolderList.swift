@@ -31,6 +31,7 @@ public class NotenikFolderList: Sequence {
     public let root = NotenikFolderNode()
     
     public var helpParent = NotenikFolderNode()
+    public var kbNode = NotenikFolderNode()
     public var introNode = NotenikFolderNode()
     public var userGuideNode = NotenikFolderNode()
     public var fieldsNode = NotenikFolderNode()
@@ -51,6 +52,10 @@ public class NotenikFolderList: Sequence {
         helpParent = root.addChild(newNode: helpGroup)
         
         #if os(OSX)
+        
+            kbNode = NotenikFolderNode(bundlePath: NotenikConstants.kbPath,
+                                       desc: NotenikConstants.kbDesc)
+            _ = helpParent.addChild(newNode: kbNode)
             
             introNode = NotenikFolderNode(bundlePath: NotenikConstants.macIntroPath,
                                               desc: NotenikConstants.macIntroDesc)

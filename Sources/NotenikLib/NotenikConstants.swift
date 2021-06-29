@@ -174,4 +174,7 @@ public struct NotenikConstants {
     
     public static let iosIntroPath        = "intro-ios"
     public static let iosIntroDesc        = "Introduction to Notenik"
+    
+    public static let kbPath              = "notenik-KB"
+    public static let kbDesc              = "Notenik Knowledge Base"
 }
