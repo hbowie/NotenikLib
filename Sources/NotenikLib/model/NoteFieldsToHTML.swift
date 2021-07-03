@@ -177,6 +177,8 @@ public class NoteFieldsToHTML
                 code.append(field.value.value)
                 code.newLine()
             }
+        } else if streamlined {
+            // Skip other fields
         } else if field.def.fieldType is LinkType {
             code.startParagraph()
             code.append(field.def.fieldLabel.properForm)
@@ -233,14 +235,6 @@ public class NoteFieldsToHTML
                 code.append(field.value.value)
             }
             code.finishParagraph()
-        } else if streamlined && collection.seqFieldDef != nil && field.def == collection.seqFieldDef! {
-            // ignore the seq field if streamlined
-        } else if streamlined && field.def == collection.levelFieldDef {
-            // ignore if streamlined
-        } else if streamlined && field.def == collection.indexFieldDef {
-            // ignore if streamlined
-        } else if streamlined && field.def == collection.tagsFieldDef {
-            // ignore if streamlined
         } else {
             code.startParagraph()
             code.append(field.def.fieldLabel.properForm)
