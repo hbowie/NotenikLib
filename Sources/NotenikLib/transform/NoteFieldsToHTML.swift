@@ -20,22 +20,14 @@ public class NoteFieldsToHTML
     // NSObject - Not sure why I needed this???
     {
     
-    public var format: MarkedupFormat = .htmlDoc
-    
-    var displayPrefs: DisplayPrefs?
+    public var parms = DisplayParms()
     
     var bodyHTML: String?
-    
-    var streamlined = false
     
     var minutesToRead: MinutesToReadValue?
     
     public init() {
         
-    }
-    
-    public init(displayPrefs: DisplayPrefs) {
-        self.displayPrefs = displayPrefs
     }
 
     /// Get the code used to display this entire note as a web page, including html tags.
@@ -44,33 +36,27 @@ public class NoteFieldsToHTML
     /// - Returns: A string containing the encoded note.
     public func fieldsToHTML(_ note: Note,
                              io: NotenikIO?,
-                             format: MarkedupFormat = .htmlDoc,
+                             parms: DisplayParms,
                              topOfPage: String,
                              bodyHTML: String? = nil,
                              minutesToRead: MinutesToReadValue? = nil,
                              bottomOfPage: String = "") -> String {
         
+        self.parms = parms
         self.bodyHTML = bodyHTML
         self.minutesToRead = minutesToRead
-        streamlined = note.collection.streamlined
         
         let collection = note.collection
         let dict = collection.dict
-        let code = Markedup(format: format)
-        var css: String?
-        if collection.displayCSS.count > 0 {
-            css = collection.displayCSS
-        } else if displayPrefs != nil {
-            css = displayPrefs!.bodyCSS
-        }
+        let code = Markedup(format: parms.format)
         
-        code.startDoc(withTitle: note.title.value, withCSS: css)
+        code.startDoc(withTitle: note.title.value, withCSS: parms.cssString, linkToFile: parms.cssLinkToFile)
         
         if !topOfPage.isEmpty {
             code.append(topOfPage)
         }
         
-        if note.hasTags() && topOfPage.isEmpty && !streamlined {
+        if note.hasTags() && topOfPage.isEmpty && parms.fullDisplay {
             let tagsField = note.getTagsAsField()
             code.append(display(tagsField!, note: note, collection: collection, io: io))
         }
@@ -104,7 +90,7 @@ public class NoteFieldsToHTML
             i += 1
         }
         
-        if !streamlined && (note.hasDateAdded() || note.hasTimestamp() || note.hasDateModified()) {
+        if parms.fullDisplay && (note.hasDateAdded() || note.hasTimestamp() || note.hasDateModified()) {
             code.horizontalRule()
             
             let stamp = note.getField(label: NotenikConstants.timestamp)
@@ -137,10 +123,14 @@ public class NoteFieldsToHTML
     /// - Returns: A String containing the code that can be used to display this field.
     func display(_ field: NoteField, note: Note, collection: NoteCollection, io: NotenikIO?) -> String {
         
-        let code = Markedup(format: format)
+        var mkdownContext: MkdownContext?
+        if io != nil {
+            mkdownContext = NotesMkdownContext(io: io!, displayParms: parms)
+        }
+        let code = Markedup(format: parms.format)
         if field.def == collection.titleFieldDef {
             var titleToDisplay = field.value.value
-            if streamlined && note.hasSeq() {
+            if parms.streamlined && note.hasSeq() {
                 titleToDisplay = note.seq.value + " " + field.value.value
             }
             if collection.h1Titles {
@@ -152,7 +142,7 @@ public class NoteFieldsToHTML
                 code.finishStrong()
                 code.finishParagraph()
             }
-        } else if field.def == collection.tagsFieldDef && !streamlined {
+        } else if field.def == collection.tagsFieldDef && parms.fullDisplay {
             code.startParagraph()
             code.startEmphasis()
             code.append(field.value.value)
@@ -165,19 +155,19 @@ public class NoteFieldsToHTML
                 code.append(": ")
                 code.finishParagraph()
             }
-            if format == .htmlDoc || format == .htmlFragment {
+            if parms.formatIsHTML {
                 if bodyHTML != nil {
                     code.append(bodyHTML!)
                 } else {
-                    MkdownParser.markdownToMarkedup(markdown: field.value.value,
-                                                    wikiLinkLookup: io,
-                                                    writer: code)
+                    markdownToMarkedup(markdown: field.value.value,
+                                       context: mkdownContext,
+                                       writer: code)
                 }
             } else {
                 code.append(field.value.value)
                 code.newLine()
             }
-        } else if streamlined {
+        } else if parms.streamlined {
             // Skip other fields
         } else if field.def.fieldType is LinkType {
             code.startParagraph()
@@ -201,10 +191,10 @@ public class NoteFieldsToHTML
             code.append(field.def.fieldLabel.properForm)
             code.append(": ")
             code.finishParagraph()
-            if format == .htmlDoc || format == .htmlFragment {
-                MkdownParser.markdownToMarkedup(markdown: field.value.value,
-                                                wikiLinkLookup: io,
-                                                writer: code)
+            if parms.formatIsHTML {
+                markdownToMarkedup(markdown: field.value.value,
+                                   context: mkdownContext,
+                                   writer: code)
             } else {
                 code.append(field.value.value)
                 code.newLine()
@@ -244,6 +234,19 @@ public class NoteFieldsToHTML
         }
 
         return String(describing: code)
+    }
+    
+    /// Convert Markdown to HTML.
+    func markdownToMarkedup(markdown: String,
+                            context: MkdownContext?,
+                            writer: Markedup) {
+        let md = MkdownParser(markdown)
+        md.setWikiLinkFormatting(prefix: parms.wikiLinkPrefix,
+                                 format: parms.wikiLinkFormat,
+                                 suffix: parms.wikiLinkSuffix,
+                                 context: context)
+        md.parse()
+        writer.append(md.html)
     }
     
 }

@@ -43,6 +43,8 @@ class BunchIO: NotenikIO, RowConsumer  {
     var notesImported  = 0
     var noteToImport:    Note?
     
+    var aliasList      = AliasList()
+    
     /// Default initialization
     init() {
         provider.providerType = .memory

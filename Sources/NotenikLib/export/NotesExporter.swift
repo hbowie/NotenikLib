@@ -30,6 +30,8 @@ public class NotesExporter {
     var destination: URL!
     var fileExt = "txt"
     
+    var mkdownContext: MkdownContext!
+    
     var delimWriter: DelimitedWriter!
     var markup: Markedup!
     var jsonWriter: JSONWriter!
@@ -61,6 +63,7 @@ public class NotesExporter {
                        ext: String) -> Int {
         
         self.noteIO = noteIO
+        mkdownContext = NotesMkdownContext(io: noteIO)
         self.format = format
         self.split = split
         self.webExt = addWebExtensions
@@ -335,7 +338,7 @@ public class NotesExporter {
             // Now add derived fields
             let code = Markedup(format: .htmlFragment)
             MkdownParser.markdownToMarkedup(markdown: note.getFieldAsString(label: NotenikConstants.bodyCommon),
-                                            wikiLinkLookup: noteIO, writer: code)
+                                            mkdownContext: mkdownContext, writer: code)
             writeField(value: String(describing: code))
             
             if authorDef {
@@ -404,7 +407,7 @@ public class NotesExporter {
             // Now add derived fields
             let code = Markedup(format: .htmlFragment)
             MkdownParser.markdownToMarkedup(markdown: note.getFieldAsString(label: NotenikConstants.bodyCommon),
-                                            wikiLinkLookup: noteIO, writer: code)
+                                            mkdownContext: mkdownContext, writer: code)
             jsonWriter.write(key: "Body as HTML", value: String(describing: code))
             
             if authorDef {
@@ -455,7 +458,7 @@ public class NotesExporter {
             // Now add derived fields
             let code = Markedup(format: .htmlFragment)
             MkdownParser.markdownToMarkedup(markdown: note.getFieldAsString(label: NotenikConstants.bodyCommon),
-                                            wikiLinkLookup: noteIO, writer: code)
+                                            mkdownContext: mkdownContext, writer: code)
             addOutlineAttribute(label: "Body as HTML", value: String(describing: code))
             
             if authorDef {

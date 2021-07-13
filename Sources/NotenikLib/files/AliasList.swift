@@ -15,7 +15,7 @@ import NotenikMkdown
 import NotenikUtils
 
 /// Keeps track of a list of aliases for Notes within a Collection.
-class AliasList: RowConsumer {
+public class AliasList: RowConsumer {
     
     var noteIO: NotenikIO?
     
@@ -67,7 +67,8 @@ class AliasList: RowConsumer {
             let md = nextNote!.body.value
             guard md.count > 0 else { continue }
             let mkdown = MkdownParser(md)
-            mkdown.wikiLinkLookup = noteIO!
+            let mkdownContext = NotesMkdownContext(io: noteIO!)
+            mkdown.mkdownContext = mkdownContext
             mkdown.parse()
         }
         logInfo("Initialized Wiki Link to Timestamp Alias List with \(count) entries")
@@ -85,7 +86,7 @@ class AliasList: RowConsumer {
     /// - Parameters:
     ///   - label: A string containing the column heading for the field.
     ///   - value: The actual value for the field.
-    func consumeField(label: String, value: String) {
+    public func consumeField(label: String, value: String) {
         // Don't need to do anything here
     }
     
@@ -94,7 +95,7 @@ class AliasList: RowConsumer {
     /// - Parameters:
     ///   - labels: An array of column headings.
     ///   - fields: A corresponding array of field values.
-    func consumeRow(labels: [String], fields: [String]) {
+    public func consumeRow(labels: [String], fields: [String]) {
         guard fields.count == 2 else { return }
         add(titleID: fields[0], timestamp: fields[1])
         rowsLoaded += 1

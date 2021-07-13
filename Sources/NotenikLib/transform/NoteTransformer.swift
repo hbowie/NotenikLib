@@ -327,6 +327,7 @@ public class NoteTransformer {
     /// - Parameter markedup: The Markedup instance to which we're writing the code.
     static func genFieldDisplay(def: FieldDefinition, io: NotenikIO, markedup: Markedup) {
 
+        let mkdownContext = NotesMkdownContext(io: io)
         markedup.writeLine("")
         markedup.templateIfField(fieldname: "=$\(def.fieldLabel.commonForm)$=")
         if def.fieldLabel.commonForm == NotenikConstants.titleCommon {
@@ -371,7 +372,7 @@ public class NoteTransformer {
             markedup.append(": ")
             markedup.finishParagraph()
             MkdownParser.markdownToMarkedup(markdown: "=$\(def.fieldLabel.commonForm)&o$=",
-                wikiLinkLookup: io, writer: markedup)
+                mkdownContext: mkdownContext, writer: markedup)
         } else {
             markedup.startParagraph()
             markedup.append(def.fieldLabel.properForm)

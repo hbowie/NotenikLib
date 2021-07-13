@@ -131,7 +131,7 @@ public struct NotenikConstants {
     
     //-------------------------------------------------------------
     //
-    // Labels used for Info file.
+    // Labels used for storage of Collection Parms in Info file.
     //
     //-------------------------------------------------------------
     
@@ -141,6 +141,8 @@ public struct NotenikConstants {
     static let h1TitlesDisplayCommon    = "displayh1titles"
     static let streamlinedReading       = "Streamlined Reading"
     static let streamlinedReadingCommon = "streamlinedreading"
+    static let webBookFolder            = "Web Book Folder"
+    static let webBookFolderCommon      = "webbookfolder"
     
     //-------------------------------------------------------------
     //

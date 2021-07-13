@@ -18,11 +18,9 @@ import NotenikMkdown
 ///
 /// Used by NoteDisplayViewController to display a Note on the Display tab, but also used by
 /// ShareViewController to share a Note in one of a number of different formats.
-public class NoteDisplay: NSObject {
+public class NoteDisplay {
     
-    public var format: MarkedupFormat = .htmlDoc
-    
-    let displayPrefs = DisplayPrefs.shared
+    public var parms = DisplayParms()
     
     var mdBodyParser: MkdownParser?
     var bodyHTML:     String?
@@ -31,25 +29,30 @@ public class NoteDisplay: NSObject {
     
     var minutesToRead: MinutesToReadValue?
     
+    public init() {
+        
+    }
+    
     /// Get the code used to display this entire note as a web page, including html tags.
     ///
     /// - Parameter note: The note to be displayed.
     /// - Returns: A string containing the encoded note.
-    public func display(_ note: Note, io: NotenikIO) -> String {
+    public func display(_ note: Note, io: NotenikIO, parms: DisplayParms) -> String {
+        self.parms = parms
+        let mkdownContext = NotesMkdownContext(io: io, displayParms: parms)
         let collection = note.collection
         minutesToRead = nil
         mdBodyParser = nil
         bodyHTML = nil
         
         // Pre-parse the body field if we're generating HTML.
-        if format == .htmlDoc || format == .htmlFragment {
+        if parms.formatIsHTML {
             let body = note.body
             mdBodyParser = MkdownParser(body.value)
-            mdBodyParser!.setWikiLinkFormatting(prefix: mdBodyParser!.interNoteDomain,
-                                                format: .common,
-                                                suffix: "",
-                                                lookup: io)
-            // mdBodyParser!.wikiLinkLookup = io
+            mdBodyParser!.setWikiLinkFormatting(prefix: parms.wikiLinkPrefix,
+                                                format: parms.wikiLinkFormat,
+                                                suffix: parms.wikiLinkSuffix,
+                                                context: mkdownContext)
             mdBodyParser!.parse()
             counts = mdBodyParser!.counts
             if collection.minutesToReadDef != nil {
@@ -65,7 +68,7 @@ public class NoteDisplay: NSObject {
             _ = io.selectNote(at: position.index)
         }
         
-        if collection.displayTemplate.count > 0 {
+        if parms.displayTemplate.count > 0 {
             return displayWithTemplate(note, io: io)
         } else {
             return displayWithoutTemplate(note, io: io, topOfPage: topHTML, bottomOfPage: bottomHTML)
@@ -75,11 +78,11 @@ public class NoteDisplay: NSObject {
     /// If we have a note level greater than 1, then try to display the preceding Note just higher in
     /// the implied hierarchy.
     func formatTopOfPage(_ note: Note, io: NotenikIO) -> String {
-        guard note.collection.streamlined else { return "" }
+        guard parms.streamlined else { return "" }
         guard note.hasLevel() else { return "" }
         let noteLevel = note.level.level
         guard noteLevel > 1 else { return "" }
-        let sortParm = note.collection.sortParm
+        let sortParm = parms.sortParm
         guard sortParm == .seqPlusTitle else { return "" }
         var currentPosition = io.positionOfNote(note)
         var parentTitle = ""
@@ -97,13 +100,12 @@ public class NoteDisplay: NSObject {
             }
         }
         guard !parentTitle.isEmpty else { return "" }
-        let parentID = StringUtils.toCommon(parentTitle)
         let topHTML = Markedup()
         topHTML.startParagraph()
         if parentSeq.count > 0 {
             topHTML.append("\(parentSeq) ")
         }
-        topHTML.link(text: parentTitle, path: "https://ntnk.app/\(parentID)")
+        topHTML.link(text: parentTitle, path: parms.assembleWikiLink(title: parentTitle))
         topHTML.append("&nbsp;")
         topHTML.append("&#8593;")
         topHTML.finishParagraph()
@@ -114,9 +116,9 @@ public class NoteDisplay: NSObject {
     func formatBottomOfPage(_ note: Note, io: NotenikIO) -> String {
         
         // See if we meet necessary conditions.
-        guard note.collection.streamlined else { return "" }
+        guard parms.streamlined else { return "" }
         guard note.collection.seqFieldDef != nil else { return "" }
-        let sortParm = note.collection.sortParm
+        let sortParm = parms.sortParm
         guard sortParm == .seqPlusTitle else { return "" }
         let currentPosition = io.positionOfNote(note)
         let (nextNote, nextPosition) = io.nextNote(currentPosition)
@@ -124,7 +126,6 @@ public class NoteDisplay: NSObject {
         
         let bottomHTML = Markedup()
         let nextTitle = nextNote!.title.value
-        let nextID = StringUtils.toCommon(nextTitle)
         let nextLevel = nextNote!.level
         let nextSeq = nextNote!.seq
         var tocNotes: [Note] = []
@@ -143,11 +144,10 @@ public class NoteDisplay: NSObject {
                 bottomHTML.startUnorderedList(klass: nil)
                 for tocNote in tocNotes {
                     let tocTitle = tocNote.title.value
-                    let tocID = StringUtils.toCommon(tocTitle)
                     let tocSeq = tocNote.seq
                     bottomHTML.startListItem()
                     bottomHTML.append("\(tocSeq) ")
-                    bottomHTML.link(text: tocTitle, path: "https://ntnk.app/\(tocID)")
+                    bottomHTML.link(text: tocTitle, path: parms.assembleWikiLink(title: tocTitle))
                     bottomHTML.finishListItem()
                 }
                 bottomHTML.finishUnorderedList()
@@ -156,14 +156,14 @@ public class NoteDisplay: NSObject {
         }
         bottomHTML.startParagraph()
         bottomHTML.append("Next: ")
-        bottomHTML.link(text: nextTitle, path: "https://ntnk.app/\(nextID)")
+        bottomHTML.link(text: nextTitle, path: parms.assembleWikiLink(title: nextTitle))
         bottomHTML.finishParagraph()
         return bottomHTML.code
     }
     
     func displayWithTemplate(_ note: Note, io: NotenikIO) -> String {
         let template = Template()
-        template.openTemplate(templateContents: note.collection.displayTemplate)
+        template.openTemplate(templateContents: parms.displayTemplate)
         let notesList = NotesList()
         notesList.append(note)
         template.supplyData(note,
@@ -181,15 +181,16 @@ public class NoteDisplay: NSObject {
         return template.util.linesToOutput
     }
     
+    /// Display the Note without use of a template.
     func displayWithoutTemplate(_ note: Note,
                                 io: NotenikIO,
                                 topOfPage: String,
                                 bottomOfPage: String) -> String {
-        let displayPrefs = DisplayPrefs.shared
-        let fieldsToHTML = NoteFieldsToHTML(displayPrefs: displayPrefs)
+        
+        let fieldsToHTML = NoteFieldsToHTML()
         return fieldsToHTML.fieldsToHTML(note,
                                          io: io,
-                                         format: .htmlDoc,
+                                         parms: parms,
                                          topOfPage: topOfPage,
                                          bodyHTML: bodyHTML,
                                          minutesToRead: minutesToRead,
@@ -201,10 +202,11 @@ public class NoteDisplay: NSObject {
     /// - Parameter note: The note to be displayed.
     /// - Returns: A string containing the encoded note.
     public func displayOld(_ note: Note, io: NotenikIO) -> String {
+        let mkdownContext = NotesMkdownContext(io: io, displayParms: parms)
         let collection = note.collection
         let dict = collection.dict
-        let code = Markedup(format: format)
-        code.startDoc(withTitle: note.title.value, withCSS: displayPrefs.bodyCSS)
+        let code = Markedup(format: parms.format)
+        code.startDoc(withTitle: note.title.value, withCSS: parms.cssString, linkToFile: parms.cssLinkToFile)
         
         if note.hasTags() {
             let tagsField = note.getTagsAsField()
@@ -214,10 +216,13 @@ public class NoteDisplay: NSObject {
         minutesToRead = nil
         
         // Pre-parse the body field if we're creating HTML.
-        if format == .htmlDoc || format == .htmlFragment {
+        if parms.formatIsHTML {
             let body = note.body
             mdBodyParser = MkdownParser(body.value)
-            mdBodyParser!.wikiLinkLookup = io
+            mdBodyParser!.setWikiLinkFormatting(prefix: parms.wikiLinkPrefix,
+                                                format: parms.wikiLinkFormat,
+                                                suffix: parms.wikiLinkSuffix,
+                                                context: mkdownContext)
             mdBodyParser!.parse()
             counts = mdBodyParser!.counts
             if collection.minutesToReadDef != nil {
@@ -273,7 +278,8 @@ public class NoteDisplay: NSObject {
     /// - Returns: A String containing the code that can be used to display this field.
     func display(_ field: NoteField, note: Note, collection: NoteCollection, io: NotenikIO) -> String {
         
-        let code = Markedup(format: format)
+        let mkdownContext = NotesMkdownContext(io: io, displayParms: parms)
+        let code = Markedup(format: parms.format)
         if field.def == collection.titleFieldDef {
             if collection.h1Titles {
                 code.heading(level: 1, text: field.value.value)
@@ -297,7 +303,7 @@ public class NoteDisplay: NSObject {
                 code.append(": ")
                 code.finishParagraph()
             }
-            if format == .htmlDoc || format == .htmlFragment {
+            if parms.formatIsHTML {
                 code.append(mdBodyParser!.html)
             } else {
                 code.append(field.value.value)
@@ -325,8 +331,14 @@ public class NoteDisplay: NSObject {
             code.append(field.def.fieldLabel.properForm)
             code.append(": ")
             code.finishParagraph()
-            if format == .htmlDoc || format == .htmlFragment {
-                MkdownParser.markdownToMarkedup(markdown: field.value.value, wikiLinkLookup: io, writer: code)
+            if parms.formatIsHTML {
+                let mdparser = MkdownParser(field.value.value)
+                mdparser.setWikiLinkFormatting(prefix: parms.wikiLinkPrefix,
+                                               format: parms.wikiLinkFormat,
+                                               suffix: parms.wikiLinkSuffix,
+                                               context: mkdownContext)
+                mdparser.parse()
+                code.append(mdparser.html)
             } else {
                 code.append(field.value.value)
                 code.newLine()

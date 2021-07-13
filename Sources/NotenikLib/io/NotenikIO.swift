@@ -15,7 +15,7 @@ import NotenikUtils
 import NotenikMkdown
 
 /// Read and write notes from/to some sort of data store. 
-public protocol NotenikIO: MkdownWikiLinkLookup {
+public protocol NotenikIO {
     
     // -----------------------------------------------------------
     //
@@ -48,6 +48,8 @@ public protocol NotenikIO: MkdownWikiLinkLookup {
     
     /// Should the list be in descending sequence?
     var sortDescending: Bool { get set }
+    
+    var aliasList: AliasList { get }
     
     // -----------------------------------------------------------
     //

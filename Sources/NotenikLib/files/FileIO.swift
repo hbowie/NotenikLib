@@ -100,7 +100,7 @@ public class FileIO: NotenikIO, RowConsumer {
     var lastIndexSelected = -1
     
     var bunch          : BunchOfNotes?
-    var aliasList      = AliasList()
+    public var aliasList      = AliasList()
     var templateFound  = false
     var infoFound      = false
     var notePosition   = NotePosition(index: -1)

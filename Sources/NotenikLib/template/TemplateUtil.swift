@@ -76,6 +76,8 @@ public class TemplateUtil {
     let noBreakConverter = StringConverter()
     let markedup = Markedup(format: .htmlFragment)
     
+    var parms = DisplayParms()
+    
     var noteFieldsToHTML: NoteFieldsToHTML
     
     var io: NotenikIO?
@@ -92,7 +94,13 @@ public class TemplateUtil {
         xmlConverter.addXML()
         emailSingleQuoteConverter.addEmailQuotes()
         noBreakConverter.addNoBreaks()
-        noteFieldsToHTML = NoteFieldsToHTML(displayPrefs: DisplayPrefs.shared)
+        parms = DisplayParms()
+        if DisplayPrefs.shared.bodyCSS == nil {
+            parms.cssString = ""
+        } else {
+            parms.cssString = DisplayPrefs.shared.bodyCSS!
+        }
+        noteFieldsToHTML = NoteFieldsToHTML()
         resetGroupValues()
         resetGroupBreaks()
     }
@@ -225,7 +233,7 @@ public class TemplateUtil {
         
         let fields = noteFieldsToHTML.fieldsToHTML(note,
                                              io: io,
-                                             format: .htmlFragment,
+                                             parms: parms,
                                              topOfPage: "",
                                              bodyHTML: bodyHTML,
                                              minutesToRead: minutesToRead)
@@ -851,12 +859,12 @@ public class TemplateUtil {
         switch wikiStyle {
         case "1":
             let mkdown = MkdownParser(markdown)
-            mkdown.setWikiLinkFormatting(prefix: "", format: .fileName, suffix: ".html", lookup: nil)
+            mkdown.setWikiLinkFormatting(prefix: "", format: .fileName, suffix: ".html", context: nil)
             mkdown.parse()
             return mkdown.html
         case "2":
             let mkdown = MkdownParser(markdown)
-            mkdown.setWikiLinkFormatting(prefix: "#", format: .fileName, suffix: "", lookup: nil)
+            mkdown.setWikiLinkFormatting(prefix: "#", format: .fileName, suffix: "", context: nil)
             mkdown.parse()
             return mkdown.html
         default:
