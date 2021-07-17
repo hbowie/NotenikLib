@@ -77,6 +77,7 @@ public class TemplateUtil {
     let markedup = Markedup(format: .htmlFragment)
     
     var parms = DisplayParms()
+    var mkdownOptions = MkdownOptions()
     
     var noteFieldsToHTML: NoteFieldsToHTML
     
@@ -858,12 +859,12 @@ public class TemplateUtil {
     func convertMarkdownToHTML(_ markdown: String) -> String {
         switch wikiStyle {
         case "1":
-            let mkdown = MkdownParser(markdown)
+            let mkdown = MkdownParser(markdown, options: mkdownOptions)
             mkdown.setWikiLinkFormatting(prefix: "", format: .fileName, suffix: ".html", context: nil)
             mkdown.parse()
             return mkdown.html
         case "2":
-            let mkdown = MkdownParser(markdown)
+            let mkdown = MkdownParser(markdown, options: mkdownOptions)
             mkdown.setWikiLinkFormatting(prefix: "#", format: .fileName, suffix: "", context: nil)
             mkdown.parse()
             return mkdown.html

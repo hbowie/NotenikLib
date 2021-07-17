@@ -24,6 +24,8 @@ public class AliasList: RowConsumer {
     var rowsLoaded = 0
     var rowsSaved  = 0
     
+    var mkdownOptions = MkdownOptions()
+    
     init() {
         
     }
@@ -66,7 +68,7 @@ public class AliasList: RowConsumer {
             guard nextNote != nil else { continue }
             let md = nextNote!.body.value
             guard md.count > 0 else { continue }
-            let mkdown = MkdownParser(md)
+            let mkdown = MkdownParser(md, options: mkdownOptions)
             let mkdownContext = NotesMkdownContext(io: noteIO!)
             mkdown.mkdownContext = mkdownContext
             mkdown.parse()

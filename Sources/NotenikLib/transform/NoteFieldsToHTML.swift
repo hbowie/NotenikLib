@@ -16,11 +16,11 @@ import NotenikUtils
 import NotenikMkdown
 
 /// Generate the coding necessary to display a Note in a readable format.
-public class NoteFieldsToHTML
-    // NSObject - Not sure why I needed this???
-    {
+public class NoteFieldsToHTML {
     
     public var parms = DisplayParms()
+    
+    var mkdownOptions = MkdownOptions()
     
     var bodyHTML: String?
     
@@ -43,6 +43,7 @@ public class NoteFieldsToHTML
                              bottomOfPage: String = "") -> String {
         
         self.parms = parms
+        parms.setMkdownOptions(mkdownOptions)
         self.bodyHTML = bodyHTML
         self.minutesToRead = minutesToRead
         
@@ -50,7 +51,10 @@ public class NoteFieldsToHTML
         let dict = collection.dict
         let code = Markedup(format: parms.format)
         
-        code.startDoc(withTitle: note.title.value, withCSS: parms.cssString, linkToFile: parms.cssLinkToFile)
+        code.startDoc(withTitle: note.title.value,
+                      withCSS: parms.cssString,
+                      linkToFile: parms.cssLinkToFile,
+                      withJS: mkdownOptions.getHtmlScript())
         
         if !topOfPage.isEmpty {
             code.append(topOfPage)
@@ -240,7 +244,7 @@ public class NoteFieldsToHTML
     func markdownToMarkedup(markdown: String,
                             context: MkdownContext?,
                             writer: Markedup) {
-        let md = MkdownParser(markdown)
+        let md = MkdownParser(markdown, options: mkdownOptions)
         md.setWikiLinkFormatting(prefix: parms.wikiLinkPrefix,
                                  format: parms.wikiLinkFormat,
                                  suffix: parms.wikiLinkSuffix,

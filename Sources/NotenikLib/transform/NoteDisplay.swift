@@ -21,6 +21,7 @@ import NotenikMkdown
 public class NoteDisplay {
     
     public var parms = DisplayParms()
+    public var mkdownOptions = MkdownOptions()
     
     var mdBodyParser: MkdownParser?
     var bodyHTML:     String?
@@ -39,6 +40,7 @@ public class NoteDisplay {
     /// - Returns: A string containing the encoded note.
     public func display(_ note: Note, io: NotenikIO, parms: DisplayParms) -> String {
         self.parms = parms
+        parms.setMkdownOptions(mkdownOptions)
         let mkdownContext = NotesMkdownContext(io: io, displayParms: parms)
         let collection = note.collection
         minutesToRead = nil
@@ -48,7 +50,7 @@ public class NoteDisplay {
         // Pre-parse the body field if we're generating HTML.
         if parms.formatIsHTML {
             let body = note.body
-            mdBodyParser = MkdownParser(body.value)
+            mdBodyParser = MkdownParser(body.value, options: mkdownOptions)
             mdBodyParser!.setWikiLinkFormatting(prefix: parms.wikiLinkPrefix,
                                                 format: parms.wikiLinkFormat,
                                                 suffix: parms.wikiLinkSuffix,
@@ -206,7 +208,10 @@ public class NoteDisplay {
         let collection = note.collection
         let dict = collection.dict
         let code = Markedup(format: parms.format)
-        code.startDoc(withTitle: note.title.value, withCSS: parms.cssString, linkToFile: parms.cssLinkToFile)
+        code.startDoc(withTitle: note.title.value,
+                      withCSS: parms.cssString,
+                      linkToFile: parms.cssLinkToFile,
+                      withJS: mkdownOptions.getHtmlScript())
         
         if note.hasTags() {
             let tagsField = note.getTagsAsField()
@@ -218,7 +223,7 @@ public class NoteDisplay {
         // Pre-parse the body field if we're creating HTML.
         if parms.formatIsHTML {
             let body = note.body
-            mdBodyParser = MkdownParser(body.value)
+            mdBodyParser = MkdownParser(body.value, options: mkdownOptions)
             mdBodyParser!.setWikiLinkFormatting(prefix: parms.wikiLinkPrefix,
                                                 format: parms.wikiLinkFormat,
                                                 suffix: parms.wikiLinkSuffix,
@@ -332,7 +337,7 @@ public class NoteDisplay {
             code.append(": ")
             code.finishParagraph()
             if parms.formatIsHTML {
-                let mdparser = MkdownParser(field.value.value)
+                let mdparser = MkdownParser(field.value.value, options: mkdownOptions)
                 mdparser.setWikiLinkFormatting(prefix: parms.wikiLinkPrefix,
                                                format: parms.wikiLinkFormat,
                                                suffix: parms.wikiLinkSuffix,

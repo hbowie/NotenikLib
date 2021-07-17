@@ -337,8 +337,9 @@ public class NotesExporter {
         if webExt {
             // Now add derived fields
             let code = Markedup(format: .htmlFragment)
+            let mkdownOptions = MkdownOptions()
             MkdownParser.markdownToMarkedup(markdown: note.getFieldAsString(label: NotenikConstants.bodyCommon),
-                                            mkdownContext: mkdownContext, writer: code)
+                                            options: mkdownOptions, mkdownContext: mkdownContext, writer: code)
             writeField(value: String(describing: code))
             
             if authorDef {
@@ -406,8 +407,9 @@ public class NotesExporter {
             
             // Now add derived fields
             let code = Markedup(format: .htmlFragment)
+            let mkdownOptions = MkdownOptions()
             MkdownParser.markdownToMarkedup(markdown: note.getFieldAsString(label: NotenikConstants.bodyCommon),
-                                            mkdownContext: mkdownContext, writer: code)
+                                            options: mkdownOptions, mkdownContext: mkdownContext, writer: code)
             jsonWriter.write(key: "Body as HTML", value: String(describing: code))
             
             if authorDef {
@@ -457,8 +459,9 @@ public class NotesExporter {
             
             // Now add derived fields
             let code = Markedup(format: .htmlFragment)
+            let mkdownOptions = MkdownOptions()
             MkdownParser.markdownToMarkedup(markdown: note.getFieldAsString(label: NotenikConstants.bodyCommon),
-                                            mkdownContext: mkdownContext, writer: code)
+                                            options: mkdownOptions, mkdownContext: mkdownContext, writer: code)
             addOutlineAttribute(label: "Body as HTML", value: String(describing: code))
             
             if authorDef {

@@ -39,6 +39,7 @@ public class NoteCollection {
     public  var bodyLabel = true
     public  var h1Titles = false
     public  var streamlined = false
+    public  var mathJax = false
     public  var lastStartupDate = ""
             var todaysDate = ""
     

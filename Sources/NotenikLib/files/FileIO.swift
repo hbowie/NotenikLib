@@ -275,6 +275,7 @@ public class FileIO: NotenikIO, RowConsumer {
         str.append(label: NotenikConstants.bodyLabelDisplay,  value: "\(collection!.bodyLabel)")
         str.append(label: NotenikConstants.h1TitlesDisplay,   value: "\(collection!.h1Titles)")
         str.append(label: NotenikConstants.streamlinedReading, value: "\(collection!.streamlined)")
+        str.append(label: NotenikConstants.mathJax, value: "\(collection!.mathJax)")
         if collection!.lastStartupDate.count > 0 {
             str.append(label: NotenikConstants.lastStartupDate, value: collection!.lastStartupDate)
         }
@@ -491,6 +492,12 @@ public class FileIO: NotenikIO, RowConsumer {
         if streamlinedField != nil {
             let streamlined = BooleanValue(streamlinedField!.value.value)
             collection!.streamlined = streamlined.isTrue
+        }
+        
+        let mathJaxField = infoNote.getField(label: NotenikConstants.mathJax)
+        if mathJaxField != nil {
+            let mathJax = BooleanValue(mathJaxField!.value.value)
+            collection!.mathJax = mathJax.isTrue
         }
         
         let noteFileFormatField = infoNote.getField(label: NotenikConstants.noteFileFormat)

@@ -100,7 +100,8 @@ public class ModWhenChanged {
         
         if modNote.hasBody() && collection.minutesToReadDef != nil {
             let body = modNote.body
-            let mdBodyParser = MkdownParser(body.value)
+            let mkdownOptions = MkdownOptions()
+            let mdBodyParser = MkdownParser(body.value, options: mkdownOptions)
             mdBodyParser.parse()
             let newMinutes = MinutesToReadValue(with: mdBodyParser.counts)
             let oldMinutes = modNote.getField(def: collection.minutesToReadDef!)

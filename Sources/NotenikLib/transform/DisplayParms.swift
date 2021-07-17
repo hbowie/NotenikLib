@@ -27,11 +27,28 @@ public class DisplayParms {
     public var wikiLinkFormat: WikiLinkFormat = .common
     public var wikiLinkPrefix = "https://ntnk.app/"
     public var wikiLinkSuffix = ""
+    public var mathJax = false
+    public var localMj = true
+    public var localMjUrl: URL?
     
     public init() {
         
     }
     
+    public func genMkdownOptions() -> MkdownOptions {
+        let options = MkdownOptions()
+        setMkdownOptions(options)
+        return options
+    }
+    
+    public func setMkdownOptions(_ options: MkdownOptions) {
+        options.wikiLinkPrefix = wikiLinkPrefix
+        options.wikiLinkSuffix = wikiLinkSuffix
+        options.wikiLinkFormatting = wikiLinkFormat
+        options.mathJax = mathJax
+        options.localMj = localMj
+        options.localMjUrl = localMjUrl
+    }
     
     public var formatIsHTML: Bool {
         switch format {

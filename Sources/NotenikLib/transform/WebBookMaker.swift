@@ -101,6 +101,8 @@ public class WebBookMaker {
         parms.wikiLinkPrefix = ""
         parms.wikiLinkFormat = .fileName
         parms.wikiLinkSuffix = "." + htmlFileExt
+        parms.mathJax = collection.mathJax
+        parms.localMj = false
         
         htmlConverter.addHTML()
     }

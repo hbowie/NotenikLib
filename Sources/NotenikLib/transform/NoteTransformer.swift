@@ -371,8 +371,9 @@ public class NoteTransformer {
             markedup.append(def.fieldLabel.properForm)
             markedup.append(": ")
             markedup.finishParagraph()
+            let mkdownOptions = MkdownOptions()
             MkdownParser.markdownToMarkedup(markdown: "=$\(def.fieldLabel.commonForm)&o$=",
-                mkdownContext: mkdownContext, writer: markedup)
+                options: mkdownOptions, mkdownContext: mkdownContext, writer: markedup)
         } else {
             markedup.startParagraph()
             markedup.append(def.fieldLabel.properForm)

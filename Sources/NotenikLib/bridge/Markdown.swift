@@ -21,6 +21,7 @@ import NotenikMkdown
 public class Markdown {
     
     var notenikIO: NotenikIO?
+    var mkdownOptions = MkdownOptions()
     public var md = ""
     public var html = ""
     var mkdown = MkdownParser()
@@ -63,7 +64,7 @@ public class Markdown {
             let ink = MarkdownParser()
             html = ink.html(from: md)
         case "notenik", "mkdown":
-            mkdown = MkdownParser(md)
+            mkdown = MkdownParser(md, options: mkdownOptions)
             mkdown.parse()
             html = mkdown.html
         default:
