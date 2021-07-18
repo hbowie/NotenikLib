@@ -93,6 +93,8 @@ public class NotesMkdownContext: MkdownContext {
     //
     // -----------------------------------------------------------
     
+    var levelStart = 0
+    var levelEnd = 999
     var hasLevel = false
     var hasSeq = false
     var hasLevelAndSeq: Bool {
@@ -108,7 +110,9 @@ public class NotesMkdownContext: MkdownContext {
         }
     }
     
-    public func mkdownCollectionTOC(commandText: String) -> String {
+    public func mkdownCollectionTOC(levelStart: Int, levelEnd: Int) -> String {
+        self.levelStart = levelStart
+        self.levelEnd = levelEnd
         guard io.collection != nil else { return "" }
         guard io.collectionOpen else { return "" }
         let collection = io.collection!
@@ -132,6 +136,8 @@ public class NotesMkdownContext: MkdownContext {
         let seq = note.seq.value
         if hasLevelAndSeq && level <= 1 && seq.count == 0 { return }
         if !hasLevel { level = 1 }
+        guard level >= levelStart else { return }
+        guard level <= levelEnd else { return }
         
         // Manage nested lists.
         if level < lastLevel {
