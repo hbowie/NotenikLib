@@ -18,6 +18,7 @@ class BunchOfNotes {
     var notesDict = [String : Note]()
     var notesList = NotesList()
     var notesTree = TagsTree()
+    var shortIDs  = ShortIDs()
     var timestampDict = [String : Note]()
     var listIndex = 0
     
@@ -93,6 +94,10 @@ class BunchOfNotes {
         
         notesTree.add(note: note)
         
+        if collection.shortIdDef != nil {
+            shortIDs.add(note: note)
+        }
+        
         if collection.hasTimestamp {
             let stamp = note.timestamp.value
             if stamp.count > 0 {
@@ -104,6 +109,10 @@ class BunchOfNotes {
 
     }
     
+    
+    /// Remove a Note from memory.
+    /// - Parameter note: The Note to be removed.
+    /// - Returns: True if successful, false if any issues.
     func delete(note: Note) ->  Bool {
         let noteID = note.noteID.identifier
         let existingNote = notesDict[noteID]
@@ -120,6 +129,11 @@ class BunchOfNotes {
         
         // Remove the note from the Tags Tree
         notesTree.delete(note: note)
+        
+        // Remove the Note from the list of Short IDs. 
+        if collection.shortIdDef != nil {
+            shortIDs.delete(note: note)
+        }
         
         // Remove the note from the timestamp dictionary
         if collection.hasTimestamp {
@@ -296,5 +310,6 @@ class BunchOfNotes {
         notesDict = [String : Note]()
         notesList = NotesList()
         notesTree = TagsTree()
+        shortIDs = ShortIDs()
     }
 }

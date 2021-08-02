@@ -24,7 +24,10 @@ public class FileIO: NotenikIO, RowConsumer {
     // -----------------------------------------------------------
     
     /// The currently open collection, if any
-    public var collection   : NoteCollection?
+    public var collection:  NoteCollection?
+    
+    /// The Collection of Notes stored in memory.
+    var bunch:              BunchOfNotes?
     
     /// The position of the selected note, if any, in the current collection
     public var position:   NotePosition? {
@@ -99,7 +102,6 @@ public class FileIO: NotenikIO, RowConsumer {
     
     var lastIndexSelected = -1
     
-    var bunch          : BunchOfNotes?
     public var aliasList      = AliasList()
     var templateFound  = false
     var infoFound      = false
@@ -399,11 +401,21 @@ public class FileIO: NotenikIO, RowConsumer {
                 if note != nil && note!.hasTitle() {
                     addAttachments(to: note!)
                     pickLists.registerNote(note: note!)
+                    var shortIdRead = ""
+                    if collection!.shortIdDef != nil {
+                        shortIdRead = note!.shortID.value
+                    }
                     let noteAdded = bunch!.add(note: note!)
                     if noteAdded {
                         notesRead += 1
                         for inspector in inspectors {
                             inspector.inspect(note!)
+                        }
+                        if collection!.shortIdDef != nil {
+                            if note!.shortID.value != shortIdRead {
+                                note!.setDateModNow()
+                                _ = collection!.lib.saveNote(note: note!)
+                            }
                         }
                     } else {
                         logError("Note titled '\(note!.title.value)' appears to be a duplicate and could not be accessed")

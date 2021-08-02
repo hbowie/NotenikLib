@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 7/17/19.
-//  Copyright © 2019-2020 Herb Bowie (https://hbowie.net)
+//  Copyright © 2019-2021 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -23,6 +23,7 @@ public class NotesExporter {
     var tagsToSuppress: TagsValue!
     
     var noteIO: NotenikIO!
+    var collection: NoteCollection!
     var dict = FieldDictionary()
     var format = ExportFormat.commaSeparated
     var split = false
@@ -31,6 +32,11 @@ public class NotesExporter {
     var fileExt = "txt"
     
     var mkdownContext: MkdownContext!
+    
+    var displayParms = DisplayParms()
+    var display = NoteDisplay()
+    
+    var docTitle = ""
     
     var delimWriter: DelimitedWriter!
     var markup: Markedup!
@@ -63,6 +69,7 @@ public class NotesExporter {
                        ext: String) -> Int {
         
         self.noteIO = noteIO
+        collection = noteIO.collection!
         mkdownContext = NotesMkdownContext(io: noteIO)
         self.format = format
         self.split = split
@@ -142,7 +149,40 @@ public class NotesExporter {
         case .opml:
             markup = Markedup(format: .opml)
             markup.startDoc(withTitle: noteIO.collection!.title, withCSS: nil)
+        case .concatHtml, .concatMarkdown:
+            concatOpen(exportFormat: format)
+            break
         }
+    }
+    
+    func concatOpen(exportFormat: ExportFormat) {
+        var markupFormat: MarkedupFormat = .markdown
+        if exportFormat == .concatHtml {
+            markupFormat = .htmlDoc
+        }
+        
+        docTitle = ""
+        
+        displayParms = DisplayParms()
+        displayParms.setCSS(useFirst: collection.displayCSS, useSecond: DisplayPrefs.shared.bodyCSS)
+        switch exportFormat {
+        case .concatHtml:
+            displayParms.format = .htmlFragment
+        case .concatMarkdown:
+            displayParms.format = .markdown
+        default:
+            break
+        }
+        displayParms.sortParm = collection.sortParm
+        displayParms.streamlined = collection.streamlined
+        displayParms.wikiLinkPrefix = "#"
+        displayParms.wikiLinkFormat = .fileName
+        displayParms.wikiLinkSuffix = ""
+        displayParms.mathJax = collection.mathJax
+        displayParms.localMj = false
+        displayParms.concatenated = true
+        
+        markup = Markedup(format: markupFormat)
     }
     
     /// Open an output delimited text file.
@@ -310,6 +350,8 @@ public class NotesExporter {
             writeNotenik(splitTag: splitTag, cleanTags: cleanTags, note: note)
         case .opml:
             writeOutline(splitTag: splitTag, cleanTags: cleanTags, note: note)
+        case .concatHtml, .concatMarkdown:
+            writeConcat(splitTag: splitTag, cleanTags: cleanTags, note: note)
         default:
             writeLine(splitTag: splitTag, cleanTags: cleanTags, note: note)
         }
@@ -566,6 +608,30 @@ public class NotesExporter {
         }
     }
     
+    func writeConcat(splitTag: String, cleanTags: String, note: Note) {
+        
+        if docTitle.count == 0 {
+            if note.seq.isEmpty && note.level.getInt() == 1 {
+                docTitle = note.title.value
+            } else {
+                docTitle = collection.title
+            }
+            markup.startDoc(withTitle: docTitle, withCSS: displayParms.cssString)
+        }
+        switch format {
+        case .concatHtml:
+            displayParms.format = .htmlFragment
+        case .concatMarkdown:
+            displayParms.format = .markdown
+        default:
+            break
+        }
+        let code = display.display(note, io: noteIO, parms: displayParms)
+        markup.append(code)
+        markup.writeLine(" ")
+        notesExported += 1
+    }
+    
     // --------------------------------------------------------------
     //
     // Close Methods follow.
@@ -587,7 +653,24 @@ public class NotesExporter {
             return notenikClose()
         case .opml:
             return markupClose()
+        case .concatHtml, .concatMarkdown:
+            return concatClose()
         }
+    }
+    
+    // Close the markup writer.
+    func concatClose() -> Bool {
+        markup.finishDoc()
+        do {
+            try markup.code.write(to: destination, atomically: true, encoding: .utf8)
+        } catch {
+            Logger.shared.log(subsystem: "com.powersurgepub.notenik",
+                              category: "NotesExporter",
+                              level: .error,
+                              message: "Problem writing export file to disk!")
+            return false
+        }
+        return true
     }
     
     /// Close the Delimited Writer

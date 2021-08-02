@@ -63,6 +63,8 @@ public struct NotenikConstants {
     public static let recursCommon  = "recurs"
     public static let seq       = "Seq"
     public static let seqCommon = "seq"
+    public static let shortId   = "Short ID"
+    public static let shortIdCommon = "shortid"
     static let sortParm         = "Sort Parm"
     static let sortParmCommon   = "sortparm"
     static let sortDescending   = "Sort Descending"

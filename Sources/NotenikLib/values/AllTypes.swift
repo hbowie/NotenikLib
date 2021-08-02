@@ -34,6 +34,7 @@ public class AllTypes {
     let ratingType  = RatingType()
     let recursType  = RecursType()
     let seqType     = SeqType()
+    let shortIdType = ShortIdType()
     let statusType  = StatusType()
     let stringType  = StringType()
     let tagsType    = TagsType()
@@ -67,7 +68,7 @@ public class AllTypes {
     /// Initialize with all of the standard types. 
     init() {
         
-fieldTypes.append(artistType)
+        fieldTypes.append(artistType)
         
         fieldTypes.append(workLinkType)
         fieldTypes.append(workTitleType)
@@ -101,6 +102,7 @@ fieldTypes.append(artistType)
         fieldTypes.append(ratingType)
         fieldTypes.append(recursType)
         fieldTypes.append(seqType)
+        fieldTypes.append(shortIdType)
         fieldTypes.append(statusType)
         fieldTypes.append(stringType)
         fieldTypes.append(tagsType)

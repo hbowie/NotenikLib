@@ -24,6 +24,7 @@ public class DisplayParms {
     public var format: MarkedupFormat = .htmlDoc
     public var sortParm: NoteSortParm = .seqPlusTitle
     public var streamlined = false
+    public var concatenated = false
     public var wikiLinkFormat: WikiLinkFormat = .common
     public var wikiLinkPrefix = "https://ntnk.app/"
     public var wikiLinkSuffix = ""

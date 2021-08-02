@@ -734,6 +734,34 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     }
     
     //
+    // Functions and variables concerning the Note's Short ID field.
+    //
+    
+    // Does this note have a non-blank Short ID field?
+    public func hasShortID() -> Bool {
+        return shortID.count > 0
+    }
+    
+    /// Set the Note's Short ID  value
+    public func setShortID(_ shortID: String) -> Bool {
+        guard collection.shortIdDef != nil else { return false }
+        return setField(label: collection.shortIdDef!.fieldLabel.commonForm, value: shortID)
+    }
+    
+    /// Return the Note's Sequence Value
+    public var shortID: ShortIdValue {
+        guard collection.shortIdDef != nil else {
+            return ShortIdValue()
+        }
+        let val = getFieldAsValue(def: collection.shortIdDef!)
+        if val is ShortIdValue {
+            return val as! ShortIdValue
+        } else {
+            return ShortIdValue(val.value)
+        }
+    }
+    
+    //
     // Functions and variables concerning the Note's index field.
     //
     

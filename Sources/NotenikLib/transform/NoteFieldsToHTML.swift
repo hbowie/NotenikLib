@@ -139,6 +139,14 @@ public class NoteFieldsToHTML {
             }
             if collection.h1Titles {
                 code.heading(level: 1, text: titleToDisplay)
+            } else if parms.concatenated && collection.dict.contains(collection.levelFieldDef) {
+                var level = note.level.getInt()
+                if level < 1 {
+                    level = 1
+                } else if level > 6 {
+                    level = 6
+                }
+                code.heading(level: level, text: titleToDisplay, addID: true, idText: field.value.value)
             } else {
                 code.startParagraph()
                 code.startStrong()

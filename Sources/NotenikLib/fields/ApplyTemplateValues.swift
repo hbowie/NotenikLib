@@ -100,6 +100,11 @@ class ApplyTemplateValues {
                     collection.seqFieldDef = def
                 }
                 
+            case NotenikConstants.shortIdCommon:
+                if collection.shortIdDef == nil {
+                    collection.shortIdDef = def
+                }
+                
             case NotenikConstants.statusCommon:
                 if collection.statusFieldDef.fieldLabel.commonForm == NotenikConstants.statusCommon {
                     collection.statusFieldDef = def

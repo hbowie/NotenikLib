@@ -65,6 +65,7 @@ public class NoteCollection {
     public  var dateAddedFieldDef: FieldDefinition?
     public  var imageNameFieldDef: FieldDefinition?
     public  var minutesToReadDef: FieldDefinition?
+    public  var shortIdDef:     FieldDefinition?
     
             var pickLists:     [FieldDefinition] = []
     
@@ -228,7 +229,8 @@ public class NoteCollection {
                 || label.isStatus
                 || label.isTeaser
                 || label.isType
-                || label.isWorkTitle {
+                || label.isWorkTitle
+                || label.isShortId {
             label.validLabel = true
             def = dict.addDef(typeCatalog: typeCatalog, label: label)
         } else if noteType == .expanded {

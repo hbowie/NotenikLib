@@ -81,6 +81,7 @@ public class NoteDisplay {
     /// the implied hierarchy.
     func formatTopOfPage(_ note: Note, io: NotenikIO) -> String {
         guard parms.streamlined else { return "" }
+        guard !parms.concatenated else { return ""}
         guard note.hasLevel() else { return "" }
         let noteLevel = note.level.level
         guard noteLevel > 1 else { return "" }
@@ -119,6 +120,7 @@ public class NoteDisplay {
         
         // See if we meet necessary conditions.
         guard parms.streamlined else { return "" }
+        guard !parms.concatenated else { return ""}
         guard note.collection.seqFieldDef != nil else { return "" }
         let sortParm = parms.sortParm
         guard sortParm == .seqPlusTitle else { return "" }

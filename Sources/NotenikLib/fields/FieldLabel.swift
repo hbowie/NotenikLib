@@ -101,6 +101,10 @@ public class FieldLabel: CustomStringConvertible, Comparable  {
         return (commonForm == NotenikConstants.seqCommon)
     }
     
+    var isShortId: Bool {
+        return commonForm == NotenikConstants.shortIdCommon
+    }
+    
     var isStatus: Bool {
         return (commonForm == NotenikConstants.statusCommon)
     }
