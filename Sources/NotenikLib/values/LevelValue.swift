@@ -79,7 +79,7 @@ public class LevelValue: StringValue {
         set (str: value, config: config)
     }
     
-    /// Set the status using a string and the passed configuration.
+    /// Set the level using a string and the passed configuration.
     func set(str: String, config: IntWithLabelConfig) {
         super.set(str)
         var digitsCount = 0

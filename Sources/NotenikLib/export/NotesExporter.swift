@@ -473,6 +473,15 @@ public class NotesExporter {
         notesExported += 1
     }
     
+    var outlineLevels: [Int] = []
+    var lastLevel: Int {
+        if outlineLevels.count > 0 {
+            return outlineLevels[outlineLevels.count - 1]
+        } else {
+            return 0
+        }
+    }
+    
     /// Write an OPML outline object for a single note.
     ///
     /// - Parameters:
@@ -480,10 +489,16 @@ public class NotesExporter {
     ///   - cleanTags: The cleaned tags for this note, with any suppressed tags removed.
     ///   - note: The Note to be written.
     func writeOutline(splitTag: String, cleanTags: String, note: Note) {
-        markup.startOutlineOpen(note.title.value)
-        if split {
-            addOutlineAttribute(label: NotenikConstants.tag, value: splitTag)
+        
+        // Close any open Outline elements that are at a lower or equal level.
+        let level = note.level.getInt()
+        while lastLevel >= level {
+            markup.finishOutline()
+            outlineLevels.removeLast()
         }
+        
+        // Now let's create an Outline element for this Note.
+        markup.startOutlineOpen(note.title.value)
         for def in dict.list {
             if def.fieldLabel.commonForm == NotenikConstants.tagsCommon {
                 addOutlineAttribute(label: def.fieldLabel.properForm, value: cleanTags)
@@ -520,17 +535,23 @@ public class NotesExporter {
         }
         
         // Finish up the object
-        markup.addOutlineAttribute(label: "_note", value: note.body.value)
-        markup.startOutlineClose()
+        addOutlineAttribute(label: "_note", value: note.body.value)
+        markup.startOutlineClose(finishToo: false)
         tagsWritten += 1
         notesExported += 1
+        outlineLevels.append(level)
     }
     
     func addOutlineAttribute(label: String, value: String) {
-        let labelOut = StringUtils.wordDemarcation(label,
+        var labelOut = label
+        if label != "_note" {
+            labelOut = StringUtils.wordDemarcation(label,
                                                    caseMods: ["l", "u", "l"],
                                                    delimiter: "")
-        markup.addOutlineAttribute(label: labelOut, value: value)
+        }
+        let trimmed = StringUtils.trim(value)
+        guard trimmed.count > 0 else { return }
+        markup.addOutlineAttribute(label: labelOut, value: trimmed)
     }
     
     func workToHTML(note: Note) -> String {
@@ -652,7 +673,7 @@ public class NotesExporter {
         case .notenik:
             return notenikClose()
         case .opml:
-            return markupClose()
+            return outlineClose()
         case .concatHtml, .concatMarkdown:
             return concatClose()
         }
@@ -729,6 +750,27 @@ public class NotesExporter {
         }
         return true
     }
+    
+    // Close the markup writer.
+    func outlineClose() -> Bool {
+        while outlineLevels.count > 0 {
+            markup.finishOutline()
+            outlineLevels.removeLast()
+        }
+        markup.finishDoc()
+        do {
+            try markup.code.write(to: destination, atomically: true, encoding: .utf8)
+        } catch {
+            Logger.shared.log(subsystem: "com.powersurgepub.notenik",
+                              category: "NotesExporter",
+                              level: .error,
+                              message: "Problem writing export file to disk!")
+            return false
+        }
+        return true
+    }
+    
+
     
     func notenikClose() -> Bool {
         exportIO.closeCollection()

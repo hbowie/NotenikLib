@@ -54,7 +54,7 @@ public class NoteCollection {
     public  var dateFieldDef:   FieldDefinition
     public  var recursFieldDef: FieldDefinition
     public  var statusFieldDef: FieldDefinition
-    public  var levelFieldDef:  FieldDefinition
+    public  var levelFieldDef:  FieldDefinition?
     public  var seqFieldDef:    FieldDefinition?
     public  var indexFieldDef:  FieldDefinition
     public  var creatorFieldDef: FieldDefinition
@@ -81,7 +81,6 @@ public class NoteCollection {
         dateFieldDef =   FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.date)
         recursFieldDef = FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.recurs)
         statusFieldDef = FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.status)
-        levelFieldDef  = FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.level)
         indexFieldDef =  FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.index)
         workTitleFieldDef = FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.workTitle)
         workTypeFieldDef = FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.workType)
@@ -266,7 +265,9 @@ public class NoteCollection {
         print("  - Date Field: \(dateFieldDef.fieldLabel.properForm)")
         print("  - Recurs Field: \(recursFieldDef.fieldLabel.properForm)")
         print("  - Status Field: \(statusFieldDef.fieldLabel.properForm)")
-        print("  - Level Field: \(levelFieldDef.fieldLabel.properForm)")
+        if levelFieldDef != nil {
+            print("  - Level Field: \(levelFieldDef!.fieldLabel.properForm)")
+        }
         if seqFieldDef != nil {
             print("  - Seq Field: \(seqFieldDef!.fieldLabel.properForm)")
         }

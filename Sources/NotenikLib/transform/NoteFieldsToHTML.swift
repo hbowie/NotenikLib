@@ -139,7 +139,7 @@ public class NoteFieldsToHTML {
             }
             if collection.h1Titles {
                 code.heading(level: 1, text: titleToDisplay)
-            } else if parms.concatenated && collection.dict.contains(collection.levelFieldDef) {
+            } else if parms.concatenated && collection.levelFieldDef != nil {
                 var level = note.level.getInt()
                 if level < 1 {
                     level = 1

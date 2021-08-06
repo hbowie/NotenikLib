@@ -672,7 +672,8 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     // Functions and variables concerning the Note's level field.
     //
     public func hasLevel() -> Bool {
-        guard let levelField = fields[collection.levelFieldDef.fieldLabel.commonForm] else { return false }
+        guard collection.levelFieldDef != nil else { return false }
+        guard let levelField = fields[collection.levelFieldDef!.fieldLabel.commonForm] else { return false }
         guard let levelValue = levelField.value as? LevelValue else { return false }
         let config = collection.levelConfig
         let level = levelValue.getInt()
@@ -681,7 +682,8 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     }
     
     public func incrementLevel() {
-        guard let levelField = fields[collection.levelFieldDef.fieldLabel.commonForm] else { return }
+        guard collection.levelFieldDef != nil else { return }
+        guard let levelField = fields[collection.levelFieldDef!.fieldLabel.commonForm] else { return }
         guard let levelValue = levelField.value as? LevelValue else { return }
         let config = collection.levelConfig
         var level = levelValue.getInt()
@@ -690,14 +692,23 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
         levelValue.set(i: level, config: config)
     }
     
+    public func setLevel(_ level: Int) -> Bool {
+        let levelStr = "\(level)"
+        return setLevel(levelStr)
+    }
+    
     /// Set the Note's Level Value.
     public func setLevel(_ level: String) -> Bool {
-        return setField(label: collection.levelFieldDef.fieldLabel.commonForm, value: level)
+        guard collection.levelFieldDef != nil else { return false }
+        return setField(label: collection.levelFieldDef!.fieldLabel.commonForm, value: level)
     }
     
     /// Return the Note's Level Value.
     public var level: LevelValue {
-        let val = getFieldAsValue(def: collection.levelFieldDef)
+        guard collection.levelFieldDef != nil else {
+            return LevelValue()
+        }
+        let val = getFieldAsValue(def: collection.levelFieldDef!)
         if val is LevelValue {
             return val as! LevelValue
         } else {

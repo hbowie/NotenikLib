@@ -25,6 +25,12 @@ public class SeqValue: StringValue {
         set(value)
     }
     
+    public func newChild() {
+        var start = self.value
+        start.append(".1")
+        set(start)
+    }
+    
     /// Set this sequence value to the provided string
     override func set (_ value : String) {
         super.set(value)

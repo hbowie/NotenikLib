@@ -125,7 +125,11 @@ public class IntWithLabelConfig {
     /// followed by the standard label.
     public func intWithLabel(forInt i: Int) -> String {
         guard i >= low && i <= high else { return "" }
-        return("\(i) - \(labels[i])")
+        var sep = ""
+        if labels[i].count > 0 {
+            sep = " - "
+        }
+        return("\(i)\(sep)\(labels[i])")
     }
     
     /// Return the corresponding index for the passed label (or partial label),
@@ -136,8 +140,9 @@ public class IntWithLabelConfig {
             var index = 0
             if StringUtils.isDigit(firstChar) {
                 index = Int(String(firstChar))!
-                let label = labels[index]
-                if label.count > 0 {
+                // let label = labels[index]
+                // if label.count > 0 {
+                if index >= low && index <= high {
                     return index
                 }
             }

@@ -116,9 +116,7 @@ public class NotesMkdownContext: MkdownContext {
         guard io.collection != nil else { return "" }
         guard io.collectionOpen else { return "" }
         let collection = io.collection!
-        let dict = collection.dict
-        let levelDef = collection.levelFieldDef
-        hasLevel = dict.contains(levelDef)
+        hasLevel = (collection.levelFieldDef != nil)
         hasSeq = (collection.seqFieldDef != nil)
         levels = []
         toc = Markedup(format: .htmlFragment)
