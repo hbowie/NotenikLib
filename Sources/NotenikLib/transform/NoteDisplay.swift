@@ -48,7 +48,7 @@ public class NoteDisplay {
         bodyHTML = nil
         
         // Pre-parse the body field if we're generating HTML.
-        if parms.formatIsHTML {
+        if parms.formatIsHTML && AppPrefs.shared.parseUsingNotenik {
             let body = note.body
             mdBodyParser = MkdownParser(body.value, options: mkdownOptions)
             mdBodyParser!.setWikiLinkFormatting(prefix: parms.wikiLinkPrefix,
@@ -223,7 +223,7 @@ public class NoteDisplay {
         minutesToRead = nil
         
         // Pre-parse the body field if we're creating HTML.
-        if parms.formatIsHTML {
+        if parms.formatIsHTML && AppPrefs.shared.parseUsingNotenik {
             let body = note.body
             mdBodyParser = MkdownParser(body.value, options: mkdownOptions)
             mdBodyParser!.setWikiLinkFormatting(prefix: parms.wikiLinkPrefix,
@@ -311,7 +311,11 @@ public class NoteDisplay {
                 code.finishParagraph()
             }
             if parms.formatIsHTML {
-                code.append(mdBodyParser!.html)
+                if AppPrefs.shared.parseUsingNotenik {
+                    code.append(mdBodyParser!.html)
+                } else {
+                    code.append(parseMarkdown(field.value.value, context: mkdownContext))
+                }
             } else {
                 code.append(field.value.value)
                 code.newLine()
@@ -339,13 +343,7 @@ public class NoteDisplay {
             code.append(": ")
             code.finishParagraph()
             if parms.formatIsHTML {
-                let mdparser = MkdownParser(field.value.value, options: mkdownOptions)
-                mdparser.setWikiLinkFormatting(prefix: parms.wikiLinkPrefix,
-                                               format: parms.wikiLinkFormat,
-                                               suffix: parms.wikiLinkSuffix,
-                                               context: mkdownContext)
-                mdparser.parse()
-                code.append(mdparser.html)
+                code.append(parseMarkdown(field.value.value, context: mkdownContext))
             } else {
                 code.append(field.value.value)
                 code.newLine()
@@ -385,6 +383,15 @@ public class NoteDisplay {
         }
 
         return String(describing: code)
+    }
+    
+    func parseMarkdown(_ md: String, context: MkdownContext) -> String {
+        let markdown = Markdown()
+        markdown.md = md
+        markdown.mkdownOptions = mkdownOptions
+        markdown.context = context
+        markdown.parse()
+        return markdown.html
     }
     
 }

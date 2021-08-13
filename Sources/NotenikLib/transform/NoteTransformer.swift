@@ -372,7 +372,7 @@ public class NoteTransformer {
             markedup.append(": ")
             markedup.finishParagraph()
             let mkdownOptions = MkdownOptions()
-            MkdownParser.markdownToMarkedup(markdown: "=$\(def.fieldLabel.commonForm)&o$=",
+            Markdown.markdownToMarkedup(markdown: "=$\(def.fieldLabel.commonForm)&o$=",
                 options: mkdownOptions, mkdownContext: mkdownContext, writer: markedup)
         } else {
             markedup.startParagraph()

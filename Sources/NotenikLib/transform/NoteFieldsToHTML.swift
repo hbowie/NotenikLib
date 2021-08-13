@@ -252,13 +252,8 @@ public class NoteFieldsToHTML {
     func markdownToMarkedup(markdown: String,
                             context: MkdownContext?,
                             writer: Markedup) {
-        let md = MkdownParser(markdown, options: mkdownOptions)
-        md.setWikiLinkFormatting(prefix: parms.wikiLinkPrefix,
-                                 format: parms.wikiLinkFormat,
-                                 suffix: parms.wikiLinkSuffix,
-                                 context: context)
-        md.parse()
-        writer.append(md.html)
+        
+        writer.append(Markdown.parse(markdown: markdown, options: mkdownOptions, context: context))
     }
     
 }

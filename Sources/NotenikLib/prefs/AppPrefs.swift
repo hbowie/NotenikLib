@@ -466,6 +466,10 @@ public class AppPrefs {
         }
     }
     
+    public var parseUsingNotenik: Bool {
+        return (_mdParser == "notenik")
+    }
+    
     /// Are we using the Notenik Parser?
     public var notenikParser: Bool {
         return _mdParser == "notenik"

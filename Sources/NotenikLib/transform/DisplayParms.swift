@@ -36,6 +36,20 @@ public class DisplayParms {
         
     }
     
+    public func setFrom(note: Note) {
+        setFrom(collection: note.collection)
+    }
+    
+    public func setFrom(collection: NoteCollection) {
+        cssString = collection.displayCSS
+        setCSS(useFirst: collection.displayCSS, useSecond: DisplayPrefs.shared.bodyCSS)
+        displayTemplate = collection.displayTemplate
+        format = .htmlDoc
+        sortParm = collection.sortParm
+        streamlined = collection.streamlined
+        mathJax = collection.mathJax
+    }
+    
     public func genMkdownOptions() -> MkdownOptions {
         let options = MkdownOptions()
         setMkdownOptions(options)

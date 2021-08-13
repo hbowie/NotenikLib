@@ -98,7 +98,7 @@ public class ModWhenChanged {
             i += 1
         }
         
-        if modNote.hasBody() && collection.minutesToReadDef != nil {
+        if modNote.hasBody() && collection.minutesToReadDef != nil && AppPrefs.shared.parseUsingNotenik {
             let body = modNote.body
             let mkdownOptions = MkdownOptions()
             let mdBodyParser = MkdownParser(body.value, options: mkdownOptions)
