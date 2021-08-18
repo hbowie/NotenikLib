@@ -194,13 +194,15 @@ public class WebBookMaker {
         
         let code = display.display(note, io: io, parms: parms)
         
-        do {
-            try code.write(to: fileURL, atomically: true, encoding: .utf8)
+        let written = FileUtils.saveToDisk(strToWrite: code,
+                                           outputURL: fileURL,
+                                           createDirectories: true,
+                                           checkForChanges: true)
+        
+        if written {
             filesWritten += 1
             writeNoteToManifest(title: title)
-        } catch {
-            communicateError("Problems writing document to \(fileURL.path)")
-        }
+        } 
     }
     
     func writeNoteToManifest(title: String) {

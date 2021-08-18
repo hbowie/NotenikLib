@@ -268,7 +268,7 @@ public class TemplateUtil {
             return
         }
         
-        logInfo("Including file \(absFilePath)")
+        // logInfo("Including file \(absFilePath)")
         
         let inFileName = FileName(absFilePath)
         let inType = idealizeExt(inFileName.ext)
@@ -375,29 +375,10 @@ public class TemplateUtil {
     /// Close the output file, writing it out to disk if it was open.
     func closeOutput() {
         if outputOpen && textOutURL != nil {
-            var bypassWrite = false
-            do {
-                let existing = try String(contentsOf: textOutURL!, encoding: .utf8)
-                if existing == outputLines {
-                    logInfo("No change to output file at \(textOutURL!.path)")
-                    bypassWrite = true
-                }
-            } catch {
-                print("Could not read file at \(textOutURL!.path)")
-            }
-            if !bypassWrite {
-                do {
-                    let textOutFolder = textOutURL!.deletingLastPathComponent()
-                    if !fileManager.fileExists(atPath: textOutFolder.path) {
-                        try fileManager.createDirectory(at: textOutFolder, withIntermediateDirectories: true, attributes: nil)
-                    }
-                    try outputLines.write(to: textOutURL!, atomically: false, encoding: .utf8)
-                    logInfo("\(outputLineCount) lines written to \(textOutURL!.path)")
-                } catch let error {
-                    logError("Problems writing to output file at \(textOutURL!.path)")
-                    logError("Error is \(error)")
-                }
-            }
+            _ = FileUtils.saveToDisk(strToWrite: outputLines,
+                                 outputURL: textOutURL!,
+                                 createDirectories: true,
+                                 checkForChanges: true)
         } else {
             linesToOutput = outputLines
         }
