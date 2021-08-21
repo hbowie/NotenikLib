@@ -96,6 +96,7 @@ public class RealmScanner {
         if initOK {
             let infoCollection = infoIO.collection
             if infoCollection != nil {
+
                 let realmNote = Note(collection: realmIO.collection!)
                 let titleOK = realmNote.setTitle(infoIO.collection!.title)
                 if !titleOK {
@@ -119,6 +120,14 @@ public class RealmScanner {
                 if addedNote == nil {
                     logError("Unable to record the Collection located at \(folderPath)")
                 }
+                
+                _ = infoIO.loadInfoFile()
+                if !infoCollection!.shortcut.isEmpty {
+                    let folderLink = NotenikLink(url: folderURL, isCollection: true)
+                    folderLink.shortcut = infoCollection!.shortcut
+                    MultiFileIO.shared.register(link: folderLink)
+                }
+                
             } else {
                 logError("Unable to initialize Collection located at \(folderPath)")
             }

@@ -101,6 +101,7 @@ public class NotenikFolderList: Sequence {
     
     /// Load the Collection shortcuts last saved by the user.
     public func loadShortcutsFromPrefs() {
+
         let shortcutStr = AppPrefs.shared.shortcuts
         let shortcuts = shortcutStr.components(separatedBy: "; ")
         for shortcut in shortcuts {
@@ -133,12 +134,16 @@ public class NotenikFolderList: Sequence {
         for existingFolder in folders {
             if folder == existingFolder {
                 existingFolder.shortcut = shortcut
+                MultiFileIO.shared.register(link: existingFolder)
                 return
             } else if folder < existingFolder {
                 folder.shortcut = shortcut
                 add(folder)
+                return
             } 
         }
+        folder.shortcut = shortcut
+        add(folder)
     }
     
     public func downloadFolders() {
@@ -215,6 +220,8 @@ public class NotenikFolderList: Sequence {
         } else {
             folders.append(folder)
         }
+        
+        MultiFileIO.shared.register(link: folder)
         
         var parent: NotenikFolderNode!
         if folder.location == .iCloudContainer {

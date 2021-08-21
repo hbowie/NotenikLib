@@ -281,6 +281,15 @@ public protocol NotenikIO {
     
     // -----------------------------------------------------------
     //
+    // MARK: Obtain info about the Collection.
+    //
+    // -----------------------------------------------------------
+    
+    /// Return the total number of Notes in the Collection.
+    var count: Int { get }
+    
+    // -----------------------------------------------------------
+    //
     // MARK: Import new Notes into the Collection
     //
     // -----------------------------------------------------------

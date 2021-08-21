@@ -29,6 +29,7 @@ public class AllTypes {
     let levelType   = LevelType()
     let linkType    = LinkType()
     let longTextType = LongTextType()
+    let lookupType  = LookupType()
     let minutesToReadType = MinutesToReadType()
     let pickListType = PickListType()
     let ratingType  = RatingType()
@@ -92,6 +93,7 @@ public class AllTypes {
         
         fieldTypes.append(linkType)
         fieldTypes.append(longTextType)
+        fieldTypes.append(lookupType)
         
         teaserType.properLabel = "Teaser"
         teaserType.commonLabel = "teaser"

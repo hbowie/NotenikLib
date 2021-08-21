@@ -21,6 +21,7 @@ public class NoteCollection {
     public  var lib:          ResourceLibrary!
             var noteType    : NoteType = .general
     public  var dict        : FieldDictionary
+    public  var hasLookupFields = false
     public  var sortParm    : NoteSortParm
             var sortDescending: Bool
     public  var typeCatalog  = AllTypes()

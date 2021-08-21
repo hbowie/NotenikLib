@@ -37,6 +37,9 @@ class ApplyTemplateValues {
         
         var dateCount = 0
         var linkCount = 0
+        
+        var creatorFound = false
+        var authorDef: FieldDefinition?
 
         for def in dict.list {
             
@@ -50,13 +53,20 @@ class ApplyTemplateValues {
             // If needed, update the various singular field definitions for the Collection.
             //
             
+            if def.fieldLabel.commonForm == NotenikConstants.authorCommon
+                || def.fieldLabel.commonForm == NotenikConstants.artistCommon {
+                authorDef = def
+            }
+            
             switch def.fieldType.typeString {
             
             case NotenikConstants.artistCommon:
                 collection.creatorFieldDef = def
+                creatorFound = true
                 
             case NotenikConstants.authorCommon:
                 collection.creatorFieldDef = def
+                creatorFound = true
                 
             case NotenikConstants.bodyCommon:
                 if collection.bodyFieldDef.fieldLabel.commonForm == NotenikConstants.bodyCommon {
@@ -152,6 +162,11 @@ class ApplyTemplateValues {
             }
             
         } // end of for loop through field definitions
+        
+        if !creatorFound && authorDef != nil {
+            collection.creatorFieldDef = authorDef!
+        }
+        
     } // end of func applyValuesToDict
     
     /// Parse the value and modify the definition accordingly.
@@ -199,6 +214,9 @@ class ApplyTemplateValues {
                 def.pickList = pickList
                 def.fieldType = collection.typeCatalog.assignType(label: def.fieldLabel, type: typeStrCommon)
             }
+        } else if typeStrCommon == NotenikConstants.lookupType {
+            def.fieldType = collection.typeCatalog.assignType(label: def.fieldLabel, type: typeStrCommon)
+            def.lookupFrom = typeValues.str
         } else {
             def.fieldType = collection.typeCatalog.assignType(label: def.fieldLabel, type: typeStrCommon)
             def.pickList = def.fieldType.genPickList()

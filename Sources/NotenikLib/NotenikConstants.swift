@@ -114,6 +114,7 @@ public struct NotenikConstants {
     public static let longTextType      = "longtext"
     public static let stringType        = "string"
     public static let pickFromType      = "pickfrom"
+    public static let lookupType        = "lookup"
     
     //-------------------------------------------------------------
     //

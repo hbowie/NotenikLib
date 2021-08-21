@@ -63,6 +63,12 @@ class BunchIO: NotenikIO, RowConsumer  {
         return bunch!.count
     }
     
+    /// Return the total number of Notes in the Collection.
+    public var count: Int {
+        guard bunch != nil else { return 0 }
+        return bunch!.count
+    }
+    
     /// The position of the selected note, if any, in the current collection
     var position:   NotePosition? {
         if !collectionOpen || collection == nil || bunch == nil {

@@ -24,26 +24,16 @@ public class FileIO: NotenikIO, RowConsumer {
     // -----------------------------------------------------------
     
     /// The currently open collection, if any
-    public var collection:  NoteCollection?
-    
-    /// The Collection of Notes stored in memory.
-    var bunch:              BunchOfNotes?
-    
-    /// The position of the selected note, if any, in the current collection
-    public var position:   NotePosition? {
-        if !collectionOpen || collection == nil || bunch == nil {
-            return nil
-        } else {
-            notePosition.index = bunch!.listIndex
-            return notePosition
-        }
-    }
+    public var collection: NoteCollection?
     
     /// An indicator of the status of the Collection: open or closed
     public var collectionOpen = false
     
     /// A list of reports available for the currently open Collection.
     public var reports: [MergeReport] = []
+    
+    /// The Collection of Notes stored in memory.
+    var bunch: BunchOfNotes?
     
     /// A list of notes in the Collection.
     public var notesList: NotesList {
@@ -60,6 +50,16 @@ public class FileIO: NotenikIO, RowConsumer {
         return bunch!.count
     }
     
+    /// The position of the selected note, if any, in the current collection
+    public var position: NotePosition? {
+        if !collectionOpen || collection == nil || bunch == nil {
+            return nil
+        } else {
+            notePosition.index = bunch!.listIndex
+            return notePosition
+        }
+    }
+    
     /// Pick lists maintained for the Collection.
     public var pickLists = ValuePickLists()
     
@@ -69,7 +69,9 @@ public class FileIO: NotenikIO, RowConsumer {
         set {
             if newValue != collection!.sortParm {
                 collection!.sortParm = newValue
-                bunch!.sortParm = newValue
+                if bunch != nil {
+                    bunch!.sortParm = newValue
+                }
             }
         }
     }
@@ -129,42 +131,6 @@ public class FileIO: NotenikIO, RowConsumer {
         inspectors.append(inspector)
     }
     
-    /// Attempt to initialize the collection at the provided path.
-    ///
-    /// - Parameter realm: The realm housing the collection to be opened.
-    /// - Parameter collectionPath: The path identifying the collection within this realm
-    /// - Returns: True if successful, false otherwise.
-    public func initCollection(realm: Realm, collectionPath: String, readOnly: Bool) -> Bool {
-        closeCollection()
-        logInfo("Initializing Collection")
-        self.realm = realm
-        self.provider = realm.provider
-        if realm.path.count > 0 {
-            logInfo("Realm:      " + realm.path)
-        }
-        logInfo("Collection: " + collectionPath)
-        
-        collection = NoteCollection(realm: realm)
-        collection!.path = collectionPath
-        collection!.readOnly = readOnly
-        
-        guard collection!.lib.hasAvailable(type: .collection) else { return false }
-        guard let url = collection!.lib.getURL(type: .collection) else { return false }
-        if collection!.lib.itemsFound == 0 {
-            collection!.setTitleFromURL(url)
-            return true
-        } else if collection!.lib.hasAvailable(type: .info) {
-            collection!.setTitleFromURL(url)
-            return true
-        } else if collection!.lib.notesFound > 0 {
-            collection!.setTitleFromURL(url)
-            return true
-        } else {
-            logError("This path does not point to a Notenik Collection")
-            return false
-        }
-    }
-    
     /// Add the default definitions to the Collection's dictionary:
     /// Title, Tags, Link and Body
     public func addDefaultDefinitions() {
@@ -202,7 +168,7 @@ public class FileIO: NotenikIO, RowConsumer {
     /// Open a New Collection.
     ///
     /// The passed collection should already have been initialized
-    /// via a call to initCollection above.
+    /// via a call to initCollection.
     public func newCollection(collection: NoteCollection, withFirstNote: Bool = true) -> Bool {
         
         self.collection = collection
@@ -451,7 +417,51 @@ public class FileIO: NotenikIO, RowConsumer {
             } else {
                 _ = firstNote()
             }
+            
+            // Check for lookup collections.
+            for def in collection!.dict.list {
+                if !def.lookupFrom.isEmpty {
+                    collection!.hasLookupFields = true
+                }
+            }
+            
             return collection
+        }
+    }
+    
+    /// Attempt to initialize the collection at the provided path.
+    ///
+    /// - Parameter realm: The realm housing the collection to be opened.
+    /// - Parameter collectionPath: The path identifying the collection within this realm
+    /// - Returns: True if successful, false otherwise.
+    public func initCollection(realm: Realm, collectionPath: String, readOnly: Bool) -> Bool {
+        closeCollection()
+        logInfo("Initializing Collection")
+        self.realm = realm
+        self.provider = realm.provider
+        if realm.path.count > 0 {
+            logInfo("Realm:      " + realm.path)
+        }
+        logInfo("Collection: " + collectionPath)
+        
+        collection = NoteCollection(realm: realm)
+        collection!.path = collectionPath
+        collection!.readOnly = readOnly
+        
+        guard collection!.lib.hasAvailable(type: .collection) else { return false }
+        guard let url = collection!.lib.getURL(type: .collection) else { return false }
+        if collection!.lib.itemsFound == 0 {
+            collection!.setTitleFromURL(url)
+            return true
+        } else if collection!.lib.hasAvailable(type: .info) {
+            collection!.setTitleFromURL(url)
+            return true
+        } else if collection!.lib.notesFound > 0 {
+            collection!.setTitleFromURL(url)
+            return true
+        } else {
+            logError("This path does not point to a Notenik Collection")
+            return false
         }
     }
     
@@ -1130,6 +1140,18 @@ public class FileIO: NotenikIO, RowConsumer {
     public func getNote(forTimestamp stamp: String) -> Note? {
         guard collection != nil && collectionOpen else { return nil }
         return bunch!.getNote(forTimestamp: stamp)
+    }
+    
+    // -----------------------------------------------------------
+    //
+    // MARK: Obtain info about the Collection.
+    //
+    // -----------------------------------------------------------
+    
+    /// Return the total number of Notes in the Collection.
+    public var count: Int {
+        guard bunch != nil else { return 0 }
+        return bunch!.count
     }
     
     // -----------------------------------------------------------

@@ -237,6 +237,8 @@ public class NoteFieldsToHTML {
                 code.append(field.value.value)
             }
             code.finishParagraph()
+        } else if field.def.fieldType.typeString == NotenikConstants.lookupType {
+            displayLookup(field, note: note, collection: collection, markedup: code, io: io)
         } else {
             code.startParagraph()
             code.append(field.def.fieldLabel.properForm)
@@ -246,6 +248,57 @@ public class NoteFieldsToHTML {
         }
 
         return String(describing: code)
+    }
+    
+    /// Display a lookup field.
+    func displayLookup(_ field: NoteField,
+                       note: Note,
+                       collection: NoteCollection,
+                       markedup: Markedup,
+                       io: NotenikIO?) {
+        
+        var detailsFound = false
+        let shortcut = field.def.lookupFrom
+        let lookupNote = MultiFileIO.shared.getNote(shortcut: shortcut, forID: field.value.value)
+        if lookupNote != nil {
+            let lookupCollection = lookupNote!.collection
+            let lookupDict = lookupCollection.dict
+            for lookupDef in lookupDict.list {
+                if lookupDef != lookupCollection.idFieldDef {
+                    let lookupField = lookupNote!.getField(def: lookupDef)
+                    if lookupField != nil && lookupField!.value.hasData {
+                        if !detailsFound {
+                            markedup.startDetails(summary: field.def.fieldLabel.properForm + ": " + field.value.value)
+                            markedup.startUnorderedList(klass: nil)
+                            detailsFound = true
+                        }
+                        markedup.startListItem()
+                        markedup.append(lookupField!.def.fieldLabel.properForm)
+                        markedup.append(": ")
+                        if lookupDef.fieldType is LinkType {
+                            var pathDisplay = lookupField!.value.value.removingPercentEncoding
+                            if pathDisplay == nil {
+                                pathDisplay = lookupField!.value.value
+                            }
+                            markedup.link(text: pathDisplay!, path: lookupField!.value.value)
+                        } else {
+                            markedup.append(lookupField!.value.value)
+                        }
+                        markedup.finishListItem()
+                    }
+                }
+            }
+        }
+        if detailsFound {
+            markedup.finishUnorderedList()
+            markedup.finishDetails()
+        } else {
+            markedup.startParagraph()
+            markedup.append(field.def.fieldLabel.properForm)
+            markedup.append(": ")
+            markedup.append(field.value.value)
+            markedup.finishParagraph()
+        }
     }
     
     /// Convert Markdown to HTML.

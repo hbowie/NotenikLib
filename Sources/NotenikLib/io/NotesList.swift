@@ -16,11 +16,11 @@ public class NotesList: Sequence {
     
     var list = [Note]()
     
-    var count: Int {
+    public var count: Int {
         return list.count
     }
     
-    subscript(index: Int) -> Note {
+    public subscript(index: Int) -> Note {
         get {
             return list[index]
         }

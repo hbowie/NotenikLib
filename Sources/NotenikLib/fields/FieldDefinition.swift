@@ -19,6 +19,7 @@ public class FieldDefinition: Comparable, CustomStringConvertible {
     public var fieldLabel:  FieldLabel = FieldLabel()
     public var fieldType:   AnyType = StringType()
     public var pickList:    PickList?
+    public var lookupFrom:  String = ""
     
     /// Initialize with no parameters, defaulting to a simple String type.
     init() {
@@ -71,7 +72,7 @@ public class FieldDefinition: Comparable, CustomStringConvertible {
         return("Proper: \(fieldLabel.properForm), Common: \(fieldLabel.commonForm), type: \(fieldType.typeString)")
     }
     
-    func display() {
+    public func display() {
         print("FieldDefinition")
         fieldLabel.display()
         print("Field Type String: \(fieldType.typeString)")
