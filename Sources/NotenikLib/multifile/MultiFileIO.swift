@@ -19,7 +19,7 @@ public class MultiFileIO {
     
     public static let shared = MultiFileIO()
     
-    var entries: [String: MultiFileEntry] = [:]
+    var entries: [String : MultiFileEntry] = [:]
     
     init() {
         
@@ -93,6 +93,56 @@ public class MultiFileIO {
         }
         
         return entry.io
+    }
+    
+    /// Either find an open I/O module or create one.
+    public func getFileIO(fileURL: URL, readOnly: Bool) -> FileIO? {
+        
+        // Do we already have an open I/O module?
+        for (_, entry) in entries {
+            if fileURL.path == entry.link.path {
+                if entry.io != nil && entry.io!.collectionOpen {
+                    return entry.io
+                }
+            }
+        }
+        
+        // Nothing open, so let's make one.
+        let io = FileIO()
+        let realm = io.getDefaultRealm()
+        realm.path = ""
+        var collectionURL: URL
+        if FileUtils.isDir(fileURL.path) {
+            collectionURL = fileURL
+        } else {
+            collectionURL = fileURL.deletingLastPathComponent()
+        }
+        
+        let collection = io.openCollection(realm: realm, collectionPath: collectionURL.path, readOnly: readOnly)
+        if collection == nil {
+            communicateError("Problems opening the collection at " + collectionURL.path)
+            return nil
+        } else {
+            Logger.shared.log(subsystem: "com.powersurgepub.notenik.macos",
+                              category: "MultiFileIO",
+                              level: .info,
+                              message: "Collection successfully opened: \(collection!.title)")
+        }
+        if !collection!.shortcut.isEmpty {
+            let link = NotenikLink(url: collectionURL, isCollection: true)
+            link.shortcut = collection!.shortcut
+            register(link: link, io: io)
+        }
+        return io
+    }
+    
+    /// Log an error message and optionally display an alert message.
+    func communicateError(_ msg: String) {
+        
+        Logger.shared.log(subsystem: "com.powersurgepub.notenik.macos",
+                          category: "MultiFileIO",
+                          level: .error,
+                          message: msg)
     }
     
 }
