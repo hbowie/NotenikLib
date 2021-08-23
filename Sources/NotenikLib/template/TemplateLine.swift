@@ -120,10 +120,6 @@ class TemplateLine {
             util.startVar     = "=$"
             util.endVar       = "$="
             util.startMods    = "&"
-            Logger.shared.log(subsystem: "com.powersurgepub.notenik",
-                              category: "TemplateLine",
-                              level: .info,
-                              message: "Template System using newer delimiters of <? ?> =$ $=")
         }
     }
     

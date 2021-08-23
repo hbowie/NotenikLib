@@ -956,7 +956,7 @@ public class TemplateUtil {
     ///   - fromNote: The Note instance containing the field values to be used.
     /// - Returns: The replacement value, if the variable name was found, otherwise nil.
     func replaceVarWithValue(varName: String, fromNote: Note) -> String? {
-        let field = fromNote.getField(label: varName)
+        let field = FieldGrabber.getField(note: fromNote, label: varName)
         if field == nil {
             return nil
         } else {

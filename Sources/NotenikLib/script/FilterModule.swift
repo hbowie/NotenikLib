@@ -61,7 +61,7 @@ class FilterModule {
         for note in workspace.fullList {
             var selected = true
             for rule in workspace.currentRules {
-                var field = note.getField(def: rule.field!)
+                var field = FieldGrabber.getField(note: note, label: rule.field!.fieldLabel.commonForm)
                 if field == nil {
                     field = NoteField(def: rule.field!, value: "",
                                       statusConfig: workspace.collection.statusConfig,

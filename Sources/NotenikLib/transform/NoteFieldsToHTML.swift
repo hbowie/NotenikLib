@@ -260,7 +260,18 @@ public class NoteFieldsToHTML {
         var detailsFound = false
         let shortcut = field.def.lookupFrom
         let lookupNote = MultiFileIO.shared.getNote(shortcut: shortcut, forID: field.value.value)
-        if lookupNote != nil {
+        if lookupNote == nil {
+            markedup.startParagraph()
+            markedup.append(field.def.fieldLabel.properForm)
+            markedup.append(": ")
+            var encodedTitle = field.value.value.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed)
+            if encodedTitle == nil {
+                encodedTitle = field.value.value
+            }
+            let addLink = "notenik://add?shortcut=\(shortcut)&title=\(encodedTitle!)"
+            markedup.link(text: field.value.value, path: addLink)
+            markedup.finishParagraph()
+        } else {
             let lookupCollection = lookupNote!.collection
             let lookupDict = lookupCollection.dict
             for lookupDef in lookupDict.list {
@@ -268,7 +279,9 @@ public class NoteFieldsToHTML {
                     let lookupField = lookupNote!.getField(def: lookupDef)
                     if lookupField != nil && lookupField!.value.hasData {
                         if !detailsFound {
-                            markedup.startDetails(summary: field.def.fieldLabel.properForm + ": " + field.value.value)
+                            let openID = StringUtils.toCommon(field.value.value)
+                            let openLink = "<a href=\"notenik://open?shortcut=\(shortcut)&id=\(openID)\">\(field.value.value)</a>"
+                            markedup.startDetails(summary: field.def.fieldLabel.properForm + ": " + openLink)
                             markedup.startUnorderedList(klass: nil)
                             detailsFound = true
                         }
@@ -292,11 +305,13 @@ public class NoteFieldsToHTML {
         if detailsFound {
             markedup.finishUnorderedList()
             markedup.finishDetails()
-        } else {
+        } else if lookupNote != nil {
             markedup.startParagraph()
             markedup.append(field.def.fieldLabel.properForm)
             markedup.append(": ")
-            markedup.append(field.value.value)
+            let openID = StringUtils.toCommon(field.value.value)
+            let openLink = "notenik://open?shortcut=\(shortcut)&id=\(openID)"
+            markedup.link(text: field.value.value, path: openLink)
             markedup.finishParagraph()
         }
     }

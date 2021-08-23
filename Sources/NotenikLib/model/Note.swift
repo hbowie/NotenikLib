@@ -145,12 +145,12 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
         while index < lhs.collection.customFields.count && result == 0 {
             let sortField = lhs.collection.customFields[index]
             let def = sortField.field
-            let field1 = lhs.getField(def: def)
+            let field1 = FieldGrabber.getField(note: lhs, label: def.fieldLabel.commonForm)
             var value1 = StringValue()
             if field1 != nil {
                 value1 = field1!.value
             }
-            let field2 = rhs.getField(def: def)
+            let field2 = FieldGrabber.getField(note: rhs, label: def.fieldLabel.commonForm)
             var value2 = StringValue()
             if field2 != nil {
                 value2 = field2!.value

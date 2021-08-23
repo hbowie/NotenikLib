@@ -85,7 +85,7 @@ public class FieldDictionary {
     ///
     /// - Parameter i: An index into the list of definitions in the dictionary.
     /// - Returns: An optional Field Definition, of nil, if the index is out of range.
-    func getDef(_ i : Int) -> FieldDefinition? {
+    func getDef(_ i: Int) -> FieldDefinition? {
         if i < 0 || i >= list.count {
             return nil
         } else {
