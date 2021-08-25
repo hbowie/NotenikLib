@@ -276,7 +276,9 @@ public class FileIO: NotenikIO, RowConsumer {
                 value = ""
             } else if def.fieldType is LongTextType {
                 value = "<longtext>"
-            } else if def.fieldType.typeString != NotenikConstants.stringType {
+            } else if def.fieldType.typeString == NotenikConstants.lookupType {
+                value = "<lookup: \(def.lookupFrom)>"
+            }else if def.fieldType.typeString != NotenikConstants.stringType {
                 value = "<\(def.fieldType.typeString)>"
             }
             str.append("\(def.fieldLabel.properForm): \(value) \n\n")
