@@ -166,15 +166,17 @@ public class NoteLineParser {
                 }
             } else {
                 // Value with no label
-                label.set(NotenikConstants.body)
+                label.set(collection.bodyFieldDef.fieldLabel.properForm)
                 label.validLabel = true
-                def = note.collection.getDef(label: &label, allowDictAdds: allowDictAdds)!
-                value = noteLine.line
-                bodyStarted = true
-                if lineNumber == 1 {
-                    note.fileInfo.format = .plainText
-                } else {
-                    note.fileInfo.format = .multiMarkdown
+                if let labelDef = note.collection.getDef(label: &label, allowDictAdds: allowDictAdds) {
+                    def = labelDef
+                    value = noteLine.line
+                    bodyStarted = true
+                    if lineNumber == 1 {
+                        note.fileInfo.format = .plainText
+                    } else {
+                        note.fileInfo.format = .multiMarkdown
+                    }
                 }
             }
             
