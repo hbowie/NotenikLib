@@ -130,7 +130,8 @@ public class DisplayPrefs {
     
     /// Apply the CSS to the entire body. 
     public var bodyCSS: String? {
-        var tempCSS = "body { "
+        var tempCSS = darkModeAdjustments()
+        tempCSS.append("body { ")
         tempCSS.append("\ntab-size: 4; ")
         if css != nil {
             tempCSS.append(css!)
@@ -142,10 +143,30 @@ public class DisplayPrefs {
     
     /// Apply the given CSS to the entire body.
     public func buildBodyCSS(_ css: String) -> String {
-        var tempCSS = "body { "
+        var tempCSS = darkModeAdjustments()
+        tempCSS.append("body { ")
         tempCSS.append(css)
         tempCSS.append(" }")
         // tempCSS.append("\ncode { overflow: auto }")
+        return tempCSS
+    }
+    
+    public func darkModeAdjustments() -> String {
+        let tempCSS = """
+        :root {
+            color-scheme: light dark;
+            --link-color: blue;
+        }
+        @media screen and (prefers-color-scheme: dark) {
+          :root {
+            --link-color: #93d5ff;
+          }
+        }
+        a {
+            color: var(--link-color);
+        }
+        
+        """
         return tempCSS
     }
     
