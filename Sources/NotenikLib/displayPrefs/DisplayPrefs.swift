@@ -133,6 +133,7 @@ public class DisplayPrefs {
         var tempCSS = darkModeAdjustments()
         tempCSS.append("body { ")
         tempCSS.append("\ntab-size: 4; ")
+        tempCSS.append("\nmargin: 1em; ")
         if css != nil {
             tempCSS.append(css!)
         }

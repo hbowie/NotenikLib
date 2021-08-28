@@ -130,10 +130,10 @@ public class FavoritesToHTML {
         }
         writeLineToCSS("body { margin-left: 20px; } ")
         writeLineToCSS(".column { display:inline-block; width: \(columnWidth); vertical-align: top; }")
-        writeLineToCSS("h2 { font-weight: 700; margin-top: 10pt; margin-bottom: 4pt; font-size: \(DisplayPrefs.shared.sizePlusUnit!); line-height: normal; }")
+        writeLineToCSS("h2 { font-weight: 600; margin-top: 10pt; margin-bottom: 4pt; font-size: \(DisplayPrefs.shared.sizePlusUnit!); line-height: normal; }")
         writeLineToCSS("p { font-size: \(DisplayPrefs.shared.sizePlusUnit!); margin-top: 0pt; margin-bottom: 4pt; font-weight: 500; }")
-        writeLineToCSS("a:link { text-decoration: none; color: #004080; }")
-        writeLineToCSS("a:visited { text-decoration: none; color: #400080; }")
+        writeLineToCSS("a:link { text-decoration: none; }")
+        writeLineToCSS("a:visited { text-decoration: none; }")
         writeLineToCSS("a:hover { text-decoration: underline; }")
         writeLineToCSS("a:active { text-decoration: underline; }")
     }
