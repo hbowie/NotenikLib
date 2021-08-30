@@ -156,15 +156,20 @@ public class DisplayPrefs {
         let tempCSS = """
         :root {
             color-scheme: light dark;
-            --link-color: blue;
+            --link-color: Blue;
+            --highlight-color: Gainsboro
         }
         @media screen and (prefers-color-scheme: dark) {
           :root {
             --link-color: #93d5ff;
+            --highlight-color: DimGray
           }
         }
         a {
             color: var(--link-color);
+        }
+        .search-results {
+            background-color: var(--highlight-color);
         }
         
         """
