@@ -347,13 +347,12 @@ class TemplateLine {
     func processSetCommand(note: Note) {
         guard !util.skippingData else { return }
         guard tokens.count >= 3 else { return }
-        let globalName = String(tokens[1])
+        let globalName = util.replaceVariables(str: String(tokens[1]), note: note).line
         let opcode = String(tokens[2])
         
         var operand1 = ""
         if tokens.count >= 4 {
             operand1 = util.replaceVariables(str: String(tokens[3]), note: note).line
-            
         }
         
         var globalField = util.globals.getField(label: globalName)
