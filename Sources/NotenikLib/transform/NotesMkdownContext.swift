@@ -65,6 +65,14 @@ public class NotesMkdownContext: MkdownContext {
         }
         
         // Check for second possible case: title within the wiki link
+        // uses the singular form of a word, but the word appears in its
+        // plural form within the target note's title.
+        linkedNote = io.getNote(forID: titleID + "s")
+        if linkedNote != nil {
+            return linkText + "s"
+        }
+        
+        // Check for second possible case: title within the wiki link
         // used to point directly to another note having that same title,
         // but the target note's title has since been modified.
         let timestamp = io.aliasList.get(titleID: titleID)
