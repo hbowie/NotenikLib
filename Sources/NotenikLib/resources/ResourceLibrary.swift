@@ -395,7 +395,7 @@ public class ResourceLibrary {
         readmeFile = ResourceFileSys(parent: notesFolder, fileName: ResourceFileSys.readmeFileName, type: .readme)
         var str = "This folder contains a collection of notes created by the Notenik application."
         str.append("\n\n")
-        str.append("Learn more at https://Notenik.net")
+        str.append("Learn more at https://Notenik.app")
         str.append("\n")
         return readmeFile.write(str: str)
     }

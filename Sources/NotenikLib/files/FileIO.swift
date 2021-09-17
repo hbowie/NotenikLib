@@ -295,7 +295,7 @@ public class FileIO: NotenikIO, RowConsumer {
         
         let firstNote = Note(collection: collection!)
         _ = firstNote.setTitle("Notenik")
-        _ = firstNote.setLink("https://notenik.net")
+        _ = firstNote.setLink("https://notenik.app")
         _ = firstNote.setTags("Software.Groovy")
         _ = firstNote.setBody("A note-taking system cunningly devised by Herb Bowie")
         
