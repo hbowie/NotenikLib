@@ -15,17 +15,17 @@ import Foundation
 import NotenikUtils
 
 /// A utility class that can be used to grab a field from a Note or one of its referenced Notes. 
-class FieldGrabber {
+public class FieldGrabber {
     
     /// Get the Note Field for a particular label
-    static func getField (note: Note, label: String) -> NoteField? {
+    public static func getField (note: Note, label: String) -> NoteField? {
         let fieldLabel = FieldLabel(label)
         let field = note.fields[fieldLabel.commonForm]
         if field != nil { return field }
         return tryLookupFields(note: note, label: fieldLabel)
     }
     
-    static func tryLookupFields(note: Note, label: FieldLabel) -> NoteField? {
+    public static func tryLookupFields(note: Note, label: FieldLabel) -> NoteField? {
         for (_, field) in note.fields {
             guard field.def.fieldType is LookupType else { continue }
             guard !field.def.lookupFrom.isEmpty else { continue }
