@@ -481,6 +481,7 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
         var foldersFound = 0
         var notesFound = 0
         var itemsFound = 0
+        var robotsFileFound = false
         for itemPath in contents {
             let itemLink = NotenikLink(dir: folderPath, name: itemPath)
             if itemLink.type == .dsstore {
@@ -491,11 +492,16 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
                     foldersFound += 1
                 } else if itemLink.type == .noteFile {
                     notesFound += 1
+                    if itemPath == "robots.txt" {
+                        robotsFileFound = true
+                    }
                 }
             }
         }
         
-        if notesFound > 0 {
+        if notesFound > 1 {
+            type = .ordinaryCollection
+        } else if notesFound > 0 && !robotsFileFound {
             type = .ordinaryCollection
         } else if foldersFound > 0 {
             type = .realm
