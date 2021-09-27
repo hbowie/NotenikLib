@@ -80,7 +80,6 @@ public class MultiFileIO {
         
         // First, see if we can find an entry for the shortcut.
         guard let entry = entries[shortcut] else {
-            print("Shortcut \(shortcut) could not be found!")
             return nil
         }
         
@@ -97,7 +96,7 @@ public class MultiFileIO {
             collection = entry.io!.openCollection(realm: realm, collectionPath: link.path, readOnly: false)
         }
         guard entry.io != nil && collection != nil && entry.io!.collectionOpen else {
-            print("Could not open Collection at \(link.path)")
+            communicateError("Could not open Collection at \(link.path)")
             return nil
         }
         
@@ -156,7 +155,6 @@ public class MultiFileIO {
     /// to open.
     /// - Parameter url: The folder that the user wishes to open.
     public func registerBookmark(url: URL) {
-        print("MultiFileIO.registerBookmark for url \(url)")
         let bookmark = MultiFileBookmark(url: url, source: .fromSession)
         do {
             bookmark.data = try url.bookmarkData(options: .withSecurityScope, includingResourceValuesForKeys: nil, relativeTo: nil)
@@ -164,7 +162,6 @@ public class MultiFileIO {
         } catch {
             communicateError("Couldn't generate bookmark data for url \(url)")
         }
-        print("  - Bookmarks list now contains \(bookmarks.count) bookmarks")
     }
     
     /// Associate a URL's bookmark with the folder's assigned shortcut.
@@ -172,19 +169,14 @@ public class MultiFileIO {
     ///   - url: The URL of a Collection folder with an assigned shortcut.
     ///   - shortcut: The shortcut assigned to the Collection folder.
     public func stashBookmark(url: URL, shortcut: String) {
-        print("MultiFileIO.stashBookmark")
-        print("  - url = \(url)")
         guard !shortcut.isEmpty else { return }
-        print("  - shortcut = \(shortcut)")
         let path = url.path
         for bookmark in bookmarks {
             if (path.starts(with: bookmark.path) || path == bookmark.path) && bookmark.source == .fromSession {
                 UserDefaults.standard.set(bookmark.data!, forKey: "bookmark-for-\(shortcut)")
-                print("  - stashed bookmark")
                 return
             }
         }
-        print("  - Could not find matching bookmark for \(url)")
     }
     
     /// Secure access to the identified Collection, if we need to, and if we have a bookmark stashed.
@@ -192,14 +184,10 @@ public class MultiFileIO {
     ///   - shortcut: The shortcut assigned to the Collection.
     ///   - url: The URL pointing to the Collection. 
     public func secureAccess(shortcut: String, url: URL) {
-        print("MultiFileIO.secureAccess")
-        print("  - url = \(url)")
         guard !shortcut.isEmpty else { return }
-        print("  - shortcut")
         let path = url.path
         for bookmark in bookmarks {
             if path.starts(with: bookmark.path) || path == bookmark.path {
-                print("  - user granted access during this session")
                 return
             }
         }
@@ -209,11 +197,9 @@ public class MultiFileIO {
             let reachable = try url.checkResourceIsReachable()
             if reachable {
                 return
-            } else {
-                print("  - URL is not initially reachable")
             }
         } catch {
-            print("  - error caught while checking reachability")
+            communicateError("Error caught while checking reachability for \(url)")
         }
         
         // Try to make it reachable using stashed bookmark data.
@@ -225,26 +211,23 @@ public class MultiFileIO {
                                          relativeTo: nil,
                                          bookmarkDataIsStale: &stale)
                 if stale {
-                    print("  - bookmark is stale")
+                    communicateError("bookmark is stale for shortcut \(shortcut)")
                 } else {
                     let ok = stashedURL.startAccessingSecurityScopedResource()
                     if !ok {
-                        print("  - Attempt to start accessing return false")
+                        communicateError("Attempt to start accessing returned false for shortcut \(shortcut)")
                     } else {
                         let bookmark = MultiFileBookmark(url: url, source: .fromStash)
                         addBookmark(bookmark: bookmark)
                     }
                 }
             } catch {
-                print("  - could not resolve bookmark data")
+                communicateError("Could not resolve bookmark data for shortcut \(shortcut)")
             }
-        } else {
-            print("  - could not retrieve from user defaults")
         }
     }
     
     public func stopAccess(url: URL) {
-        print("MultiFileIO.stopAccess to \(url)")
         let path = url.path
         var index = 0
         while index < bookmarks.count {
