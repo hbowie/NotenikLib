@@ -100,7 +100,7 @@ public class FileIO: NotenikIO, RowConsumer {
     var attachments: [ResourceFileSys]?
     
     var provider            : Provider = Provider()
-    var realm               : Realm
+    var realm               : Realm = Realm()
     
     var lastIndexSelected = -1
     
@@ -278,7 +278,7 @@ public class FileIO: NotenikIO, RowConsumer {
                 value = "<longtext>"
             } else if def.fieldType.typeString == NotenikConstants.lookupType {
                 value = "<lookup: \(def.lookupFrom)>"
-            }else if def.fieldType.typeString != NotenikConstants.stringType {
+            } else if def.fieldType.typeString != NotenikConstants.stringType {
                 value = "<\(def.fieldType.typeString)>"
             }
             str.append("\(def.fieldLabel.properForm): \(value) \n\n")
@@ -598,6 +598,11 @@ public class FileIO: NotenikIO, RowConsumer {
         if !collection!.readOnly {
             _ = saveInfoFile()
             _ = aliasList.saveToDisk()
+            if !collection!.shortcut.isEmpty && collection!.fullPathURL != nil {
+                MultiFileIO.shared.stashBookmark(url: collection!.fullPathURL!,
+                                                 shortcut: collection!.shortcut)
+                MultiFileIO.shared.stopAccess(url: collection!.fullPathURL!)
+            }
         }
 
         collection = nil

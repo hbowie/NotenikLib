@@ -19,15 +19,20 @@ public class MultiFileIO {
     
     public static let shared = MultiFileIO()
     
+    // Use a Collection's shortcut as the key for the dictionary.
     var entries: [String : MultiFileEntry] = [:]
+    
+    var bookmarks: [MultiFileBookmark] = []
     
     init() {
         
     }
     
-    public func register(collection: NoteCollection) {
-        guard !collection.shortcut.isEmpty else { return }
-    }
+    // -----------------------------------------------------------
+    //
+    // MARK: Manage multi-file entries.
+    //
+    // -----------------------------------------------------------
     
     /// Register a known Collection with an assigned shortcut.
     public func register(link: NotenikLink) {
@@ -67,6 +72,10 @@ public class MultiFileIO {
         return io.notesList
     }
     
+    /// Get the shared I/O module for the Collection with the indicated shortcut.  If we
+    ///  don't already have one, then create one, and open it.
+    /// - Parameter shortcut: <#shortcut description#>
+    /// - Returns: <#description#>
     public func getFileIO(shortcut: String) -> FileIO? {
         
         // First, see if we can find an entry for the shortcut.
@@ -134,6 +143,135 @@ public class MultiFileIO {
             register(link: link, io: io)
         }
         return io
+    }
+    
+    // -----------------------------------------------------------
+    //
+    // MARK: Manage bookmarks.
+    //
+    // -----------------------------------------------------------
+    
+    
+    /// Register a bookmark for a URL that the user has just granted us permission
+    /// to open.
+    /// - Parameter url: The folder that the user wishes to open.
+    public func registerBookmark(url: URL) {
+        print("MultiFileIO.registerBookmark for url \(url)")
+        let bookmark = MultiFileBookmark(url: url, source: .fromSession)
+        do {
+            bookmark.data = try url.bookmarkData(options: .withSecurityScope, includingResourceValuesForKeys: nil, relativeTo: nil)
+            addBookmark(bookmark: bookmark)
+        } catch {
+            communicateError("Couldn't generate bookmark data for url \(url)")
+        }
+        print("  - Bookmarks list now contains \(bookmarks.count) bookmarks")
+    }
+    
+    /// Associate a URL's bookmark with the folder's assigned shortcut.
+    /// - Parameters:
+    ///   - url: The URL of a Collection folder with an assigned shortcut.
+    ///   - shortcut: The shortcut assigned to the Collection folder.
+    public func stashBookmark(url: URL, shortcut: String) {
+        print("MultiFileIO.stashBookmark")
+        print("  - url = \(url)")
+        guard !shortcut.isEmpty else { return }
+        print("  - shortcut = \(shortcut)")
+        let path = url.path
+        for bookmark in bookmarks {
+            if (path.starts(with: bookmark.path) || path == bookmark.path) && bookmark.source == .fromSession {
+                UserDefaults.standard.set(bookmark.data!, forKey: "bookmark-for-\(shortcut)")
+                print("  - stashed bookmark")
+                return
+            }
+        }
+        print("  - Could not find matching bookmark for \(url)")
+    }
+    
+    /// Secure access to the identified Collection, if we need to, and if we have a bookmark stashed.
+    /// - Parameters:
+    ///   - shortcut: The shortcut assigned to the Collection.
+    ///   - url: The URL pointing to the Collection. 
+    public func secureAccess(shortcut: String, url: URL) {
+        print("MultiFileIO.secureAccess")
+        print("  - url = \(url)")
+        guard !shortcut.isEmpty else { return }
+        print("  - shortcut")
+        let path = url.path
+        for bookmark in bookmarks {
+            if path.starts(with: bookmark.path) || path == bookmark.path {
+                print("  - user granted access during this session")
+                return
+            }
+        }
+        
+        // If the URL is already reachable, then let's not mess with any further.
+        do {
+            let reachable = try url.checkResourceIsReachable()
+            if reachable {
+                return
+            } else {
+                print("  - URL is not initially reachable")
+            }
+        } catch {
+            print("  - error caught while checking reachability")
+        }
+        
+        // Try to make it reachable using stashed bookmark data.
+        if let bookmarkData = UserDefaults.standard.data(forKey: "bookmark-for-\(shortcut)") {
+            do {
+                var stale = false
+                let stashedURL = try URL(resolvingBookmarkData: bookmarkData,
+                                         options: .withSecurityScope,
+                                         relativeTo: nil,
+                                         bookmarkDataIsStale: &stale)
+                if stale {
+                    print("  - bookmark is stale")
+                } else {
+                    let ok = stashedURL.startAccessingSecurityScopedResource()
+                    if !ok {
+                        print("  - Attempt to start accessing return false")
+                    } else {
+                        let bookmark = MultiFileBookmark(url: url, source: .fromStash)
+                        addBookmark(bookmark: bookmark)
+                    }
+                }
+            } catch {
+                print("  - could not resolve bookmark data")
+            }
+        } else {
+            print("  - could not retrieve from user defaults")
+        }
+    }
+    
+    public func stopAccess(url: URL) {
+        print("MultiFileIO.stopAccess to \(url)")
+        let path = url.path
+        var index = 0
+        while index < bookmarks.count {
+            let bookmark = bookmarks[index]
+            if path == bookmark.path {
+                if bookmark.source == .fromStash {
+                    bookmark.url.stopAccessingSecurityScopedResource()
+                    bookmarks.remove(at: index)
+                }
+                break
+            }
+            index += 1
+        }
+    }
+    
+    func addBookmark(bookmark: MultiFileBookmark) {
+        var index = 0
+        while index < bookmarks.count && bookmark.path > bookmarks[index].path {
+            index += 1
+        }
+        if index >= bookmarks.count {
+            bookmarks.append(bookmark)
+        } else if bookmark.path == bookmarks[index].path {
+            bookmarks[index] = bookmark
+        } else {
+            bookmarks.insert(bookmark, at: index)
+        }
     }
     
     /// Log an error message and optionally display an alert message.
