@@ -12,6 +12,7 @@
 
 import Foundation
 
+/// A place to store bookmark data. 
 class MultiFileBookmark {
     
     var path: String
