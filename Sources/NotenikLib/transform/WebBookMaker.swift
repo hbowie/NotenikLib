@@ -192,7 +192,7 @@ public class WebBookMaker {
 
         let fileURL = URL(fileURLWithPath: fileName, relativeTo: htmlFolder).appendingPathExtension(htmlFileExt)
         
-        let code = display.display(note, io: io, parms: parms)
+        let (code, _) = display.display(note, io: io, parms: parms)
         
         let written = FileUtils.saveToDisk(strToWrite: code,
                                            outputURL: fileURL,

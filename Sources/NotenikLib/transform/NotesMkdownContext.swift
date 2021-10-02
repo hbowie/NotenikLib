@@ -50,10 +50,9 @@ public class NotesMkdownContext: MkdownContext {
     /// - Parameter title: A wiki link target that is possibly a timestamp instead of a title.
     /// - Returns: The corresponding title, if the lookup was successful, otherwise the title
     ///            that was passed as input.
-    public func mkdownWikiLinkLookup(linkText: String) -> String {
+    public func mkdownWikiLinkLookup(linkText: String) -> String? {
         guard io.collection != nil else { return linkText }
         guard io.collectionOpen else { return linkText }
-        guard io.collection!.hasTimestamp else { return linkText }
         
         // Check for first possible case: title within the wiki link
         // points directly to another note having that same title.
@@ -71,6 +70,8 @@ public class NotesMkdownContext: MkdownContext {
         if linkedNote != nil {
             return linkText + "s"
         }
+        
+        guard io.collection!.hasTimestamp else { return nil }
         
         // Check for second possible case: title within the wiki link
         // used to point directly to another note having that same title,
@@ -92,7 +93,7 @@ public class NotesMkdownContext: MkdownContext {
         }
         
         // Nothing worked, so just return the linkText.
-        return linkText
+        return nil
     }
     
     // -----------------------------------------------------------

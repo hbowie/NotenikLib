@@ -38,7 +38,7 @@ public class NoteDisplay {
     ///
     /// - Parameter note: The note to be displayed.
     /// - Returns: A string containing the encoded note.
-    public func display(_ note: Note, io: NotenikIO, parms: DisplayParms) -> String {
+    public func display(_ note: Note, io: NotenikIO, parms: DisplayParms) -> (code: String, wikiAdds: Bool) {
         self.parms = parms
         parms.setMkdownOptions(mkdownOptions)
         let mkdownContext = NotesMkdownContext(io: io, displayParms: parms)
@@ -46,6 +46,7 @@ public class NoteDisplay {
         minutesToRead = nil
         mdBodyParser = nil
         bodyHTML = nil
+        var wikiAdds = false
         
         // Pre-parse the body field if we're generating HTML.
         if parms.formatIsHTML && AppPrefs.shared.parseUsingNotenik {
@@ -61,6 +62,15 @@ public class NoteDisplay {
                 minutesToRead = MinutesToReadValue(with: counts)
             }
             bodyHTML = mdBodyParser!.html
+            for link in mdBodyParser!.wikiLinkList.links {
+                if !link.targetFound {
+                    let newNote = Note(collection: note.collection)
+                    _ = newNote.setTitle(link.originalTarget)
+                    newNote.setID()
+                    _ = io.addNote(newNote: newNote)
+                    wikiAdds = true
+                }
+            }
         }
         
         let position = io.positionOfNote(note)
@@ -71,9 +81,9 @@ public class NoteDisplay {
         }
         
         if parms.displayTemplate.count > 0 {
-            return displayWithTemplate(note, io: io)
+            return (displayWithTemplate(note, io: io), wikiAdds)
         } else {
-            return displayWithoutTemplate(note, io: io, topOfPage: topHTML, bottomOfPage: bottomHTML)
+            return (displayWithoutTemplate(note, io: io, topOfPage: topHTML, bottomOfPage: bottomHTML), wikiAdds)
         }
     }
     
