@@ -28,6 +28,8 @@ public class NoteDisplay {
     
     public var counts = MkdownCounts()
     
+    public var wikilinks: WikiLinkList?
+    
     var minutesToRead: MinutesToReadValue?
     
     public init() {
@@ -37,7 +39,11 @@ public class NoteDisplay {
     /// Get the code used to display this entire note as a web page, including html tags.
     ///
     /// - Parameter note: The note to be displayed.
-    /// - Returns: A string containing the encoded note.
+    /// - Parameter io: The active I/O module for this Collection.
+    /// - Parameter parms: Parms used to control the formatting of the display.
+    /// - Returns: A string containing the encoded note, and a flag indicating whether
+    ///            any wiki link targets that did not yet exist were automatically added.
+    ///
     public func display(_ note: Note, io: NotenikIO, parms: DisplayParms) -> (code: String, wikiAdds: Bool) {
         self.parms = parms
         parms.setMkdownOptions(mkdownOptions)
@@ -46,6 +52,7 @@ public class NoteDisplay {
         minutesToRead = nil
         mdBodyParser = nil
         bodyHTML = nil
+        wikilinks = nil
         var wikiAdds = false
         
         // Pre-parse the body field if we're generating HTML.
@@ -62,11 +69,13 @@ public class NoteDisplay {
                 minutesToRead = MinutesToReadValue(with: counts)
             }
             bodyHTML = mdBodyParser!.html
+            wikilinks = mdBodyParser!.wikiLinkList
             for link in mdBodyParser!.wikiLinkList.links {
                 if !link.targetFound {
                     let newNote = Note(collection: note.collection)
                     _ = newNote.setTitle(link.originalTarget)
                     newNote.setID()
+                    _ = newNote.setBody("Created by a Wiki Style Link originating from [[\(note.title.value)]]. ")
                     _ = io.addNote(newNote: newNote)
                     wikiAdds = true
                 }

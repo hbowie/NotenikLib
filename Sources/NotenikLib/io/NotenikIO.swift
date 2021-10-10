@@ -279,6 +279,11 @@ public protocol NotenikIO {
     /// - Returns: The Note with this timestamp, if one exists; otherwise nil.
     func getNote(forTimestamp stamp: String) -> Note?
     
+    /// Get the existing Note with the specified AKA value, if one exists.
+    /// - Parameter alsoKnownAs: The AKA value we are looking for. 
+    /// - Returns: The Note having this aka value, if one exists; otherwise nil.
+    func getNote(alsoKnownAs: String) -> Note?
+    
     // -----------------------------------------------------------
     //
     // MARK: Obtain info about the Collection.

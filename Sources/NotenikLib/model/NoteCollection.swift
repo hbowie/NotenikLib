@@ -50,6 +50,7 @@ public class NoteCollection {
     // Store some key and singular field definitions for easy access.
     public  var idFieldDef:     FieldDefinition
     public  var titleFieldDef:  FieldDefinition
+    public  var akaFieldDef:    FieldDefinition?
     public  var tagsFieldDef:   FieldDefinition
     public  var linkFieldDef:   FieldDefinition
     public  var dateFieldDef:   FieldDefinition
@@ -58,6 +59,8 @@ public class NoteCollection {
     public  var levelFieldDef:  FieldDefinition?
     public  var seqFieldDef:    FieldDefinition?
     public  var indexFieldDef:  FieldDefinition
+    public  var backlinksDef:   FieldDefinition?
+    public  var wikilinksDef:   FieldDefinition?
     public  var creatorFieldDef: FieldDefinition
     public  var workLinkFieldDef: FieldDefinition
     public  var workTitleFieldDef: FieldDefinition
@@ -257,6 +260,9 @@ public class NoteCollection {
         print(" ")
         print("Collection info")
         print("  - Title: \(title)")
+        if akaFieldDef != nil {
+            print("  - AKA Field: \(akaFieldDef!.fieldLabel.properForm)")
+        }
         print("  - Path: \(path)")
         print("  - Preferred ext: \(preferredExt)")
         print("  - ID Field: \(idFieldDef.fieldLabel.properForm)")
@@ -273,6 +279,12 @@ public class NoteCollection {
             print("  - Seq Field: \(seqFieldDef!.fieldLabel.properForm)")
         }
         print("  - Index Field: \(indexFieldDef.fieldLabel.properForm)")
+        if backlinksDef != nil {
+            print("  - Backlinks Field: \(backlinksDef!.fieldLabel.properForm)")
+        }
+        if wikilinksDef != nil {
+            print("  - Wikilinks Field: \(wikilinksDef!.fieldLabel.properForm)")
+        }
         print("  - Work Title Field: \(workTitleFieldDef)")
         print("  - Work Type Field: \(workTypeFieldDef)")
         print("  - Work Link Field: \(workLinkFieldDef)")

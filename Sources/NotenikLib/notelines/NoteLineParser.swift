@@ -37,6 +37,8 @@ public class NoteLineParser {
     
     var bodyStarted  = false
     var indexStarted = false
+    var wikilinkStarted = false
+    var backlinkStarted = false
     
     var lineNumber   = 0
     var fieldNumber  = 0
@@ -76,6 +78,8 @@ public class NoteLineParser {
         fileSize   = 0
         bodyStarted = false
         indexStarted = false
+        wikilinkStarted = false
+        backlinkStarted = false
         pendingBlankLines = 0
         var valueComplete = false
         var noteComplete = false
@@ -205,13 +209,30 @@ public class NoteLineParser {
         guard label.validLabel && value.count > 0 else { return }
         let fieldInDict = collection.dict.contains(def)
         if fieldInDict || allowDictAdds {
-            let field = NoteField(def: def, value: value, statusConfig: collection.statusConfig, levelConfig: collection.levelConfig)
+            let field = NoteField(def: def,
+                                  value: value,
+                                  statusConfig: collection.statusConfig,
+                                  levelConfig: collection.levelConfig)
             if field.def.fieldType.typeString == NotenikConstants.indexCommon {
                 if indexStarted {
                     note.appendToIndex(value)
                 } else {
                     _ = note.setIndex(value)
                     indexStarted = true
+                }
+            } else if field.def.fieldType.typeString == NotenikConstants.backlinksCommon {
+                if backlinkStarted {
+                    note.appendToBacklinks(value)
+                } else {
+                    _ = note.setBacklinks(value)
+                    backlinkStarted = true
+                }
+            } else if field.def.fieldType.typeString == NotenikConstants.wikilinksCommon {
+                if wikilinkStarted {
+                    note.appendToWikilinks(value)
+                } else {
+                    _ = note.setWikilinks(value)
+                    wikilinkStarted = true
                 }
             } else {
                 _ = note.setField(field)

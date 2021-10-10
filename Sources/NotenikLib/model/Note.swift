@@ -11,6 +11,9 @@
 
 import Foundation
 
+import NotenikMkdown
+import NotenikUtils
+
 /// A single Note. 
 public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying {
     
@@ -487,6 +490,42 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     }
     
     //
+    // Functions and variables concerning the Note's AKA field.
+    //
+     
+    /// Return the Note's AKA Value
+    public var aka: AKAValue {
+        guard collection.akaFieldDef != nil else {
+            return AKAValue()
+        }
+        let val = getFieldAsValue(def: collection.akaFieldDef!)
+        if val is AKAValue {
+            return val as! AKAValue
+        } else {
+            return AKAValue(val.value)
+        }
+    }
+    
+    /// Does this note have a non-blank AKA field?
+    public func hasAKA() -> Bool {
+        guard collection.akaFieldDef != nil else { return false }
+        return aka.count > 0
+    }
+    
+    /// Get the AKA field, if one exists
+    func getAKAasField() -> NoteField? {
+        guard collection.akaFieldDef != nil else { return nil }
+        return getField(def: collection.akaFieldDef!)
+    }
+    
+    /// Set the Note's AKA value
+    public func setAKA(_ aka: String) -> Bool {
+        guard collection.akaFieldDef != nil else { return false }
+        return setField(label: collection.akaFieldDef!.fieldLabel.commonForm,
+                          value: aka)
+    }
+    
+    //
     // Functions and variables concerning the Note's tags.
     //
     
@@ -807,6 +846,118 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
             return val as! IndexValue
         } else {
             return IndexValue(val.value)
+        }
+    }
+    
+    //
+    // Functions and variables concerning the Note's backlinks field.
+    //
+    
+    /// Does the Note have any backlinks?
+    func hasBacklinks() -> Bool {
+        return collection.backlinksDef != nil && backlinks.count > 0
+    }
+    
+    /// Add another line of links.
+    func appendToBacklinks(_ morelinks: String) {
+        guard let def = collection.backlinksDef else { return }
+        let field = getField(label: def.fieldLabel.commonForm)
+        if field == nil {
+            _ = setBacklinks(morelinks)
+        } else {
+            let val = field!.value
+            if val is BacklinkValue {
+                let linksVal = val as! BacklinkValue
+                linksVal.append(morelinks)
+            }
+        }
+    }
+    
+    /// Set the Note's backlinks value.
+    func setBacklinks(_ backlinks: String) -> Bool {
+        guard let def = collection.backlinksDef else { return false }
+        return setField(label: def.fieldLabel.commonForm,
+                        value: backlinks)
+    }
+    
+    func setBacklinks(_ backlinks: BacklinkValue) -> Bool {
+        guard let def = collection.backlinksDef else { return false }
+        let field = NoteField()
+        field.def = def
+        field.value = backlinks
+        return setField(field)
+    }
+    
+    /// Return the Note's backlinks value.
+    public var backlinks: BacklinkValue {
+        guard let def = collection.backlinksDef else {
+            return BacklinkValue("")
+        }
+        let val = getFieldAsValue(def: def)
+        if val is BacklinkValue {
+            return val as! BacklinkValue
+        } else {
+            return BacklinkValue(val.value)
+        }
+    }
+    
+    //
+    // Functions and variables concerning the Note's wikilinks field.
+    //
+    
+    /// Does the Note have any wikilinks?
+    func hasWikilinks() -> Bool {
+        return collection.wikilinksDef != nil && wikilinks.count > 0
+    }
+    
+    /// Add another line of links.
+    func appendToWikilinks(_ morelinks: String) {
+        guard let def = collection.wikilinksDef else { return }
+        let field = getField(label: def.fieldLabel.commonForm)
+        if field == nil {
+            _ = setWikilinks(morelinks)
+        } else {
+            let val = field!.value
+            if val is WikilinkValue {
+                let linksVal = val as! WikilinkValue
+                linksVal.append(morelinks)
+            }
+        }
+    }
+    
+    /// Set the Note's wikilinks value.
+    func setWikilinks(_ wikilinks: String) -> Bool {
+        guard let def = collection.wikilinksDef else { return false }
+        return setField(label: def.fieldLabel.commonForm,
+                        value: wikilinks)
+    }
+    
+    func setWikilinks(_ wikilinks: WikilinkValue) -> Bool {
+        guard let def = collection.wikilinksDef else { return false }
+        let field = NoteField()
+        field.def = def
+        field.value = wikilinks
+        return setField(field)
+    }
+    
+    func setWikiLinks(wikiLinks: [WikiLink]) -> Bool {
+        guard let def = collection.wikilinksDef else { return false }
+        let wikiLinkValue = WikilinkValue()
+        wikiLinkValue.set(wikiLinks: wikiLinks)
+        let field = NoteField()
+        field.def = def
+        field.value = wikiLinkValue
+        return setField(field)
+    }
+    
+    /// Return the Note's wikilinks value.
+    public var wikilinks: WikilinkValue {
+        guard let def = collection.wikilinksDef else { return WikilinkValue("") }
+        let val = getFieldAsValue(def: def)
+        if val is WikilinkValue {
+            return val as! WikilinkValue
+        } else {
+            return WikilinkValue(val.value)
         }
     }
     

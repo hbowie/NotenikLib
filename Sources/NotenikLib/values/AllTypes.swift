@@ -1,9 +1,9 @@
 //
 //  AllTypes.swift
-//  Notenik
+//  NotenikLib
 //
 //  Created by Herb Bowie on 10/25/19.
-//  Copyright © 2019 Herb Bowie (https://powersurgepub.com)
+//  Copyright © 2019 - 2021 Herb Bowie (https://powersurgepub.com)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -14,8 +14,10 @@ import Foundation
 /// A catalog of all available field types. One of these should be created for each Collection.
 public class AllTypes {
     
+    let akaType     = AKAType()
     let artistType  = ArtistType()
     let authorType  = AuthorType()
+    let backlinkType = BacklinkType()
     let bodyType    = BodyType()
     let booleanType = BooleanType()
     let codeType    = CodeType()
@@ -42,6 +44,7 @@ public class AllTypes {
     let teaserType  = LongTextType()
     let titleType   = TitleType()
     let timestampType = TimestampType()
+    let wikilinkType = WikilinkType()
     let workLinkType = WorkLinkType()
     let workTitleType = WorkTitleType()
     let workTypeType = WorkTypeType()
@@ -69,6 +72,7 @@ public class AllTypes {
     /// Initialize with all of the standard types. 
     init() {
         
+        fieldTypes.append(akaType)
         fieldTypes.append(artistType)
         
         fieldTypes.append(workLinkType)
@@ -76,6 +80,7 @@ public class AllTypes {
         fieldTypes.append(workTypeType)
         fieldTypes.append(artistType)
         fieldTypes.append(authorType)
+        
         fieldTypes.append(bodyType)
         fieldTypes.append(booleanType)
         fieldTypes.append(codeType)
@@ -90,6 +95,9 @@ public class AllTypes {
         fieldTypes.append(labelType)
         
         fieldTypes.append(levelType)
+        
+        fieldTypes.append(backlinkType)
+        fieldTypes.append(wikilinkType)
         
         fieldTypes.append(linkType)
         fieldTypes.append(longTextType)
@@ -110,6 +118,7 @@ public class AllTypes {
         fieldTypes.append(tagsType)
         fieldTypes.append(timestampType)
         fieldTypes.append(titleType)
+        
     }
     
     /// Assign a field type based on a field label and, optionally, a type string. 

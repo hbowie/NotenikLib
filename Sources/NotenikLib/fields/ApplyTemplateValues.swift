@@ -59,6 +59,9 @@ class ApplyTemplateValues {
             }
             
             switch def.fieldType.typeString {
+                
+            case NotenikConstants.akaCommon:
+                collection.akaFieldDef = def
             
             case NotenikConstants.artistCommon:
                 collection.creatorFieldDef = def
@@ -67,6 +70,9 @@ class ApplyTemplateValues {
             case NotenikConstants.authorCommon:
                 collection.creatorFieldDef = def
                 creatorFound = true
+                
+            case NotenikConstants.backlinksCommon:
+                collection.backlinksDef = def
                 
             case NotenikConstants.bodyCommon:
                 if collection.bodyFieldDef.fieldLabel.commonForm == NotenikConstants.bodyCommon {
@@ -143,6 +149,9 @@ class ApplyTemplateValues {
                 if collection.titleFieldDef.fieldLabel.commonForm == NotenikConstants.titleCommon {
                     collection.titleFieldDef = def
                 }
+                
+            case NotenikConstants.wikilinksCommon:
+                collection.wikilinksDef = def
                 
             case NotenikConstants.workLinkCommon:
                 collection.workLinkFieldDef = def

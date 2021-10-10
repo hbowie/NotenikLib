@@ -1,15 +1,17 @@
 //
 //  BunchOfNotes.swift
-//  Notenik
+//  NotenikLib
 //
 //  Created by Herb Bowie on 2/5/19.
-//  Copyright © 2019 Herb Bowie (https://powersurgepub.com)
+//  Copyright © 2019 - 2021 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
 //
 
 import Foundation
+
+import NotenikUtils
 
 /// A bunch of notes stored in memory
 class BunchOfNotes {
@@ -20,6 +22,7 @@ class BunchOfNotes {
     var notesTree = TagsTree()
     var shortIDs  = ShortIDs()
     var timestampDict = [String : Note]()
+    var akaDict   = [String : Note]()
     var listIndex = 0
     
     /// Return the number of notes in the current collection.
@@ -70,6 +73,23 @@ class BunchOfNotes {
         self.collection = collection
     }
     
+    /// Is a proposed title already in use?
+    /// - Parameter title: The title to be evaluated.
+    /// - Returns: nil if not in use, otherwise a message
+    ///            indicating current usage.
+    func inUse(title: String) -> String? {
+        let noteID = StringUtils.toCommon(title)
+        let existingNote = notesDict[noteID]
+        guard existingNote == nil else {
+            return "A Note already exists with an identical or very similar title"
+        }
+        let akaNote = akaDict[noteID]
+        guard akaNote == nil else {
+            return "Another Note already exists that is known by this identifier"
+        }
+        return nil
+    }
+    
     /// Add a new Note to memory, so it can be accessed later
     ///
     /// - Parameter note: The note to be added, whether from a data store or from a user
@@ -102,6 +122,13 @@ class BunchOfNotes {
             let stamp = note.timestamp.value
             if stamp.count > 0 {
                 timestampDict[stamp] = note
+            }
+        }
+        
+        if collection.akaFieldDef != nil {
+            for alias in note.aka {
+                let aliasCommon = StringUtils.toCommon(alias)
+                akaDict[aliasCommon] = note
             }
         }
         
@@ -236,6 +263,14 @@ class BunchOfNotes {
         return timestampDict[stamp]
     }
     
+    /// Get the existing Note with the specified AKA value, if one exists.
+    /// - Parameter alsoKnownAs: The AKA value we are looking for.
+    /// - Returns: The Note having this aka value, if one exists; otherwise nil.
+    func getNote(alsoKnownAs aka: String) -> Note? {
+        guard collection.akaFieldDef != nil else { return nil }
+        return akaDict[aka]
+    }
+    
     /// Return the next note in the sorted list, along with its index position.
     ///
     /// - Parameter position: The position of the last note.
@@ -307,7 +342,8 @@ class BunchOfNotes {
     
     /// Close the currently open collection (if any).
     func close() {
-        notesDict = [String : Note]()
+        notesDict = [:]
+        akaDict = [:]
         notesList = NotesList()
         notesTree = TagsTree()
         shortIDs = ShortIDs()

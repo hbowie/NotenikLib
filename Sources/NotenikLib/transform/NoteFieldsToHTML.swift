@@ -85,6 +85,10 @@ public class NoteFieldsToHTML {
                             // ignore for now
                         } else if field!.def.fieldLabel.commonForm == NotenikConstants.timestampCommon {
                             // ignore for now
+                        } else if field!.def == collection.backlinksDef {
+                            // ignore for now
+                        } else if field!.def == collection.wikilinksDef {
+                            // ignore for now
                         } else {
                             code.append(display(field!, note: note, collection: collection, io: io))
                         }
@@ -112,12 +116,50 @@ public class NoteFieldsToHTML {
                 code.append(display(dateModified!, note: note, collection: collection, io: io))
             }
         }
+        formatWikilinks(note, linksHTML: code)
+        formatBacklinks(note, linksHTML: code)
         if !bottomOfPage.isEmpty {
             code.horizontalRule()
             code.append(bottomOfPage)
         }
         code.finishDoc()
         return String(describing: code)
+    }
+    
+    func formatWikilinks(_ note: Note, linksHTML: Markedup) {
+        
+        guard note.collection.wikilinksDef != nil else { return }
+        let links = note.wikilinks
+        let pointers = links.notePointers
+        guard pointers.count > 0 else { return }
+        
+        linksHTML.startDetails(summary: "Wiki Links")
+        linksHTML.startUnorderedList(klass: nil)
+        for pointer in pointers {
+            linksHTML.startListItem()
+            linksHTML.link(text: pointer.title, path: parms.assembleWikiLink(title: pointer.title))
+            linksHTML.finishListItem()
+        }
+        linksHTML.finishUnorderedList()
+        linksHTML.finishDetails()
+    }
+    
+    func formatBacklinks(_ note: Note, linksHTML: Markedup) {
+        
+        guard note.collection.backlinksDef != nil else { return }
+        let links = note.backlinks
+        let pointers = links.notePointers
+        guard pointers.count > 0 else { return }
+        
+        linksHTML.startDetails(summary: "Back Links")
+        linksHTML.startUnorderedList(klass: nil)
+        for pointer in pointers {
+            linksHTML.startListItem()
+            linksHTML.link(text: pointer.title, path: parms.assembleWikiLink(title: pointer.title))
+            linksHTML.finishListItem()
+        }
+        linksHTML.finishUnorderedList()
+        linksHTML.finishDetails()
     }
     
     

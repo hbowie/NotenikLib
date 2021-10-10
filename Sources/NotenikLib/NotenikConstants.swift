@@ -1,5 +1,5 @@
 //
-//  LabelConstants.swift
+//  NotenikConstants.swift
 //  Notenik
 //
 //  Created by Herb Bowie on 12/11/18.
@@ -19,10 +19,14 @@ public struct NotenikConstants {
     // Field Labels
     //
     //-------------------------------------------------------------
+    public static let aka           = "AKA"
+    public static let akaCommon     = "aka"
     public static let artist        = "Artist"
     public static let artistCommon  = "artist"
     public static let author        = "Author"
     public static let authorCommon  = "author"
+    public static let backlinks     = "Backlinks"
+    public static let backlinksCommon = "backlinks"
     public static let body          = "Body"
     public static let bodyCommon    = "body"
     static let bodyLabelDisplay     = "Display Body Label"
@@ -87,6 +91,8 @@ public struct NotenikConstants {
     public static let typeCommon    = "type"
     public static let url           = "URL"
     public static let urlCommon     = "url"
+    public static let wikilinks     = "Wiki Links"
+    public static let wikilinksCommon = "wikilinks"
     static let workID           = "Work ID"
     static let workIDcommon     = "workid"
     public static let workLink         = "Work Link"

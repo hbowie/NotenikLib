@@ -19,8 +19,17 @@ public class ModWhenChanged {
     
     var io: NotenikIO
     
+    var parms = DisplayParms()
+    var mkdownContext: NotesMkdownContext
+    var mkdownOptions = MkdownOptions()
+    
     public init(io: NotenikIO) {
         self.io = io
+        if io.collection != nil {
+            parms.setFrom(collection: io.collection!)
+        }
+        parms.setMkdownOptions(mkdownOptions)
+        mkdownContext = NotesMkdownContext(io: io, displayParms: parms)
     }
     
     /// Analyse the user's input and make appropriate changes to a Note through an
@@ -46,7 +55,15 @@ public class ModWhenChanged {
         let dict = collection.dict
         let defs = dict.list
         
-        guard defs.count == modViews.count else {
+        var defsCount = defs.count
+        if collection.backlinksDef != nil {
+            defsCount -= 1
+        }
+        if collection.wikilinksDef != nil {
+            defsCount -= 1
+        }
+        guard defsCount == modViews.count else {
+            logError("Number of Field Definitions does not match number of Edit Values")
             return (outcome, nil)
         }
         
@@ -64,6 +81,9 @@ public class ModWhenChanged {
         var modified = false
         var i = 0
         for def in defs {
+            if def == collection.backlinksDef || def == collection.wikilinksDef {
+                continue
+            }
             let field = modNote.getField(def: def)
             let fieldView = modViews[i]
             var noteValue = ""
@@ -98,17 +118,36 @@ public class ModWhenChanged {
             i += 1
         }
         
-        if modNote.hasBody() && collection.minutesToReadDef != nil && AppPrefs.shared.parseUsingNotenik {
+        if modNote.hasBody() && AppPrefs.shared.parseUsingNotenik && (collection.minutesToReadDef != nil || collection.wikilinksDef != nil || collection.backlinksDef != nil) {
+            
+            // Parse the body field.
             let body = modNote.body
-            let mkdownOptions = MkdownOptions()
             let mdBodyParser = MkdownParser(body.value, options: mkdownOptions)
+            mdBodyParser.setWikiLinkFormatting(prefix: parms.wikiLinkPrefix,
+                                               format: parms.wikiLinkFormat,
+                                               suffix: parms.wikiLinkSuffix,
+                                               context: mkdownContext)
             mdBodyParser.parse()
-            let newMinutes = MinutesToReadValue(with: mdBodyParser.counts)
-            let oldMinutes = modNote.getField(def: collection.minutesToReadDef!)
-            if oldMinutes == nil || oldMinutes!.value != newMinutes {
-                let minutesField = NoteField(def: collection.minutesToReadDef!, value: newMinutes)
-                _ = modNote.setField(minutesField)
-                modified = true
+            
+            // See if Minutes to Read have changed.
+            if collection.minutesToReadDef != nil {
+                let newMinutes = MinutesToReadValue(with: mdBodyParser.counts)
+                let oldMinutes = modNote.getField(def: collection.minutesToReadDef!)
+                if oldMinutes == nil || oldMinutes!.value != newMinutes {
+                    let minutesField = NoteField(def: collection.minutesToReadDef!, value: newMinutes)
+                    _ = modNote.setField(minutesField)
+                    modified = true
+                }
+            }
+            
+            // See if extracted Wiki Links have changed.
+            if collection.wikilinksDef != nil {
+                let newLinks = mdBodyParser.wikiLinkList.links
+                let trans = Transmogrifier(io: io)
+                let mods = trans.updateLinks(for: modNote, links: newLinks)
+                if mods {
+                    modified = true
+                }
             }
         }
         
@@ -143,7 +182,6 @@ public class ModWhenChanged {
                 outcome = .noChange
             }
         }
-        
         
         // Figure out what we need to do
         switch outcome {

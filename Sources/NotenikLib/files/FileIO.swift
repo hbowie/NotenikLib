@@ -1101,6 +1101,14 @@ public class FileIO: NotenikIO, RowConsumer {
         return bunch!.getNote(forID: id)
     }
     
+    /// Get the existing Note with the specified AKA value, if one exists.
+    /// - Parameter alsoKnownAs: The AKA value we are looking for.
+    /// - Returns: The Note having this aka value, if one exists; otherwise nil.
+    public func getNote(alsoKnownAs aka: String) -> Note? {
+        guard collection != nil && collectionOpen else { return nil }
+        return bunch!.getNote(alsoKnownAs: aka)
+    }
+    
     /// In conformance with MkdownWikiLinkLookup protocol, lookup a title given a timestamp.
     /// - Parameter title: A wiki link target that is possibly a timestamp instead of a title.
     /// - Returns: The corresponding title, if the lookup was successful, otherwise the title

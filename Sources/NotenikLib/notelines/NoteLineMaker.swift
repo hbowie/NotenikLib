@@ -84,8 +84,22 @@ public class NoteLineMaker {
                 def! != collection.titleFieldDef &&
                 def! != collection.bodyFieldDef &&
                 def! != collection.tagsFieldDef {
-                let field = note.getField(def: def!)
-                putField(field, format: note.fileInfo.format)
+                if def == collection.backlinksDef {
+                    let field = note.getFieldAsValue(def: def!)
+                    if let backlinkField = field as? BacklinkValue {
+                        let notePointers = backlinkField.notePointers
+                        putWikilinks(def: def!, notePointers: notePointers)
+                    }
+                } else if def == collection.wikilinksDef {
+                    let field = note.getFieldAsValue(def: def!)
+                    if let wikilinkField = field as? WikilinkValue {
+                        let notePointers = wikilinkField.notePointers
+                        putWikilinks(def: def!, notePointers: notePointers)
+                    }
+                } else {
+                    let field = note.getField(def: def!)
+                    putField(field, format: note.fileInfo.format)
+                }
             }
             i += 1
         }
@@ -130,6 +144,14 @@ public class NoteLineMaker {
         default:
             putField(note.getTagsAsField(), format: note.fileInfo.format)
         }
+    }
+    
+    func putWikilinks(def: FieldDefinition, notePointers: NotePointerList) {
+        writer.endLine()
+        for notePointer in notePointers {
+            writer.writeLine("\(def.fieldLabel.properForm): \(notePointer.title)")
+        }
+        fieldsWritten += 1
     }
     
     func putBody(_ note: Note) {

@@ -71,9 +71,18 @@ public class NotesMkdownContext: MkdownContext {
             return linkText + "s"
         }
         
+        // Check for third possible case: title within the wiki link
+        // refers to an alias by which a Note is also known. 
+        if io.collection!.akaFieldDef != nil {
+            linkedNote = io.getNote(alsoKnownAs: titleID)
+            if linkedNote != nil {
+                return linkedNote!.title.value
+            }
+        }
+        
         guard io.collection!.hasTimestamp else { return nil }
         
-        // Check for second possible case: title within the wiki link
+        // Check for fourth possible case: title within the wiki link
         // used to point directly to another note having that same title,
         // but the target note's title has since been modified.
         let timestamp = io.aliasList.get(titleID: titleID)
@@ -84,7 +93,7 @@ public class NotesMkdownContext: MkdownContext {
             }
         }
         
-        // Check for third possible case: string within the wiki link
+        // Check for fifth possible case: string within the wiki link
         // is already a timestamp pointing to another note.
         guard linkText.count < 15 && linkText.count > 11 else { return linkText }
         linkedNote = io.getNote(forTimestamp: linkText)

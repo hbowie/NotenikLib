@@ -59,6 +59,7 @@ public class SeqValue: StringValue {
     /// Increment the sequence value by 1, at the indicated depth.
     public func increment (atDepth: Int) {
 
+        guard atDepth >= 0 else { return }
         var depth = atDepth
         if depth > seqStack.max {
             depth = seqStack.max
