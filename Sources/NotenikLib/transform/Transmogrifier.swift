@@ -68,9 +68,25 @@ public class Transmogrifier {
         
         for newLink in newLinks {
             noteUpdated = true
+            let linkedNote = io.getNote(forID: newLink.targetCommon)
+            if linkedNote != nil {
+                let modNote = linkedNote!.copy() as! Note
+                let backLinks = modNote.backlinks
+                backLinks.add(title: note.title.value)
+                _ = modNote.setBacklinks(backLinks)
+                _ = io.modNote(oldNote: linkedNote!, newNote: modNote)
+            }
         }
         for oldLink in oldLinks {
             noteUpdated = true
+            let linkedNote = io.getNote(forID: oldLink.common)
+            if linkedNote != nil {
+                let modNote = linkedNote!.copy() as! Note
+                let backLinks = modNote.backlinks
+                backLinks.remove(title: note.title.value)
+                _ = modNote.setBacklinks(backLinks)
+                _ = io.modNote(oldNote: linkedNote!, newNote: modNote)
+            }
         }
         
         if noteUpdated {

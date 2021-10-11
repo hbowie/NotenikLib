@@ -115,6 +115,17 @@ public class NotePointerList: CustomStringConvertible, Collection, Sequence {
         }
     }
     
+    public func remove(title: String) {
+        let pointerToRemove = NotePointer(title: title)
+        var index = 0
+        while index < list.count && pointerToRemove.common != list[index].common {
+            index += 1
+        }
+        if index < list.count {
+            list.remove(at: index)
+        }
+    }
+    
     /// Factory method to return an iterator.
     public func makeIterator() -> NotePointerIterator {
         return NotePointerIterator(self)

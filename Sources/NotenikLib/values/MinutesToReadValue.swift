@@ -16,7 +16,7 @@ import NotenikMkdown
 
 public class MinutesToReadValue: StringValue {
     
-    convenience init(with counts: MkdownCounts) {
+    public convenience init(with counts: MkdownCounts) {
         self.init()
         calculate(with: counts)
     }
