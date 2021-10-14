@@ -75,7 +75,12 @@ public class NoteDisplay {
                     let newNote = Note(collection: note.collection)
                     _ = newNote.setTitle(link.originalTarget)
                     newNote.setID()
-                    _ = newNote.setBody("Created by a Wiki Style Link originating from [[\(note.title.value)]]. ")
+                    if collection.backlinksDef == nil {
+                        _ = newNote.setBody("Created by Wiki Style Link found in the body of the Note titled [[\(note.title.value)]].")
+                    } else {
+                        _ = newNote.setBacklinks(note.title.value)
+                        _ = newNote.setBody("Created by Wiki Style Link found in the body of the Note titled \(note.title.value).")
+                    }
                     _ = io.addNote(newNote: newNote)
                     wikiAdds = true
                 }

@@ -60,7 +60,7 @@ public class NotesMkdownContext: MkdownContext {
         var linkedNote = io.getNote(forID: titleID)
         if linkedNote != nil {
             io.aliasList.add(titleID: titleID, timestamp: linkedNote!.timestamp.value)
-            return linkText
+            return linkedNote!.title.value
         }
         
         // Check for second possible case: title within the wiki link
@@ -68,7 +68,7 @@ public class NotesMkdownContext: MkdownContext {
         // plural form within the target note's title.
         linkedNote = io.getNote(forID: titleID + "s")
         if linkedNote != nil {
-            return linkText + "s"
+            return linkedNote!.title.value
         }
         
         // Check for third possible case: title within the wiki link
