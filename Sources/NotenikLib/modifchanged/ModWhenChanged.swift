@@ -185,6 +185,8 @@ public class ModWhenChanged {
                     outcome = .deleteAndAdd
                 } else if startingNote.tags != modNote.tags {
                     outcome = .deleteAndAdd
+                } else if collection.akaFieldDef != nil && startingNote.aka != modNote.aka {
+                    outcome = .deleteAndAdd
                 }
             }
             if modID.count == 0 {
