@@ -88,7 +88,7 @@ public class ModWhenChanged {
             let fieldView = modViews[i]
             var noteValue = ""
             if field != nil {
-                if field!.def.fieldType.typeString == "status" {
+                if field!.def.fieldType.typeString == NotenikConstants.statusCommon {
                     noteValue = statusConfig.getFullString(fromLabel: field!.value.value)
                 } else if field!.def.fieldType.typeString == NotenikConstants.levelCommon {
                     noteValue = levelConfig.intWithLabel(forLabel: field!.value.value)
@@ -116,6 +116,15 @@ public class ModWhenChanged {
                 modified = true
             }
             i += 1
+        }
+        
+        // Make sure the Note has some kind of title.
+        if modNote.title.isEmpty {
+            if newNoteRequested {
+                _ = modNote.setTitle("New Note without a title")
+            } else {
+                _ = modNote.setTitle(startingNote.title.value)
+            }
         }
         
         if modNote.hasBody() && AppPrefs.shared.parseUsingNotenik && (collection.minutesToReadDef != nil || collection.wikilinksDef != nil || collection.backlinksDef != nil) {
