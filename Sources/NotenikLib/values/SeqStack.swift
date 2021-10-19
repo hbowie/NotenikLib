@@ -62,7 +62,7 @@ class SeqStack {
             // }
             segIndex += 1
         }
-        while segIndex < 4 {
+        while segIndex < 6 {
             if segIndex == 0 {
                 key.append("00000000.")
             } else {
