@@ -3,7 +3,7 @@
 //  NotenikLib
 //
 //  Created by Herb Bowie on 10/25/19.
-//  Copyright © 2019 - 2021 Herb Bowie (https://powersurgepub.com)
+//  Copyright © 2019 - 2021 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -27,6 +27,7 @@ public class AllTypes {
     let imageNameType = ImageNameType()
     let indexType   = IndexType()
     let intType     = IntType()
+    let klassType   = KlassType()
     let labelType   = StringType()
     let levelType   = LevelType()
     let linkType    = LinkType()
@@ -90,6 +91,8 @@ public class AllTypes {
         fieldTypes.append(imageNameType)
         fieldTypes.append(indexType)
         fieldTypes.append(intType)
+        
+        fieldTypes.append(klassType)
         
         labelType.typeString = "label"
         fieldTypes.append(labelType)

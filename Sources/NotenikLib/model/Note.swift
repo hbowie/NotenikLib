@@ -784,6 +784,47 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     }
     
     //
+    // Functions and variables concerning the Note's class field.
+    //
+    
+    /// See if this Note has a Class value.
+    public func hasKlass() -> Bool {
+        guard collection.klassFieldDef != nil else { return false }
+        let val = getFieldAsValue(def: collection.klassFieldDef!)
+        return val is KlassValue
+    }
+    
+    /// Set the Note's Class value.
+    public func setKlass(_ value: String) -> Bool {
+        guard collection.klassFieldDef != nil else { return false }
+        let val = getFieldAsValue(def: collection.klassFieldDef!)
+        if val is KlassValue {
+            let klass = val as! KlassValue
+            klass.set(value)
+            return true
+        } else {
+            let klass = KlassValue(value)
+            let field = NoteField()
+            field.def = collection.klassFieldDef!
+            field.value = klass
+            return setField(field)
+        }
+    }
+    
+    /// Return the Note's Class Value
+    public var klass: KlassValue {
+        guard collection.klassFieldDef != nil else {
+            return KlassValue()
+        }
+        let val = getFieldAsValue(def: collection.klassFieldDef!)
+        if val is KlassValue {
+            return val as! KlassValue
+        } else {
+            return KlassValue(val.value)
+        }
+    }
+    
+    //
     // Functions and variables concerning the Note's Short ID field.
     //
     

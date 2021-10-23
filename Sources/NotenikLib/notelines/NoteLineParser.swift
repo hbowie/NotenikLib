@@ -50,13 +50,6 @@ public class NoteLineParser {
         
         self.collection = collection
         self.dict = collection.dict
-        
-        // let typeCat = collection.typeCatalog
-        // let tagsDef = dict.getDef(NotenikConstants.tags)
-        // if tagsDef == nil {
-        //     _ = dict.addDef(typeCatalog: typeCat, label: NotenikConstants.tags)
-        // }
-        
         self.reader = reader
         
         note = Note(collection: collection)

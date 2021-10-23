@@ -58,6 +58,7 @@ public class NoteCollection {
     public  var statusFieldDef: FieldDefinition
     public  var levelFieldDef:  FieldDefinition?
     public  var seqFieldDef:    FieldDefinition?
+    public  var klassFieldDef:  FieldDefinition?
     public  var indexFieldDef:  FieldDefinition
     public  var backlinksDef:   FieldDefinition?
     public  var wikilinksDef:   FieldDefinition?
@@ -277,6 +278,9 @@ public class NoteCollection {
         }
         if seqFieldDef != nil {
             print("  - Seq Field: \(seqFieldDef!.fieldLabel.properForm)")
+        }
+        if klassFieldDef != nil {
+            print("  - Class Field: \(klassFieldDef!.fieldLabel.properForm)")
         }
         print("  - Index Field: \(indexFieldDef.fieldLabel.properForm)")
         if backlinksDef != nil {

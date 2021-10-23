@@ -45,6 +45,8 @@ public struct NotenikConstants {
     public static let imageNameCommon   = "imagename"
     public static let index             = "Index"
     public static let indexCommon       = "index"
+    public static let klass             = "Class"
+    public static let klassCommon       = "class"
     public static let level             = "Level"
     public static let levelCommon       = "level"
     public static let link              = "Link"

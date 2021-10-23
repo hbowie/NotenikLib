@@ -121,6 +121,11 @@ class ApplyTemplateValues {
                     collection.levelFieldDef = def
                 }
                 
+            case NotenikConstants.klassCommon:
+                if collection.klassFieldDef == nil {
+                    collection.klassFieldDef = def
+                }
+                
             case NotenikConstants.shortIdCommon:
                 if collection.shortIdDef == nil {
                     collection.shortIdDef = def
