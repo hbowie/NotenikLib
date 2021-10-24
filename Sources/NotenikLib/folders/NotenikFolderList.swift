@@ -258,22 +258,24 @@ public class NotenikFolderList: Sequence {
     }
     
     /// Create a folder for a new Collection within the Notenik iCloud container.
-    public func createNewFolderWithinICloudContainer(folderName: String) -> URL? {
-        guard iCloudContainerAvailable else { return nil }
-        guard iCloudContainerURL != nil else { return nil }
-        guard iCloudContainerExists else { return nil }
+    /// - Parameter folderName: The name of the new folder to be created.
+    /// - Returns: The URL pointing to the new folder, if successful, and the problem description, if unsuccessful.
+    public func createNewFolderWithinICloudContainer(folderName: String) -> (URL?, String?) {
+        guard iCloudContainerAvailable else { return (nil, "iCloud container not available") }
+        guard iCloudContainerURL != nil else { return (nil, "iCloud container not available") }
+        guard iCloudContainerExists else { return (nil, "iCloud available but Notenik container does not exist") }
         let newFolderURL = iCloudContainerURL!.appendingPathComponent(folderName)
         guard !fm.fileExists(atPath: newFolderURL.path) else {
             logError("Folder named \(folderName) already exists within the Notenik iCloud container")
-            return nil
+            return (nil, "Folder named \(folderName) already exists within the Notenik iCloud container")
         }
         do {
             try fm.createDirectory(at: newFolderURL, withIntermediateDirectories: true, attributes: nil)
         } catch {
             logError("Could not create new collection at \(newFolderURL.path)")
-            return nil
+            return (nil, "Could not create new Collection at \(newFolderURL.path) due to error: \(error)")
         }
-        return newFolderURL
+        return (newFolderURL, nil)
     }
     
     public func getFolderFor(shortcut: String) -> NotenikLink? {
