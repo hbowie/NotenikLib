@@ -14,20 +14,8 @@ import Foundation
 
 public class KlassValue: StringValue {
     
-    let klassList = KlassList.shared
-    
     override func set(_ value: String) {
-        let index = klassList.matches(value: value)
-        if index != NSNotFound {
-            self.value = klassList.list[index]
-            return
-        }
-        let closeMatch = klassList.startsWith(prefix: value)
-        if closeMatch != nil {
-            self.value = closeMatch!
-            return
-        }
-        self.value = value
+        super.set(value.lowercased())
     }
     
 }

@@ -16,19 +16,12 @@ public class PickList {
     
     public static let pickFromLiteral = "pick-from: "
     
+    public var forceLowercase = false
+    
     public var values: [StringValue] = []
     
-    public var valueString: String {
-        var str = "pick-from: "
-        var valueIndex = 0
-        for value in values {
-            if valueIndex > 0 {
-                str.append(", ")
-            }
-            str.append(String(describing: value))
-            valueIndex += 1
-        }
-        return str
+    public var count: Int {
+        return values.count
     }
     
     /// Register a new value. Add it if not already present in the list.
@@ -40,7 +33,8 @@ public class PickList {
     
     /// Initialize with a list of values separated by commas or semi-colons.
     /// Ignore  leading less than symbol, and treat greater than sign as another delimiter.
-    public init(values: String) {
+    public init(values: String, forceLowercase: Bool = false) {
+        self.forceLowercase = forceLowercase
         var i = values.startIndex
         if values.hasPrefix(PickList.pickFromLiteral) {
             i = values.index(i, offsetBy: PickList.pickFromLiteral.count)
@@ -69,10 +63,6 @@ public class PickList {
         }
     }
     
-    public var count: Int {
-        return values.count
-    }
-    
     /// Register a new value with an ordinary String. 
     func registerValue(_ value: String) {
         let strVal = StringValue(value)
@@ -82,6 +72,9 @@ public class PickList {
     /// Register a new value. Add if not already present in the list.
     /// - Parameter value: Return the matching StringValue found or added.
     func registerValue(_ value: StringValue) -> StringValue {
+        if forceLowercase {
+            value.set(value.value.lowercased())
+        }
         var index = 0
         var bottom = 0
         var top = values.count - 1
@@ -127,5 +120,70 @@ public class PickList {
             values.insert(value, at: index)
         }
         return value
+    }
+    
+    public var valueString: String {
+        var str = "pick-from: "
+        var valueIndex = 0
+        for value in values {
+            if valueIndex > 0 {
+                str.append(", ")
+            }
+            str.append(String(describing: value))
+            valueIndex += 1
+        }
+        return str
+    }
+    
+    public func itemAt(index: Int) -> StringValue? {
+        if index < 0 || index >= values.count {
+            return nil
+        } else {
+            return values[index]
+        }
+    }
+    
+    public func stringAt(index: Int) -> String? {
+        if index < 0 || index >= values.count {
+            return nil
+        } else {
+            return values[index].value
+        }
+    }
+    
+    /// Return the first item in the sorted, complete list that starts with the supplied prefix.
+    public func startsWith(prefix: String) -> StringValue? {
+        var searchPrefix = prefix
+        if forceLowercase {
+            searchPrefix = prefix.lowercased()
+        }
+        var i = 0
+        while i < values.count {
+            if values[i].value.hasPrefix(searchPrefix) {
+                return values[i]
+            } else if values[i].value > searchPrefix {
+                return nil
+            }
+            i += 1
+        }
+        return nil
+    }
+    
+    /// Look for a matching value in the list of values.
+    public func matches(value: String) -> Int {
+        var matchValue = value
+        if forceLowercase {
+            matchValue = value.lowercased()
+        }
+        var i = 0
+        while i < values.count {
+            if values[i].value == matchValue {
+                return i
+            } else if values[i].value > matchValue {
+                return NSNotFound
+            }
+            i += 1
+        }
+        return NSNotFound
     }
 }

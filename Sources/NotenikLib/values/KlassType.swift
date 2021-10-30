@@ -40,4 +40,21 @@ class KlassType: AnyType {
         return klass
     }
     
+    /// Is this type suitable for a particular field, given its label and type (if any)?
+    /// - Parameter label: The label.
+    /// - Parameter type: The type string (if one is available)
+    override func appliesTo(label: FieldLabel, type: String?) -> Bool {
+        if type == nil || type!.count == 0 {
+            return (label.commonForm == commonLabel || label.commonForm == "klass")
+        } else {
+            return (type! == typeString)
+        }
+    }
+    
+    /// Return an appropriate pick list (if any) for this field type.
+    /// - Returns: An instance of PickList, or nil.
+    override func genPickList() -> PickList? {
+        return KlassPickList()
+    }
+    
 }
