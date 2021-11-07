@@ -236,6 +236,7 @@ public class TemplateUtil {
                                              io: io,
                                              parms: parms,
                                              topOfPage: "",
+                                             imageWithinPage: "",
                                              bodyHTML: bodyHTML,
                                              minutesToRead: minutesToRead)
         outputLines.append(fields)

@@ -35,6 +35,14 @@ public class AttachmentName: Comparable, NSCopying, CustomStringConvertible {
         return prefix + separator + suffix + ext
     }
     
+    /// The common file name to be used for this attachment, when
+    /// used as a Web component. 
+    public var commonName: String {
+        return (StringUtils.toCommonFileName(prefix)
+            + "-" + StringUtils.toCommonFileName(suffix)
+                + StringUtils.toCommonFileName(ext))
+    }
+    
     /// Is the first attachment name less than the second?
     public static func < (lhs: AttachmentName, rhs: AttachmentName) -> Bool {
         return lhs.fullName < rhs.fullName

@@ -31,6 +31,7 @@ public class DisplayParms {
     public var mathJax = false
     public var localMj = true
     public var localMjUrl: URL?
+    public var imagesPath = ""
     
     public init() {
         

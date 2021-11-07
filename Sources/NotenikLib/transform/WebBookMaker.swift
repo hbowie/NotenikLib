@@ -25,6 +25,7 @@ public class WebBookMaker {
     let cssFileExt = "css"
     let htmlFolderName = "html"
     let htmlFileExt = "html"
+    let imagesFolderName = "images"
     let pubFolderName = "EPUB"
     let opfFileName = "content"
     let opfFileExt = "opf"
@@ -39,13 +40,14 @@ public class WebBookMaker {
     var collection: NoteCollection
     var io: FileIO
     
-    var bookFolder: URL
-    var pubFolder:  URL
-    var cssFolder:  URL
-    var cssFile:    URL
-    var htmlFolder: URL
-    var opfFile:    URL
-    var tagsFile:   URL
+    var bookFolder:     URL
+    var pubFolder:      URL
+    var cssFolder:      URL
+    var cssFile:        URL
+    var htmlFolder:     URL
+    var imagesFolder:   URL
+    var opfFile:        URL
+    var tagsFile:       URL
     
     var defaultCSS = ""
     var bookTitle = ""
@@ -58,9 +60,10 @@ public class WebBookMaker {
     
     /// Attempt to initialize an instance.
     public init?(input: URL, output: URL) {
-        collectionURL = input
         
+        collectionURL = input
         bookFolder = output
+        
         pubFolder = bookFolder.appendingPathComponent(pubFolderName, isDirectory: true)
         guard FileUtils.ensureFolder(forURL: pubFolder) else { return nil }
         cssFolder = pubFolder.appendingPathComponent(cssFolderName, isDirectory: true)
@@ -68,6 +71,8 @@ public class WebBookMaker {
         cssFile = URL(fileURLWithPath: cssFileName, relativeTo: cssFolder).appendingPathExtension(cssFileExt)
         htmlFolder = pubFolder.appendingPathComponent(htmlFolderName, isDirectory: true)
         guard FileUtils.ensureFolder(forURL: htmlFolder) else { return nil }
+        imagesFolder = pubFolder.appendingPathComponent(imagesFolderName, isDirectory: true)
+        guard FileUtils.ensureFolder(forURL: imagesFolder) else { return nil }
         opfFile = URL(fileURLWithPath: opfFileName, relativeTo: pubFolder).appendingPathExtension(opfFileExt)
         tagsFile = URL(fileURLWithPath: tagsFileName, relativeTo: htmlFolder).appendingPathExtension(htmlFileExt)
         
@@ -93,6 +98,8 @@ public class WebBookMaker {
         parms = DisplayParms()
         parms.setCSS(useFirst: collection.displayCSS, useSecond: DisplayPrefs.shared.bodyCSS)
         defaultCSS = parms.cssString
+        defaultCSS.append("\nimg { max-width: 100%; border: 4px solid gray; }")
+        defaultCSS.append("\nbody { max-width: 33em; margin: 0 auto; float: none; }")
         parms.cssString = "../\(cssFolderName)/\(cssFileName).\(cssFileExt)"
         parms.cssLinkToFile = true
         parms.format = .htmlDoc
@@ -103,6 +110,7 @@ public class WebBookMaker {
         parms.wikiLinkSuffix = "." + htmlFileExt
         parms.mathJax = collection.mathJax
         parms.localMj = false
+        parms.imagesPath = "../\(imagesFolderName)"
         
         htmlConverter.addHTML()
     }
@@ -119,7 +127,9 @@ public class WebBookMaker {
         // Delete any html files already present in the output folder.
         filesDeleted = 0
         do {
-            let contents = try fm.contentsOfDirectory(at: htmlFolder, includingPropertiesForKeys: nil, options: .skipsHiddenFiles)
+            let contents = try fm.contentsOfDirectory(at: htmlFolder,
+                                                      includingPropertiesForKeys: nil,
+                                                      options: .skipsHiddenFiles)
             for entry in contents {
                 if entry.pathExtension == htmlFileExt {
                     try fm.removeItem(at: entry)
@@ -131,7 +141,22 @@ public class WebBookMaker {
         }
         logInfo(msg: "\(filesDeleted) files deleted from \(htmlFolder)")
         
-        // Now generate new content in the folder.
+        // Delete any image files already present in the output folder.
+        filesDeleted = 0
+        do {
+            let contents = try fm.contentsOfDirectory(at: imagesFolder,
+                                                      includingPropertiesForKeys: nil,
+                                                      options: .skipsHiddenFiles)
+            for entry in contents {
+                try fm.removeItem(at: entry)
+                filesDeleted += 1
+            }
+        } catch {
+            communicateError("Could not read directory at \(imagesFolder)")
+        }
+        logInfo(msg: "\(filesDeleted) files deleted from \(imagesFolder)")
+        
+        // Now generate fresh content.
         filesWritten = 0
         io.sortParm = .seqPlusTitle
         
@@ -188,7 +213,6 @@ public class WebBookMaker {
             levelText = "1"
             levelInt = 1
         }
-        
 
         let fileURL = URL(fileURLWithPath: fileName, relativeTo: htmlFolder).appendingPathExtension(htmlFileExt)
         
@@ -202,7 +226,21 @@ public class WebBookMaker {
         if written {
             filesWritten += 1
             writeNoteToManifest(title: title)
+            copyImageAsNeeded(note: note)
         } 
+    }
+    
+    func copyImageAsNeeded(note: Note) {
+        guard let fromURL = note.imageURL else { return }
+        let toName = note.imageCommonName
+        let toURL = imagesFolder.appendingPathComponent(toName)
+        do {
+            try FileManager.default.copyItem(at: fromURL, to: toURL)
+        } catch {
+            print("Image Copy failed!")
+            print("  - from: \(fromURL)")
+            print("  - to:   \(toURL)")
+        }
     }
     
     func writeNoteToManifest(title: String) {

@@ -38,6 +38,7 @@ public class NoteFieldsToHTML {
                              io: NotenikIO?,
                              parms: DisplayParms,
                              topOfPage: String,
+                             imageWithinPage: String,
                              bodyHTML: String? = nil,
                              minutesToRead: MinutesToReadValue? = nil,
                              bottomOfPage: String = "") -> String {
@@ -91,6 +92,11 @@ public class NoteFieldsToHTML {
                             // ignore for now
                         } else {
                             code.append(display(field!, note: note, collection: collection, io: io))
+                            if field!.def == collection.titleFieldDef {
+                                if !imageWithinPage.isEmpty {
+                                    code.append(imageWithinPage)
+                                }
+                            }
                         }
                     }
                 }
@@ -176,8 +182,8 @@ public class NoteFieldsToHTML {
         let code = Markedup(format: parms.format)
         if field.def == collection.titleFieldDef {
             var titleToDisplay = field.value.value
-            if parms.streamlined && note.hasSeq() {
-                titleToDisplay = note.seq.value + " " + field.value.value
+            if parms.streamlined {
+                titleToDisplay = note.titleToDisplay
             }
             if collection.h1Titles {
                 code.heading(level: 1, text: titleToDisplay)

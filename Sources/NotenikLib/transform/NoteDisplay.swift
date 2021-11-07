@@ -89,6 +89,7 @@ public class NoteDisplay {
         
         let position = io.positionOfNote(note)
         let topHTML = formatTopOfPage(note, io: io)
+        let imageHTML = formatImage(note, io: io)
         let bottomHTML = formatBottomOfPage(note, io: io)
         if position.valid {
             _ = io.selectNote(at: position.index)
@@ -97,7 +98,10 @@ public class NoteDisplay {
         if parms.displayTemplate.count > 0 {
             return (displayWithTemplate(note, io: io), wikiAdds)
         } else {
-            return (displayWithoutTemplate(note, io: io, topOfPage: topHTML, bottomOfPage: bottomHTML), wikiAdds)
+            return (displayWithoutTemplate(note, io: io,
+                                           topOfPage: topHTML,
+                                           imageWithinPage: imageHTML,
+                                           bottomOfPage: bottomHTML), wikiAdds)
         }
     }
     
@@ -139,6 +143,50 @@ public class NoteDisplay {
         return topHTML.code
     }
     
+    func formatImage(_ note: Note, io: NotenikIO) -> String {
+        guard !parms.imagesPath.isEmpty else { return "" }
+        let imageCommonName = note.imageCommonName
+        guard !imageCommonName.isEmpty else { return "" }
+        var imageAlt = ""
+        if let imageAltField = note.getField(label: NotenikConstants.imageAltCommon) {
+            imageAlt = imageAltField.value.value
+        }
+        var imageCaption = ""
+        if let imageCaptionField = note.getField(label: NotenikConstants.imageCaptionCommon) {
+            imageCaption = imageCaptionField.value.value
+        }
+        var imageCaptionPrefix = ""
+        var imageCaptionLink = ""
+        var imageCaptionText = ""
+        if let imageCreditField = note.getField(label: NotenikConstants.imageCreditCommon) {
+            imageCaptionPrefix = "Image Credit: "
+            imageCaptionText = imageCreditField.value.value
+            if let imageCreditLinkField = note.getField(label: NotenikConstants.imageCreditLinkCommon) {
+                imageCaptionLink = imageCreditLinkField.value.value
+            }
+        }
+        let imagePath = parms.imagesPath + "/" + imageCommonName
+
+        let imageHTML = Markedup()
+        if imageCaption.isEmpty && imageCaptionText.isEmpty {
+            imageHTML.image(alt: imageAlt, path: imagePath, title: imageAlt)
+        } else if imageCaption.isEmpty {
+            imageHTML.image(path: imagePath,
+                            alt: imageAlt,
+                            title: imageAlt,
+                            captionPrefix: imageCaptionPrefix,
+                            captionText: imageCaptionText,
+                            captionLink: imageCaptionLink)
+        } else {
+            imageHTML.image(path: imagePath,
+                            alt: imageAlt,
+                            title: imageAlt,
+                            caption: imageCaption)
+        }
+        
+        return imageHTML.code
+    }
+    
     /// In a sequenced list, show upcoming Notes.
     func formatBottomOfPage(_ note: Note, io: NotenikIO) -> String {
         
@@ -174,7 +222,9 @@ public class NoteDisplay {
                     let tocTitle = tocNote.title.value
                     let tocSeq = tocNote.seq
                     bottomHTML.startListItem()
-                    bottomHTML.append("\(tocSeq) ")
+                    if !tocNote.klass.frontMatter {
+                        bottomHTML.append("\(tocSeq) ")
+                    }
                     bottomHTML.link(text: tocTitle, path: parms.assembleWikiLink(title: tocTitle))
                     bottomHTML.finishListItem()
                 }
@@ -213,6 +263,7 @@ public class NoteDisplay {
     func displayWithoutTemplate(_ note: Note,
                                 io: NotenikIO,
                                 topOfPage: String,
+                                imageWithinPage: String,
                                 bottomOfPage: String) -> String {
         
         let fieldsToHTML = NoteFieldsToHTML()
@@ -220,89 +271,12 @@ public class NoteDisplay {
                                          io: io,
                                          parms: parms,
                                          topOfPage: topOfPage,
+                                         imageWithinPage: imageWithinPage,
                                          bodyHTML: bodyHTML,
                                          minutesToRead: minutesToRead,
                                          bottomOfPage: bottomOfPage)
     }
 
-    /// Get the code used to display this entire note as a web page, including html tags.
-    ///
-    /// - Parameter note: The note to be displayed.
-    /// - Returns: A string containing the encoded note.
-    public func displayOld(_ note: Note, io: NotenikIO) -> String {
-        let mkdownContext = NotesMkdownContext(io: io, displayParms: parms)
-        let collection = note.collection
-        let dict = collection.dict
-        let code = Markedup(format: parms.format)
-        code.startDoc(withTitle: note.title.value,
-                      withCSS: parms.cssString,
-                      linkToFile: parms.cssLinkToFile,
-                      withJS: mkdownOptions.getHtmlScript())
-        
-        if note.hasTags() {
-            let tagsField = note.getTagsAsField()
-            code.append(display(tagsField!, note: note, collection: collection, io: io))
-        }
-        
-        minutesToRead = nil
-        
-        // Pre-parse the body field if we're creating HTML.
-        if parms.formatIsHTML && AppPrefs.shared.parseUsingNotenik {
-            let body = note.body
-            mdBodyParser = MkdownParser(body.value, options: mkdownOptions)
-            mdBodyParser!.setWikiLinkFormatting(prefix: parms.wikiLinkPrefix,
-                                                format: parms.wikiLinkFormat,
-                                                suffix: parms.wikiLinkSuffix,
-                                                context: mkdownContext)
-            mdBodyParser!.parse()
-            counts = mdBodyParser!.counts
-            if collection.minutesToReadDef != nil {
-                minutesToRead = MinutesToReadValue(with: counts)
-            }
-        }
-        
-        var i = 0
-        while i < dict.count {
-            let def = dict.getDef(i)
-            if def != nil {
-                let field = note.getField(def: def!)
-                if (field != nil &&
-                    field!.value.hasData &&
-                        field!.def != collection.tagsFieldDef &&
-                        field!.def.fieldLabel.commonForm != NotenikConstants.dateAddedCommon &&
-                        field!.def.fieldLabel.commonForm != NotenikConstants.dateModifiedCommon &&
-                        field!.def.fieldLabel.commonForm != NotenikConstants.timestampCommon) {
-                    code.append(display(field!, note: note, collection: collection, io: io))
-                } else if def == collection.minutesToReadDef && minutesToRead != nil {
-                    let minutesToReadField = NoteField(def: def!, value: minutesToRead!)
-                    code.append(display(minutesToReadField, note: note, collection: collection, io: io))
-                }
-            }
-            i += 1
-        }
-        if note.hasDateAdded() || note.hasTimestamp() || note.hasDateModified() {
-            code.horizontalRule()
-            
-            let stamp = note.getField(label: NotenikConstants.timestamp)
-            if stamp != nil {
-                code.append(display(stamp!, note: note, collection: collection, io: io))
-            }
-            
-            let dateAdded = note.getField(label: NotenikConstants.dateAdded)
-            if dateAdded != nil {
-                code.append(display(dateAdded!, note: note, collection: collection, io: io))
-            }
-            
-            let dateModified = note.getField(label: NotenikConstants.dateModified)
-            if dateModified != nil {
-                code.append(display(dateModified!, note: note, collection: collection, io: io))
-            }
-        }
-        code.finishDoc()
-        return String(describing: code)
-    }
-    
-    
     /// Get the code used to display this field
     ///
     /// - Parameter field: The field to be displayed.

@@ -183,6 +183,41 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
         return nil
     }
     
+    public var imageURL: URL? {
+        guard let def = collection.imageNameFieldDef else { return nil }
+        guard let imageField = getField(def: def) else { return nil }
+        let imageName = imageField.value.value
+        guard imageName.count > 0 else { return nil }
+        
+        var imageURL: URL?
+        for attachment in attachments {
+            if attachment.suffix.lowercased() == imageName.lowercased() {
+                let attachmentsFolder = collection.lib.getResource(type: .attachments)
+                let attachmentResource = ResourceFileSys(parent: attachmentsFolder,
+                                                         fileName: attachment.fullName,
+                                                         type: .attachment)
+                imageURL = attachmentResource.url
+            }
+        }
+        return imageURL
+    }
+    
+    public var imageCommonName: String {
+
+        guard let def = collection.imageNameFieldDef else { return "" }
+        guard let imageField = getField(def: def) else { return "" }
+        let imageName = imageField.value.value
+        guard imageName.count > 0 else { return "" }
+        
+        var commonName = ""
+        for attachment in attachments {
+            if attachment.suffix.lowercased() == imageName.lowercased() {
+                commonName = attachment.commonName
+            }
+        }
+        return commonName
+    }
+    
     /// Make a copy of this Note
     public func copy(with zone: NSZone? = nil) -> Any {
         let newNote = Note(collection: collection)
@@ -456,6 +491,14 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     //
     // Functions and variables concerning the Note's title.
     //
+    
+    public var titleToDisplay: String {
+        if hasSeq() && !klass.frontMatter {
+            return seq.value + " " + title.value
+        } else {
+            return title.value
+        }
+    }
     
     /// Return the Note's Title Value
     public var title: TitleValue {
@@ -1185,6 +1228,12 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     /// - Returns: The corresponding field within this Note, if one exists for this definition
     public func getField(def: FieldDefinition) -> NoteField? {
         return fields[def.fieldLabel.commonForm]
+    }
+    
+    /// Remove the specified field from the Note.
+    /// - Parameter def: The Field Definition for the field to be removed. 
+    public func removeField(def: FieldDefinition) {
+        fields[def.fieldLabel.commonForm] = nil
     }
     
     /// Get the Note Field for a particular Field Label.

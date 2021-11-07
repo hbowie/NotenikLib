@@ -18,4 +18,13 @@ public class KlassValue: StringValue {
         super.set(value.lowercased())
     }
     
+    var frontMatter: Bool {
+        switch value {
+        case "front", "intro", "preface":
+            return true
+        default:
+            return false
+        }
+    }
+    
 }
