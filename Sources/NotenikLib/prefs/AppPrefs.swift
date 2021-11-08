@@ -52,6 +52,9 @@ public class AppPrefs {
     let shortcutsKey = "shortcuts"
     var _shortcuts = ""
     
+    let lastShortcutKey = "last-shortcut"
+    var _lastShortcut = ""
+    
     var _appLaunching = false
     
     var _qd: Bool = false
@@ -179,6 +182,11 @@ public class AppPrefs {
         let scuts = defaults.string(forKey: shortcutsKey)
         if scuts != nil {
             _shortcuts = scuts!
+        }
+        
+        let lcut = defaults.string(forKey: lastShortcutKey)
+        if lcut != nil {
+            _lastShortcut = lcut!
         }
         
         _uc = defaults.integer(forKey: useCountKey)
@@ -342,6 +350,16 @@ public class AppPrefs {
         set {
             _shortcuts = newValue
             defaults.set(_shortcuts, forKey: shortcutsKey)
+        }
+    }
+    
+    public var lastShortcut: String {
+        get {
+            return _lastShortcut
+        }
+        set {
+            _lastShortcut = newValue
+            defaults.set(_lastShortcut, forKey: lastShortcutKey)
         }
     }
     
