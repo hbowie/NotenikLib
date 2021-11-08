@@ -355,6 +355,28 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
         }
     }
     
+    public var dateModifiedValue: String {
+        guard let dateModifiedDef = collection.dict.getDef(NotenikConstants.dateModified) else {
+            return envModDate
+        }
+        let dateModField = getField(def: dateModifiedDef)
+        if let dateModValue = dateModField?.value as? DateTimeValue {
+            return dateModValue.value
+        }
+        return envModDate
+    }
+    
+    public var dateModifiedSortKey: String {
+        guard let dateModifiedDef = collection.dict.getDef(NotenikConstants.dateModified) else {
+            return envModDate
+        }
+        let dateModField = getField(def: dateModifiedDef)
+        if let dateModValue = dateModField?.value as? DateTimeValue {
+            return dateModValue.sortKey
+        }
+        return envModDate
+    }
+    
     func setTimestamp(_ timestamp: String) -> Bool {
         let ok = setField(label: NotenikConstants.timestamp, value: timestamp)
         setID()
@@ -427,6 +449,8 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
                 + title.sortKey)
         case .dateAdded:
             return dateAddedSortKey
+        case .dateModified:
+            return dateModifiedSortKey
         case .custom:
             var key = ""
             for sortField in collection.customFields {
