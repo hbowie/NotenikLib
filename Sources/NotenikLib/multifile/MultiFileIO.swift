@@ -20,7 +20,7 @@ public class MultiFileIO {
     public static let shared = MultiFileIO()
     
     // Use a Collection's shortcut as the key for the dictionary.
-    var entries: [String : MultiFileEntry] = [:]
+    public var entries: [String : MultiFileEntry] = [:]
     
     var bookmarks: [MultiFileBookmark] = []
     
@@ -39,11 +39,10 @@ public class MultiFileIO {
         
         guard !link.shortcut.isEmpty else { return }
         let entry = entries[link.shortcut]
-        if entry == nil {
-            let newEntry = MultiFileEntry(link: link)
+        let newEntry = MultiFileEntry(link: link)
+        if entry == nil || entry!.link != newEntry.link {
             entries[link.shortcut] = newEntry
         }
-        
     }
     
     /// Register an I/O module for a Collection.
@@ -51,13 +50,12 @@ public class MultiFileIO {
         
         guard !link.shortcut.isEmpty else { return }
         let entry = entries[link.shortcut]
-        if entry == nil {
-            let newEntry = MultiFileEntry(link: link, io: io)
+        let newEntry = MultiFileEntry(link: link, io: io)
+        if entry == nil || entry!.link != newEntry.link {
             entries[link.shortcut] = newEntry
         } else {
             entry!.io = io
         }
-        
     }
     
     /// Attempt to get a Note from the indicated lookup Collection.

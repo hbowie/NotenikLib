@@ -23,6 +23,9 @@ public class AnyType {
     /// The common label typically assigned to fields of this type.
     var commonLabel = ""
     
+    /// Can the user edit this type of field?
+    public var userEditable = true
+    
     init() {
         
     }

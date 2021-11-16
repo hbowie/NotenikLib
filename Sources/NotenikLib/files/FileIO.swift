@@ -362,6 +362,7 @@ public class FileIO: NotenikIO, RowConsumer {
         if resourceLib.reportsFolder.isAvailable {
             loadReports()
         }
+        loadKlassDefs()
         
         let notesContents = collection!.lib.notesFolder.getResourceContents(preferredNoteExt: collection!.preferredExt)
         guard notesContents != nil else { return nil }
@@ -798,6 +799,58 @@ public class FileIO: NotenikIO, RowConsumer {
                 reports.append(report)
             }
         }
+
+    }
+    
+    // -----------------------------------------------------------
+    //
+    // MARK: Load Klass Definitions.
+    //
+    // -----------------------------------------------------------
+    
+    /// Load A list of available reports from the reports folder.
+    public func loadKlassDefs() {
+        collection!.klassDefs = []
+        guard let klassFieldDef = collection?.klassFieldDef else {
+            return
+        }
+        guard let klassPickList = klassFieldDef.pickList else {
+            return
+        }
+        guard let lib = collection?.lib else { return }
+        guard lib.hasAvailable(type: .klassFolder) else {
+            return
+        }
+        let klassFolder = lib.klassFolder
+        
+        guard let contents = lib.getContents(type: .klassFolder) else { return }
+        
+        print("FileIO.loadKlassDefs")
+        for content in contents {
+            guard content.isAvailable else { continue }
+            guard !content.fileName.starts(with: ".") else { continue }
+            let klassDef = KlassDef()
+            klassDef.name = content.baseLower
+            print("  - Field Definitions for Class Named \(klassDef.name)")
+            let klassCollection = NoteCollection(realm: realm)
+            klassCollection.path = klassFolder.actualPath
+            guard let klassNote = content.readNote(collection: klassCollection) else { continue }
+            for dictFieldDef in collection!.dict.list {
+                print("    - Def for Field named \(dictFieldDef.fieldLabel.properForm)")
+                for klassFieldDef in klassCollection.dict.list {
+                    if dictFieldDef.fieldLabel.commonForm == klassFieldDef.fieldLabel.commonForm {
+                        klassDef.fieldDefs.append(dictFieldDef)
+                        print("      - Added to Field Defs for this class")
+                        break
+                    }
+                }
+            }
+            klassDef.defaultValues = klassNote
+            guard klassDef.fieldDefs.count > 0 else { continue }
+            collection!.klassDefs.append(klassDef)
+            klassPickList.registerValue(klassDef.name)
+        }
+        logInfo("\(collection!.klassDefs.count) Class Template(s) Loaded from the class folder")
 
     }
     

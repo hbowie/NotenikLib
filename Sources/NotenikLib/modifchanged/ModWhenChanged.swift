@@ -42,6 +42,7 @@ public class ModWhenChanged {
     /// - Returns: The outcome of the analysis and actions performed, plus the relevant Note.
     public func modIfChanged(newNoteRequested: Bool,
                       startingNote: Note,
+                      editDefs: [FieldDefinition],
                       modViews: [ModView],
                       statusConfig: StatusValueConfig,
                       levelConfig: IntWithLabelConfig) -> (modIfChangedOutcome, Note?) {
@@ -53,16 +54,9 @@ public class ModWhenChanged {
         guard io.collectionOpen else { return (outcome, nil) }
         
         let dict = collection.dict
-        let defs = dict.list
+        let defs = editDefs
         
-        var defsCount = defs.count
-        if collection.backlinksDef != nil {
-            defsCount -= 1
-        }
-        if collection.wikilinksDef != nil {
-            defsCount -= 1
-        }
-        guard defsCount == modViews.count else {
+        guard defs.count == modViews.count else {
             logError("Number of Field Definitions does not match number of Edit Values")
             return (outcome, nil)
         }
@@ -81,9 +75,6 @@ public class ModWhenChanged {
         var modified = false
         var i = 0
         for def in defs {
-            if def == collection.backlinksDef || def == collection.wikilinksDef {
-                continue
-            }
             let field = modNote.getField(def: def)
             let fieldView = modViews[i]
             var noteValue = ""

@@ -40,7 +40,6 @@ class ApplyTemplateValues {
         
         var creatorFound = false
         var authorDef: FieldDefinition?
-
         for def in dict.list {
             
             // Attempt to parse the value field, if there is one.
@@ -56,6 +55,11 @@ class ApplyTemplateValues {
             if def.fieldLabel.commonForm == NotenikConstants.authorCommon
                 || def.fieldLabel.commonForm == NotenikConstants.artistCommon {
                 authorDef = def
+            } else if def.fieldLabel.commonForm == NotenikConstants.klassCommon
+                        || def.fieldLabel.commonForm == "klass" {
+                if collection.klassFieldDef == nil {
+                    collection.klassFieldDef = def
+                }
             }
             
             switch def.fieldType.typeString {
@@ -119,11 +123,6 @@ class ApplyTemplateValues {
             case NotenikConstants.levelCommon:
                 if collection.levelFieldDef == nil {
                     collection.levelFieldDef = def
-                }
-                
-            case NotenikConstants.klassCommon:
-                if collection.klassFieldDef == nil {
-                    collection.klassFieldDef = def
                 }
                 
             case NotenikConstants.shortIdCommon:

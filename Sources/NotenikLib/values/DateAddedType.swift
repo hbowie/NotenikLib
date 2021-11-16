@@ -25,6 +25,9 @@ class DateAddedType: AnyType {
         
         /// The common label typically assigned to fields of this type.
         commonLabel = NotenikConstants.dateAddedCommon
+        
+        /// Can the user edit this type of field?
+        userEditable = false
     }
     
     /// A factory method to create a new value of this type with no initial value.

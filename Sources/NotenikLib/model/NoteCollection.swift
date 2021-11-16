@@ -73,6 +73,8 @@ public class NoteCollection {
     public  var shortIdDef:     FieldDefinition?
     
             var pickLists:     [FieldDefinition] = []
+    public  var klassDefs:     [KlassDef] = []
+    public  var lastNewKlass = ""
     
     /// Default initialization of a new Collection.
     public init () {

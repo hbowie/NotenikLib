@@ -33,6 +33,7 @@ public class ResourceFileSys: CustomStringConvertible, Comparable {
     static let dsstoreFileName   = ".DS_Store"
     static let filesFolderName   = "files"
     static let infoFileName      = "- INFO.nnk"
+    static let klassFolderName   = "class"
     static let mirrorFolderName  = "mirror"
     static let notesFolderName   = "notes"
     static let oldSourceParms    = "pspub_source_parms.xml"

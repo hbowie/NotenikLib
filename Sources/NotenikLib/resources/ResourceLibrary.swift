@@ -47,6 +47,7 @@ public class ResourceLibrary {
     var attachmentsFolder = ResourceFileSys()
     var mirrorFolder      = ResourceFileSys()
     var reportsFolder     = ResourceFileSys()
+    var klassFolder       = ResourceFileSys()
     
     var infoCollection:   NoteCollection?
     
@@ -69,6 +70,7 @@ public class ResourceLibrary {
         attachmentsFolder = ResourceFileSys()
         mirrorFolder    = ResourceFileSys()
         reportsFolder   = ResourceFileSys()
+        klassFolder     = ResourceFileSys()
         
         infoCollection  = NoteCollection()
     }
@@ -123,6 +125,8 @@ public class ResourceLibrary {
             return displayCSSFile.isAvailable
         case .info:
             return infoFile.isAvailable
+        case .klassFolder:
+            return klassFolder.isAvailable
         case .mirror:
             return mirrorFolder.isAvailable
         case .notes:
@@ -156,6 +160,8 @@ public class ResourceLibrary {
             return displayCSSFile.actualPath
         case .info:
             return infoFile.actualPath
+        case .klassFolder:
+            return klassFolder.actualPath
         case .mirror:
             return mirrorFolder.actualPath
         case .notes:
@@ -189,6 +195,8 @@ public class ResourceLibrary {
             return displayCSSFile.url
         case .info:
             return infoFile.url
+        case .klassFolder:
+            return klassFolder.url
         case .mirror:
             return mirrorFolder.url
         case .notes:
@@ -222,6 +230,8 @@ public class ResourceLibrary {
             return displayCSSFile
         case .info:
             return infoFile
+        case .klassFolder:
+            return klassFolder
         case .mirror:
             return mirrorFolder
         case .notes:
@@ -250,6 +260,13 @@ public class ResourceLibrary {
             attachmentsFolder = ResourceFileSys(parent: notesFolder, fileName: ResourceFileSys.filesFolderName, type: .attachments)
             _ = attachmentsFolder.ensureExistence()
             return attachmentsFolder
+        case .klassFolder:
+            if klassFolder.isAvailable {
+                return klassFolder
+            }
+            klassFolder = ResourceFileSys(parent: notesFolder, fileName: ResourceFileSys.klassFolderName, type: .klassFolder)
+            _ = klassFolder.ensureExistence()
+            return klassFolder
         default:
             return ResourceFileSys()
         }
@@ -271,6 +288,8 @@ public class ResourceLibrary {
         switch type {
         case .attachments:
             return attachmentsFolder.getResourceContents()
+        case .klassFolder:
+            return klassFolder.getResourceContents()
         case .mirror:
             return mirrorFolder.getResourceContents()
         case .notes:
@@ -496,6 +515,9 @@ public class ResourceLibrary {
         
         // Set the location for a possible alias file.
         aliasFile = ResourceFileSys(parent: notesFolder, fileName: ResourceFileSys.aliasFileName, type: .alias)
+        
+        // Set the location for a possible class folder.
+        klassFolder = ResourceFileSys(parent: notesFolder, fileName: ResourceFileSys.klassFolderName)
         
         // See if we can find a template file.
         templateFile = ResourceFileSys(folderPath: notesFolder.actualPath, fileName: ResourceFileSys.templateFileName + ".txt")

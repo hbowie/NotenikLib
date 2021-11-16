@@ -23,6 +23,7 @@ public class KlassPickList: PickList {
         super.init(values: values, forceLowercase: forceLowercase)
     }
     
+    /// If the user hasn't supplied any values, then use some defaults. 
     public func setDefaults() {
         guard count == 0 else { return }
         registerValue("biblio")

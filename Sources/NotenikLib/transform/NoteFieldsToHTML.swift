@@ -216,6 +216,9 @@ public class NoteFieldsToHTML {
                 code.finishParagraph()
             }
             if parms.formatIsHTML {
+                if note.klass.quote {
+                    code.startBlockQuote()
+                }
                 if bodyHTML != nil {
                     code.append(bodyHTML!)
                 } else {
@@ -223,10 +226,22 @@ public class NoteFieldsToHTML {
                                        context: mkdownContext,
                                        writer: code)
                 }
+                if note.klass.quote {
+                    code.finishBlockQuote()
+                }
             } else {
                 code.append(field.value.value)
                 code.newLine()
             }
+        } else if parms.streamlined
+                    && collection.klassFieldDef != nil
+                    && field.def == collection.klassFieldDef!
+                    && note.klass.quote {
+            code.startParagraph()
+            code.startEmphasis()
+            code.append("Quotation:")
+            code.finishEmphasis()
+            code.finishParagraph()
         } else if parms.streamlined {
             // Skip other fields
         } else if field.def.fieldType is LinkType {

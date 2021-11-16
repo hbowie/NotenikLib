@@ -19,7 +19,7 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     
     public var collection: NoteCollection
     
-    var fields = [:] as [String: NoteField]
+    public var fields = [:] as [String: NoteField]
     public var attachments: [AttachmentName] = []
     
     var _envCreateDate = ""

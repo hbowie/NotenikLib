@@ -22,6 +22,7 @@ public enum ResourceType {
     case display
     case displayCSS
     case info
+    case klassFolder
     case license
     case mirror
     case noise
