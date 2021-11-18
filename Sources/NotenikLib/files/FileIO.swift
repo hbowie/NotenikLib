@@ -366,6 +366,7 @@ public class FileIO: NotenikIO, RowConsumer {
         
         let notesContents = collection!.lib.notesFolder.getResourceContents(preferredNoteExt: collection!.preferredExt)
         guard notesContents != nil else { return nil }
+        collection!.duplicates = 0
         for item in notesContents! {
             if item.type == .note {
                 let note = item.readNote(collection: collection!, reportErrors: true)
@@ -390,6 +391,7 @@ public class FileIO: NotenikIO, RowConsumer {
                         }
                     } else {
                         logError("Note titled '\(note!.title.value)' appears to be a duplicate and could not be accessed")
+                        collection!.duplicates += 1
                     }
                 } else {
                     logError("No title for Note read from \(item)")

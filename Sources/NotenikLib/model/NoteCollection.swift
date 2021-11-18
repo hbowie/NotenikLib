@@ -19,6 +19,7 @@ public class NoteCollection {
     public  var title       = ""
     public  var shortcut    = ""
     public  var lib:          ResourceLibrary!
+    public  var duplicates  = 0
             var noteType    : NoteType = .general
     public  var dict        : FieldDictionary
     public  var hasLookupFields = false
