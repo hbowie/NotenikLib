@@ -20,7 +20,7 @@ public class KlassValue: StringValue {
     
     var quote: Bool {
         switch value {
-        case "quote", "quotation":
+        case NotenikConstants.quoteKlass, NotenikConstants.quotationKlass:
             return true
         default:
             return false
@@ -29,7 +29,16 @@ public class KlassValue: StringValue {
     
     var frontMatter: Bool {
         switch value {
-        case "front", "intro", "preface":
+        case NotenikConstants.frontKlass, NotenikConstants.introKlass, NotenikConstants.prefaceKlass:
+            return true
+        default:
+            return false
+        }
+    }
+    
+    public var biblio: Bool {
+        switch value {
+        case NotenikConstants.authorKlass, NotenikConstants.workKlass:
             return true
         default:
             return false

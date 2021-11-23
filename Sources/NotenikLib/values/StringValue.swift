@@ -3,7 +3,7 @@
 //  notenik
 //
 //  Created by Herb Bowie on 11/25/18.
-//  Copyright © 2018 - 2019 Herb Bowie (https://powersurgepub.com)
+//  Copyright © 2018 - 2021 Herb Bowie (https://powersurgepub.com)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -32,6 +32,33 @@ public class StringValue: CustomStringConvertible, Equatable, Comparable {
     /// Set a new value for the object
     func set(_ value: String) {
         self.value = value
+    }
+    
+    /// Clean up the value a bit.
+    /// - Omit a newline character and anything following.
+    /// - Omit extra spaces.
+    /// - If requested, convert uppercase to lowercase.
+    /// - Parameter forceLowercase: True if lowercase is to be forced; false otherwise. 
+    func cleanup(forceLowercase: Bool = false) {
+        var val = ""
+        var spacesPending = false
+        for char in value {
+            if char.isNewline { break }
+            if char.isWhitespace {
+                spacesPending = true
+            } else {
+                if spacesPending {
+                    val.append(" ")
+                    spacesPending = false
+                }
+                if forceLowercase {
+                    val.append(char.lowercased())
+                } else {
+                    val.append(char)
+                }
+            }
+        }
+        value = val
     }
     
     /// Return the length of the string

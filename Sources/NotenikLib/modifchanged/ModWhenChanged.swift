@@ -53,7 +53,6 @@ public class ModWhenChanged {
         guard let collection = io.collection else { return (outcome, nil) }
         guard io.collectionOpen else { return (outcome, nil) }
         
-        let dict = collection.dict
         let defs = editDefs
         
         guard defs.count == modViews.count else {

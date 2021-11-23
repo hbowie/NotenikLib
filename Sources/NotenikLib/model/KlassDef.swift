@@ -13,8 +13,16 @@
 import Foundation
 
 /// The information that defines a Klass.
-public class KlassDef {
+public class KlassDef: Comparable {
     public var name = ""
     public var fieldDefs: [FieldDefinition] = []
     public var defaultValues: Note?
+    
+    public static func < (lhs: KlassDef, rhs: KlassDef) -> Bool {
+        return lhs.name < rhs.name
+    }
+    
+    public static func == (lhs: KlassDef, rhs: KlassDef) -> Bool {
+        return lhs.name == rhs.name
+    }
 }

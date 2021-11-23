@@ -827,22 +827,18 @@ public class FileIO: NotenikIO, RowConsumer {
         
         guard let contents = lib.getContents(type: .klassFolder) else { return }
         
-        print("FileIO.loadKlassDefs")
         for content in contents {
             guard content.isAvailable else { continue }
             guard !content.fileName.starts(with: ".") else { continue }
             let klassDef = KlassDef()
             klassDef.name = content.baseLower
-            print("  - Field Definitions for Class Named \(klassDef.name)")
             let klassCollection = NoteCollection(realm: realm)
             klassCollection.path = klassFolder.actualPath
             guard let klassNote = content.readNote(collection: klassCollection) else { continue }
             for dictFieldDef in collection!.dict.list {
-                print("    - Def for Field named \(dictFieldDef.fieldLabel.properForm)")
                 for klassFieldDef in klassCollection.dict.list {
                     if dictFieldDef.fieldLabel.commonForm == klassFieldDef.fieldLabel.commonForm {
                         klassDef.fieldDefs.append(dictFieldDef)
-                        print("      - Added to Field Defs for this class")
                         break
                     }
                 }
@@ -852,6 +848,7 @@ public class FileIO: NotenikIO, RowConsumer {
             collection!.klassDefs.append(klassDef)
             klassPickList.registerValue(klassDef.name)
         }
+        collection!.klassDefs.sort()
         logInfo("\(collection!.klassDefs.count) Class Template(s) Loaded from the class folder")
 
     }

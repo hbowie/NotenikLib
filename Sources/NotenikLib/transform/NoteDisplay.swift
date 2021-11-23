@@ -115,6 +115,10 @@ public class NoteDisplay {
         guard noteLevel > 1 else { return "" }
         let sortParm = parms.sortParm
         guard sortParm == .seqPlusTitle else { return "" }
+        var klass = KlassValue()
+        if note.collection.klassFieldDef != nil {
+            klass = note.klass
+        }
         var currentPosition = io.positionOfNote(note)
         var parentTitle = ""
         var parentSeq = ""
@@ -134,7 +138,9 @@ public class NoteDisplay {
         let topHTML = Markedup()
         topHTML.startParagraph()
         if parentSeq.count > 0 {
-            topHTML.append("\(parentSeq) ")
+            if !klass.biblio && !klass.frontMatter {
+                topHTML.append("\(parentSeq) ")
+            }
         }
         topHTML.link(text: parentTitle, path: parms.assembleWikiLink(title: parentTitle))
         topHTML.append("&nbsp;")
@@ -222,7 +228,7 @@ public class NoteDisplay {
                     let tocTitle = tocNote.title.value
                     let tocSeq = tocNote.seq
                     bottomHTML.startListItem()
-                    if !tocNote.klass.frontMatter {
+                    if !tocNote.klass.frontMatter && !tocNote.klass.biblio {
                         bottomHTML.append("\(tocSeq) ")
                     }
                     bottomHTML.link(text: tocTitle, path: parms.assembleWikiLink(title: tocTitle))

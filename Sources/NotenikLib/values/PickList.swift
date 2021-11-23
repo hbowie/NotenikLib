@@ -69,12 +69,32 @@ public class PickList {
         _ = registerValue(strVal)
     }
     
+    func registerValueFromTop(_ value: StringValue) -> StringValue {
+        value.cleanup(forceLowercase: forceLowercase)
+        var index = values.count - 1
+        while index >= 0 && value < values[index] {
+            index -= 1
+        }
+        if index < 0 {
+            values.insert(value, at: 0)
+            return value
+        } else if value == values[index] {
+            return values[index]
+        } else {
+            let insertionPoint = index + 1
+            if insertionPoint >= values.count {
+                values.append(value)
+            } else {
+                values.insert(value, at: insertionPoint)
+            }
+            return value
+        }
+    }
+    
     /// Register a new value. Add if not already present in the list.
     /// - Parameter value: Return the matching StringValue found or added.
     func registerValue(_ value: StringValue) -> StringValue {
-        if forceLowercase {
-            value.set(value.value.lowercased())
-        }
+        value.cleanup(forceLowercase: forceLowercase)
         var index = 0
         var bottom = 0
         var top = values.count - 1

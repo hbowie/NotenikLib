@@ -180,28 +180,11 @@ public class NoteFieldsToHTML {
             mkdownContext = NotesMkdownContext(io: io!, displayParms: parms)
         }
         let code = Markedup(format: parms.format)
+        
+        // Format the Note's Title Line
         if field.def == collection.titleFieldDef {
-            var titleToDisplay = field.value.value
-            if parms.streamlined {
-                titleToDisplay = note.titleToDisplay
-            }
-            if collection.h1Titles {
-                code.heading(level: 1, text: titleToDisplay)
-            } else if parms.concatenated && collection.levelFieldDef != nil {
-                var level = note.level.getInt()
-                if level < 1 {
-                    level = 1
-                } else if level > 6 {
-                    level = 6
-                }
-                code.heading(level: level, text: titleToDisplay, addID: true, idText: field.value.value)
-            } else {
-                code.startParagraph()
-                code.startStrong()
-                code.append(titleToDisplay)
-                code.finishStrong()
-                code.finishParagraph()
-            }
+            displayTitle(note: note, markedup: code)
+        // Format the tags field
         } else if field.def == collection.tagsFieldDef && parms.fullDisplay {
             code.startParagraph()
             code.startEmphasis()
@@ -242,8 +225,6 @@ public class NoteFieldsToHTML {
             code.append("Quotation:")
             code.finishEmphasis()
             code.finishParagraph()
-        } else if parms.streamlined {
-            // Skip other fields
         } else if field.def.fieldType is LinkType {
             code.startParagraph()
             code.append(field.def.fieldLabel.properForm)
@@ -254,6 +235,31 @@ public class NoteFieldsToHTML {
             }
             code.link(text: pathDisplay!, path: field.value.value)
             code.finishParagraph()
+        } else if parms.streamlined {
+            switch field.def.fieldType.typeString {
+            case NotenikConstants.klassCommon:
+                break
+            case NotenikConstants.levelCommon:
+                break
+            case NotenikConstants.tagsCommon:
+                break
+            case NotenikConstants.seqCommon:
+                break
+            case NotenikConstants.akaCommon:
+                code.startParagraph()
+                code.startEmphasis()
+                if field.def.fieldLabel.properForm == NotenikConstants.aka {
+                    code.append("aka")
+                } else {
+                    code.append(field.def.fieldLabel.properForm)
+                }
+                code.append(": ")
+                code.append(field.value.value)
+                code.finishEmphasis()
+                code.finishParagraph()
+            default:
+                displayStraight(field, markedup: code)
+            }
         } else if field.def.fieldType.typeString == NotenikConstants.codeCommon {
             code.startParagraph()
             code.append(field.def.fieldLabel.properForm)
@@ -303,14 +309,45 @@ public class NoteFieldsToHTML {
         } else if field.def.fieldType.typeString == NotenikConstants.lookupType {
             displayLookup(field, note: note, collection: collection, markedup: code, io: io)
         } else {
-            code.startParagraph()
-            code.append(field.def.fieldLabel.properForm)
-            code.append(": ")
-            code.append(field.value.value)
-            code.finishParagraph()
+            displayStraight(field, markedup: code)
         }
 
         return String(describing: code)
+    }
+    
+    func displayTitle(note: Note, markedup: Markedup) {
+        var titleToDisplay = note.title.value
+        if parms.streamlined && note.hasSeq() {
+            if !note.klass.frontMatter && !note.klass.biblio {
+                titleToDisplay = note.seq.value + " " + note.title.value
+            }
+        }
+        if note.collection.h1Titles {
+            markedup.heading(level: 1, text: titleToDisplay)
+        } else if parms.concatenated && note.collection.levelFieldDef != nil {
+            var level = note.level.getInt()
+            if level < 1 {
+                level = 1
+            } else if level > 6 {
+                level = 6
+            }
+            markedup.heading(level: level, text: titleToDisplay, addID: true, idText: note.title.value)
+        } else {
+            markedup.startParagraph()
+            markedup.startStrong()
+            markedup.append(titleToDisplay)
+            markedup.finishStrong()
+            markedup.finishParagraph()
+        }
+    }
+    
+    /// Display a field without any special formatting.
+    func displayStraight(_ field: NoteField, markedup: Markedup) {
+        markedup.startParagraph()
+        markedup.append(field.def.fieldLabel.properForm)
+        markedup.append(": ")
+        markedup.append(field.value.value)
+        markedup.finishParagraph()
     }
     
     /// Display a lookup field.

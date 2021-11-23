@@ -134,6 +134,20 @@ public struct NotenikConstants {
     
     //-------------------------------------------------------------
     //
+    // Standard Klass Values
+    //
+    //-------------------------------------------------------------
+    
+    public static let authorKlass       = "author"
+    public static let frontKlass        = "front"
+    public static let introKlass        = "intro"
+    public static let prefaceKlass      = "preface"
+    public static let quoteKlass        = "quote"
+    public static let quotationKlass    = "quotation"
+    public static let workKlass         = "work"
+    
+    //-------------------------------------------------------------
+    //
     // Other constants
     //
     //-------------------------------------------------------------
