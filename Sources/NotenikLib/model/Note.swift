@@ -851,6 +851,38 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     }
     
     //
+    // Functions and variables concerning the Note's Attribution field.
+    //
+    
+    // Does this note have a non-blank Attribution field?
+    public func hasAttribution() -> Bool {
+        guard collection.attribFieldDef != nil else {
+            return false
+        }
+        return attribution.count > 0
+    }
+    
+    /// Set the Note's Sequence value
+    public func setAttribution(_ attrib: String) -> Bool {
+        guard collection.attribFieldDef != nil else { return false }
+        return setField(label: collection.attribFieldDef!.fieldLabel.commonForm,
+                        value: attrib)
+    }
+    
+    /// Return the Note's Sequence Value
+    public var attribution: LongTextValue {
+        guard collection.attribFieldDef != nil else {
+            return LongTextValue()
+        }
+        let val = getFieldAsValue(def: collection.attribFieldDef!)
+        if val is LongTextValue {
+            return val as! LongTextValue
+        } else {
+            return LongTextValue(val.value)
+        }
+    }
+    
+    //
     // Functions and variables concerning the Note's class field.
     //
     

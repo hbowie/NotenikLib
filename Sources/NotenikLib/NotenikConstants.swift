@@ -23,6 +23,8 @@ public struct NotenikConstants {
     public static let akaCommon     = "aka"
     public static let artist        = "Artist"
     public static let artistCommon  = "artist"
+    public static let attribution   = "Attribution"
+    public static let attribCommon  = "attribution"
     public static let author        = "Author"
     public static let authorCommon  = "author"
     public static let backlinks     = "Backlinks"

@@ -16,6 +16,7 @@ public class AllTypes {
     
     let akaType     = AKAType()
     let artistType  = ArtistType()
+    let attribType  = AttribType()
     let authorType  = AuthorType()
     let backlinkType = BacklinkType()
     let bodyType    = BodyType()
@@ -75,6 +76,7 @@ public class AllTypes {
         
         fieldTypes.append(akaType)
         fieldTypes.append(artistType)
+        fieldTypes.append(attribType)
         
         fieldTypes.append(workLinkType)
         fieldTypes.append(workTitleType)

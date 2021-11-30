@@ -71,6 +71,9 @@ class ApplyTemplateValues {
                 collection.creatorFieldDef = def
                 creatorFound = true
                 
+            case NotenikConstants.attribCommon:
+                collection.attribFieldDef = def
+                
             case NotenikConstants.authorCommon:
                 collection.creatorFieldDef = def
                 creatorFound = true

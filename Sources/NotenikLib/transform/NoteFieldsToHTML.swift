@@ -26,6 +26,10 @@ public class NoteFieldsToHTML {
     
     var minutesToRead: MinutesToReadValue?
     
+    var attribution: NoteField?
+    
+    var quoted = false
+    
     public init() {
         
     }
@@ -67,6 +71,8 @@ public class NoteFieldsToHTML {
         }
         
         var i = 0
+        attribution = nil
+        quoted = false
         while i < dict.count {
             let def = dict.getDef(i)
             if def != nil {
@@ -90,6 +96,8 @@ public class NoteFieldsToHTML {
                             // ignore for now
                         } else if field!.def == collection.wikilinksDef {
                             // ignore for now
+                        } else if field!.def == collection.attribFieldDef {
+                            attribution = field
                         } else {
                             code.append(display(field!, note: note, collection: collection, io: io))
                             if field!.def == collection.titleFieldDef {
@@ -102,6 +110,10 @@ public class NoteFieldsToHTML {
                 }
             }
             i += 1
+        }
+        
+        if quoted && attribution != nil {
+            code.append(display(attribution!, note: note, collection: collection, io: io))
         }
         
         if parms.fullDisplay && (note.hasDateAdded() || note.hasTimestamp() || note.hasDateModified()) {
@@ -201,6 +213,7 @@ public class NoteFieldsToHTML {
             if parms.formatIsHTML {
                 if note.klass.quote {
                     code.startBlockQuote()
+                    quoted = true
                 }
                 if bodyHTML != nil {
                     code.append(bodyHTML!)
@@ -235,6 +248,10 @@ public class NoteFieldsToHTML {
             }
             code.link(text: pathDisplay!, path: field.value.value)
             code.finishParagraph()
+        } else if field.def.fieldType is AttribType {
+            markdownToMarkedup(markdown: field.value.value,
+                               context: mkdownContext,
+                               writer: code)
         } else if parms.streamlined {
             switch field.def.fieldType.typeString {
             case NotenikConstants.klassCommon:

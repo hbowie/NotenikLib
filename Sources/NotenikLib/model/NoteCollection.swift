@@ -60,6 +60,7 @@ public class NoteCollection {
     public  var levelFieldDef:  FieldDefinition?
     public  var seqFieldDef:    FieldDefinition?
     public  var klassFieldDef:  FieldDefinition?
+    public  var attribFieldDef: FieldDefinition?
     public  var indexFieldDef:  FieldDefinition
     public  var backlinksDef:   FieldDefinition?
     public  var wikilinksDef:   FieldDefinition?
