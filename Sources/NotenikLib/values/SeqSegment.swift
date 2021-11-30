@@ -63,6 +63,10 @@ class SeqSegment {
         return !punctuation.isEmpty
     }
     
+    func removePunctuation() {
+        punctuation = ""
+    }
+    
     func valueWithPunctuation(position: Int) -> String {
         var str = ""
         

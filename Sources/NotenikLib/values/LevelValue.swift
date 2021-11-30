@@ -21,40 +21,40 @@ public class LevelValue: StringValue {
     public var label = ""
     
     /// Default initialization
-    override init() {
+    public override init() {
         super.init()
         value = "1"
     }
         
     /// Convenience initializer using an integer and a configuration.
-    convenience init (i: Int, config: IntWithLabelConfig) {
+    public convenience init (i: Int, config: IntWithLabelConfig) {
         self.init()
         set(i: i, config: config)
     }
     
     /// Convenience initializer using a string and a Status Value Config
-    convenience init (str: String, config: IntWithLabelConfig) {
+    public convenience init (str: String, config: IntWithLabelConfig) {
         self.init()
         set(str: str, config: config)
     }
     
     /// Is this value empty?
-    override var isEmpty: Bool {
+    public override var isEmpty: Bool {
         return (value.count == 0)
     }
     
     /// Does this value have any data stored in it?
-    override var hasData: Bool {
+    public override var hasData: Bool {
         return (value.count > 0)
     }
     
     /// Return a value that can be used as a key for comparison purposes
-    override var sortKey: String {
+    public override var sortKey: String {
         return value
     }
     
     /// Increment this level to the next valid value.
-    func increment(config: IntWithLabelConfig) {
+    public func increment(config: IntWithLabelConfig) {
         var incIndex = 0
         if level < config.high {
             incIndex = level + 1
@@ -66,7 +66,7 @@ public class LevelValue: StringValue {
     }
     
     /// Set the level using an integer and the passed configuration.
-    func set (i: Int, config: IntWithLabelConfig) {
+    public func set (i: Int, config: IntWithLabelConfig) {
         if config.validInt(i) {
             self.value = config.intWithLabel(forInt: i)
             self.label = config.label(forInt: i)
@@ -75,12 +75,12 @@ public class LevelValue: StringValue {
     }
     
     /// Set the level based on the current label value
-    func set(_ config: IntWithLabelConfig) {
+    public func set(_ config: IntWithLabelConfig) {
         set (str: value, config: config)
     }
     
     /// Set the level using a string and the passed configuration.
-    func set(str: String, config: IntWithLabelConfig) {
+    public func set(str: String, config: IntWithLabelConfig) {
         super.set(str)
         var digitsCount = 0
         for c in str {
@@ -117,6 +117,14 @@ public class LevelValue: StringValue {
     
     public func display() {
         print("LevelValue int = \(level), value = \(value)")
+    }
+    
+    static func < (lhs: LevelValue, rhs: LevelValue) -> Bool {
+        return lhs.level < rhs.level
+    }
+    
+    static func == (lhs: LevelValue, rhs: LevelValue) -> Bool {
+        return lhs.level == rhs.level
     }
     
 }

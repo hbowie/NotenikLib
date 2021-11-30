@@ -31,6 +31,16 @@ public class SeqValue: StringValue {
         set(start)
     }
     
+    public func dropLevelAndInc() {
+        seqStack.segments.removeLast()
+        if seqStack.segments[seqStack.max].endedByPunctuation {
+            seqStack.segments[seqStack.max].removePunctuation()
+        }
+        let dropped = seqStack.value
+        set(dropped)
+        increment()
+    }
+    
     /// Set this sequence value to the provided string
     override func set (_ value : String) {
         super.set(value)

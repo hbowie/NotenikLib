@@ -200,6 +200,7 @@ public class NoteDisplay {
         guard parms.streamlined else { return "" }
         guard !parms.concatenated else { return ""}
         guard note.collection.seqFieldDef != nil else { return "" }
+        guard note.collection.levelFieldDef != nil else { return "" }
         let sortParm = parms.sortParm
         guard sortParm == .seqPlusTitle else { return "" }
         let currentPosition = io.positionOfNote(note)
@@ -232,6 +233,12 @@ public class NoteDisplay {
                         bottomHTML.append("\(tocSeq) ")
                     }
                     bottomHTML.link(text: tocTitle, path: parms.assembleWikiLink(title: tocTitle))
+                    let aka = tocNote.aka.value
+                    if !aka.isEmpty && (tocTitle.count + aka.count) < 60 {
+                        bottomHTML.startEmphasis()
+                        bottomHTML.append(" (aka: \(aka))")
+                        bottomHTML.finishEmphasis()
+                    }
                     bottomHTML.finishListItem()
                 }
                 bottomHTML.finishUnorderedList()

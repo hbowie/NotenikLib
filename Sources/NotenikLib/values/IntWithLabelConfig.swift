@@ -25,7 +25,7 @@ public class IntWithLabelConfig {
     
     public var labels: [String] = []
     
-    init() {
+    public init() {
         clear()
     }
         
