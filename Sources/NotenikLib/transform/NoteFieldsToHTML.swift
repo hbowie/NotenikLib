@@ -275,7 +275,11 @@ public class NoteFieldsToHTML {
                 code.finishEmphasis()
                 code.finishParagraph()
             default:
-                displayStraight(field, markedup: code)
+                if field.def.fieldLabel.commonForm == NotenikConstants.teaserCommon {
+                    break
+                } else {
+                    displayStraight(field, markedup: code)
+                }
             }
         } else if field.def.fieldType.typeString == NotenikConstants.codeCommon {
             code.startParagraph()
