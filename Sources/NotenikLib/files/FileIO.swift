@@ -272,8 +272,6 @@ public class FileIO: NotenikIO, RowConsumer {
                 value = "<level: \(collection!.levelConfig.intsWithLabels)>"
             } else if def.pickList != nil && def.fieldType.typeString != NotenikConstants.authorCommon {
                 value = def.pickList!.valueString
-            } else if def.pickList != nil && def.fieldType.typeString == NotenikConstants.klassCommon {
-                value = def.pickList!.valueString
             } else if def.fieldLabel.commonForm == NotenikConstants.bodyCommon {
                 value = ""
             } else if def.fieldType is LongTextType {
