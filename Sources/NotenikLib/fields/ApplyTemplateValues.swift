@@ -224,7 +224,12 @@ class ApplyTemplateValues {
         
         guard leftAngle == "<" && typeStrCommon.count > 0 else { return }
         
-        if typeStrCommon == NotenikConstants.pickFromType {
+        if typeStrCommon == NotenikConstants.pickFromType && def.fieldLabel.commonForm == NotenikConstants.klassCommon {
+            let pickList = KlassPickList(values: typeValues.str)
+            pickList.setDefaults()
+            def.pickList = pickList
+            def.fieldType = collection.typeCatalog.klassType
+        } else if typeStrCommon == NotenikConstants.pickFromType {
             let pickList = PickList(values: typeValues.str)
             if pickList.count > 0 {
                 def.pickList = pickList

@@ -46,6 +46,8 @@ class KlassType: AnyType {
     override func appliesTo(label: FieldLabel, type: String?) -> Bool {
         if type == nil || type!.count == 0 {
             return (label.commonForm == commonLabel || label.commonForm == "klass")
+        } else if type! == NotenikConstants.pickFromType && label.commonForm == commonLabel {
+            return true
         } else {
             return (type! == typeString)
         }
