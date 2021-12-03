@@ -200,7 +200,6 @@ public class NoteDisplay {
         guard parms.streamlined else { return "" }
         guard !parms.concatenated else { return ""}
         guard note.collection.seqFieldDef != nil else { return "" }
-        guard note.collection.levelFieldDef != nil else { return "" }
         let sortParm = parms.sortParm
         guard sortParm == .seqPlusTitle else { return "" }
         let currentPosition = io.positionOfNote(note)
@@ -211,9 +210,35 @@ public class NoteDisplay {
         let nextTitle = nextNote!.title.value
         let nextLevel = nextNote!.level
         let nextSeq = nextNote!.seq
+        
+        if note.collection.levelFieldDef != nil {
+            formatToCforBottom(note,
+                               io: io,
+                               nextNote: nextNote!,
+                               nextPosition: nextPosition,
+                               nextLevel: nextLevel,
+                               nextSeq: nextSeq,
+                               bottomHTML: bottomHTML)
+        }
+        
+        bottomHTML.startParagraph()
+        bottomHTML.append("Next: ")
+        bottomHTML.link(text: nextTitle, path: parms.assembleWikiLink(title: nextTitle))
+        bottomHTML.finishParagraph()
+        return bottomHTML.code
+    }
+    
+    func formatToCforBottom(_ note: Note,
+                            io: NotenikIO,
+                            nextNote: Note,
+                            nextPosition: NotePosition,
+                            nextLevel: LevelValue,
+                            nextSeq: SeqValue,
+                            bottomHTML: Markedup) {
+        
         var tocNotes: [Note] = []
         if nextLevel > note.level && nextSeq > note.seq {
-            tocNotes.append(nextNote!)
+            tocNotes.append(nextNote)
             let tocLevel = nextLevel
             var (anotherNote, anotherPosition) = io.nextNote(nextPosition)
             while anotherNote != nil && anotherNote!.level >= tocLevel {
@@ -245,11 +270,6 @@ public class NoteDisplay {
                 bottomHTML.horizontalRule()
             }
         }
-        bottomHTML.startParagraph()
-        bottomHTML.append("Next: ")
-        bottomHTML.link(text: nextTitle, path: parms.assembleWikiLink(title: nextTitle))
-        bottomHTML.finishParagraph()
-        return bottomHTML.code
     }
     
     func displayWithTemplate(_ note: Note, io: NotenikIO) -> String {
