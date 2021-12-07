@@ -254,6 +254,8 @@ public class NoteFieldsToHTML {
                                writer: code)
         } else if parms.streamlined {
             switch field.def.fieldType.typeString {
+            case NotenikConstants.imageNameCommon:
+                break
             case NotenikConstants.klassCommon:
                 break
             case NotenikConstants.levelCommon:
@@ -276,6 +278,8 @@ public class NoteFieldsToHTML {
                 code.finishParagraph()
             default:
                 if field.def.fieldLabel.commonForm == NotenikConstants.teaserCommon {
+                    break
+                } else if field.def.fieldLabel.commonForm == NotenikConstants.imageCaptionCommon {
                     break
                 } else {
                     displayStraight(field, markedup: code)
