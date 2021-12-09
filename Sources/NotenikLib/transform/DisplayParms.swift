@@ -33,6 +33,7 @@ public class DisplayParms {
     public var localMj = true
     public var localMjUrl: URL?
     public var imagesPath = ""
+    public var header = ""
     
     public init() {
         

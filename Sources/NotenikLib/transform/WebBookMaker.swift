@@ -19,6 +19,8 @@ public class WebBookMaker {
     
     let fm = FileManager.default
     
+    let headerFileName = "header"
+    let headerFileExt = "html"
     let lineBreak = "\n"
     let cssFolderName = "css"
     let cssFileName = "styles"
@@ -41,6 +43,7 @@ public class WebBookMaker {
     var io: FileIO
     
     var bookFolder:     URL
+    var headerFile:     URL
     var pubFolder:      URL
     var cssFolder:      URL
     var cssFile:        URL
@@ -49,6 +52,7 @@ public class WebBookMaker {
     var opfFile:        URL
     var tagsFile:       URL
     
+    var header = ""
     var defaultCSS = ""
     var bookTitle = ""
     var opfManifest = ""
@@ -64,6 +68,9 @@ public class WebBookMaker {
         collectionURL = input
         bookFolder = output
         
+        guard FileUtils.ensureFolder(forURL: bookFolder) else { return nil }
+        
+        headerFile = URL(fileURLWithPath: headerFileName, relativeTo: bookFolder).appendingPathExtension(headerFileExt)
         pubFolder = bookFolder.appendingPathComponent(pubFolderName, isDirectory: true)
         guard FileUtils.ensureFolder(forURL: pubFolder) else { return nil }
         cssFolder = pubFolder.appendingPathComponent(cssFolderName, isDirectory: true)
@@ -93,7 +100,11 @@ public class WebBookMaker {
         }
         collection = possibleCollection
         
-        guard FileUtils.ensureFolder(forURL: bookFolder) else { return nil }
+        do {
+            header = try String(contentsOf: headerFile)
+        } catch {
+            header = ""
+        }
         
         parms = DisplayParms()
         parms.setCSS(useFirst: collection.displayCSS, useSecond: DisplayPrefs.shared.bodyCSS)
@@ -111,6 +122,7 @@ public class WebBookMaker {
         parms.mathJax = collection.mathJax
         parms.localMj = false
         parms.imagesPath = "../\(imagesFolderName)"
+        parms.header = header
         
         htmlConverter.addHTML()
     }

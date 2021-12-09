@@ -92,6 +92,10 @@ public class CollectionRelocation {
         toCollection!.otherFields = fromCollection!.otherFields
         // toCollection!.notesSubFolder = fromCollection!.notesSubFolder
         toCollection!.mirrorAutoIndex = fromCollection!.mirrorAutoIndex
+        toCollection!.bodyLabel = fromCollection!.bodyLabel
+        toCollection!.h1Titles = fromCollection!.h1Titles
+        toCollection!.streamlined = fromCollection!.streamlined
+        toCollection!.mathJax = fromCollection!.mathJax
         
         toNotesPath = toCollection!.lib.getPath(type: .notes)
 

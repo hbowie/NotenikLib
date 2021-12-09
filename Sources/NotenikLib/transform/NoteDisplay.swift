@@ -110,11 +110,11 @@ public class NoteDisplay {
     func formatTopOfPage(_ note: Note, io: NotenikIO) -> String {
         guard parms.streamlined else { return "" }
         guard !parms.concatenated else { return ""}
-        guard note.hasLevel() else { return "" }
+        guard note.hasLevel() else { return parms.header }
         let noteLevel = note.level.level
-        guard noteLevel > 1 else { return "" }
+        guard noteLevel > 1 else { return parms.header }
         let sortParm = parms.sortParm
-        guard sortParm == .seqPlusTitle else { return "" }
+        guard sortParm == .seqPlusTitle else { return parms.header }
         var klass = KlassValue()
         if note.collection.klassFieldDef != nil {
             klass = note.klass
@@ -134,8 +134,9 @@ public class NoteDisplay {
                 break
             }
         }
-        guard !parentTitle.isEmpty else { return "" }
+        guard !parentTitle.isEmpty else { return parms.header }
         let topHTML = Markedup()
+        topHTML.append(parms.header)
         topHTML.startParagraph()
         if parentSeq.count > 0 {
             if !klass.biblio && !klass.frontMatter {
