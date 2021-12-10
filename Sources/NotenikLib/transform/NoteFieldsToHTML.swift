@@ -281,6 +281,8 @@ public class NoteFieldsToHTML {
                     break
                 } else if field.def.fieldLabel.commonForm == NotenikConstants.imageCaptionCommon {
                     break
+                } else if field.def.fieldLabel.commonForm == NotenikConstants.imageAltCommon {
+                    break
                 } else {
                     displayStraight(field, markedup: code)
                 }
