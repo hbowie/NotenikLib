@@ -451,6 +451,11 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
             return dateAddedSortKey
         case .dateModified:
             return dateModifiedSortKey
+        case .datePlusSeq:
+            
+            return date.sortKey
+                + seq.sortKey
+                + title.sortKey
         case .custom:
             var key = ""
             for sortField in collection.customFields {

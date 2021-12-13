@@ -22,6 +22,7 @@ public enum NoteSortParm : Int {
     case custom        = 7
     case dateAdded     = 8
     case dateModified  = 9
+    case datePlusSeq   = 10
     
     // Get or set with a String containing the raw value
     var str: String {

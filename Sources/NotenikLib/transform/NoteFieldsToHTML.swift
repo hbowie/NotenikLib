@@ -343,6 +343,18 @@ public class NoteFieldsToHTML {
                                writer: code)
         } else if parms.streamlined {
             switch field.def.fieldType.typeString {
+            case NotenikConstants.authorCommon:
+                if note.hasAttribution() {
+                    break
+                } else {
+                    displayStraight(field, markedup: code)
+                }
+            case NotenikConstants.dateCommon:
+                if note.hasAttribution() {
+                    break
+                } else {
+                    displayStraight(field, markedup: code)
+                }
             case NotenikConstants.imageNameCommon:
                 break
             case NotenikConstants.includeChildrenCommon:
@@ -441,6 +453,17 @@ public class NoteFieldsToHTML {
             if !note.klass.frontMatter && !note.klass.biblio && !note.klass.quote {
                 titleToDisplay = note.seq.value + " " + note.title.value
             }
+        }
+        
+        if parms.streamlined && parms.included.on && note.klass.quote && note.hasAuthor() {
+            let titleMarkup = Markedup(format: parms.format)
+            titleMarkup.noDoc()
+            titleMarkup.append("\(note.author.firstNameFirst): ")
+            titleMarkup.leftDoubleQuote()
+            titleMarkup.append(note.title.value)
+            titleMarkup.ellipsis()
+            titleMarkup.rightDoubleQuote()
+            titleToDisplay = titleMarkup.code
         }
         
         if parms.included.on {
