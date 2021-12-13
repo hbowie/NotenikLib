@@ -203,30 +203,101 @@ public class NoteDisplay {
         guard note.collection.seqFieldDef != nil else { return "" }
         let sortParm = parms.sortParm
         guard sortParm == .seqPlusTitle else { return "" }
+        
         let currentPosition = io.positionOfNote(note)
         let (nextNote, nextPosition) = io.nextNote(currentPosition)
         guard nextPosition.valid && nextNote != nil else { return "" }
         
         let bottomHTML = Markedup()
-        let nextTitle = nextNote!.title.value
+        var nextTitle = nextNote!.title.value
         let nextLevel = nextNote!.level
         let nextSeq = nextNote!.seq
         
         if note.collection.levelFieldDef != nil {
-            formatToCforBottom(note,
-                               io: io,
-                               nextNote: nextNote!,
-                               nextPosition: nextPosition,
-                               nextLevel: nextLevel,
-                               nextSeq: nextSeq,
-                               bottomHTML: bottomHTML)
+            let includeChildren = note.includeChildren
+            if includeChildren.on {
+                nextTitle = formatIncludedChildren(note,
+                                                   io: io,
+                                                   nextNote: nextNote!,
+                                                   nextPosition: nextPosition,
+                                                   nextLevel: nextLevel,
+                                                   nextSeq: nextSeq,
+                                                   bottomHTML: bottomHTML)
+            } else {
+                formatToCforBottom(note,
+                                   io: io,
+                                   nextNote: nextNote!,
+                                   nextPosition: nextPosition,
+                                   nextLevel: nextLevel,
+                                   nextSeq: nextSeq,
+                                   bottomHTML: bottomHTML)
+            }
         }
         
-        bottomHTML.startParagraph()
-        bottomHTML.append("Next: ")
-        bottomHTML.link(text: nextTitle, path: parms.assembleWikiLink(title: nextTitle))
-        bottomHTML.finishParagraph()
+        if !nextTitle.isEmpty {
+            bottomHTML.startParagraph()
+            bottomHTML.append("Next: ")
+            bottomHTML.link(text: nextTitle, path: parms.assembleWikiLink(title: nextTitle))
+            bottomHTML.finishParagraph()
+        }
+        
         return bottomHTML.code
+    }
+    
+    func formatIncludedChildren(_ note: Note,
+                                io: NotenikIO,
+                                nextNote: Note,
+                                nextPosition: NotePosition,
+                                nextLevel: LevelValue,
+                                nextSeq: SeqValue,
+                                bottomHTML: Markedup) -> String {
+        
+        var followingNote: Note?
+        followingNote = nextNote
+        var followingPosition = nextPosition
+        var followingLevel = nextLevel
+        var followingSeq = nextSeq
+        
+        let startingFormat = parms.format
+        parms.format = .htmlFragment
+        
+        while followingNote != nil && followingPosition.valid && followingLevel > note.level && followingSeq > note.seq {
+            
+            let fieldsToHTML = NoteFieldsToHTML()
+            parms.included = note.includeChildren.copy()
+            
+            let (nextUpNote, nextUpPosition) = io.nextNote(followingPosition)
+            
+            let lastInList = nextUpNote == nil || nextUpPosition.invalid || nextUpNote!.level <= note.level || nextUpNote!.seq <= note.seq
+            
+            let childDisplay = fieldsToHTML.fieldsToHTML(followingNote!,
+                                                         io: io,
+                                                         parms: parms,
+                                                         topOfPage: "",
+                                                         imageWithinPage: "",
+                                                         bodyHTML: nil,
+                                                         minutesToRead: nil,
+                                                         bottomOfPage: "",
+                                                         lastInList: lastInList)
+            bottomHTML.append(childDisplay)
+            
+            followingNote = nextUpNote
+            followingPosition = nextUpPosition
+
+            if followingNote != nil {
+                followingLevel = followingNote!.level
+                followingSeq = followingNote!.seq
+            }
+        }
+        
+        parms.format = startingFormat
+        
+        if followingNote == nil {
+            return ""
+        } else {
+            bottomHTML.horizontalRule()
+            return followingNote!.title.value
+        }
     }
     
     func formatToCforBottom(_ note: Note,
@@ -236,7 +307,7 @@ public class NoteDisplay {
                             nextLevel: LevelValue,
                             nextSeq: SeqValue,
                             bottomHTML: Markedup) {
-        
+
         var tocNotes: [Note] = []
         if nextLevel > note.level && nextSeq > note.seq {
             tocNotes.append(nextNote)
@@ -301,6 +372,7 @@ public class NoteDisplay {
                                 bottomOfPage: String) -> String {
         
         let fieldsToHTML = NoteFieldsToHTML()
+        parms.included.reset()
         return fieldsToHTML.fieldsToHTML(note,
                                          io: io,
                                          parms: parms,

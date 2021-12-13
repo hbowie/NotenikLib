@@ -26,6 +26,7 @@ public class AllTypes {
     let dateModifiedType = DateModifiedType()
     let dateType    = DateType()
     let imageNameType = ImageNameType()
+    let includeChildrenType = IncludeChildrenType()
     let indexType   = IndexType()
     let intType     = IntType()
     let klassType   = KlassType()
@@ -91,6 +92,7 @@ public class AllTypes {
         fieldTypes.append(dateModifiedType)
         fieldTypes.append(dateType)
         fieldTypes.append(imageNameType)
+        fieldTypes.append(includeChildrenType)
         fieldTypes.append(indexType)
         fieldTypes.append(intType)
         

@@ -97,6 +97,9 @@ class ApplyTemplateValues {
                     collection.imageNameFieldDef = def
                 }
                 
+            case NotenikConstants.includeChildrenCommon:
+                collection.includeChildrenDef = def
+                
             case NotenikConstants.indexCommon:
                 if collection.indexFieldDef.fieldLabel.commonForm == NotenikConstants.indexCommon {
                     collection.indexFieldDef = def

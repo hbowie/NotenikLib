@@ -45,31 +45,42 @@ public class NoteFieldsToHTML {
                              imageWithinPage: String,
                              bodyHTML: String? = nil,
                              minutesToRead: MinutesToReadValue? = nil,
-                             bottomOfPage: String = "") -> String {
+                             bottomOfPage: String = "",
+                             lastInList: Bool = false) -> String {
         
+        // Save parameters and make key variables easily accessible for later use.
         self.parms = parms
         parms.setMkdownOptions(mkdownOptions)
         self.bodyHTML = bodyHTML
         self.minutesToRead = minutesToRead
-        
         let collection = note.collection
         let dict = collection.dict
-        let code = Markedup(format: parms.format)
         
+        // Start the Markedup code generator.
+        let code = Markedup(format: parms.format)
         code.startDoc(withTitle: note.title.value,
                       withCSS: parms.cssString,
                       linkToFile: parms.cssLinkToFile,
                       withJS: mkdownOptions.getHtmlScript())
         
+        // See if we need to start a list of included children.
+        startListOfChildren(code: code)
+        
+        // Start with top of page code, if we have any.
         if !topOfPage.isEmpty {
             code.append(topOfPage)
         }
         
+        // Start an included item, if needed.
+        startIncludedItem(code: code)
+        
+        // Let's put the tags at the top, if it's a normal display.
         if note.hasTags() && topOfPage.isEmpty && parms.fullDisplay {
             let tagsField = note.getTagsAsField()
             code.append(display(tagsField!, note: note, collection: collection, io: io))
         }
         
+        // Now let's display each of the fields, in dictionary order.
         var i = 0
         attribution = nil
         quoted = false
@@ -112,10 +123,12 @@ public class NoteFieldsToHTML {
             i += 1
         }
         
+        // Put quote attribution after the quote itself.
         if quoted && attribution != nil {
             code.append(display(attribution!, note: note, collection: collection, io: io))
         }
         
+        // Put system-maintained dates at the bottom, for reference.
         if parms.fullDisplay && (note.hasDateAdded() || note.hasTimestamp() || note.hasDateModified()) {
             code.horizontalRule()
             
@@ -134,14 +147,90 @@ public class NoteFieldsToHTML {
                 code.append(display(dateModified!, note: note, collection: collection, io: io))
             }
         }
+        
+        // Finish up an included item, if needed.
+        finishIncludedItem(code: code)
+        
+        // Add wiki links and backlinks, when present.
         formatWikilinks(note, linksHTML: code)
         formatBacklinks(note, linksHTML: code)
+        
+        // Now add the bottom of the page, if any.
         if !bottomOfPage.isEmpty {
             code.horizontalRule()
             code.append(bottomOfPage)
         }
+        
+        // If this is the last included child, and if a list was requested, finish it off.
+        if lastInList {
+            finishListOfChildren(code: code)
+        }
+        
+        // Finish off the entire document.
         code.finishDoc()
+        
+        // Return the markup. 
         return String(describing: code)
+    }
+    
+    func startListOfChildren(code: Markedup) {
+
+        guard parms.streamlined else { return }
+        guard parms.included.asList else { return }
+        guard parms.includedList.isEmpty else { return }
+
+        switch parms.included.value {
+        case "dl":
+            code.startDefinitionList(klass: nil)
+        case "ol":
+            code.startOrderedList(klass: nil)
+        case "ul":
+            code.startUnorderedList(klass: nil)
+        default:
+            break
+        }
+        parms.includedList = parms.included.value
+
+    }
+    
+    func startIncludedItem(code: Markedup) {
+        guard parms.streamlined else { return }
+        guard parms.included.on else { return }
+        if parms.included.value == IncludeChildrenList.orderedList
+            || parms.included.value == IncludeChildrenList.unorderedList {
+            code.startListItem()
+        }
+    }
+    
+    func finishIncludedItem(code: Markedup) {
+        guard parms.streamlined else { return }
+        guard parms.included.on else { return }
+        if parms.included.value == IncludeChildrenList.orderedList
+            || parms.included.value == IncludeChildrenList.unorderedList {
+            code.finishListItem()
+        } else if parms.included.value == IncludeChildrenList.details {
+            code.finishDetails()
+        }
+    }
+    
+    func finishListOfChildren(code: Markedup) {
+        guard parms.streamlined else { return }
+        guard parms.included.asList else { return }
+        guard !parms.includedList.isEmpty else { return }
+
+        switch parms.includedList {
+        case "dl":
+            code.finishDefinitionList()
+        case "ol":
+            code.finishOrderedList()
+        case "ul":
+            code.finishUnorderedList()
+        default:
+            break
+        }
+        
+        parms.includedList = ""
+
     }
     
     func formatWikilinks(_ note: Note, linksHTML: Markedup) {
@@ -233,11 +322,11 @@ public class NoteFieldsToHTML {
                     && collection.klassFieldDef != nil
                     && field.def == collection.klassFieldDef!
                     && note.klass.quote {
-            code.startParagraph()
-            code.startEmphasis()
-            code.append("Quotation:")
-            code.finishEmphasis()
-            code.finishParagraph()
+            // code.startParagraph()
+            // code.startEmphasis()
+            // code.append("Quotation:")
+            // code.finishEmphasis()
+            // code.finishParagraph()
         } else if field.def.fieldType is LinkType {
             code.startParagraph()
             code.append(field.def.fieldLabel.properForm)
@@ -255,6 +344,8 @@ public class NoteFieldsToHTML {
         } else if parms.streamlined {
             switch field.def.fieldType.typeString {
             case NotenikConstants.imageNameCommon:
+                break
+            case NotenikConstants.includeChildrenCommon:
                 break
             case NotenikConstants.klassCommon:
                 break
@@ -342,14 +433,39 @@ public class NoteFieldsToHTML {
         return String(describing: code)
     }
     
+    // Display the Title of the Note in one of several possible formats.
     func displayTitle(note: Note, markedup: Markedup) {
+        
         var titleToDisplay = note.title.value
         if parms.streamlined && note.hasSeq() {
-            if !note.klass.frontMatter && !note.klass.biblio {
+            if !note.klass.frontMatter && !note.klass.biblio && !note.klass.quote {
                 titleToDisplay = note.seq.value + " " + note.title.value
             }
         }
-        if note.collection.h1Titles {
+        
+        if parms.included.on {
+            switch parms.included.value {
+            case IncludeChildrenList.defList:
+                markedup.startDefTerm()
+                markedup.append(titleToDisplay)
+                markedup.finishDefTerm()
+                markedup.newLine()
+            case IncludeChildrenList.orderedList, IncludeChildrenList.unorderedList:
+                markedup.append(titleToDisplay)
+                markedup.lineBreak()
+            case IncludeChildrenList.details:
+                markedup.startDetails(summary: titleToDisplay)
+            case "h1", "h2", "h3", "h4", "h5", "h6":
+                markedup.heading(level: parms.included.headingLevel, text: titleToDisplay)
+            default:
+                markedup.startParagraph()
+                markedup.startEmphasis()
+                markedup.append(titleToDisplay)
+                markedup.finishEmphasis()
+                markedup.finishParagraph()
+                markedup.newLine()
+            }
+        } else if note.collection.h1Titles {
             markedup.heading(level: 1, text: titleToDisplay)
         } else if parms.concatenated && note.collection.levelFieldDef != nil {
             var level = note.level.getInt()

@@ -924,6 +924,49 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     }
     
     //
+    // Functions and variables concerning the Note's Include Children field.
+    //
+    
+    /// See if this Note has an Include Children value.
+    public func hasIncludeChildren() -> Bool {
+        guard collection.includeChildrenDef != nil else {
+            return false
+        }
+        let val = getFieldAsValue(def: collection.includeChildrenDef!)
+        return val is IncludeChildrenValue
+    }
+    
+    /// Set the Note's Include Children value.
+    public func setIncludeChildren(_ value: String) -> Bool {
+        guard collection.includeChildrenDef != nil else { return false }
+        let val = getFieldAsValue(def: collection.includeChildrenDef!)
+        if val is IncludeChildrenValue {
+            let includeChildren = val as! IncludeChildrenValue
+            includeChildren.set(value)
+            return true
+        } else {
+            let includeChildren = IncludeChildrenValue(value)
+            let field = NoteField()
+            field.def = collection.includeChildrenDef!
+            field.value = includeChildren
+            return setField(field)
+        }
+    }
+    
+    /// Return the Note's IncludeChildren Value
+    public var includeChildren: IncludeChildrenValue {
+        guard collection.includeChildrenDef != nil else {
+            return IncludeChildrenValue()
+        }
+        let val = getFieldAsValue(def: collection.includeChildrenDef!)
+        if val is IncludeChildrenValue {
+            return val as! IncludeChildrenValue
+        } else {
+            return IncludeChildrenValue(val.value)
+        }
+    }
+    
+    //
     // Functions and variables concerning the Note's Short ID field.
     //
     

@@ -60,6 +60,7 @@ public class NoteCollection {
     public  var levelFieldDef:  FieldDefinition?
     public  var seqFieldDef:    FieldDefinition?
     public  var klassFieldDef:  FieldDefinition?
+    public  var includeChildrenDef: FieldDefinition?
     public  var attribFieldDef: FieldDefinition?
     public  var indexFieldDef:  FieldDefinition
     public  var backlinksDef:   FieldDefinition?
@@ -285,6 +286,9 @@ public class NoteCollection {
         }
         if klassFieldDef != nil {
             print("  - Class Field: \(klassFieldDef!.fieldLabel.properForm)")
+        }
+        if includeChildrenDef != nil {
+            print("  - Include Children Field: \(includeChildrenDef!.fieldLabel.properForm)")
         }
         print("  - Index Field: \(indexFieldDef.fieldLabel.properForm)")
         if backlinksDef != nil {

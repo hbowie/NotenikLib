@@ -34,6 +34,8 @@ public class DisplayParms {
     public var localMjUrl: URL?
     public var imagesPath = ""
     public var header = ""
+    public var included = IncludeChildrenValue()
+    public var includedList = ""
     
     public init() {
         
