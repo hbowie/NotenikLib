@@ -250,6 +250,12 @@ public class FileIO: NotenikIO, RowConsumer {
         if collection!.shortcut.count > 0 {
             str.append(label: NotenikConstants.shortcut, value: collection!.shortcut)
         }
+        if !collection!.webBookPath.isEmpty {
+            str.append(label: NotenikConstants.webBookFolder, value: collection!.webBookPath)
+        }
+        if !collection!.webBookAsEPUB {
+            str.append(label: NotenikConstants.webBookEPUB, value: "false")
+        }
 
         return lib.saveInfo(str: str.str)
     }
@@ -548,6 +554,17 @@ public class FileIO: NotenikIO, RowConsumer {
         collection!.shortcut = collectionShortcut
         if collectionShortcut.count > 0 {
             NotenikFolderList.shared.updateWithShortcut(linkStr: collection!.fullPath, shortcut: collectionShortcut)
+        }
+        
+        let webBookPathStr = infoNote.getFieldAsString(label: NotenikConstants.webBookFolderCommon)
+        collection!.webBookPath = webBookPathStr
+        
+        let webBookAsEPUBField = infoNote.getField(label: NotenikConstants.webBookEPUBCommon)
+        if webBookAsEPUBField == nil || webBookAsEPUBField!.value.value.isEmpty {
+            collection!.webBookAsEPUB = true
+        } else {
+            let webBookAsEPUB = BooleanValue(webBookAsEPUBField!.value.value)
+            collection!.webBookAsEPUB = webBookAsEPUB.isTrue
         }
         
         infoFound = true

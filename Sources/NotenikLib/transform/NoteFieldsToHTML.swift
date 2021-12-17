@@ -451,7 +451,9 @@ public class NoteFieldsToHTML {
         var titleToDisplay = note.title.value
         if parms.streamlined && note.hasSeq() {
             if !note.klass.frontMatter && !note.klass.biblio && !note.klass.quote {
-                titleToDisplay = note.seq.value + " " + note.title.value
+                if parms.included.value != IncludeChildrenList.orderedList {
+                    titleToDisplay = note.seq.value + " " + note.title.value
+                }
             }
         }
         

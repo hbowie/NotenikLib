@@ -42,6 +42,8 @@ public class WebBookMaker {
     var collection: NoteCollection
     var io: FileIO
     
+    var epub = true
+    
     var bookFolder:     URL
     var headerFile:     URL
     var pubFolder:      URL
@@ -49,8 +51,8 @@ public class WebBookMaker {
     var cssFile:        URL
     var htmlFolder:     URL
     var imagesFolder:   URL
-    var opfFile:        URL
-    var tagsFile:       URL
+    var opfFile:        URL!
+    var tagsFile:       URL!
     
     var header = ""
     var defaultCSS = ""
@@ -63,26 +65,39 @@ public class WebBookMaker {
     let htmlConverter = StringConverter()
     
     /// Attempt to initialize an instance.
-    public init?(input: URL, output: URL) {
+    public init?(input: URL, output: URL, epub: Bool) {
         
         collectionURL = input
         bookFolder = output
+        self.epub = epub
         
+        // Ready our output folders.
         guard FileUtils.ensureFolder(forURL: bookFolder) else { return nil }
         
         headerFile = URL(fileURLWithPath: headerFileName, relativeTo: bookFolder).appendingPathExtension(headerFileExt)
-        pubFolder = bookFolder.appendingPathComponent(pubFolderName, isDirectory: true)
-        guard FileUtils.ensureFolder(forURL: pubFolder) else { return nil }
+        if epub {
+            pubFolder = bookFolder.appendingPathComponent(pubFolderName, isDirectory: true)
+            guard FileUtils.ensureFolder(forURL: pubFolder) else { return nil }
+        } else {
+            pubFolder = bookFolder
+        }
         cssFolder = pubFolder.appendingPathComponent(cssFolderName, isDirectory: true)
         guard FileUtils.ensureFolder(forURL: cssFolder) else { return nil }
         cssFile = URL(fileURLWithPath: cssFileName, relativeTo: cssFolder).appendingPathExtension(cssFileExt)
-        htmlFolder = pubFolder.appendingPathComponent(htmlFolderName, isDirectory: true)
-        guard FileUtils.ensureFolder(forURL: htmlFolder) else { return nil }
+        if epub {
+            htmlFolder = pubFolder.appendingPathComponent(htmlFolderName, isDirectory: true)
+            guard FileUtils.ensureFolder(forURL: htmlFolder) else { return nil }
+        } else {
+            htmlFolder = bookFolder
+        }
         imagesFolder = pubFolder.appendingPathComponent(imagesFolderName, isDirectory: true)
         guard FileUtils.ensureFolder(forURL: imagesFolder) else { return nil }
-        opfFile = URL(fileURLWithPath: opfFileName, relativeTo: pubFolder).appendingPathExtension(opfFileExt)
-        tagsFile = URL(fileURLWithPath: tagsFileName, relativeTo: htmlFolder).appendingPathExtension(htmlFileExt)
+        if epub {
+            opfFile = URL(fileURLWithPath: opfFileName, relativeTo: pubFolder).appendingPathExtension(opfFileExt)
+            tagsFile = URL(fileURLWithPath: tagsFileName, relativeTo: htmlFolder).appendingPathExtension(htmlFileExt)
+        }
         
+        // Open the input.
         collectionLink = NotenikLink(url: input)
         collectionLink.determineCollectionType()
         switch collectionLink.type {
@@ -111,7 +126,11 @@ public class WebBookMaker {
         defaultCSS = parms.cssString
         defaultCSS.append("\nimg { max-width: 100%; border: 4px solid gray; }")
         defaultCSS.append("\nbody { max-width: 33em; margin: 0 auto; float: none; }")
-        parms.cssString = "../\(cssFolderName)/\(cssFileName).\(cssFileExt)"
+        if epub {
+            parms.cssString = "../\(cssFolderName)/\(cssFileName).\(cssFileExt)"
+        } else {
+            parms.cssString = "\(cssFolderName)/\(cssFileName).\(cssFileExt)"
+        }
         parms.cssLinkToFile = true
         parms.format = .htmlDoc
         parms.sortParm = .seqPlusTitle
@@ -121,10 +140,61 @@ public class WebBookMaker {
         parms.wikiLinkSuffix = "." + htmlFileExt
         parms.mathJax = collection.mathJax
         parms.localMj = false
-        parms.imagesPath = "../\(imagesFolderName)"
+        if epub {
+            parms.imagesPath = "../\(imagesFolderName)"
+        } else {
+            parms.imagesPath = "\(imagesFolderName)"
+        }
         parms.header = header
         
         htmlConverter.addHTML()
+    }
+    
+    /// Create an index file pointing to the first page of the book.
+    /// - Parameter indexURL: The URL of the file to be written.
+    /// - Returns: An error message, if problems.
+    public func webBookIndexRedirect(_ indexURL: URL) -> String? {
+        
+        let (note1, _) = io.firstNote()
+        guard let firstNote = note1 else {
+            return "Could not find any notes in the Collection"
+        }
+        let bookTitle = firstNote.title.value
+        let indexParent = indexURL.deletingPathExtension().deletingLastPathComponent()
+        let indexParentPath = indexParent.path
+        let webBookPath = collection.webBookPath
+        guard webBookPath.starts(with: indexParentPath) else {
+            return "The Web Book is not within the same folder"
+        }
+        var redirectPath = ""
+        if webBookPath == indexParentPath {
+            redirectPath = "./"
+        } else {
+            redirectPath = "./" + String(webBookPath.suffix(webBookPath.count - indexParentPath.count - 1))
+        }
+        let firstNoteFilename = StringUtils.toCommonFileName(bookTitle)
+        if epub {
+            redirectPath.append("/EPUB/html/")
+        }
+        redirectPath.append("\(firstNoteFilename).html")
+        var code = ""
+        code.append("<!DOCTYPE html>\n")
+        code.append("<html lang=\"en\">\n")
+        code.append("<head>\n")
+        code.append("    <meta charset=\"utf-8\" />\n")
+        code.append("    <title>\(bookTitle)</title>\n")
+        code.append("    <meta http-equiv=\"refresh\" content=\"0; URL=\(redirectPath)\" />\n")
+        code.append("</head>\n")
+        code.append("<body>\n")
+        code.append("<p>Please click <a href=\"\(redirectPath)\">here</a> to view this Notenik Web Book.</p>")
+        code.append("</body>\n")
+        code.append("</html>\n")
+        do {
+            try code.write(to: indexURL, atomically: true, encoding: .utf8)
+        } catch {
+            return "Could not write Web Book Index Redirect file to \(indexURL.path)"
+        }
+        return nil
     }
     
     /// Use the Collection found at the input URL to generate a Web book within the output URL.
@@ -144,8 +214,10 @@ public class WebBookMaker {
                                                       options: .skipsHiddenFiles)
             for entry in contents {
                 if entry.pathExtension == htmlFileExt {
-                    try fm.removeItem(at: entry)
-                    filesDeleted += 1
+                    if epub || entry.lastPathComponent != "index" {
+                        try fm.removeItem(at: entry)
+                        filesDeleted += 1
+                    }
                 }
             }
         } catch {
@@ -180,7 +252,9 @@ public class WebBookMaker {
         
         writeLineToManifest(indentLevel: 1, text: "</manifest>")
         
-        writeOPF()
+        if epub {
+            writeOPF()
+        }
         
         logInfo(msg: "\(filesWritten) files written to \(bookFolder)")
         return filesWritten

@@ -180,6 +180,8 @@ public struct NotenikConstants {
     static let streamlinedReadingCommon = "streamlinedreading"
     static let webBookFolder            = "Web Book Folder"
     static let webBookFolderCommon      = "webbookfolder"
+    static let webBookEPUB              = "Web Book EPUB"
+    static let webBookEPUBCommon        = "webbookepub"
     static let mathJax                  = "MathJax"
     static let mathJaxCommon            = "mathjax"
     
