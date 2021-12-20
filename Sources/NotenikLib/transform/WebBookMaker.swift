@@ -214,7 +214,7 @@ public class WebBookMaker {
                                                       options: .skipsHiddenFiles)
             for entry in contents {
                 if entry.pathExtension == htmlFileExt {
-                    if epub || entry.lastPathComponent != "index" {
+                    if epub || entry.lastPathComponent != "index.html" {
                         try fm.removeItem(at: entry)
                         filesDeleted += 1
                     }

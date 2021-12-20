@@ -205,25 +205,29 @@ public class NoteDisplay {
         guard sortParm == .seqPlusTitle else { return "" }
         
         let currentPosition = io.positionOfNote(note)
-        let (nextNote, nextPosition) = io.nextNote(currentPosition)
+        var (nextNote, nextPosition) = io.nextNote(currentPosition)
         guard nextPosition.valid && nextNote != nil else { return "" }
         
         let bottomHTML = Markedup()
         var nextTitle = nextNote!.title.value
-        let nextLevel = nextNote!.level
-        let nextSeq = nextNote!.seq
+        var nextLevel = nextNote!.level
+        var nextSeq = nextNote!.seq
         
         if note.collection.levelFieldDef != nil {
             let includeChildren = note.includeChildren
             if includeChildren.on {
-                nextTitle = formatIncludedChildren(note,
+                (nextNote, nextPosition) = formatIncludedChildren(note,
                                                    io: io,
                                                    nextNote: nextNote!,
                                                    nextPosition: nextPosition,
                                                    nextLevel: nextLevel,
                                                    nextSeq: nextSeq,
                                                    bottomHTML: bottomHTML)
-            } else {
+            }
+            if nextNote != nil && nextPosition.valid {
+                nextTitle = nextNote!.title.value
+                nextLevel = nextNote!.level
+                nextSeq = nextNote!.seq
                 formatToCforBottom(note,
                                    io: io,
                                    nextNote: nextNote!,
@@ -231,6 +235,8 @@ public class NoteDisplay {
                                    nextLevel: nextLevel,
                                    nextSeq: nextSeq,
                                    bottomHTML: bottomHTML)
+            } else {
+                nextTitle = ""
             }
         }
         
@@ -250,18 +256,22 @@ public class NoteDisplay {
                                 nextPosition: NotePosition,
                                 nextLevel: LevelValue,
                                 nextSeq: SeqValue,
-                                bottomHTML: Markedup) -> String {
+                                bottomHTML: Markedup) -> (Note?, NotePosition) {
         
         var followingNote: Note?
         followingNote = nextNote
         var followingPosition = nextPosition
-        var followingLevel = nextLevel
-        var followingSeq = nextSeq
+        var followingLevel = LevelValue(i: nextLevel.getInt(), config: io.collection!.levelConfig)
+        var followingSeq = SeqValue(nextSeq.value)
         
         let startingFormat = parms.format
         parms.format = .htmlFragment
         
-        while followingNote != nil && followingPosition.valid && followingLevel > note.level && followingSeq > note.seq {
+        while followingNote != nil
+                && followingPosition.valid
+                && followingLevel > note.level
+                && followingLevel == nextLevel
+                && followingSeq > note.seq {
             
             let fieldsToHTML = NoteFieldsToHTML()
             parms.included = note.includeChildren.copy()
@@ -293,10 +303,10 @@ public class NoteDisplay {
         parms.format = startingFormat
         
         if followingNote == nil {
-            return ""
+            return (followingNote, followingPosition)
         } else {
             bottomHTML.horizontalRule()
-            return followingNote!.title.value
+            return (followingNote, followingPosition)
         }
     }
     
