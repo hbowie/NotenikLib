@@ -16,15 +16,32 @@ import NotenikUtils
 /// Can be used to increment the sequence of one Note and following Notes.
 public class Sequencer {
     
+    var io: NotenikIO!
+    var collection: NoteCollection!
+    var seqFieldDef: FieldDefinition!
+    
+    var newSeqs: [SeqValue] = []
+    var notes:   [Note] = []
+    
+    public init?(io: NotenikIO) {
+        guard io.collectionOpen else { return nil }
+        if io.collection == nil {
+            return nil
+        } else {
+            self.io = io
+            collection = io.collection!
+        }
+        guard io.sortParm == .seqPlusTitle || io.sortParm == .tasksBySeq else { return nil }
+    }
+    
     /// Increment the sequence of one Note along with following Notes
     /// that would otherwise now be less than or equal to the
     /// sequences of prior Notes.
     ///
     /// - Parameters:
-    ///   - io: The I/O Module for the Collection being accessed.
     ///   - startingNote: The first Note whose sequence is to be incremented.
     /// - Returns: The number of Notes having their sequences incremented.
-    public static func incrementSeq(io: NotenikIO, startingNote: Note, incMajor: Bool = false) -> Int {
+    public func incrementSeq(startingNote: Note, incMajor: Bool = false) -> Int {
         
         guard io.collectionOpen else { return 0 }
         guard io.collection != nil else { return 0 }
@@ -33,8 +50,8 @@ public class Sequencer {
         let sortParm = io.collection!.sortParm
         guard sortParm == .seqPlusTitle || sortParm == .tasksBySeq else { return 0 }
         
-        var newSeqs: [SeqValue] = []
-        var notes:   [Note] = []
+        newSeqs = []
+        notes = []
         
         var incrementing = true
         var incDepth = 0
@@ -67,8 +84,7 @@ public class Sequencer {
                 incrementing = true
                 let newSeq = SeqValue(seq.value)
                 newSeq.increment(atDepth: incDepth)
-                newSeqs.append(newSeq)
-                notes.append(note!)
+                appendMod(note: note!, newSeq: newSeq)
                 lastSeq = SeqValue(newSeq.value)
             }
             
@@ -97,5 +113,68 @@ public class Sequencer {
         }
         
         return newSeqs.count
+    }
+    
+    public func renumberRange(startingRow: Int, endingRow: Int, newSeqValue: String) -> Note? {
+        
+        guard io.collectionOpen else { return nil }
+        guard io.collection != nil else { return nil }
+        let sortParm = collection.sortParm
+        guard sortParm == .seqPlusTitle || sortParm == .tasksBySeq else { return nil }
+        
+        newSeqs = []
+        notes = []
+        
+        guard let firstNote = io.getNote(at: startingRow) else { return nil }
+        var priorOldSeq = firstNote.seq
+        var priorNewSeq = SeqValue(newSeqValue)
+        appendMod(note: firstNote, newSeq: priorNewSeq)
+        
+        var nextRow = startingRow + 1
+        while nextRow <= endingRow {
+            guard let nextNote = io.getNote(at: nextRow) else {
+                nextRow = endingRow
+                break
+            }
+            let nextOldSeq = nextNote.seq
+            let nextNewSeq = SeqValue(priorNewSeq.value)
+            if nextOldSeq.seqStack.count > priorOldSeq.seqStack.count {
+                nextNewSeq.newChild()
+            } else if nextOldSeq.seqStack.count < priorOldSeq.seqStack.count {
+                nextNewSeq.dropLevelAndInc()
+            } else {
+                nextNewSeq.increment()
+            }
+            appendMod(note: nextNote, newSeq: nextNewSeq)
+            priorOldSeq = nextOldSeq
+            priorNewSeq = nextNewSeq
+            nextRow += 1
+        }
+        
+        // Now apply the new sequences from the top down, in order to
+        // keep notes from changing position in the sorted list.
+        var firstModNote: Note?
+        var index = newSeqs.count - 1
+        while index >= 0 {
+            let newSeq = newSeqs[index]
+            let noteToMod = notes[index]
+            let setOK = noteToMod.setSeq(newSeq.value)
+            firstModNote = noteToMod
+            let writeOK = io.writeNote(noteToMod)
+            if (!setOK) || (!writeOK) {
+                Logger.shared.log(subsystem: "com.powersurgepub.notenik",
+                                  category: "Sequencer",
+                                  level: .error,
+                                  message: "Trouble updating Note titled \(noteToMod.title.value)")
+            }
+            index -= 1
+        }
+        
+        return firstModNote
+    }
+    
+    func appendMod(note: Note, newSeq: SeqValue) {
+        newSeqs.append(newSeq)
+        notes.append(note)
     }
 }

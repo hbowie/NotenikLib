@@ -925,7 +925,6 @@ public class FileIO: NotenikIO, RowConsumer {
         
         note.setDateModNow()
         pickLists.registerNote(note: note)
-        
         return collection!.lib.saveNote(note: note)
     }
     
