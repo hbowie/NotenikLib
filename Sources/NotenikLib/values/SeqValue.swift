@@ -25,6 +25,24 @@ public class SeqValue: StringValue {
         set(value)
     }
     
+    public func incAtLevel(level: Int) {
+        while level > seqStack.max {
+            if !seqStack.segments[seqStack.max].endedByPunctuation {
+                seqStack.segments[seqStack.max].punctuation = "."
+            }
+            seqStack.append(SeqSegment("0"))
+        }
+        while level < seqStack.max {
+            seqStack.segments.removeLast()
+            if seqStack.segments[seqStack.max].endedByPunctuation {
+                seqStack.segments[seqStack.max].removePunctuation()
+            }
+        }
+        seqStack.segments[seqStack.max].increment()
+        let newValue = seqStack.value
+        set(newValue)
+    }
+    
     public func newChild() {
         var start = self.value
         start.append(".1")

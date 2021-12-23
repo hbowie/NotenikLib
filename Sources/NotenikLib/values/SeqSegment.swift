@@ -23,6 +23,16 @@ class SeqSegment {
     var letters      = false
     var allUppercase = true
     
+    init() {
+        
+    }
+    
+    init(_ text: String) {
+        for c in text {
+            append(c)
+        }
+    }
+    
     /// Append another character to the segment value. 
     func append(_ c: Character) {
         if c == "0" && count == 0 {
@@ -98,7 +108,7 @@ class SeqSegment {
         return padded
     }
     
-    /// Increment the sequence value by 1, at the indicated depth.
+    /// Increment the sequence value by 1.
     public func increment() {
             
         guard value.count > 0 else {

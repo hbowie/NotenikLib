@@ -115,6 +115,13 @@ public class Sequencer {
         return newSeqs.count
     }
     
+    /// Resequence a range of Notes.
+    /// - Parameters:
+    ///   - startingRow: The first row to be resequenced.
+    ///   - endingRow: The last row to be resequenced.
+    ///   - newSeqValue: The new value to be assigned as the Seq value for the first note in the range.
+    /// - Returns: Updates the notes in the range to retain their Seq depth, but be numbered consecutively
+    ///     starting with the new Seq value of the starting note. 
     public func renumberRange(startingRow: Int, endingRow: Int, newSeqValue: String) -> Note? {
         
         guard io.collectionOpen else { return nil }
@@ -138,13 +145,7 @@ public class Sequencer {
             }
             let nextOldSeq = nextNote.seq
             let nextNewSeq = SeqValue(priorNewSeq.value)
-            if nextOldSeq.seqStack.count > priorOldSeq.seqStack.count {
-                nextNewSeq.newChild()
-            } else if nextOldSeq.seqStack.count < priorOldSeq.seqStack.count {
-                nextNewSeq.dropLevelAndInc()
-            } else {
-                nextNewSeq.increment()
-            }
+            nextNewSeq.incAtLevel(level: nextOldSeq.seqStack.count)
             appendMod(note: nextNote, newSeq: nextNewSeq)
             priorOldSeq = nextOldSeq
             priorNewSeq = nextNewSeq
