@@ -16,6 +16,16 @@ class SeqStack {
     
     var segments: [SeqSegment] = []
     
+    /// Perform a deep copy of this object to create a new one.
+    public func dupe() -> SeqStack {
+        let newStack = SeqStack()
+        for segment in segments {
+            let newSegment = segment.dupe()
+            newStack.segments.append(newSegment)
+        }
+        return newStack
+    }
+    
     /// Add another segment to the stack.
     func append(_ segment: SeqSegment) {
         segments.append(segment)

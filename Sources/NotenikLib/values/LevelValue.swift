@@ -38,6 +38,14 @@ public class LevelValue: StringValue {
         set(str: str, config: config)
     }
     
+    public func dupe() -> LevelValue {
+        let newValue = LevelValue()
+        newValue.level = self.level
+        newValue.label = self.label
+        newValue.value = self.value
+        return newValue
+    }
+    
     /// Is this value empty?
     public override var isEmpty: Bool {
         return (value.count == 0)
@@ -53,6 +61,18 @@ public class LevelValue: StringValue {
         return value
     }
     
+    public func add(levelsToAdd: Int, config: IntWithLabelConfig) {
+        var levelsInc = levelsToAdd
+        while levelsInc > 0 {
+            increment(config: config)
+            levelsInc -= 1
+        }
+        while levelsInc < 0 {
+            decrement(config: config)
+            levelsInc += 1
+        }
+    }
+    
     /// Increment this level to the next valid value.
     public func increment(config: IntWithLabelConfig) {
         var incIndex = 0
@@ -60,6 +80,17 @@ public class LevelValue: StringValue {
             incIndex = level + 1
             while incIndex < config.high && !config.validInt(incIndex) {
                 incIndex += 1
+            }
+            set(i: incIndex, config: config)
+        }
+    }
+    
+    public func decrement(config: IntWithLabelConfig) {
+        var incIndex = 0
+        if level > config.low {
+            incIndex = level - 1
+            while incIndex > config.low && !config.validInt(incIndex) {
+                incIndex -= 1
             }
             set(i: incIndex, config: config)
         }

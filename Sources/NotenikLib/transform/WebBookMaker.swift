@@ -368,7 +368,7 @@ public class WebBookMaker {
             try opf.write(to: opfFile, atomically: true, encoding: .utf8)
             filesWritten += 1
         } catch {
-            communicateError("Problems writing OPF file to \(opfFile)")
+            communicateError("Problems writing OPF file to \(opfFile!)")
         }
     }
     

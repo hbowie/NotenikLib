@@ -262,7 +262,7 @@ public class NoteDisplay {
         followingNote = nextNote
         var followingPosition = nextPosition
         var followingLevel = LevelValue(i: nextLevel.getInt(), config: io.collection!.levelConfig)
-        var followingSeq = SeqValue(nextSeq.value)
+        var followingSeq = nextSeq.dupe()
         
         let startingFormat = parms.format
         parms.format = .htmlFragment

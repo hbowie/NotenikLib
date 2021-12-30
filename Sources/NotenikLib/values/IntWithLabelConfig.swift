@@ -92,8 +92,9 @@ public class IntWithLabelConfig {
     /// Is this status integer valid?
     func validInt(_ i: Int) -> Bool {
         guard i >= low && i <= high else { return false }
-        let label = label(forInt: i)
-        return label.count > 0 && label != " "
+        return true
+        // let label = label(forInt: i)
+        // return label.count > 0 && label != " "
     }
     
     /// Is this status label (or partial label) valid?

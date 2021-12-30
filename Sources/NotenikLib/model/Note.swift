@@ -803,6 +803,10 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
         levelValue.set(i: level, config: config)
     }
     
+    public func setLevel(_ level: LevelValue) -> Bool {
+        return setLevel(level.value)
+    }
+    
     public func setLevel(_ level: Int) -> Bool {
         let levelStr = "\(level)"
         return setLevel(levelStr)

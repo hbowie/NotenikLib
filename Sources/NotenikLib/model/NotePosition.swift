@@ -38,4 +38,8 @@ public class NotePosition {
         self.init()
         self.index = index
     }
+    
+    public func display() {
+        print("NotePosition at index of \(index)")
+    }
 }

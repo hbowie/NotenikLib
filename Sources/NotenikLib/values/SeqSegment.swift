@@ -22,6 +22,7 @@ class SeqSegment {
     var digits       = false
     var letters      = false
     var allUppercase = true
+    var numberType:  SeqNumberType = .digits
     
     init() {
         
@@ -31,6 +32,19 @@ class SeqSegment {
         for c in text {
             append(c)
         }
+    }
+    
+    /// Perform a deep copy of this object to create a new one. 
+    public func dupe() -> SeqSegment {
+        let newSegment = SeqSegment()
+        newSegment.value = self.value
+        newSegment.punctuation = self.punctuation
+        newSegment.padChar = self.padChar
+        newSegment.digits = self.digits
+        newSegment.letters = self.letters
+        newSegment.allUppercase = self.allUppercase
+        newSegment.numberType = self.numberType
+        return newSegment
     }
     
     /// Append another character to the segment value. 
@@ -62,6 +76,22 @@ class SeqSegment {
             }
             punctuation.append(c)
         } // end character evaluation
+        
+        if digits {
+            if letters {
+                numberType = .mixed
+            } else {
+                numberType = .digits
+            }
+        } else if letters {
+            if digits {
+                numberType = .mixed
+            } else if allUppercase {
+                numberType = .uppercase
+            } else {
+                numberType = .lowercase
+            }
+        }
     }
     
     /// The number of characters in the segment value.

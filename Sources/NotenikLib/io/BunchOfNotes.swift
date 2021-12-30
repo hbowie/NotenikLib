@@ -170,7 +170,7 @@ class BunchOfNotes {
         return true
     }
     
-    /// Select the given note and return its index, if it can be found in the sorted list.
+    /// Select the given note and return its index, if it can be found in the sorted list, using its current sort key.
     ///
     /// - Parameter note: The note we're looking for.
     /// - Returns: The note as it was found in the list, along with its position.

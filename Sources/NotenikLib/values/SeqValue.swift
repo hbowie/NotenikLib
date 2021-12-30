@@ -20,43 +20,66 @@ public class SeqValue: StringValue {
     
     var seqStack = SeqStack()
     
+    public override init() {
+        super.init()
+    }
+    
     public convenience init (_ value: String) {
         self.init()
         set(value)
     }
     
-    public func incAtLevel(level: Int) {
+    public func dupe() -> SeqValue {
+        let newSeq = SeqValue()
+        newSeq.value = self.value
+        newSeq.seqStack = self.seqStack.dupe()
+        return newSeq
+    }
+    
+    public func increment() {
+        incAtLevel(level: seqStack.max, removingDeeperLevels: false)
+    }
+    
+    /// The number of levels (separated by dots or dashes) in the Seq value. 
+    public var numberOfLevels: Int {
+        return seqStack.count
+    }
+    
+    public var maxLevel: Int {
+        return seqStack.max
+    }
+    
+    public func incByLevels(originalLevel: LevelValue, newLevel: LevelValue) {
+        let levelToInc = newLevel.getInt() - originalLevel.getInt() + seqStack.max
+        incAtLevel(level: levelToInc, removingDeeperLevels: true)
+    }
+    
+    /// Increment the current sequence value by 1, at the indicated level.
+    /// - Parameter level: 0 = first level, 1 = second (following a dot or a dash), etc.
+    public func incAtLevel(level: Int, removingDeeperLevels: Bool) {
+        
+        // If level is deeper than current sequence, add segments
+        // as needed to get to the specified level.
         while level > seqStack.max {
             if !seqStack.segments[seqStack.max].endedByPunctuation {
                 seqStack.segments[seqStack.max].punctuation = "."
             }
             seqStack.append(SeqSegment("0"))
         }
-        while level < seqStack.max {
-            seqStack.segments.removeLast()
-            if seqStack.segments[seqStack.max].endedByPunctuation {
-                seqStack.segments[seqStack.max].removePunctuation()
+        
+        // If level is shallower than current sequence, remove segments
+        // as needed to get to the specified level.
+        if removingDeeperLevels {
+            while level < seqStack.max {
+                seqStack.segments.removeLast()
+                if seqStack.segments[seqStack.max].endedByPunctuation {
+                    seqStack.segments[seqStack.max].removePunctuation()
+                }
             }
         }
-        seqStack.segments[seqStack.max].increment()
+        seqStack.segments[level].increment()
         let newValue = seqStack.value
         set(newValue)
-    }
-    
-    public func newChild() {
-        var start = self.value
-        start.append(".1")
-        set(start)
-    }
-    
-    public func dropLevelAndInc() {
-        seqStack.segments.removeLast()
-        if seqStack.segments[seqStack.max].endedByPunctuation {
-            seqStack.segments[seqStack.max].removePunctuation()
-        }
-        let dropped = seqStack.value
-        set(dropped)
-        increment()
     }
     
     /// Set this sequence value to the provided string
@@ -79,25 +102,6 @@ public class SeqValue: StringValue {
         }
         super.set(seqStack.value)
     } // end set function
-    
-    public func increment () {
-        increment(atDepth: seqStack.max)
-    }
-    
-    /// Increment the sequence value by 1, at the indicated depth.
-    public func increment (atDepth: Int) {
-
-        guard atDepth >= 0 else { return }
-        var depth = atDepth
-        if depth > seqStack.max {
-            depth = seqStack.max
-        }
-        if depth < 0 {
-            depth = 0
-        }
-        seqStack.segments[depth].increment()
-        super.set(seqStack.value)
-    } // end function increment
     
     /// Return a value that can be used as a key for comparison purposes
     override var sortKey: String {
