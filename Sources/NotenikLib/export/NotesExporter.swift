@@ -152,6 +152,8 @@ public class NotesExporter {
         case .concatHtml, .concatMarkdown:
             concatOpen(exportFormat: format)
             break
+        case .webBookEPUB, .webBookSite:
+            break
         }
     }
     
@@ -676,6 +678,8 @@ public class NotesExporter {
             return outlineClose()
         case .concatHtml, .concatMarkdown:
             return concatClose()
+        case .webBookEPUB, .webBookSite:
+            return false
         }
     }
     

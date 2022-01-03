@@ -139,7 +139,7 @@ public class NoteDisplay {
         topHTML.append(parms.header)
         topHTML.startParagraph()
         if parentSeq.count > 0 {
-            if !klass.biblio && !klass.frontMatter {
+            if !klass.frontOrBack {
                 topHTML.append("\(parentSeq) ")
             }
         }
@@ -336,7 +336,7 @@ public class NoteDisplay {
                     let tocTitle = tocNote.title.value
                     let tocSeq = tocNote.seq
                     bottomHTML.startListItem()
-                    if !tocNote.klass.frontMatter && !tocNote.klass.biblio {
+                    if !tocNote.klass.frontOrBack {
                         bottomHTML.append("\(tocSeq) ")
                     }
                     bottomHTML.link(text: tocTitle, path: parms.assembleWikiLink(title: tocTitle))

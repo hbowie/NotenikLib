@@ -522,7 +522,7 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     //
     
     public var titleToDisplay: String {
-        if hasSeq() && !klass.frontMatter {
+        if hasSeq() && !klass.frontOrBack {
             return seq.value + " " + title.value
         } else {
             return title.value

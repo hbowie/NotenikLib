@@ -18,4 +18,6 @@ public enum ExportFormat {
     case tabDelimited
     case concatHtml
     case concatMarkdown
+    case webBookEPUB
+    case webBookSite
 }

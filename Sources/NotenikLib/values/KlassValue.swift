@@ -27,6 +27,27 @@ public class KlassValue: StringValue {
         }
     }
     
+    var frontOrBack: Bool {
+        switch value {
+        case NotenikConstants.authorKlass:
+            return true
+        case NotenikConstants.backKlass:
+            return true
+        case NotenikConstants.biblioKlass:
+            return true
+        case NotenikConstants.frontKlass:
+            return true
+        case NotenikConstants.introKlass:
+            return true
+        case NotenikConstants.prefaceKlass:
+            return true
+        case NotenikConstants.workKlass:
+            return true
+        default:
+            return false
+        }
+    }
+    
     var frontMatter: Bool {
         switch value {
         case NotenikConstants.frontKlass, NotenikConstants.introKlass, NotenikConstants.prefaceKlass:

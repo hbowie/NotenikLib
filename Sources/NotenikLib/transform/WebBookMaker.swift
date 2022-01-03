@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 7/6/21.
 //
-//  Copyright © 2021 Herb Bowie (https://hbowie.net)
+//  Copyright © 2021-2022 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -43,6 +43,7 @@ public class WebBookMaker {
     var io: FileIO
     
     var epub = true
+    var firstPage = true
     
     var bookFolder:     URL
     var headerFile:     URL
@@ -214,10 +215,10 @@ public class WebBookMaker {
                                                       options: .skipsHiddenFiles)
             for entry in contents {
                 if entry.pathExtension == htmlFileExt {
-                    if epub || entry.lastPathComponent != "index.html" {
+                    // if epub || entry.lastPathComponent != "index.html" {
                         try fm.removeItem(at: entry)
                         filesDeleted += 1
-                    }
+                    // }
                 }
             }
         } catch {
@@ -245,9 +246,11 @@ public class WebBookMaker {
         io.sortParm = .seqPlusTitle
         
         var (note, position) = io.firstNote()
+        firstPage = true
         while note != nil && position.valid {
             generate(note: note!)
             (note, position) = io.nextNote(position)
+            firstPage = false
         }
         
         writeLineToManifest(indentLevel: 1, text: "</manifest>")
@@ -308,6 +311,14 @@ public class WebBookMaker {
                                            outputURL: fileURL,
                                            createDirectories: true,
                                            checkForChanges: true)
+        
+        if firstPage && !epub {
+            let indexURL = URL(fileURLWithPath: "index", relativeTo: htmlFolder).appendingPathExtension(htmlFileExt)
+            _ = FileUtils.saveToDisk(strToWrite: code,
+                                     outputURL: indexURL,
+                                     createDirectories: false,
+                                     checkForChanges: true)
+        }
         
         if written {
             filesWritten += 1

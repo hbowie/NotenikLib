@@ -51,6 +51,7 @@ public class NotesMkdownContext: MkdownContext {
     /// - Returns: The corresponding title, if the lookup was successful, otherwise the title
     ///            that was passed as input.
     public func mkdownWikiLinkLookup(linkText: String) -> String? {
+        
         guard io.collection != nil else { return linkText }
         guard io.collectionOpen else { return linkText }
         
@@ -133,7 +134,7 @@ public class NotesMkdownContext: MkdownContext {
         self.levelEnd = levelEnd
         guard io.collection != nil else { return "" }
         guard io.collectionOpen else { return "" }
-        let collection = io.collection!
+        guard let collection = io.collection else { return "" }
         hasLevel = (collection.levelFieldDef != nil)
         hasSeq = (collection.seqFieldDef != nil)
         levels = []
@@ -167,7 +168,7 @@ public class NotesMkdownContext: MkdownContext {
         
         // Display the next TOC entry
         toc.startListItem()
-        if seq.count > 0 {
+        if seq.count > 0 && !note.klass.frontOrBack {
             toc.write("\(seq) ")
         }
         let title = note.title.value
