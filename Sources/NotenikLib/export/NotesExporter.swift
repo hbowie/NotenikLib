@@ -494,7 +494,7 @@ public class NotesExporter {
         
         // Close any open Outline elements that are at a lower or equal level.
         let level = note.level.getInt()
-        while lastLevel >= level {
+        while lastLevel >= level && outlineLevels.count > 0 {
             markup.finishOutline()
             outlineLevels.removeLast()
         }
