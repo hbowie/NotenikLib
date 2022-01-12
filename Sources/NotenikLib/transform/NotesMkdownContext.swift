@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 7/12/21.
 //
-//  Copyright © 2021 Herb Bowie (https://hbowie.net)
+//  Copyright © 2021 - 2022 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -18,7 +18,7 @@ import NotenikUtils
 /// A class that can provide the Markdown parser with contextual information about
 /// the environment from which the Markdown text was provided. 
 public class NotesMkdownContext: MkdownContext {
-    
+
     // -----------------------------------------------------------
     //
     // MARK: Initial setup.
@@ -102,7 +102,7 @@ public class NotesMkdownContext: MkdownContext {
             return linkedNote!.title.value
         }
         
-        // Nothing worked, so just return the linkText.
+        // Nothing worked, so return nada / zilch.
         return nil
     }
     
@@ -319,6 +319,103 @@ public class NotesMkdownContext: MkdownContext {
             tagsCode.finishListItem()
         }
         tagsListLevel -= 1
+    }
+    
+    // -----------------------------------------------------------
+    //
+    // MARK: Include another item (Note or file). 
+    //
+    // -----------------------------------------------------------
+    
+    public func mkdownInclude(item: String, style: String) -> String? {
+        guard io.collection != nil else { return nil }
+        guard io.collectionOpen else { return nil }
+        var str: String?
+        if item.contains(".") {
+            str = includeFromFile(item: item)
+        }
+        if str == nil {
+            str = includeFromNote(item: item, style: style)
+        }
+        return str
+    }
+    
+    func includeFromFile(item: String) -> String? {
+        guard let collection = io.collection else { return nil }
+        guard let collectionURL = collection.fullPathURL else { return nil }
+        let fileURL = URL(fileURLWithPath: item,
+                                isDirectory: false,
+                                relativeTo: collectionURL) 
+        if let str = try? String(contentsOf: fileURL) {
+            return str
+        }
+        return nil
+    }
+    
+    func includeFromNote(item: String, style: String) -> String? {
+        
+        guard io.collection != nil else { return item }
+        guard io.collectionOpen else { return item }
+        
+        guard let noteTitle = mkdownWikiLinkLookup(linkText: item) else { return nil }
+        let noteID = StringUtils.toCommon(noteTitle)
+        guard let note = io.getNote(forID: noteID) else {
+            return "Note titled '\(item)' could not be included"
+        }
+        
+        switch style {
+        case "quote":
+            return includeQuoteFromNote(note: note)
+        case "text":
+            return includeTextFromNote(note: note)
+        default:
+            return includeTextFromNote(note: note)
+        }
+    }
+    
+    func includeTextFromNote(note: Note) -> String? {
+        let maker = NoteLineMaker()
+        _ = maker.putNote(note)
+        if let writer = maker.writer as? BigStringWriter {
+            return writer.bigString
+        }
+        return nil
+    }
+    
+    func includeQuoteFromNote(note: Note) -> String? {
+        let markedUp = Markedup(format: .markdown)
+        if note.hasBody() {
+            markedUp.startBlockQuote()
+            markedUp.writeBlockOfLines(note.body.value)
+            markedUp.finishBlockQuote()
+        }
+        let collection = note.collection
+        if collection.attribFieldDef != nil {
+            markedUp.newLine()
+            markedUp.append(note.attribution.value)
+        } else {
+            let author = note.creatorValue
+            if author.count > 0 {
+                markedUp.newLine()
+                var authorLine = "-- "
+                authorLine.append(author)
+                let date = note.date.value
+                if date.count > 0 {
+                    authorLine.append(", \(date)")
+                }
+                let workTypeField = FieldGrabber.getField(note: note, label: note.collection.workTypeFieldDef.fieldLabel.commonForm)
+                var workType = ""
+                if workTypeField != nil {
+                    workType = workTypeField!.value.value
+                }
+                let workTitle = note.workTitle.value
+                if workType.count > 0 && workTitle.count > 0 {
+                    authorLine.append(", from the \(workType) titled *\(workTitle)*")
+                }
+                markedUp.writeLine(authorLine)
+            }
+        }
+        return markedUp.code
     }
     
     /// Send an informational message to the log.
