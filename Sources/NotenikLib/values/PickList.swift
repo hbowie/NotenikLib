@@ -33,8 +33,11 @@ public class PickList {
     
     /// Initialize with a list of values separated by commas or semi-colons.
     /// Ignore  leading less than symbol, and treat greater than sign as another delimiter.
-    public init(values: String, forceLowercase: Bool = false) {
+    public init(values: String, forceLowercase: Bool = false, allowBlanks: Bool = false) {
         self.forceLowercase = forceLowercase
+        if allowBlanks {
+            registerValue("")
+        }
         var i = values.startIndex
         if values.hasPrefix(PickList.pickFromLiteral) {
             i = values.index(i, offsetBy: PickList.pickFromLiteral.count)

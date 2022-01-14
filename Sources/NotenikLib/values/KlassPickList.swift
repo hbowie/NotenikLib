@@ -19,13 +19,14 @@ public class KlassPickList: PickList {
         forceLowercase = true
     }
     
-    public override init(values: String, forceLowercase: Bool = true) {
-        super.init(values: values, forceLowercase: forceLowercase)
+    public override init(values: String, forceLowercase: Bool = true, allowBlanks: Bool = true) {
+        super.init(values: values, forceLowercase: forceLowercase, allowBlanks: allowBlanks)
     }
     
     /// If the user hasn't supplied any values, then use some defaults. 
     public func setDefaults() {
         guard count == 0 else { return }
+        registerValue("")
         registerValue("biblio")
         registerValue("cover")
         registerValue("def")
