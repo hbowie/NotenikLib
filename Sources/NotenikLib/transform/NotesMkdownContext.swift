@@ -364,12 +364,14 @@ public class NotesMkdownContext: MkdownContext {
         }
         
         switch style {
+        case "body":
+            return note.body.value
+        case "note":
+            return includeTextFromNote(note: note)
         case "quote":
             return includeQuoteFromNote(note: note)
-        case "text":
-            return includeTextFromNote(note: note)
         default:
-            return includeTextFromNote(note: note)
+            return note.body.value
         }
     }
     
