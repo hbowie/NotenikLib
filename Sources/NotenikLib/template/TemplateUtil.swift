@@ -676,13 +676,15 @@ public class TemplateUtil {
                 }
             } else if char == "_" {
                 modifiedValue = StringUtils.underscoresForSpaces(modifiedValue)
-            } else if char == "a" && (nextChar == "1" || nextChar == "2") {
+            } else if char == "a" && (nextChar == "1" || nextChar == "2" || nextChar == "3") {
                 let authorValue = AuthorValue(modifiedValue)
                 switch nextChar {
                 case "1":
                     modifiedValue = authorValue.lastName
                 case "2":
                     modifiedValue = authorValue.lastNameFirst
+                case "3":
+                    modifiedValue = authorValue.firstNameFirst
                 default:
                     break
                 }
