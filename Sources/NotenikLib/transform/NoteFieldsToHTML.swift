@@ -124,7 +124,8 @@ public class NoteFieldsToHTML {
         }
         
         // Put quote attribution after the quote itself.
-        if quoted && attribution != nil {
+        // if quoted && attribution != nil {
+        if attribution != nil {
             code.append(display(attribution!, note: note, collection: collection, io: io))
         }
         

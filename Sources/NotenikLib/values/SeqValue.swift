@@ -61,7 +61,7 @@ public class SeqValue: StringValue {
         // If level is deeper than current sequence, add segments
         // as needed to get to the specified level.
         while level > seqStack.max {
-            if !seqStack.segments[seqStack.max].endedByPunctuation {
+            if seqStack.max >= 0 && !seqStack.segments[seqStack.max].endedByPunctuation {
                 seqStack.segments[seqStack.max].punctuation = "."
             }
             seqStack.append(SeqSegment("0"))
@@ -77,7 +77,9 @@ public class SeqValue: StringValue {
                 }
             }
         }
-        seqStack.segments[level].increment()
+        if level >= 0 && level < seqStack.count {
+            seqStack.segments[level].increment()
+        }
         let newValue = seqStack.value
         set(newValue)
     }
