@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 6/3/19.
-//  Copyright © 2019 - 2021 Herb Bowie (https://hbowie.net)
+//  Copyright © 2019 - 2022 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -749,6 +749,9 @@ public class TemplateUtil {
                 } else {
                     modifiedValue = StringUtils.summarize(modifiedValue)
                 }
+            } else if charLower == "t" {
+                let htmlConverter = HTMLtoMarkdown(html: modifiedValue)
+                modifiedValue = htmlConverter.toMarkdown()
             } else if charLower == "u" && nextCharLower != "i" {
                 modifiedValue = modifiedValue.uppercased()
             } else if charLower == "u" && nextCharLower == "i" {
