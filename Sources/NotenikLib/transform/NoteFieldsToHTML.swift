@@ -350,6 +350,12 @@ public class NoteFieldsToHTML {
                 } else {
                     displayStraight(field, markedup: code)
                 }
+            case NotenikConstants.workTitleCommon:
+                if note.hasAttribution() {
+                    break
+                } else {
+                    displayStraight(field, markedup: code)
+                }
             case NotenikConstants.dateCommon:
                 if note.hasAttribution() {
                     break
