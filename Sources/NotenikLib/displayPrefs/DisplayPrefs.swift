@@ -139,9 +139,13 @@ public class DisplayPrefs {
         }
         tempCSS.append(" }")
         tempCSS.append("\nblockquote { ")
-        tempCSS.append("\n  border-left: 0.5em solid #999;")
+        tempCSS.append("\n  border-left: 0.4em solid #999;")
         tempCSS.append("\n  margin-left: 0;")
         tempCSS.append("\n  padding-left: 1em;")
+        tempCSS.append("\n} ")
+        tempCSS.append("\nfigure { ")
+        tempCSS.append("\n  margin-left: 0.2em;")
+        tempCSS.append("\n  padding-left: 0.2em;")
         tempCSS.append("\n} ")
         // tempCSS.append("\ncode { overflow: auto }")
         return tempCSS
