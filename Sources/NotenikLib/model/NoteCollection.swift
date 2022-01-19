@@ -77,9 +77,12 @@ public class NoteCollection {
     
             var pickLists:     [FieldDefinition] = []
     public  var klassDefs:     [KlassDef] = []
-    public  var lastNewKlass = ""
-    public  var webBookPath = ""
-    public  var webBookAsEPUB = true
+    public  var lastNewKlass   = ""
+    public  var webBookPath    = ""
+    public  var webBookAsEPUB  = true
+    
+    public  var titleToParse   = ""
+    public  var tocNoteID      = ""
     
     /// Default initialization of a new Collection.
     public init () {

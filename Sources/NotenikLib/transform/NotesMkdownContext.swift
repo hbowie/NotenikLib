@@ -39,6 +39,12 @@ public class NotesMkdownContext: MkdownContext {
         htmlConverter.addHTML()
     }
     
+    /// Set the Title of the Note whose Markdown text is to be parsed.
+    public func setTitleToParse(title: String) {
+        guard let collection = io.collection else { return }
+        collection.titleToParse = title
+    }
+    
     // -----------------------------------------------------------
     //
     // MARK: Wiki Link Lookup.
@@ -132,16 +138,18 @@ public class NotesMkdownContext: MkdownContext {
     public func mkdownCollectionTOC(levelStart: Int, levelEnd: Int) -> String {
         self.levelStart = levelStart
         self.levelEnd = levelEnd
-        guard io.collection != nil else { return "" }
         guard io.collectionOpen else { return "" }
         guard let collection = io.collection else { return "" }
+        collection.tocNoteID = StringUtils.toCommon(collection.titleToParse)
         hasLevel = (collection.levelFieldDef != nil)
         hasSeq = (collection.seqFieldDef != nil)
         levels = []
         toc = Markedup(format: .htmlFragment)
         var (note, position) = io.firstNote()
         while note != nil {
-            genTocEntry(for: note!)
+            if note!.noteID.identifier != collection.tocNoteID {
+                genTocEntry(for: note!)
+            }
             (note, position) = io.nextNote(position)
         }
         closeTocEntries(downTo: 0)
@@ -352,6 +360,13 @@ public class NotesMkdownContext: MkdownContext {
         return nil
     }
     
+    
+    public var includedNotes: [String] = []
+    
+    public func clearIncludedNotes() {
+        includedNotes = []
+    }
+    
     func includeFromNote(item: String, style: String) -> String? {
         
         guard io.collection != nil else { return item }
@@ -363,11 +378,15 @@ public class NotesMkdownContext: MkdownContext {
             return "Note titled '\(item)' could not be included"
         }
         
+        includedNotes.append(noteID)
+        
         switch style {
         case "body":
             return note.body.value
         case "note":
             return includeTextFromNote(note: note)
+        case "quotebody", "quote-body":
+            return includeQuoteFromNote(note: note, withAttrib: false)
         case "quote":
             return includeQuoteFromNote(note: note)
         default:
@@ -384,39 +403,15 @@ public class NotesMkdownContext: MkdownContext {
         return nil
     }
     
-    func includeQuoteFromNote(note: Note) -> String? {
-        let markedUp = Markedup(format: .markdown)
-        if note.hasBody() {
-            markedUp.startBlockQuote()
-            markedUp.writeBlockOfLines(note.body.value)
-            markedUp.finishBlockQuote()
-        }
-        let collection = note.collection
-        if collection.attribFieldDef != nil {
-            markedUp.newLine()
-            markedUp.append(note.attribution.value)
-        } else {
-            let author = note.creatorValue
-            if author.count > 0 {
-                markedUp.newLine()
-                var authorLine = "-- "
-                authorLine.append(author)
-                let date = note.date.value
-                if date.count > 0 {
-                    authorLine.append(", \(date)")
-                }
-                let workTypeField = FieldGrabber.getField(note: note, label: note.collection.workTypeFieldDef.fieldLabel.commonForm)
-                var workType = ""
-                if workTypeField != nil {
-                    workType = workTypeField!.value.value
-                }
-                let workTitle = note.workTitle.value
-                if workType.count > 0 && workTitle.count > 0 {
-                    authorLine.append(", from the \(workType) titled *\(workTitle)*")
-                }
-                markedUp.writeLine(authorLine)
-            }
-        }
+    func includeQuoteFromNote(note: Note, withAttrib: Bool = true) -> String? {
+        let markedUp = Markedup(format: .htmlFragment)
+        let fieldsToHTML = NoteFieldsToHTML()
+        fieldsToHTML.formatQuoteWithAttribution(note: note,
+                                                markedup: markedUp,
+                                                parms: displayParms,
+                                                io: io,
+                                                bodyHTML: nil,
+                                                withAttrib: withAttrib)
         return markedUp.code
     }
     

@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 4/15/21.
 //
-//  Copyright © 2021 Herb Bowie (https://hbowie.net)
+//  Copyright © 2021 - 2022 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -286,6 +286,9 @@ public class NoteFieldsToHTML {
         // Format the Note's Title Line
         if field.def == collection.titleFieldDef {
             displayTitle(note: note, markedup: code)
+            if mkdownContext != nil {
+                mkdownContext!.setTitleToParse(title: note.title.value)
+            }
         // Format the tags field
         } else if field.def == collection.tagsFieldDef && parms.fullDisplay {
             code.startParagraph()
@@ -365,6 +368,8 @@ public class NoteFieldsToHTML {
             case NotenikConstants.imageNameCommon:
                 break
             case NotenikConstants.includeChildrenCommon:
+                break
+            case NotenikConstants.indexCommon:
                 break
             case NotenikConstants.klassCommon:
                 break
@@ -588,6 +593,79 @@ public class NoteFieldsToHTML {
             let openLink = "notenik://open?shortcut=\(shortcut)&id=\(openID)"
             markedup.link(text: field.value.value, path: openLink)
             markedup.finishParagraph()
+        }
+    }
+    
+    /// Format a quotation using HTML figure and figcaption tags. 
+    public func formatQuoteWithAttribution(note: Note,
+                                           markedup: Markedup,
+                                           parms: DisplayParms,
+                                           io: NotenikIO?,
+                                           bodyHTML: String? = nil,
+                                           withAttrib: Bool = true) {
+        
+        var mkdownContext: MkdownContext?
+        if io != nil {
+            mkdownContext = NotesMkdownContext(io: io!, displayParms: parms)
+        }
+        
+        
+        if withAttrib && (note.hasAttribution() || note.hasAuthor() || note.hasWorkTitle()) {
+            markedup.startFigure()
+        }
+        
+        markedup.startBlockQuote()
+        
+        if bodyHTML != nil {
+            markedup.append(bodyHTML!)
+        } else {
+            markdownToMarkedup(markdown: note.body.value,
+                               context: nil,
+                               writer: markedup)
+        }
+        
+        markedup.finishBlockQuote()
+        
+        if withAttrib && (note.hasAttribution() || note.hasAuthor() || note.hasWorkTitle()) {
+            markedup.startFigureCaption()
+            if note.hasAttribution() {
+                markedup.newLine()
+                markdownToMarkedup(markdown: note.attribution.value,
+                                   context: mkdownContext,
+                                   writer: markedup)
+            } else {
+                markedup.newLine()
+                var attrib = "-- "
+                let author = note.creatorValue
+                if author.count > 0 {
+                    attrib.append(author)
+                }
+                if note.hasDate() {
+                    if attrib.count > 0 {
+                        attrib.append(", ")
+                    }
+                    attrib.append(note.date.value)
+                }
+                
+                if note.hasWorkTitle() {
+                    if attrib.count > 3 {
+                        attrib.append(", ")
+                    }
+                    let workTypeField = FieldGrabber.getField(note: note, label: note.collection.workTypeFieldDef.fieldLabel.commonForm)
+                    var workType = ""
+                    if workTypeField != nil {
+                        workType = workTypeField!.value.value
+                    }
+                    if !workType.isEmpty {
+                        attrib.append("from the \(workType) titled ")
+                    }
+                    attrib.append("<cite>\(note.workTitle.value)</cite>")
+                }
+                
+                markedup.writeLine(attrib)
+            }
+            markedup.finishFigureCaption()
+            markedup.finishFigure()
         }
     }
     

@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 1/22/19.
-//  Copyright © 2019 - 2021 Herb Bowie (https://hbowie.net)
+//  Copyright © 2019 - 2022 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -23,6 +23,7 @@ public class NoteDisplay {
     public var parms = DisplayParms()
     public var mkdownOptions = MkdownOptions()
     
+    var includedNotes: [String] = []
     var mdBodyParser: MkdownParser?
     var bodyHTML:     String?
     
@@ -48,6 +49,7 @@ public class NoteDisplay {
         self.parms = parms
         parms.setMkdownOptions(mkdownOptions)
         let mkdownContext = NotesMkdownContext(io: io, displayParms: parms)
+        mkdownContext.setTitleToParse(title: note.title.value)
         let collection = note.collection
         minutesToRead = nil
         mdBodyParser = nil
@@ -70,6 +72,7 @@ public class NoteDisplay {
             }
             bodyHTML = mdBodyParser!.html
             wikilinks = mdBodyParser!.wikiLinkList
+            includedNotes = mkdownContext.includedNotes
             for link in mdBodyParser!.wikiLinkList.links {
                 if !link.targetFound {
                     let newNote = Note(collection: note.collection)
@@ -267,6 +270,8 @@ public class NoteDisplay {
         let startingFormat = parms.format
         parms.format = .htmlFragment
         
+        var displayedChildCount = 0
+        
         while followingNote != nil
                 && followingPosition.valid
                 && followingLevel > note.level
@@ -280,16 +285,28 @@ public class NoteDisplay {
             
             let lastInList = nextUpNote == nil || nextUpPosition.invalid || nextUpNote!.level <= note.level || nextUpNote!.seq <= note.seq
             
-            let childDisplay = fieldsToHTML.fieldsToHTML(followingNote!,
-                                                         io: io,
-                                                         parms: parms,
-                                                         topOfPage: "",
-                                                         imageWithinPage: "",
-                                                         bodyHTML: nil,
-                                                         minutesToRead: nil,
-                                                         bottomOfPage: "",
-                                                         lastInList: lastInList)
-            bottomHTML.append(childDisplay)
+            var alreadyIncluded = false
+            let followingID = followingNote!.noteID.identifier
+            for includedNote in includedNotes {
+                if followingID == includedNote {
+                    alreadyIncluded = true
+                    break
+                }
+            }
+            
+            if !alreadyIncluded {
+                let childDisplay = fieldsToHTML.fieldsToHTML(followingNote!,
+                                                             io: io,
+                                                             parms: parms,
+                                                             topOfPage: "",
+                                                             imageWithinPage: "",
+                                                             bodyHTML: nil,
+                                                             minutesToRead: nil,
+                                                             bottomOfPage: "",
+                                                             lastInList: lastInList)
+                bottomHTML.append(childDisplay)
+                displayedChildCount += 1
+            }
             
             followingNote = nextUpNote
             followingPosition = nextUpPosition
@@ -305,7 +322,9 @@ public class NoteDisplay {
         if followingNote == nil {
             return (followingNote, followingPosition)
         } else {
-            bottomHTML.horizontalRule()
+            if displayedChildCount > 0 {
+                bottomHTML.horizontalRule()
+            }
             return (followingNote, followingPosition)
         }
     }
@@ -402,6 +421,7 @@ public class NoteDisplay {
         let mkdownContext = NotesMkdownContext(io: io, displayParms: parms)
         let code = Markedup(format: parms.format)
         if field.def == collection.titleFieldDef {
+            mkdownContext.setTitleToParse(title: field.value.value)
             if collection.h1Titles {
                 code.heading(level: 1, text: field.value.value)
             } else {
