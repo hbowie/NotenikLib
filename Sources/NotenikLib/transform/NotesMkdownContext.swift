@@ -31,6 +31,8 @@ public class NotesMkdownContext: MkdownContext {
     
     let htmlConverter = StringConverter()
     
+    public var includedNotes: [String] = []
+    
     public init(io: NotenikIO, displayParms: DisplayParms? = nil) {
         self.io = io
         if displayParms != nil {
@@ -359,9 +361,6 @@ public class NotesMkdownContext: MkdownContext {
         }
         return nil
     }
-    
-    
-    public var includedNotes: [String] = []
     
     public func clearIncludedNotes() {
         includedNotes = []

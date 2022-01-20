@@ -85,6 +85,7 @@ public class NoteLineParser {
                                   collection: collection,
                                   bodyStarted: bodyStarted,
                                   allowDictAdds: allowDictAdds)
+            
             lineNumber += 1
             fileSize += noteLine.line.count + 1
             if noteLine.blankLine {

@@ -119,6 +119,8 @@ public struct NotenikConstants {
     static let workRightsHolderCommon = "workrightsholder"
     public static let workTitle        = "Work Title"
     public static let workTitleCommon  = "worktitle"
+    public static let workLargerTitle  = "Work Larger Title"
+    public static let workLargerTitleCommon = "worklargertitle"
     public static let workType         = "Work Type"
     public static let workTypeCommon   = "worktype"
     

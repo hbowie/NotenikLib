@@ -359,6 +359,12 @@ public class NoteFieldsToHTML {
                 } else {
                     displayStraight(field, markedup: code)
                 }
+            case NotenikConstants.workLargerTitleCommon:
+                if note.hasAttribution() {
+                    break
+                } else {
+                    displayStraight(field, markedup: code)
+                }
             case NotenikConstants.dateCommon:
                 if note.hasAttribution() {
                     break
@@ -397,6 +403,8 @@ public class NoteFieldsToHTML {
                 } else if field.def.fieldLabel.commonForm == NotenikConstants.imageCaptionCommon {
                     break
                 } else if field.def.fieldLabel.commonForm == NotenikConstants.imageAltCommon {
+                    break
+                } else if field.def.fieldLabel.commonForm == NotenikConstants.workLargerTitleCommon {
                     break
                 } else {
                     displayStraight(field, markedup: code)
