@@ -521,9 +521,16 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     // Functions and variables concerning the Note's title.
     //
     
-    public var titleToDisplay: String {
-        if hasSeq() && !klass.frontOrBack {
-            return seq.value + " " + title.value
+    /// Get the title of the Note as a String, optionally preceded by the Note's Seq value.
+    /// - Parameters:
+    ///   - withSeq: Should the returned value be prefixed by the Note's Seq value? If the Note has no Seq value,
+    ///   or if its class/klass indicates it should be treated as front matter or back matter, then a True value here
+    ///   will have no effect.
+    ///   - sep: The separator to place between the Seq and the Title. Defaults to a single space.
+    /// - Returns: The title of the Note, optionally preceded by a Seq value.
+    public func getTitle(withSeq: Bool = false, sep: String = " ") -> String {
+        if withSeq && hasSeq() && !klass.frontOrBack {
+            return seq.value + sep + title.value
         } else {
             return title.value
         }
