@@ -147,6 +147,16 @@ public class DisplayPrefs {
         tempCSS.append("\n  margin-left: 0.2em;")
         tempCSS.append("\n  padding-left: 0.2em;")
         tempCSS.append("\n} ")
+        tempCSS.append("\ntable, th, td { ")
+        tempCSS.append("\n  border: 2px solid gray; ")
+        tempCSS.append("\n} ")
+        tempCSS.append("\ntable { ")
+        tempCSS.append("\n  border-collapse: collapse; ")
+        tempCSS.append("\n} ")
+        tempCSS.append("\nth, td { ")
+        tempCSS.append("\n  padding: 6px; ")
+        tempCSS.append("\n} ")
+        
         // tempCSS.append("\ncode { overflow: auto }")
         return tempCSS
     }
