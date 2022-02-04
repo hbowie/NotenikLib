@@ -78,6 +78,16 @@ public class NotenikFolderList: Sequence {
         
         iCloudContainerPath = iCloudContainerURL!.path
         iCloudContainerExists = fm.fileExists(atPath: iCloudContainerPath)
+        if !iCloudContainerExists {
+            do {
+                try fm.createDirectory(at: iCloudContainerURL!,
+                                   withIntermediateDirectories: true,
+                                   attributes: nil)
+                iCloudContainerExists = true
+            } catch {
+                logError("iCloud Notenik Documents container could not be created")
+            }
+        }
         logInfo("iCloud Notenik Documents container available at \(iCloudContainerPath) exists? \(iCloudContainerExists)")
         
         do {
