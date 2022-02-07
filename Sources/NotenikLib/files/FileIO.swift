@@ -256,6 +256,9 @@ public class FileIO: NotenikIO, RowConsumer {
         if !collection!.webBookAsEPUB {
             str.append(label: NotenikConstants.webBookEPUB, value: "false")
         }
+        if !collection!.windowPosStr.isEmpty {
+            str.append(label: NotenikConstants.windowNumbers, value: collection!.windowPosStr)
+        }
 
         return lib.saveInfo(str: str.str)
     }
@@ -565,6 +568,11 @@ public class FileIO: NotenikIO, RowConsumer {
         } else {
             let webBookAsEPUB = BooleanValue(webBookAsEPUBField!.value.value)
             collection!.webBookAsEPUB = webBookAsEPUB.isTrue
+        }
+        
+        let windowNumbers = infoNote.getField(label: NotenikConstants.windowNumbersCommon)
+        if windowNumbers != nil && !windowNumbers!.value.isEmpty {
+            collection!.windowPosStr = windowNumbers!.value.value
         }
         
         infoFound = true

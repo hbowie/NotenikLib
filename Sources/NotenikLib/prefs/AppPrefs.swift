@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 5/25/19.
-//  Copyright © 2019-2022 Herb Bowie (https://hbowie.net)
+//  Copyright © 2019 - 2022 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -55,6 +55,9 @@ public class AppPrefs {
     
     let lastShortcutKey = "last-shortcut"
     var _lastShortcut = ""
+    
+    let tipsWindowKey = "tips-window"
+    var _tipsWindow = ""
     
     var _appLaunching = false
     
@@ -193,6 +196,11 @@ public class AppPrefs {
         let lcut = defaults.string(forKey: lastShortcutKey)
         if lcut != nil {
             _lastShortcut = lcut!
+        }
+        
+        let tipsw = defaults.string(forKey: tipsWindowKey)
+        if tipsw != nil {
+            _tipsWindow = tipsw!
         }
         
         _uc = defaults.integer(forKey: useCountKey)
@@ -376,6 +384,16 @@ public class AppPrefs {
         set {
             _lastShortcut = newValue
             defaults.set(_lastShortcut, forKey: lastShortcutKey)
+        }
+    }
+    
+    public var tipsWindow: String {
+        get {
+            return _tipsWindow
+        }
+        set {
+            _tipsWindow = newValue
+            defaults.set(_tipsWindow, forKey: tipsWindowKey)
         }
     }
     
