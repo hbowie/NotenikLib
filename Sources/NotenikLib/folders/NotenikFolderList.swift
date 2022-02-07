@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 8/26/20.
 
-//  Copyright © 2020 - 2021 Herb Bowie (https://hbowie.net)
+//  Copyright © 2020 - 2022 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -31,7 +31,8 @@ public class NotenikFolderList: Sequence {
     public let root = NotenikFolderNode()
     
     public var helpParent = NotenikFolderNode()
-    public var kbNode = NotenikFolderNode()
+    public var kbNode     = NotenikFolderNode()
+    public var tipsNode   = NotenikFolderNode()
     
     public var count: Int { return folders.count }
     
@@ -52,6 +53,10 @@ public class NotenikFolderList: Sequence {
             kbNode = NotenikFolderNode(bundlePath: NotenikConstants.kbPath,
                                        desc: NotenikConstants.kbDesc)
             _ = helpParent.addChild(newNode: kbNode)
+        
+            tipsNode = NotenikFolderNode(bundlePath: NotenikConstants.tipsPath,
+                                     desc: NotenikConstants.tipsDesc)
+            _ = helpParent.addChild(newNode: tipsNode)
             
         #elseif os(iOS)
             

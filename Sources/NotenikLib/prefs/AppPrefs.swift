@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 5/25/19.
-//  Copyright © 2019-2021 Herb Bowie (https://hbowie.net)
+//  Copyright © 2019-2022 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -27,6 +27,7 @@ public class AppPrefs {
     
     let launchingKey    = "app-launching"
     let quickDeletesKey = "quick-deletes"
+    let startupTipsKey  = "tips-at-startup"
     let mediumTokenKey  = "medium-token"
     let microBlogUserKey = "micro-blog-user"
     let microBlogTokenKey = "micro-blog-token"
@@ -58,6 +59,8 @@ public class AppPrefs {
     var _appLaunching = false
     
     var _qd: Bool = false
+    
+    var _startupTips = true
     
     var _mediumToken = ""
     
@@ -134,6 +137,7 @@ public class AppPrefs {
     
     func resetDefaults() {
         confirmDeletes = true
+        tipsAtStartup = true
         parentRealmParent = ""
         useCount = 0
         favoritesColumns = 4
@@ -149,6 +153,8 @@ public class AppPrefs {
         _lastURL = defaults.url(forKey: lastURLKey)
         
         _qd = defaults.bool(forKey: quickDeletesKey)
+        
+        _startupTips = defaults.bool(forKey: startupTipsKey)
         
         let mediumTokenDefault = defaults.string(forKey: mediumTokenKey)
         if mediumTokenDefault != nil {
@@ -284,6 +290,16 @@ public class AppPrefs {
         set {
             _qd = !newValue
             defaults.set(_qd, forKey: quickDeletesKey)
+        }
+    }
+    
+    public var tipsAtStartup: Bool {
+        get {
+            return _startupTips
+        }
+        set {
+            _startupTips = newValue
+            defaults.set(_startupTips, forKey: startupTipsKey)
         }
     }
     
