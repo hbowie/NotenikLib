@@ -59,6 +59,9 @@ public class AppPrefs {
     let tipsWindowKey = "tips-window"
     var _tipsWindow = ""
     
+    let kbWindowKey = "nkb-window"
+    var _kbWindow = ""
+    
     var _appLaunching = false
     
     var _qd: Bool = false
@@ -201,6 +204,11 @@ public class AppPrefs {
         let tipsw = defaults.string(forKey: tipsWindowKey)
         if tipsw != nil {
             _tipsWindow = tipsw!
+        }
+        
+        let nkbw = defaults.string(forKey: kbWindowKey)
+        if nkbw != nil {
+            _kbWindow = nkbw!
         }
         
         _uc = defaults.integer(forKey: useCountKey)
@@ -394,6 +402,16 @@ public class AppPrefs {
         set {
             _tipsWindow = newValue
             defaults.set(_tipsWindow, forKey: tipsWindowKey)
+        }
+    }
+    
+    public var kbWindow: String {
+        get {
+            return _kbWindow
+        }
+        set {
+            _kbWindow = newValue
+            defaults.set(_kbWindow, forKey: kbWindowKey)
         }
     }
     

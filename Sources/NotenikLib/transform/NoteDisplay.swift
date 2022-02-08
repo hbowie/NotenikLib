@@ -207,11 +207,15 @@ public class NoteDisplay {
         let sortParm = parms.sortParm
         guard sortParm == .seqPlusTitle else { return "" }
         
+        let bottomHTML = Markedup()
+        
         let currentPosition = io.positionOfNote(note)
         var (nextNote, nextPosition) = io.nextNote(currentPosition)
-        guard nextPosition.valid && nextNote != nil else { return "" }
+        guard nextPosition.valid && nextNote != nil else {
+            backToTop(io: io, bottomHTML: bottomHTML)
+            return bottomHTML.code
+        }
         
-        let bottomHTML = Markedup()
         var nextTitle = nextNote!.title.value
         var nextLevel = nextNote!.level
         var nextSeq = nextNote!.seq
@@ -243,7 +247,9 @@ public class NoteDisplay {
             }
         }
         
-        if !nextTitle.isEmpty {
+        if nextTitle.isEmpty {
+            backToTop(io: io, bottomHTML: bottomHTML)
+        } else {
             bottomHTML.startParagraph()
             bottomHTML.append("Next: ")
             bottomHTML.link(text: nextTitle, path: parms.assembleWikiLink(title: nextTitle))
@@ -251,6 +257,16 @@ public class NoteDisplay {
         }
         
         return bottomHTML.code
+    }
+    
+    func backToTop(io: NotenikIO, bottomHTML: Markedup) {
+        let (firstNote, _) = io.firstNote()
+        guard firstNote != nil else { return }
+        let firstTitle = firstNote!.title.value
+        bottomHTML.startParagraph()
+        bottomHTML.append("Back to Top: ")
+        bottomHTML.link(text: firstTitle, path: parms.assembleWikiLink(title: firstTitle))
+        bottomHTML.finishParagraph()
     }
     
     func formatIncludedChildren(_ note: Note,
