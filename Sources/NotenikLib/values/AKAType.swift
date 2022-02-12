@@ -46,7 +46,13 @@ class AKAType: AnyType {
     /// - Parameter type: The type string (if one is available)
     override func appliesTo(label: FieldLabel, type: String?) -> Bool {
         if type == nil || type!.count == 0 {
-            return (label.commonForm == commonLabel || label.commonForm == "alsoknownas")
+            switch label.commonForm {
+            case commonLabel: return true
+            case "alsoknownas": return true
+            case "alias": return true
+            case "aliases": return true
+            default: return false
+            }
         } else {
             return (type! == typeString)
         }

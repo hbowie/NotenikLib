@@ -43,6 +43,14 @@ class AuthorType: AnyType {
     /// - Parameter type: The type string (if one is available)
     override func appliesTo(label: FieldLabel, type: String?) -> Bool {
         if type == nil || type!.count == 0 {
+            switch label.commonForm {
+            case commonLabel: return true
+            case "authors": return true
+            case "by": return true
+            case "creator": return true
+            case "creators": return true
+            default: return false
+            }
             return (label.commonForm == commonLabel || label.commonForm == "by" || label.commonForm == "creator")
         } else {
             return (type! == typeString)
