@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 12/10/18.
-//  Copyright © 2018 - 2021 Herb Bowie (https://hbowie.net)
+//  Copyright © 2018 - 2022 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -86,18 +86,6 @@ public class NoteLineParser {
                                   bodyStarted: bodyStarted,
                                   allowDictAdds: allowDictAdds)
             
-            if noteLine.yamlDashLine {
-                print(" ")
-                print("YAML Dash Line found")
-                print("  - Line = \(noteLine.line)")
-                print("  - Value = \(noteLine.value)")
-            }
-            if noteLine.mmdMetaStartEndLine {
-                print(" ")
-                print("mmdMetaStartEndLine")
-                print("  - Line = \(noteLine.line)")
-            }
-            
             lineNumber += 1
             fileSize += noteLine.line.count + 1
             if noteLine.blankLine {
@@ -172,7 +160,6 @@ public class NoteLineParser {
             } else if label.validLabel {
                 if noteLine.yamlDashLine && note.fileInfo.format == .multiMarkdown {
                     note.fileInfo.format = .yaml
-                    print("  - Note file info format set to YAML")
                 }
                 if noteLine.yamlDashLine && note.fileInfo.format == .yaml
                     && def.fieldType.typeString != NotenikConstants.bodyCommon
@@ -267,11 +254,6 @@ public class NoteLineParser {
     }
     
     func appendYAMLvalue() {
-        print(" ")
-        print("Append YAML Value")
-        print("  - Label Proper = \(label.properForm)")
-        print("  - Label Common = \(label.commonForm)")
-        print("  - Type String = \(def.fieldType.typeString)")
         if !value.isEmpty {
             if def.fieldType.typeString == NotenikConstants.authorCommon {
                 value.append(", ")

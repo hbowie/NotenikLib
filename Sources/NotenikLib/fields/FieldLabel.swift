@@ -31,7 +31,7 @@ public class FieldLabel: CustomStringConvertible, Comparable  {
     
     func set(_ label: String) {
         properForm = label
-        commonForm = StringUtils.toCommon(label)
+        commonForm = FieldLabel.toCommon(label)
         if isAuthor && commonForm != NotenikConstants.authorCommon {
             properForm = NotenikConstants.author
             commonForm = NotenikConstants.authorCommon
@@ -172,5 +172,15 @@ public class FieldLabel: CustomStringConvertible, Comparable  {
     /// See if one field label is equal to another, using the common form of the label.
     public static func == (lhs: FieldLabel, rhs: FieldLabel) -> Bool {
         return lhs.commonForm == rhs.commonForm
+    }
+    
+    public static func toCommon(_ label: String) -> String {
+        var common = StringUtils.toCommon(label)
+        if common == "authors" {
+            common = NotenikConstants.authorCommon
+        } else if common == "aliases" {
+            common = "alias"
+        }
+        return common
     }
 }

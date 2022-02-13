@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 12/14/18.
-//  Copyright © 2018 - 2021 Herb Bowie (https://hbowie.net)
+//  Copyright © 2018 - 2022 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -401,7 +401,6 @@ public class FileIO: NotenikIO, RowConsumer {
                                 _ = collection!.lib.saveNote(note: note!)
                             }
                         }
-                        print("Note titled \(note!.title.value) has file format of \(note!.fileInfo.format)")
                         switch note!.fileInfo.format {
                             case .plainText: plainCount += 1
                             case .markdown: mdCount += 1

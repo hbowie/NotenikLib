@@ -1,9 +1,9 @@
 //
-//  LineMaker.swift
-//  Notenik
+//  NoteLineMaker.swift
+//  NotenikLib
 //
 //  Created by Herb Bowie on 2/11/19.
-//  Copyright © 2019 - 2021 Herb Bowie (https://hbowie.net)
+//  Copyright © 2019 - 2022 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -38,13 +38,19 @@ public class NoteLineMaker {
     /// - Returns: The number of fields written.
     public func putNote(_ note: Note) -> Int {
         
-        print(" ")
-        print("NoteLineMaker.putNote")
-        print("  - Title = \(note.title.value)")
         if note.fileInfo.format == .toBeDetermined {
             note.fileInfo.format = note.collection.noteFileFormat
             if note.fileInfo.mmdOrYaml {
                 note.fileInfo.mmdMetaStartLine = "---"
+                note.fileInfo.mmdMetaEndLine = "---"
+            }
+        }
+        
+        if note.fileInfo.format == .yaml {
+            if note.fileInfo.mmdMetaStartLine.isEmpty {
+                note.fileInfo.mmdMetaStartLine = "---"
+            }
+            if note.fileInfo.mmdMetaEndLine.isEmpty {
                 note.fileInfo.mmdMetaEndLine = "---"
             }
         }
@@ -71,8 +77,6 @@ public class NoteLineMaker {
                 }
             }
         }
-        
-        print("  - File format = \(note.fileInfo.format)")
         
         fieldsWritten = 0
         writer.open()
@@ -167,16 +171,16 @@ public class NoteLineMaker {
     func putBody(_ note: Note) {
         switch note.fileInfo.format {
         case .markdown:
-            putFieldValue(note.body)
+            putFieldValueOnSameLine(note.body)
             fieldsWritten += 1
-        case .multiMarkdown:
+        case .multiMarkdown, .yaml:
             writer.endLine()
-            putFieldValue(note.body)
+            putFieldValueOnSameLine(note.body)
             fieldsWritten += 1
         case .notenik:
-            putField(note.getBodyAsField(), format: note.fileInfo.format)
+            putField(note.getBodyAsField(), format: .notenik)
         case .plainText:
-            putFieldValue(note.body)
+            putFieldValueOnSameLine(note.body)
             fieldsWritten += 1
         default:
             putField(note.getBodyAsField(), format: note.fileInfo.format)
@@ -186,23 +190,12 @@ public class NoteLineMaker {
     /// Write a field's label and value, along with the usual Notenik formatting.
     ///
     /// - Parameter field: The Note Field to be written.
-    public func putField(_ field: NoteField?, format: NoteFileFormat) {
-        if field != nil && field!.value.hasData {
-            putFieldName(field!.def, format: format)
-            if format == .yaml && field!.def.fieldType.typeString == NotenikConstants.tagsCommon {
-                writer.endLine()
-                if let tags = field?.value as? TagsValue {
-                    for tag in tags.tags {
-                        writer.writeLine("- \(tag.getTag(delim: "/"))")
-                    }
-                } else {
-                    putFieldValue(field!.value)
-                }
-            } else {
-                putFieldValue(field!.value)
-            }
-            fieldsWritten += 1
-        }
+    public func putField(_ possibleField: NoteField?, format: NoteFileFormat) {
+        guard let field = possibleField else { return }
+        guard field.value.hasData else { return }
+        putFieldName(field.def, format: format)
+        putFieldValue(field, format: format)
+        fieldsWritten += 1
     }
     
     /// Write the field label to the writer, along with any necessary preceding and following text.
@@ -227,10 +220,50 @@ public class NoteLineMaker {
         }
     }
     
+    func putFieldValue(_ field: NoteField, format: NoteFileFormat) {
+        if format == .yaml {
+            putFieldValueInYAML(field)
+        } else {
+            putFieldValueOnSameLine(field.value)
+        }
+    }
+    
+    func putFieldValueInYAML(_ field: NoteField) {
+        if let tags = field.value as? TagsValue {
+            writer.endLine()
+            for tag in tags.tags {
+                writer.writeLine("- \(tag.getTag(delim: "/"))")
+            }
+        } else if let akas = field.value as? AKAValue {
+            writer.endLine()
+            for aka in akas.list {
+                writer.writeLine("- \(aka)")
+            }
+        } else if let authors = field.value as? AuthorValue {
+            writer.endLine()
+            if authors.authors.count > 1 {
+                for author in authors.authors {
+                    writer.writeLine("- \(author.firstNameFirst)")
+                }
+            } else {
+                writer.writeLine("- \(authors.getCompleteName())")
+            }
+        } else if let indices = field.value as? IndexValue {
+            writer.endLine()
+            let str = indices.value
+            let indexList = str.components(separatedBy: ";")
+            for index in indexList {
+                writer.writeLine("- \(StringUtils.trim(index))")
+            }
+        } else {
+            putFieldValueOnSameLine(field.value)
+        }
+    }
+    
     /// Write the field value to the writer.
     ///
     /// - Parameter value: A StringValue or one of its descendants.
-    func putFieldValue(_ value: StringValue) {
+    func putFieldValueOnSameLine(_ value: StringValue) {
         writer.writeLine(value.value)
     }
 }
