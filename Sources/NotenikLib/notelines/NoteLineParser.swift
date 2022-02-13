@@ -13,7 +13,7 @@ import Foundation
 
 import NotenikUtils
 
-/// Read lines in the Notenik format, and create a Note from their content.
+/// Read lines from a text file,  and create a Note from their content.
 public class NoteLineParser {
     
     var collection:     NoteCollection
@@ -86,6 +86,18 @@ public class NoteLineParser {
                                   bodyStarted: bodyStarted,
                                   allowDictAdds: allowDictAdds)
             
+            if noteLine.yamlDashLine {
+                print(" ")
+                print("YAML Dash Line found")
+                print("  - Line = \(noteLine.line)")
+                print("  - Value = \(noteLine.value)")
+            }
+            if noteLine.mmdMetaStartEndLine {
+                print(" ")
+                print("mmdMetaStartEndLine")
+                print("  - Line = \(noteLine.line)")
+            }
+            
             lineNumber += 1
             fileSize += noteLine.line.count + 1
             if noteLine.blankLine {
@@ -96,10 +108,10 @@ public class NoteLineParser {
             if label.validLabel && value.count > 0 && !bodyStarted {
                 if noteLine.blankLine && blankLines == 1 && fieldNumber > 1 {
                     valueComplete = true
-                } else if fieldNumber == 1 {
+                } else if fieldNumber == 1 && !noteLine.yamlDashLine {
                     valueComplete = true
                 } else if noteLine.mmdMetaStartEndLine
-                    && note.fileInfo.format == .multiMarkdown {
+                            && (note.fileInfo.format == .multiMarkdown || note.fileInfo.format == .yaml) {
                     valueComplete = true
                 }
             }
@@ -120,7 +132,7 @@ public class NoteLineParser {
                 note.fileInfo.format = .multiMarkdown
                 note.fileInfo.mmdMetaStartLine = noteLine.line
             } else if noteLine.mmdMetaStartEndLine
-                && note.fileInfo.format == .multiMarkdown
+                        && (note.fileInfo.format == .multiMarkdown || note.fileInfo.format == .yaml)
                 && !bodyStarted {
                 note.fileInfo.mmdMetaEndLine = noteLine.line
             } else if lineNumber == 1 && noteLine.mdH1Line && noteLine.value.count > 0 && !bodyStarted {
@@ -144,7 +156,9 @@ public class NoteLineParser {
                 }
             } else if noteLine.blankLine {
                 if fieldNumber > 1 && blankLines == 1 && !bodyStarted {
-                    note.fileInfo.format = .multiMarkdown
+                    if note.fileInfo.format != .yaml {
+                        note.fileInfo.format = .multiMarkdown
+                    }
                     label.set(NotenikConstants.body)
                     label.validLabel = true
                     def = note.collection.getDef(label: &label, allowDictAdds: allowDictAdds)!
@@ -156,7 +170,17 @@ public class NoteLineParser {
                     }
                 }
             } else if label.validLabel {
-                appendNonBlankLine()
+                if noteLine.yamlDashLine && note.fileInfo.format == .multiMarkdown {
+                    note.fileInfo.format = .yaml
+                    print("  - Note file info format set to YAML")
+                }
+                if noteLine.yamlDashLine && note.fileInfo.format == .yaml
+                    && def.fieldType.typeString != NotenikConstants.bodyCommon
+                    && def.fieldType.typeString != NotenikConstants.longTextType {
+                    appendYAMLvalue()
+                } else {
+                    appendNonBlankLine()
+                }
                 if def.isBody {
                     value.append(reader.remaining)
                     captureLastField()
@@ -173,7 +197,9 @@ public class NoteLineParser {
                     if lineNumber == 1 {
                         note.fileInfo.format = .plainText
                     } else {
-                        note.fileInfo.format = .multiMarkdown
+                        if note.fileInfo.format != .yaml {
+                            note.fileInfo.format = .multiMarkdown
+                        }
                     }
                 }
             }
@@ -192,6 +218,9 @@ public class NoteLineParser {
         reader.close()
         if !note.hasTitle() && defaultTitle.count > 0 && defaultTitle != ResourceFileSys.templateFileName {
             _ = note.setTitle(defaultTitle)
+        }
+        if note.fileInfo.format == .toBeDetermined {
+            note.fileInfo.format = .notenik
         }
         return note
     }
@@ -235,6 +264,22 @@ public class NoteLineParser {
         }
         label = FieldLabel()
         clearValue()
+    }
+    
+    func appendYAMLvalue() {
+        print(" ")
+        print("Append YAML Value")
+        print("  - Label Proper = \(label.properForm)")
+        print("  - Label Common = \(label.commonForm)")
+        print("  - Type String = \(def.fieldType.typeString)")
+        if !value.isEmpty {
+            if def.fieldType.typeString == NotenikConstants.authorCommon {
+                value.append(", ")
+            } else {
+                value.append("; ")
+            }
+        }
+        value.append(noteLine.value)
     }
     
     func appendNonBlankLine() {

@@ -51,7 +51,6 @@ class AuthorType: AnyType {
             case "creators": return true
             default: return false
             }
-            return (label.commonForm == commonLabel || label.commonForm == "by" || label.commonForm == "creator")
         } else {
             return (type! == typeString)
         }

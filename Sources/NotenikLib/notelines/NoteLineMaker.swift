@@ -37,14 +37,22 @@ public class NoteLineMaker {
     /// - Parameter note: The note to be written.
     /// - Returns: The number of fields written.
     public func putNote(_ note: Note) -> Int {
+        
+        print(" ")
+        print("NoteLineMaker.putNote")
+        print("  - Title = \(note.title.value)")
         if note.fileInfo.format == .toBeDetermined {
-            note.fileInfo.format = .notenik
+            note.fileInfo.format = note.collection.noteFileFormat
+            if note.fileInfo.mmdOrYaml {
+                note.fileInfo.mmdMetaStartLine = "---"
+                note.fileInfo.mmdMetaEndLine = "---"
+            }
         }
         
         /// If we have more data than can fit in a restricted format,
         /// then switch to the Notenik format.
         if note.fileInfo.format != .notenik
-            && note.fileInfo.format != .multiMarkdown {
+            && !note.fileInfo.mmdOrYaml {
             for def in note.collection.dict.list {
                 let field = note.getField(def: def)
                 if field != nil && field!.value.hasData {
@@ -52,7 +60,7 @@ public class NoteLineMaker {
                         || def.fieldLabel.commonForm == NotenikConstants.body {
                         break
                     } else if def.fieldLabel.commonForm == NotenikConstants.tags {
-                        if note.fileInfo.format == .multiMarkdown {
+                        if note.fileInfo.mmdOrYaml {
                             break
                         } else {
                             note.fileInfo.format = .notenik
@@ -64,9 +72,11 @@ public class NoteLineMaker {
             }
         }
         
+        print("  - File format = \(note.fileInfo.format)")
+        
         fieldsWritten = 0
         writer.open()
-        if note.fileInfo.format == .multiMarkdown && note.fileInfo.mmdMetaStartLine.count > 0 {
+        if note.fileInfo.mmdOrYaml && note.fileInfo.mmdMetaStartLine.count > 0 {
             writer.writeLine(note.fileInfo.mmdMetaStartLine)
         }
         if note.hasTitle() {
@@ -103,7 +113,7 @@ public class NoteLineMaker {
             }
             i += 1
         }
-        if note.fileInfo.format == .multiMarkdown && note.fileInfo.mmdMetaEndLine.count > 0 {
+        if note.fileInfo.mmdOrYaml && note.fileInfo.mmdMetaEndLine.count > 0 {
             writer.writeLine(note.fileInfo.mmdMetaEndLine)
             writer.endLine()
         }
@@ -179,7 +189,18 @@ public class NoteLineMaker {
     public func putField(_ field: NoteField?, format: NoteFileFormat) {
         if field != nil && field!.value.hasData {
             putFieldName(field!.def, format: format)
-            putFieldValue(field!.value)
+            if format == .yaml && field!.def.fieldType.typeString == NotenikConstants.tagsCommon {
+                writer.endLine()
+                if let tags = field?.value as? TagsValue {
+                    for tag in tags.tags {
+                        writer.writeLine("- \(tag.getTag(delim: "/"))")
+                    }
+                } else {
+                    putFieldValue(field!.value)
+                }
+            } else {
+                putFieldValue(field!.value)
+            }
             fieldsWritten += 1
         }
     }

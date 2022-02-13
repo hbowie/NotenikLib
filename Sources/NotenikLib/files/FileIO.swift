@@ -374,6 +374,11 @@ public class FileIO: NotenikIO, RowConsumer {
         let notesContents = collection!.lib.notesFolder.getResourceContents(preferredNoteExt: collection!.preferredExt)
         guard notesContents != nil else { return nil }
         collection!.duplicates = 0
+        var plainCount = 0
+        var mdCount = 0
+        var mmdCount = 0
+        var yamlCount = 0
+        var notenikCount = 0
         for item in notesContents! {
             if item.type == .note {
                 let note = item.readNote(collection: collection!, reportErrors: true)
@@ -395,6 +400,15 @@ public class FileIO: NotenikIO, RowConsumer {
                                 note!.setDateModNow()
                                 _ = collection!.lib.saveNote(note: note!)
                             }
+                        }
+                        print("Note titled \(note!.title.value) has file format of \(note!.fileInfo.format)")
+                        switch note!.fileInfo.format {
+                            case .plainText: plainCount += 1
+                            case .markdown: mdCount += 1
+                            case .multiMarkdown: mmdCount += 1
+                            case .yaml: yamlCount += 1
+                            case .notenik: notenikCount += 1
+                            default: break
                         }
                     } else {
                         logError("Note titled '\(note!.title.value)' appears to be a duplicate and could not be accessed")
@@ -438,6 +452,22 @@ public class FileIO: NotenikIO, RowConsumer {
                     collection!.hasLookupFields = true
                 }
             }
+            
+            if notenikCount > 0 {
+                collection!.noteFileFormat = .notenik
+            } else if yamlCount > 0 {
+                collection!.noteFileFormat = .yaml
+            } else if mmdCount > 0 {
+                collection!.noteFileFormat = .multiMarkdown
+            } else if mdCount > 0 {
+                collection!.noteFileFormat = .markdown
+            } else if plainCount > 0 {
+                collection!.noteFileFormat = .plainText
+            } else {
+                collection!.noteFileFormat = .notenik
+            }
+
+            logInfo("Preferred Note File Format Presumed to be \(collection!.noteFileFormat)")
             
             return collection
         }

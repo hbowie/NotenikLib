@@ -75,6 +75,12 @@ public class NoteCollection {
     public  var minutesToReadDef: FieldDefinition?
     public  var shortIdDef:     FieldDefinition?
     
+            var authorDef:     FieldDefinition?
+            var creatorFound = false
+    
+            var dateCount = 0
+            var linkCount = 0
+    
             var pickLists:     [FieldDefinition] = []
     public  var klassDefs:     [KlassDef] = []
     public  var lastNewKlass   = ""
@@ -113,6 +119,28 @@ public class NoteCollection {
         let format = DateFormatter()
         format.dateFormat = "yyyy-MM-dd"
         todaysDate = format.string(from: today)
+    }
+    
+    func resetFieldInfo() {
+        idFieldDef =     FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.title)
+        titleFieldDef =  FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.title)
+        tagsFieldDef =   FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.tags)
+        linkFieldDef =   FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.link)
+        dateFieldDef =   FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.date)
+        recursFieldDef = FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.recurs)
+        statusFieldDef = FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.status)
+        indexFieldDef =  FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.index)
+        workTitleFieldDef = FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.workTitle)
+        workTypeFieldDef = FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.workType)
+        workLinkFieldDef = FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.workLink)
+        creatorFieldDef = FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.artist)
+        bodyFieldDef =   FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.body)
+        
+        authorDef = nil
+        creatorFound = false
+
+        dateCount = 0
+        linkCount = 0
     }
     
     /// Convenience initialization that identifies the Realm. 
@@ -219,18 +247,21 @@ public class NoteCollection {
             label.validLabel = true
             dict.unlock()
             def = dict.addDef(typeCatalog: typeCatalog, label: label)
+            registerDef(def)
             dict.lock()
         } else if label.commonForm == NotenikConstants.dateModifiedCommon
                     && dict.locked &&  allowDictAdds {
             label.validLabel = true
             dict.unlock()
             def = dict.addDef(typeCatalog: typeCatalog, label: label)
+            registerDef(def)
             dict.lock()
         } else if dict.locked || !allowDictAdds {
             // Can't add any additional labels
         } else if label.isTitle || label.isTags || label.isLink || label.isBody || label.isDateAdded || label.isDateModified {
             label.validLabel = true
             def = dict.addDef(typeCatalog: typeCatalog, label: label)
+            registerDef(def)
         } else if noteType == .simple {
             // No other labels allowed for simple notes
         } else if label.isAuthor
@@ -248,13 +279,149 @@ public class NoteCollection {
                 || label.isShortId {
             label.validLabel = true
             def = dict.addDef(typeCatalog: typeCatalog, label: label)
+            registerDef(def)
         } else if noteType == .expanded {
             // No other labels allowed for expanded notes
         } else {
             label.validLabel = true
             def = dict.addDef(typeCatalog: typeCatalog, label: label)
+            registerDef(def)
         }
         return def
+    }
+    
+    /// Keep track of the first or only field definitions of various types with special functionality.
+    func registerDef(_ newDef: FieldDefinition?) {
+        
+        guard let def = newDef else { return }
+        
+        if def.fieldLabel.commonForm == NotenikConstants.authorCommon
+            || def.fieldLabel.commonForm == NotenikConstants.artistCommon {
+            authorDef = def
+        } else if def.fieldLabel.commonForm == NotenikConstants.klassCommon
+                    || def.fieldLabel.commonForm == "klass" {
+            if klassFieldDef == nil {
+                klassFieldDef = def
+            }
+        }
+        
+        switch def.fieldType.typeString {
+            
+        case NotenikConstants.akaCommon:
+            akaFieldDef = def
+        
+        case NotenikConstants.artistCommon:
+            creatorFieldDef = def
+            creatorFound = true
+            
+        case NotenikConstants.attribCommon:
+            attribFieldDef = def
+            
+        case NotenikConstants.authorCommon:
+            creatorFieldDef = def
+            creatorFound = true
+            
+        case NotenikConstants.backlinksCommon:
+            backlinksDef = def
+            
+        case NotenikConstants.bodyCommon:
+            if bodyFieldDef.fieldLabel.commonForm == NotenikConstants.bodyCommon {
+                bodyFieldDef = def
+            }
+        
+        case NotenikConstants.dateCommon:
+            dateCount += 1
+            if dateCount == 1 {
+                dateFieldDef = def
+            }
+            
+        case NotenikConstants.imageNameCommon:
+            if imageNameFieldDef == nil {
+                imageNameFieldDef = def
+            }
+            
+        case NotenikConstants.includeChildrenCommon:
+            includeChildrenDef = def
+            
+        case NotenikConstants.indexCommon:
+            if indexFieldDef.fieldLabel.commonForm == NotenikConstants.indexCommon {
+                indexFieldDef = def
+            }
+            
+        case NotenikConstants.linkCommon:
+            linkCount += 1
+            if linkCount == 1 {
+                linkFieldDef = def
+            }
+            
+        case NotenikConstants.minutesToReadCommon:
+            if minutesToReadDef == nil {
+                minutesToReadDef = def
+            }
+            
+        case NotenikConstants.recursCommon:
+            if recursFieldDef.fieldLabel.commonForm == NotenikConstants.recursCommon {
+                recursFieldDef = def
+            }
+            
+        case NotenikConstants.seqCommon:
+            if seqFieldDef == nil {
+                seqFieldDef = def
+            }
+            
+        case NotenikConstants.levelCommon:
+            if levelFieldDef == nil {
+                levelFieldDef = def
+            }
+            
+        case NotenikConstants.shortIdCommon:
+            if shortIdDef == nil {
+                shortIdDef = def
+            }
+            
+        case NotenikConstants.statusCommon:
+            if statusFieldDef.fieldLabel.commonForm == NotenikConstants.statusCommon {
+                statusFieldDef = def
+            }
+            
+        case NotenikConstants.tagsCommon:
+            if tagsFieldDef.fieldLabel.commonForm == NotenikConstants.tagsCommon {
+                tagsFieldDef = def
+            }
+            
+        case NotenikConstants.timestampCommon:
+            hasTimestamp = true
+            if dateAddedFieldDef == nil {
+                dateAddedFieldDef = def
+            }
+            
+        case NotenikConstants.titleCommon:
+            if idFieldDef.fieldLabel.commonForm == NotenikConstants.titleCommon {
+                idFieldDef = def
+            }
+            if titleFieldDef.fieldLabel.commonForm == NotenikConstants.titleCommon {
+                titleFieldDef = def
+            }
+            
+        case NotenikConstants.wikilinksCommon:
+            wikilinksDef = def
+            
+        case NotenikConstants.workLinkCommon:
+            workLinkFieldDef = def
+            
+        case NotenikConstants.workTitleCommon:
+            workTitleFieldDef = def
+            
+        case NotenikConstants.workTypeCommon:
+            workTypeFieldDef = def
+            
+        case NotenikConstants.dateAddedCommon:
+            dateAddedFieldDef = def
+            
+        default:
+            break
+            
+        }
     }
     
     /// Finalize things after all dictionary definitions have been loaded. 

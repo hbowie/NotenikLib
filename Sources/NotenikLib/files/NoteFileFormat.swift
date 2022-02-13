@@ -20,6 +20,11 @@ public enum NoteFileFormat: String {
     /// separates the metadata from the body.
     case multiMarkdown  = "mmd"
     
+    /// in YAML format, fields that can have multiple values have their values defined
+    /// on one or more lines following the label line, with each new value line
+    /// starting with a dash. 
+    case yaml = "yaml"
+    
     /// In Notenik format, blank lines may separate metadata lines, and the
     /// body is explicitly identified with a Body label.
     case notenik        = "nnk"

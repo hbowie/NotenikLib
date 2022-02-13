@@ -25,6 +25,7 @@ class NoteLineIn {
 
     var colonCount   = 0
     var firstChar:     Character?
+    var firstNonBlank: Character = " "
 
     var index:         String.Index
     var nextIndex:     String.Index
@@ -36,6 +37,7 @@ class NoteLineIn {
     var mdH1Line     = false
     var mdTagsLine   = false
     var mmdMetaStartEndLine = false
+    var yamlDashLine = false
     
     var firstIndex   : String.Index
     var lastIndex    : String.Index
@@ -112,11 +114,20 @@ class NoteLineIn {
                     allOneCharCount += 1
                     if firstChar == "-" && allOneCharCount == 3 {
                         mmdMetaStartEndLine = true
-                    } else if firstChar == "." && allOneCharCount == 4 {
+                    } else if firstChar == "." && allOneCharCount == 3 {
                         mmdMetaStartEndLine = true
                     }
                 } else {
                     allOneChar = false
+                }
+                
+                // Capture the first non-blank character.
+                if !reader.endOfLine && firstNonBlank == " " && !c.isWhitespace {
+                    firstNonBlank = c
+                }
+                
+                if !reader.endOfLine && !bodyStarted && firstNonBlank == "-" && c != "-" && !allOneChar {
+                    yamlDashLine = true
                 }
                 
                 // See if we have a Markdown Heading 1 line
@@ -133,7 +144,7 @@ class NoteLineIn {
                 
                 // If we do have a Markdown special line, then
                 // keep track of where the content starts and ends.
-                if (mdH1Line || mdTagsLine) {
+                if (mdH1Line || mdTagsLine || yamlDashLine) {
                     if !c.isWhitespace && c != "#" && !reader.endOfLine {
                         if !mdValueFound {
                             mdValueFound = true

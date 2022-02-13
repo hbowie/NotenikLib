@@ -42,6 +42,10 @@ public class NoteFileInfo {
             || ext!.count == 0
     }
     
+    public var mmdOrYaml: Bool {
+        return format == .yaml || format == .multiMarkdown
+    }
+    
     /// Return the full file path for the Note
     public var fullPath: String? {
         if self.isEmpty {

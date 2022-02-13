@@ -35,11 +35,14 @@ class ApplyTemplateValues {
         self.collection = collection
         self.dict = collection.dict
         
-        var dateCount = 0
-        var linkCount = 0
+        collection.dateCount = 0
+        collection.linkCount = 0
         
-        var creatorFound = false
-        var authorDef: FieldDefinition?
+        collection.creatorFound = false
+        collection.authorDef = nil
+        
+        collection.resetFieldInfo()
+        
         for def in dict.list {
             
             // Attempt to parse the value field, if there is one.
@@ -48,142 +51,12 @@ class ApplyTemplateValues {
                 parseValue(def: def, value: val.value)
             }
             
-            //
-            // If needed, update the various singular field definitions for the Collection.
-            //
-            
-            if def.fieldLabel.commonForm == NotenikConstants.authorCommon
-                || def.fieldLabel.commonForm == NotenikConstants.artistCommon {
-                authorDef = def
-            } else if def.fieldLabel.commonForm == NotenikConstants.klassCommon
-                        || def.fieldLabel.commonForm == "klass" {
-                if collection.klassFieldDef == nil {
-                    collection.klassFieldDef = def
-                }
-            }
-            
-            switch def.fieldType.typeString {
-                
-            case NotenikConstants.akaCommon:
-                collection.akaFieldDef = def
-            
-            case NotenikConstants.artistCommon:
-                collection.creatorFieldDef = def
-                creatorFound = true
-                
-            case NotenikConstants.attribCommon:
-                collection.attribFieldDef = def
-                
-            case NotenikConstants.authorCommon:
-                collection.creatorFieldDef = def
-                creatorFound = true
-                
-            case NotenikConstants.backlinksCommon:
-                collection.backlinksDef = def
-                
-            case NotenikConstants.bodyCommon:
-                if collection.bodyFieldDef.fieldLabel.commonForm == NotenikConstants.bodyCommon {
-                    collection.bodyFieldDef = def
-                }
-            
-            case NotenikConstants.dateCommon:
-                dateCount += 1
-                if dateCount == 1 {
-                    collection.dateFieldDef = def
-                }
-                
-            case NotenikConstants.imageNameCommon:
-                if collection.imageNameFieldDef == nil {
-                    collection.imageNameFieldDef = def
-                }
-                
-            case NotenikConstants.includeChildrenCommon:
-                collection.includeChildrenDef = def
-                
-            case NotenikConstants.indexCommon:
-                if collection.indexFieldDef.fieldLabel.commonForm == NotenikConstants.indexCommon {
-                    collection.indexFieldDef = def
-                }
-                
-            case NotenikConstants.linkCommon:
-                linkCount += 1
-                if linkCount == 1 {
-                    collection.linkFieldDef = def
-                }
-                
-            case NotenikConstants.minutesToReadCommon:
-                if collection.minutesToReadDef == nil {
-                    collection.minutesToReadDef = def
-                }
-                
-            case NotenikConstants.recursCommon:
-                if collection.recursFieldDef.fieldLabel.commonForm == NotenikConstants.recursCommon {
-                    collection.recursFieldDef = def
-                }
-                
-            case NotenikConstants.seqCommon:
-                if collection.seqFieldDef == nil {
-                    collection.seqFieldDef = def
-                }
-                
-            case NotenikConstants.levelCommon:
-                if collection.levelFieldDef == nil {
-                    collection.levelFieldDef = def
-                }
-                
-            case NotenikConstants.shortIdCommon:
-                if collection.shortIdDef == nil {
-                    collection.shortIdDef = def
-                }
-                
-            case NotenikConstants.statusCommon:
-                if collection.statusFieldDef.fieldLabel.commonForm == NotenikConstants.statusCommon {
-                    collection.statusFieldDef = def
-                }
-                
-            case NotenikConstants.tagsCommon:
-                if collection.tagsFieldDef.fieldLabel.commonForm == NotenikConstants.tagsCommon {
-                    collection.tagsFieldDef = def
-                }
-                
-            case NotenikConstants.timestampCommon:
-                collection.hasTimestamp = true
-                if collection.dateAddedFieldDef == nil {
-                    collection.dateAddedFieldDef = def
-                }
-                
-            case NotenikConstants.titleCommon:
-                if collection.idFieldDef.fieldLabel.commonForm == NotenikConstants.titleCommon {
-                    collection.idFieldDef = def
-                }
-                if collection.titleFieldDef.fieldLabel.commonForm == NotenikConstants.titleCommon {
-                    collection.titleFieldDef = def
-                }
-                
-            case NotenikConstants.wikilinksCommon:
-                collection.wikilinksDef = def
-                
-            case NotenikConstants.workLinkCommon:
-                collection.workLinkFieldDef = def
-                
-            case NotenikConstants.workTitleCommon:
-                collection.workTitleFieldDef = def
-                
-            case NotenikConstants.workTypeCommon:
-                collection.workTypeFieldDef = def
-                
-            case NotenikConstants.dateAddedCommon:
-                collection.dateAddedFieldDef = def
-                
-            default:
-                break
-                
-            }
+            collection.registerDef(def)
             
         } // end of for loop through field definitions
         
-        if !creatorFound && authorDef != nil {
-            collection.creatorFieldDef = authorDef!
+        if !collection.creatorFound && collection.authorDef != nil {
+            collection.creatorFieldDef = collection.authorDef!
         }
         
     } // end of func applyValuesToDict

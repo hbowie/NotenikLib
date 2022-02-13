@@ -37,6 +37,17 @@ public class TagValue: StringValue {
         value.append(level)
     }
     
+    func getTag(delim: Character) -> String {
+        var tag = ""
+        for level in levels {
+            if !tag.isEmpty {
+                tag.append(delim)
+            }
+            tag.append(level.text)
+        }
+        return tag
+    }
+    
     /// See if this tag is equal to another one.
     static func == (lhs: TagValue, rhs: TagValue) -> Bool {
         return lhs.description == rhs.description
