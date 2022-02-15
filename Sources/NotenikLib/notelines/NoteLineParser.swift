@@ -119,10 +119,11 @@ public class NoteLineParser {
             if noteLine.mmdMetaStartEndLine && lineNumber == 1 {
                 note.fileInfo.format = .multiMarkdown
                 note.fileInfo.mmdMetaStartLine = noteLine.line
-            } else if noteLine.mmdMetaStartEndLine
-                        && (note.fileInfo.format == .multiMarkdown || note.fileInfo.format == .yaml)
-                && !bodyStarted {
+            } else if noteLine.mmdMetaStartEndLine && note.fileInfo.mmdOrYaml && !bodyStarted {
                 note.fileInfo.mmdMetaEndLine = noteLine.line
+            } else if noteLine.mmdMetaStartEndLine && note.fileInfo.format == .toBeDetermined && !bodyStarted && blankLines == 0 {
+                note.fileInfo.mmdMetaEndLine = noteLine.line
+                note.fileInfo.format = .multiMarkdown
             } else if lineNumber == 1 && noteLine.mdH1Line && noteLine.value.count > 0 && !bodyStarted {
                 label.set(NotenikConstants.title)
                 label.validLabel = true
@@ -184,8 +185,8 @@ public class NoteLineParser {
                     if lineNumber == 1 {
                         note.fileInfo.format = .plainText
                     } else {
-                        if note.fileInfo.format != .yaml {
-                            note.fileInfo.format = .multiMarkdown
+                        if !note.fileInfo.mmdOrYaml {
+                            note.fileInfo.format = .markdown
                         }
                     }
                 }
@@ -272,7 +273,12 @@ public class NoteLineParser {
             valueNewLine()
             pendingBlankLines -= 1
         }
-        value.append(noteLine.line)
+        if !bodyStarted && blankLines == 0 && noteLine.indented && noteLine.valueFound
+            && (note.fileInfo.format == .multiMarkdown || note.fileInfo.format == .toBeDetermined) {
+            value.append(noteLine.value)
+        } else {
+            value.append(noteLine.line)
+        }
         valueNewLine()
         pendingBlankLines = 0
     }

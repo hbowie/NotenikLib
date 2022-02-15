@@ -409,6 +409,11 @@ public class FileIO: NotenikIO, RowConsumer {
                             case .notenik: notenikCount += 1
                             default: break
                         }
+                        if let noteExt = note?.fileInfo.ext {
+                            if !templateFound && collection!.preferredExt == "txt" && !noteExt.isEmpty && noteExt != "txt" {
+                                collection!.preferredExt = noteExt
+                            }
+                        }
                     } else {
                         logError("Note titled '\(note!.title.value)' appears to be a duplicate and could not be accessed")
                         collection!.duplicates += 1

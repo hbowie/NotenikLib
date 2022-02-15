@@ -104,7 +104,7 @@ public class AuthorValue: StringValue {
     }
     
     /// Return the number of authors
-    var authorCount : Int {
+    var authorCount: Int {
         if authors.count > 1 {
             return authors.count
         } else if count > 0 {
@@ -147,7 +147,7 @@ public class AuthorValue: StringValue {
     }
     
     /// Get author number i from a list of authors, where the first is numbered zero
-    func getSubAuthor(_ i : Int) -> AuthorValue? {
+    func getSubAuthor(_ i: Int) -> AuthorValue? {
         if i == 0 && authors.count == 0 {
             return self
         } else if i < 0 || i >= authors.count {
@@ -200,11 +200,11 @@ public class AuthorValue: StringValue {
         self.firstName = ""
         self.suffix    = ""
         authors = []
+        var multipleAuthors = false
         
         // Scan the input string and break it down into words
         var words : [AuthorWord] = []
         var word = AuthorWord()
-        var andFound = false
         var commaCount = 0
         for c in value {
             if c == " " || c == "\t" || c == "\n" || c == "\r" || c == "~" || c == "_" {
@@ -213,7 +213,7 @@ public class AuthorValue: StringValue {
                     words.append(word)
                     word = AuthorWord()
                     if word.isAnd {
-                        andFound = true
+                        multipleAuthors = true
                     }
                 }
             } else if c == "," {
@@ -222,6 +222,9 @@ public class AuthorValue: StringValue {
                     words.append(word)
                     commaCount += 1
                     word = AuthorWord()
+                    if words.count > 1 {
+                        multipleAuthors = true
+                    }
                 }
             } else {
                 word.append(c)
@@ -233,7 +236,6 @@ public class AuthorValue: StringValue {
         
         // Now let's go through the list of words and create one or more names
         var wordNumber = 0
-        let multipleAuthors = commaCount > 1 || andFound
         var temp = TempName()
         for word in words {
             wordNumber += 1
@@ -288,7 +290,7 @@ public class AuthorValue: StringValue {
         }
         
         /// Figure out where to put the next word making up this temporary name
-        func append (word : AuthorWord, multipleAuthors : Bool) {
+        func append (word: AuthorWord, multipleAuthors: Bool) {
             let lower = word.word.lowercased()
             if suffix.count == 0 && count > 0 && (lower == "jr" || lower == "jr."
                     || lower == "sr" || lower == "sr." || lower == "iii") {
@@ -360,11 +362,11 @@ public class AuthorValue: StringValue {
             
         }
         
-        var count : Int {
+        var count: Int {
             return word.count
         }
         
-        var isAnd : Bool {
+        var isAnd: Bool {
             return word == "and" || word == "&" || word == "&amp;"
         }
         

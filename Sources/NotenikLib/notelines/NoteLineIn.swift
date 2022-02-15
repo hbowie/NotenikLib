@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 1/2/20.
-//  Copyright © 2020 Herb Bowie (https://powersurgepub.com)
+//  Copyright © 2020 - 2022 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -38,6 +38,7 @@ class NoteLineIn {
     var mdTagsLine   = false
     var mmdMetaStartEndLine = false
     var yamlDashLine = false
+    var indented     = false
     
     var firstIndex   : String.Index
     var lastIndex    : String.Index
@@ -124,6 +125,9 @@ class NoteLineIn {
                 // Capture the first non-blank character.
                 if !reader.endOfLine && firstNonBlank == " " && !c.isWhitespace {
                     firstNonBlank = c
+                    if charCount > 1 {
+                        indented = true
+                    }
                 }
                 
                 if !reader.endOfLine && !bodyStarted && firstNonBlank == "-" && c != "-" && !allOneChar {
@@ -191,11 +195,25 @@ class NoteLineIn {
                     }
                 }
                 
+                if indented && !colonFound && !validLabel {
+                    if !c.isWhitespace && c != ":" && c != "-" {
+                        if !valueFound {
+                            valueFound = true
+                            valueFirst = reader.currIndex
+                        }
+                    }
+                    if !c.isWhitespace {
+                        valueLast = reader.currIndex
+                    }
+                }
+                
             } while !reader.endOfLine
             
             if mdValueFound {
                 value = String(reader.bigString[mdValueFirst...mdValueLast])
             } else if validLabel && valueFound {
+                value = String(reader.bigString[valueFirst...valueLast])
+            } else if indented && valueFound {
                 value = String(reader.bigString[valueFirst...valueLast])
             }
             

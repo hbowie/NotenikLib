@@ -62,8 +62,8 @@ public class NoteLineMaker {
             for def in note.collection.dict.list {
                 let field = note.getField(def: def)
                 if field != nil && field!.value.hasData {
-                    if def.fieldLabel.commonForm == NotenikConstants.title
-                        || def.fieldLabel.commonForm == NotenikConstants.body {
+                    if def.fieldLabel.commonForm == NotenikConstants.titleCommon
+                        || def.fieldLabel.commonForm == NotenikConstants.bodyCommon {
                         break
                     } else if def.fieldLabel.commonForm == NotenikConstants.tags {
                         if note.fileInfo.mmdOrYaml {
@@ -170,21 +170,22 @@ public class NoteLineMaker {
     
     func putBody(_ note: Note) {
         switch note.fileInfo.format {
-        case .markdown:
-            putFieldValueOnSameLine(note.body)
-            fieldsWritten += 1
-        case .multiMarkdown, .yaml:
-            writer.endLine()
-            putFieldValueOnSameLine(note.body)
-            fieldsWritten += 1
-        case .notenik:
-            putField(note.getBodyAsField(), format: .notenik)
         case .plainText:
             putFieldValueOnSameLine(note.body)
-            fieldsWritten += 1
+        case .markdown:
+            writer.endLine()
+            putFieldValueOnSameLine(note.body)
+        case .multiMarkdown:
+            writer.endLine()
+            putFieldValueOnSameLine(note.body)
+        case .yaml:
+            putFieldValueOnSameLine(note.body)
+        case .notenik:
+            putField(note.getBodyAsField(), format: .notenik)
         default:
             putField(note.getBodyAsField(), format: note.fileInfo.format)
         }
+        fieldsWritten += 1
     }
     
     /// Write a field's label and value, along with the usual Notenik formatting.
@@ -208,7 +209,7 @@ public class NoteLineMaker {
         let proper = def.fieldLabel.properForm
         writer.write(proper)
         writer.write(": ")
-        if def.fieldType.isTextBlock {
+        if def.fieldType.isTextBlock && format == .notenik {
             writer.endLine()
             writer.endLine()
         } else {
