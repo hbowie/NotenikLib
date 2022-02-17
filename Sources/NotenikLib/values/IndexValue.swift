@@ -11,7 +11,11 @@
 
 import Foundation
 
-public class IndexValue: StringValue {
+import NotenikUtils
+
+public class IndexValue: StringValue, MultiValues {
+    
+    var indexList: [String] = []
     
     /// Default initializer
     override init() {
@@ -31,6 +35,7 @@ public class IndexValue: StringValue {
     ///                    and periods or slashes separating levels within a tag.
     override func set(_ value: String) {
         self.value = ""
+        indexList = []
         append(value)
     }
     
@@ -63,5 +68,28 @@ public class IndexValue: StringValue {
             }
             value.append(" ")
         }
+        parseIndexValue()
+    }
+    
+    func parseIndexValue() {
+        indexList = self.value.components(separatedBy: ";")
+    }
+    
+    //
+    // The following constants, variables and functions provide conformance to the MultiValues protocol.
+    //
+    
+    public let multiDelimiter = "; "
+    
+    public var multiCount: Int {
+        return indexList.count
+    }
+    
+    /// Return a sub-value at the given index position.
+    /// - Returns: The indicated sub-value, for a valid index, otherwise nil.
+    public func multiAt(_ index: Int) -> String? {
+        guard index >= 0 else { return nil }
+        guard index < multiCount else { return nil }
+        return StringUtils.trim(indexList[index])
     }
 }

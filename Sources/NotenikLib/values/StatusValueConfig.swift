@@ -148,6 +148,114 @@ public class StatusValueConfig {
         }
     }
     
+    public func normalize(str: String, withDigit: Bool) -> String {
+        
+        // Make sure we have something to normalize.
+        guard !str.isEmpty else { return str }
+        
+        // If we have a leading digit, use that, if possible.
+        if let firstChar: Character = str.first {
+            if let index = firstChar.wholeNumberValue {
+                let statusOption = statusOptions[index]
+                if !statusOption.isEmpty {
+                    if withDigit {
+                        return String(index) + " - " + statusOption
+                    } else {
+                        return statusOption
+                    }
+                }
+            }
+        }
+        
+        // Look for an alpha label.
+        let lower = str.lowercased()
+        var looking = true
+        var alphaLabel = ""
+        for char in lower {
+            if StringUtils.isDigit(char) || char.isWhitespace || char == "-" {
+                // keep looking
+            } else {
+                looking = false
+            }
+            if !looking {
+                alphaLabel.append(char)
+            }
+        }
+        
+        // Make sure we have an alpha label worth searching for.
+        guard alphaLabel.count > 2 else { return str }
+        
+        // Look for at least a partial match.
+        var i = 0
+        for nextLabel in statusOptions {
+            guard !nextLabel.isEmpty else {
+                i += 1
+                continue
+            }
+            if nextLabel.lowercased().hasPrefix(alphaLabel) {
+                if withDigit {
+                    return (String(i) + " - " + nextLabel)
+                } else {
+                    return nextLabel
+                }
+            }
+            i += 1
+        }
+        
+        // No match, so return the value we were passed.
+        return str
+    }
+    
+    public func getIndexFor(str: String) -> Int? {
+        
+        // Make sure we have something to search for.
+        guard !str.isEmpty else { return nil }
+        
+        // If we have a leading digit, use that, if possible.
+        if let firstChar: Character = str.first {
+            if let index = firstChar.wholeNumberValue {
+                let statusOption = statusOptions[index]
+                if !statusOption.isEmpty {
+                    return index
+                }
+            }
+        }
+        
+        // Look for an alpha label.
+        let lower = str.lowercased()
+        var looking = true
+        var alphaLabel = ""
+        for char in lower {
+            if StringUtils.isDigit(char) || char.isWhitespace || char == "-" {
+                // keep looking
+            } else {
+                looking = false
+            }
+            if !looking {
+                alphaLabel.append(char)
+            }
+        }
+        
+        // Make sure we have an alpha label worth searching for.
+        guard alphaLabel.count > 2 else { return nil }
+        
+        // Look for at least a partial match.
+        var i = 0
+        for nextLabel in statusOptions {
+            guard !nextLabel.isEmpty else {
+                i += 1
+                continue
+            }
+            if nextLabel.lowercased().hasPrefix(alphaLabel) {
+                return i
+            }
+            i += 1
+        }
+        
+        // No match, so return nil.
+        return nil
+    }
+    
     /// Return the corresponding index for the passed label (or partial label),
     /// or -1 if the label is invalid. 
     public func get(_ label: String) -> Int {

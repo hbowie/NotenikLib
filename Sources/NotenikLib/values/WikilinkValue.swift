@@ -41,7 +41,7 @@ public class WikilinkValue: StringValue {
     }
     
     /// Return the length of the string
-    override var count: Int {
+    public override var count: Int {
         return value.count
     }
     
@@ -51,7 +51,7 @@ public class WikilinkValue: StringValue {
     }
     
     /// Is this value empty?
-    override var isEmpty: Bool {
+    public override var isEmpty: Bool {
         return (notePointers.count == 0)
     }
     

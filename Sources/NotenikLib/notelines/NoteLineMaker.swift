@@ -56,7 +56,7 @@ public class NoteLineMaker {
         }
         
         /// If we have more data than can fit in a restricted format,
-        /// then switch to the Notenik format.
+        /// then switch formats.
         if note.fileInfo.format != .notenik
             && !note.fileInfo.mmdOrYaml {
             for def in note.collection.dict.list {
@@ -66,7 +66,7 @@ public class NoteLineMaker {
                         || def.fieldLabel.commonForm == NotenikConstants.bodyCommon {
                         break
                     } else if def.fieldLabel.commonForm == NotenikConstants.tags {
-                        if note.fileInfo.mmdOrYaml {
+                        if note.fileInfo.mmdOrYaml || note.fileInfo.format == .markdown {
                             break
                         } else {
                             note.fileInfo.format = .notenik
@@ -145,9 +145,17 @@ public class NoteLineMaker {
     }
     
     func putTags(_ note: Note) {
+        let tags = note.tags
+        if note.collection.hashTags {
+            tags.hashTags = true
+        }
         switch note.fileInfo.format {
         case .markdown:
-            writer.writeLine("#\(note.tags.value)")
+            if tags.hashTags {
+                writer.writeLine(tags.value)
+            } else {
+                writer.writeLine("#\(note.tags.value)")
+            }
             fieldsWritten += 1
         case .multiMarkdown:
             putField(note.getTagsAsField(), format: note.fileInfo.format)
@@ -194,7 +202,7 @@ public class NoteLineMaker {
     public func putField(_ possibleField: NoteField?, format: NoteFileFormat) {
         guard let field = possibleField else { return }
         guard field.value.hasData else { return }
-        putFieldName(field.def, format: format)
+        putFieldName(field, format: format)
         putFieldValue(field, format: format)
         fieldsWritten += 1
     }
@@ -202,21 +210,29 @@ public class NoteLineMaker {
     /// Write the field label to the writer, along with any necessary preceding and following text.
     ///
     /// - Parameter def: The Field Definition for the field.
-    func putFieldName(_ def: FieldDefinition, format: NoteFileFormat) {
+    func putFieldName(_ field: NoteField, format: NoteFileFormat) {
         if fieldsWritten > 0 && format == .notenik {
             writer.endLine()
         }
-        let proper = def.fieldLabel.properForm
-        writer.write(proper)
-        writer.write(": ")
-        if def.fieldType.isTextBlock && format == .notenik {
+        let proper = field.def.fieldLabel.properForm
+        writer.write("\(proper):")
+        var usingYAMLdashLines = false
+        if format == .yaml {
+            if field.value as? MultiValues != nil {
+                usingYAMLdashLines = true
+            }
+        }
+        if field.def.fieldType.isTextBlock && format == .notenik {
             writer.endLine()
             writer.endLine()
-        } else {
-            var charsWritten = proper.count + 2
-            while charsWritten < minCharsToValue {
-                writer.write(" ")
-                charsWritten += 1
+        } else if !usingYAMLdashLines {
+            writer.write(" ")
+            if format != .yaml {
+                var charsWritten = proper.count + 2
+                while charsWritten < minCharsToValue {
+                    writer.write(" ")
+                    charsWritten += 1
+                }
             }
         }
     }
@@ -230,31 +246,12 @@ public class NoteLineMaker {
     }
     
     func putFieldValueInYAML(_ field: NoteField) {
-        if let tags = field.value as? TagsValue {
+        if let multi = field.value as? MultiValues {
             writer.endLine()
-            for tag in tags.tags {
-                writer.writeLine("- \(tag.getTag(delim: "/"))")
-            }
-        } else if let akas = field.value as? AKAValue {
-            writer.endLine()
-            for aka in akas.list {
-                writer.writeLine("- \(aka)")
-            }
-        } else if let authors = field.value as? AuthorValue {
-            writer.endLine()
-            if authors.authors.count > 1 {
-                for author in authors.authors {
-                    writer.writeLine("- \(author.firstNameFirst)")
-                }
-            } else {
-                writer.writeLine("- \(authors.getCompleteName())")
-            }
-        } else if let indices = field.value as? IndexValue {
-            writer.endLine()
-            let str = indices.value
-            let indexList = str.components(separatedBy: ";")
-            for index in indexList {
-                writer.writeLine("- \(StringUtils.trim(index))")
+            var i = 0
+            while i < multi.multiCount {
+                writer.writeLine("- \(multi.multiAt(i)!)")
+                i += 1
             }
         } else {
             putFieldValueOnSameLine(field.value)

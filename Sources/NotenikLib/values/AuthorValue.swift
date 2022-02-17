@@ -12,7 +12,36 @@
 import Foundation
 
 /// An object representing an author, or authoring team, for one or more works
-public class AuthorValue: StringValue {
+public class AuthorValue: StringValue, MultiValues {
+    
+    //
+    // The following constants, variables and functions provide conformance to the MultiValues protocol.
+    //
+    
+    public let multiDelimiter = ", "
+    
+    public var multiCount: Int {
+        if authors.count > 1 {
+            return authors.count
+        } else if self.value.isEmpty {
+            return 0
+        } else {
+            return 1
+        }
+    }
+    
+    /// Return a sub-value at the given index position.
+    /// - Returns: The indicated sub-value, for a valid index, otherwise nil.
+    public func multiAt(_ index: Int) -> String? {
+        
+        guard index >= 0 else { return nil }
+        guard index < multiCount else { return nil }
+        if index > 0 || authors.count > 1 {
+            return authors[index].firstNameFirst
+        } else {
+            return getCompleteName()
+        }
+    }
     
     var lastName = ""
     var firstName = ""

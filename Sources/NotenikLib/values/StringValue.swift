@@ -62,7 +62,7 @@ public class StringValue: CustomStringConvertible, Equatable, Comparable {
     }
     
     /// Return the length of the string
-    var count: Int {
+    public var count: Int {
         return value.count
     }
     
@@ -72,7 +72,7 @@ public class StringValue: CustomStringConvertible, Equatable, Comparable {
     }
     
     /// Is this value empty?
-    var isEmpty: Bool {
+    public var isEmpty: Bool {
         return (value.count == 0)
     }
     

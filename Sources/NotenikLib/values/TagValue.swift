@@ -19,7 +19,7 @@ public class TagValue: StringValue {
     public var levels: [TagLevel] = []
     
     /// The number of levels in the tag
-    override var count: Int {
+    public override var count: Int {
         return levels.count
     }
     

@@ -31,7 +31,7 @@ public class TitleValue: StringValue {
     }
     
     /// Is this value empty?
-    override var isEmpty: Bool {
+    public override var isEmpty: Bool {
         return (value.count == 0 || common.count == 0)
     }
     

@@ -35,7 +35,8 @@ public class NoteCollection {
             var hasTimestamp = false
     public  var isRealmCollection = false
             var noteFileFormat: NoteFileFormat = .toBeDetermined
-    public  var mirror:         NoteTransformer?
+            var hashTags    : Bool = false
+    public  var mirror:       NoteTransformer?
     public  var mirrorAutoIndex = false
 
     public  var bodyLabel = true

@@ -14,9 +14,10 @@ import Foundation
 import NotenikUtils
 
 /// One or more tags, each consisting of one or more levels
-public class TagsValue: StringValue {
+public class TagsValue: StringValue, MultiValues {
     
     public var tags: [TagValue] = []
+    public var hashTags = false
     
     /// Default initializer
     public override init() {
@@ -43,14 +44,17 @@ public class TagsValue: StringValue {
         
         /// Loop through new value
         for c in value {
-            if c == "," || c == ";" || c == "." || c == "/" {
+            if c == "," || c == ";" || c == "." || c == "/" || c == "#" {
                 if level.count > 0 {
                     tag.addLevel(level)
                     level = ""
                 }
-                if (c == "," || c == ";") && tag.count > 0 {
+                if (c == "," || c == ";" || c == "#") && tag.count > 0 {
                     tags.append(tag)
                     tag = TagValue()
+                }
+                if c == "#" {
+                    hashTags = true
                 }
             } else if c == " " {
                 if level.count > 0 {
@@ -98,6 +102,9 @@ public class TagsValue: StringValue {
             if x > 0 {
                 value.append(", ")
             }
+            // if hashTags {
+            //     value.append("#")
+            // }
             var y = 0
             for level in tag.levels {
                 if y > 0 {
@@ -163,12 +170,35 @@ public class TagsValue: StringValue {
     public static func tagify(_ str: String) -> String {
         var tag = ""
         for char in str {
-            if char == "," || char == ";" || char == "/" || char == "." {
+            if char == "," || char == ";" || char == "/" || char == "." || char == "#" {
                 // drop it
             } else {
                 tag.append(char)
             }
         }
         return tag
+    }
+    
+    //
+    // The following constants, variables and functions provide conformance to the MultiValues protocol.
+    //
+    
+    public let multiDelimiter = "; "
+    
+    public var multiCount: Int {
+        return tags.count
+    }
+    
+    /// Return a sub-value at the given index position.
+    /// - Returns: The indicated sub-value, for a valid index, otherwise nil.
+    public func multiAt(_ index: Int) -> String? {
+        guard index >= 0 else { return nil }
+        guard index < tags.count else { return nil }
+        let tag = tags[index].getTag(delim: "/")
+        if hashTags {
+            return "#" + tag
+        } else {
+            return tag
+        }
     }
 }

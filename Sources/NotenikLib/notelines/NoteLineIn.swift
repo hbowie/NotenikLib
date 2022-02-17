@@ -149,7 +149,9 @@ class NoteLineIn {
                 // If we do have a Markdown special line, then
                 // keep track of where the content starts and ends.
                 if (mdH1Line || mdTagsLine || yamlDashLine) {
-                    if !c.isWhitespace && c != "#" && !reader.endOfLine {
+                    if reader.endOfLine || c.isWhitespace || (c == "#" && !yamlDashLine) {
+                        // skip it
+                    } else {
                         if !mdValueFound {
                             mdValueFound = true
                             mdValueFirst = reader.currIndex
@@ -311,4 +313,13 @@ class NoteLineIn {
             offset += 1
         } // end for each character in line
     } // end scanLine method
+    
+    func display() {
+        print(" ")
+        print("NoteLineIn")
+        print("  - line: \(line)")
+        print("  - label: \(label.properForm)")
+        print("  - valid label? \(validLabel)")
+        print("  - value: \(value)")
+    }
 }

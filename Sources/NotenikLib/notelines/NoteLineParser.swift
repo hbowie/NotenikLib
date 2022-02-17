@@ -145,7 +145,7 @@ public class NoteLineParser {
                 }
             } else if noteLine.blankLine {
                 if fieldNumber > 1 && blankLines == 1 && !bodyStarted {
-                    if note.fileInfo.format != .yaml {
+                    if note.fileInfo.format != .yaml && fieldNumber > 2 {
                         note.fileInfo.format = .multiMarkdown
                     }
                     label.set(NotenikConstants.body)
@@ -248,6 +248,28 @@ public class NoteLineParser {
             } else {
                 _ = note.setField(field)
             }
+            
+            if let tags = field.value as? TagsValue {
+                if tags.hashTags {
+                    collection.hashTags = true
+                }
+            }
+            
+            switch field.def.fieldType.typeString {
+            case NotenikConstants.titleCommon:
+                break
+            case NotenikConstants.bodyCommon:
+                break
+            case NotenikConstants.tagsCommon:
+                if note.fileInfo.format == .plainText {
+                    note.fileInfo.format = .yaml
+                }
+            default:
+                if note.fileInfo.format == .plainText || note.fileInfo.format == .markdown {
+                    note.fileInfo.format = .yaml
+                }
+            }
+            
             fieldNumber += 1
         }
         label = FieldLabel()

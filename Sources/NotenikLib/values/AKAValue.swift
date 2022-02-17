@@ -14,7 +14,29 @@ import Foundation
 
 import NotenikUtils
 
-public class AKAValue: StringValue, Collection, Sequence {
+public class AKAValue: StringValue, MultiValues, Collection, Sequence {
+    
+    //
+    // The following constants, variables and functions provide conformance to the MultiValues protocol.
+    //
+    
+    public let multiDelimiter = "; "
+    
+    public var multiCount: Int {
+        return list.count
+    }
+    
+    /// Return a sub-value at the given index position.
+    /// - Returns: The indicated sub-value, for a valid index, otherwise nil.
+    public func multiAt(_ index: Int) -> String? {
+        guard index >= 0 else { return nil }
+        guard index < list.count else { return nil }
+        return list[index]
+    }
+    
+    //
+    // The following provide conformance to Collection and Sequence protocols.
+    //
     
     public typealias Element = String
     
