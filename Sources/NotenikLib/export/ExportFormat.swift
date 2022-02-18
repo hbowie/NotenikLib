@@ -14,6 +14,7 @@ public enum ExportFormat {
     case commaSeparated
     case json
     case notenik
+    case yaml
     case opml
     case tabDelimited
     case concatHtml

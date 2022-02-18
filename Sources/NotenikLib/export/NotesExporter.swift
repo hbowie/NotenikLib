@@ -146,6 +146,8 @@ public class NotesExporter {
             jsonOpen()
         case .notenik:
             notenikOpen()
+        case .yaml:
+            yamlOpen()
         case .opml:
             markup = Markedup(format: .opml)
             markup.startDoc(withTitle: noteIO.collection!.title, withCSS: nil)
@@ -274,6 +276,53 @@ public class NotesExporter {
         
     }
     
+    func yamlOpen() {
+        exportIO = FileIO()
+        let realm = exportIO.getDefaultRealm()
+        realm.path = ""
+        
+        let initOK = exportIO.initCollection(realm: realm,
+                                             collectionPath: destination.path,
+                                             readOnly: false)
+        guard initOK else {
+            logError("Could not open requested output folder at \(destination.path)")
+            exportErrors += 1
+            return
+        }
+        let collection = noteIO.collection!
+        
+        exportCollection = exportIO.collection!
+        exportDict = exportCollection.dict
+        
+        exportCollection.noteType = collection.noteType
+        exportCollection.idFieldDef = collection.idFieldDef.copy()
+        exportCollection.sortParm = collection.sortParm
+        exportCollection.sortDescending = collection.sortDescending
+        exportCollection.statusConfig = collection.statusConfig
+        exportCollection.preferredExt = fileExt
+        exportCollection.otherFields = collection.otherFields
+        exportCollection.noteFileFormat = .yaml
+        
+        for def in dict.list {
+            let proper = def.fieldLabel.properForm
+            let exportLabel = FieldLabel(proper)
+            let exportDef = FieldDefinition()
+            exportDef.fieldLabel = exportLabel
+            exportDef.typeCatalog = def.typeCatalog
+            exportDef.fieldType = def.fieldType
+            _ = exportDict.addDef(exportDef)
+        }
+        let ok = exportIO.newCollection(collection: exportCollection, withFirstNote: false)
+        guard ok else {
+            logError("Could not open requested output folder at \(destination.path)")
+            exportErrors += 1
+            return
+        }
+        
+        logNormal("YAML Collection successfully initialized at \(exportCollection.lib.getPath(type: .collection))")
+        
+    }
+    
     // --------------------------------------------------------------
     //
     // Write Methods follow.
@@ -350,6 +399,8 @@ public class NotesExporter {
             writeObject(splitTag: splitTag, cleanTags: cleanTags, note: note)
         case .notenik:
             writeNotenik(splitTag: splitTag, cleanTags: cleanTags, note: note)
+        case .yaml:
+            writeYAML(splitTag: splitTag, cleanTags: cleanTags, note: note)
         case .opml:
             writeOutline(splitTag: splitTag, cleanTags: cleanTags, note: note)
         case .concatHtml, .concatMarkdown:
@@ -631,6 +682,47 @@ public class NotesExporter {
         }
     }
     
+    /// Write a YAML Note  for a single note.
+    ///
+    /// - Parameters:
+    ///   - splitTag: If we're splitting by tag, then the tag to write for this line; otherwise blank.
+    ///   - cleanTags: The cleaned tags for this note, with any suppressed tags removed.
+    ///   - note: The Note to be written.
+    func writeYAML(splitTag: String, cleanTags: String, note: Note) {
+        
+        let exportNote = Note(collection: exportCollection)
+        
+        for def in dict.list {
+            let exportDef = exportDict.getDef(def.fieldLabel.commonForm)
+            if exportDef != nil {
+                let field = note.getField(def: def)
+                if field != nil && field!.value.count > 0 {
+                    let exportField = NoteField()
+                    exportField.def = exportDef!
+                    if def.fieldLabel.commonForm == NotenikConstants.tagsCommon {
+                        _ = exportNote.setTags(cleanTags)
+                    } else {
+                        exportField.value = field!.value
+                        _ = exportNote.addField(exportField)
+                    }
+                }
+            }
+        }
+        
+        exportNote.setID()
+        exportNote.fileInfo.ext = fileExt
+        exportNote.fileInfo.format = .yaml
+        exportNote.fileInfo.genFileName()
+        let (added, position) = exportIO.addNote(newNote: exportNote)
+        if added == nil || position.index < 0 {
+            exportErrors += 1
+            logError("Note titled \(exportNote.title.value) could not be saved to the exported YAML folder")
+        } else {
+            tagsWritten += 1
+            notesExported += 1
+        }
+    }
+    
     func writeConcat(splitTag: String, cleanTags: String, note: Note) {
         
         if docTitle.count == 0 {
@@ -674,6 +766,8 @@ public class NotesExporter {
             return jsonClose()
         case .notenik:
             return notenikClose()
+        case .yaml:
+            return yamlClose()
         case .opml:
             return outlineClose()
         case .concatHtml, .concatMarkdown:
@@ -774,9 +868,12 @@ public class NotesExporter {
         return true
     }
     
-
-    
     func notenikClose() -> Bool {
+        exportIO.closeCollection()
+        return exportErrors == 0
+    }
+    
+    func yamlClose() -> Bool {
         exportIO.closeCollection()
         return exportErrors == 0
     }
