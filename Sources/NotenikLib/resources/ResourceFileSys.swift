@@ -31,7 +31,6 @@ public class ResourceFileSys: CustomStringConvertible, Comparable {
     public static let displayCSSFileName = "display.css"
     public static let displayHTMLFileName = "display.html"
     static let dsstoreFileName   = ".DS_Store"
-    static let filesFolderName   = "files"
     static let infoFileName      = "- INFO.nnk"
     static let klassFolderName   = "class"
     static let mirrorFolderName  = "mirror"
@@ -445,7 +444,7 @@ public class ResourceFileSys: CustomStringConvertible, Comparable {
         guard type == .unknown else { return }
         if _fName == ResourceFileSys.reportsFolderName {
             type = .reports
-        } else if _fName == ResourceFileSys.filesFolderName {
+        } else if _fName == NotenikConstants.filesFolderName {
             type = .attachments
         }
     }
@@ -473,6 +472,8 @@ public class ResourceFileSys: CustomStringConvertible, Comparable {
             type = .displayCSS
         } else if baseLower == ResourceFileSys.templateFileName && extLower.count > 0 {
             type = .template
+        } else if base == NotenikConstants.tempDisplayBase && extLower == NotenikConstants.tempDisplayExt {
+            type = .tempDisplay
         } else {
             switch extLower {
             case ResourceFileSys.scriptExt:

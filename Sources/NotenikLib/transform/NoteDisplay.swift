@@ -155,16 +155,18 @@ public class NoteDisplay {
     
     func formatImage(_ note: Note, io: NotenikIO) -> String {
         guard !parms.imagesPath.isEmpty else { return "" }
-        let imageCommonName = note.imageCommonName
-        guard !imageCommonName.isEmpty else { return "" }
+        guard let imageAttachment = note.getImageAttachment() else { return "" }
+        
         var imageAlt = ""
         if let imageAltField = note.getField(label: NotenikConstants.imageAltCommon) {
             imageAlt = imageAltField.value.value
         }
+        
         var imageCaption = ""
         if let imageCaptionField = note.getField(label: NotenikConstants.imageCaptionCommon) {
             imageCaption = imageCaptionField.value.value
         }
+        
         var imageCaptionPrefix = ""
         var imageCaptionLink = ""
         var imageCaptionText = ""
@@ -175,7 +177,13 @@ public class NoteDisplay {
                 imageCaptionLink = imageCreditLinkField.value.value
             }
         }
-        let imagePath = parms.imagesPath + "/" + imageCommonName
+        
+        var imagePath = ""
+        if parms.imagesPath == NotenikConstants.filesFolderName {
+            imagePath = parms.imagesPath + "/" + imageAttachment.fullName
+        } else {
+            imagePath = parms.imagesPath + "/" + imageAttachment.commonName
+        }
 
         let imageHTML = Markedup()
         if imageCaption.isEmpty && imageCaptionText.isEmpty {

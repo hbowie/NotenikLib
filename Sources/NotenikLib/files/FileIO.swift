@@ -244,6 +244,7 @@ public class FileIO: NotenikIO, RowConsumer {
         str.append(label: NotenikConstants.h1TitlesDisplay,   value: "\(collection!.h1Titles)")
         str.append(label: NotenikConstants.streamlinedReading, value: "\(collection!.streamlined)")
         str.append(label: NotenikConstants.mathJax, value: "\(collection!.mathJax)")
+        str.append(label: NotenikConstants.imgLocal, value: "\(collection!.imgLocal)")
         if collection!.lastStartupDate.count > 0 {
             str.append(label: NotenikConstants.lastStartupDate, value: collection!.lastStartupDate)
         }
@@ -570,6 +571,12 @@ public class FileIO: NotenikIO, RowConsumer {
             collection!.mathJax = mathJax.isTrue
         }
         
+        let imgLocalField = infoNote.getField(label: NotenikConstants.imgLocal)
+        if imgLocalField != nil {
+            let imgLocal = BooleanValue(imgLocalField!.value.value)
+            collection!.imgLocal = imgLocal.isTrue
+        }
+        
         let noteFileFormatField = infoNote.getField(label: NotenikConstants.noteFileFormat)
         if noteFileFormatField != nil {
             let noteFileFormat = NoteFileFormat(rawValue: noteFileFormatField!.value.value)
@@ -657,6 +664,8 @@ public class FileIO: NotenikIO, RowConsumer {
     public func closeCollection() {
 
         guard collection != nil else { return }
+        guard let lib = collection?.lib else { return }
+        guard lib.hasAvailable(type: .notes) else { return }
         if !collection!.readOnly {
             _ = saveInfoFile()
             _ = aliasList.saveToDisk()
@@ -664,6 +673,16 @@ public class FileIO: NotenikIO, RowConsumer {
                 MultiFileIO.shared.stashBookmark(url: collection!.fullPathURL!,
                                                  shortcut: collection!.shortcut)
                 MultiFileIO.shared.stopAccess(url: collection!.fullPathURL!)
+            }
+            guard let lib = collection?.lib else { return }
+            guard lib.hasAvailable(type: .notes) else { return }
+            guard !collection!.readOnly else { return }
+            let folder = lib.getURL(type: .notes)
+            let tempURL = folder!.appendingPathComponent(NotenikConstants.tempDisplayBase).appendingPathExtension(NotenikConstants.tempDisplayExt)
+            do {
+                try FileManager.default.removeItem(at: tempURL)
+            } catch {
+                // no need to report a failure
             }
         }
 

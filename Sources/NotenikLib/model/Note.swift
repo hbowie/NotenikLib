@@ -218,6 +218,21 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
         return commonName
     }
     
+    public func getImageAttachment() -> AttachmentName? {
+        guard let def = collection.imageNameFieldDef else { return nil }
+        guard let imageField = getField(def: def) else { return nil }
+        let imageName = imageField.value.value
+        guard !imageName.isEmpty else { return nil }
+        let imageNameLowered = imageName.lowercased()
+        
+        for attachment in attachments {
+            if attachment.suffix.lowercased() == imageNameLowered {
+                return attachment
+            }
+        }
+        return nil
+    }
+    
     /// Make a copy of this Note
     public func copy(with zone: NSZone? = nil) -> Any {
         let newNote = Note(collection: collection)

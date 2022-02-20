@@ -257,7 +257,7 @@ public class ResourceLibrary {
             if attachmentsFolder.isAvailable {
                 return attachmentsFolder
             }
-            attachmentsFolder = ResourceFileSys(parent: notesFolder, fileName: ResourceFileSys.filesFolderName, type: .attachments)
+            attachmentsFolder = ResourceFileSys(parent: notesFolder, fileName: NotenikConstants.filesFolderName, type: .attachments)
             _ = attachmentsFolder.ensureExistence()
             return attachmentsFolder
         case .klassFolder:
@@ -508,7 +508,7 @@ public class ResourceLibrary {
         reportsFolder = ResourceFileSys(folderPath: notesFolder.actualPath, fileName: ResourceFileSys.reportsFolderName)
         
         // Set the location for a possible attachments folder.
-        attachmentsFolder = ResourceFileSys(folderPath:notesFolder.actualPath, fileName: ResourceFileSys.filesFolderName)
+        attachmentsFolder = ResourceFileSys(folderPath:notesFolder.actualPath, fileName: NotenikConstants.filesFolderName)
         
         // Set the location for a possible mirror folder.
         mirrorFolder = ResourceFileSys(parent: notesFolder, fileName: ResourceFileSys.mirrorFolderName)

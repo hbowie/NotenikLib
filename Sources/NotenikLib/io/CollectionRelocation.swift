@@ -178,9 +178,9 @@ public class CollectionRelocation {
                 }
                 copySubfolder(folderName: ResourceFileSys.reportsFolderName, move: move)
                 copySubfolder(folderName: ResourceFileSys.mirrorFolderName, move: move)
-                if fromItemExists(itemName: ResourceFileSys.filesFolderName) {
-                    if fromItemIsEmpty(itemName: ResourceFileSys.filesFolderName) {
-                        removeFromItem(itemName: ResourceFileSys.filesFolderName)
+                if fromItemExists(itemName: NotenikConstants.filesFolderName) {
+                    if fromItemIsEmpty(itemName: NotenikConstants.filesFolderName) {
+                        removeFromItem(itemName: NotenikConstants.filesFolderName)
                     }
                 }
                 if fromItemIsEmpty(itemName: "") {

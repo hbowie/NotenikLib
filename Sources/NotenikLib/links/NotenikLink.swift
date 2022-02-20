@@ -395,7 +395,11 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
     
     func determineFileSubType() {
         let name = fileOrFolderName
-        if name == ".DS_Store" {
+        
+        if base == NotenikConstants.tempDisplayBase
+            && ext == NotenikConstants.tempDisplayExt {
+            type = .tempFile
+        } else if name == ".DS_Store" {
             type = .dsstore
         } else if base == "LICENSE" {
             type = .licenseFile

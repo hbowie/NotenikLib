@@ -34,6 +34,7 @@ public enum ResourceType {
     case reports
     case report
     case script
+    case tempDisplay
     case template
     case unknown
 }

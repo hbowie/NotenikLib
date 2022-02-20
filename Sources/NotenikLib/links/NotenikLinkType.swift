@@ -39,6 +39,7 @@ public enum NotenikLinkType {
     case licenseFile            // A file named 'LICENSE'
     case noteFile               // A file with a valid note extension
     case readmeFile             // A file that wants to be read
+    case tempFile               // A temporary file written to the Collection folder. 
     case templateFile           // A file named template
     case xcodeDev               // link to some sort of xcode internals
     

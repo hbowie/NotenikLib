@@ -43,6 +43,7 @@ public class NoteCollection {
     public  var h1Titles = false
     public  var streamlined = false
     public  var mathJax = false
+    public  var imgLocal = false
     public  var lastStartupDate = ""
             var todaysDate = ""
     

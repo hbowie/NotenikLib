@@ -188,6 +188,8 @@ public struct NotenikConstants {
     static let webBookEPUBCommon        = "webbookepub"
     static let mathJax                  = "MathJax"
     static let mathJaxCommon            = "mathjax"
+    static let imgLocal                 = "Local Images"
+    static let imgLocalCommon           = "localimages"
     static let windowNumbers            = "Window Numbers"
     static let windowNumbersCommon      = "windownumbers"
     
@@ -202,6 +204,12 @@ public struct NotenikConstants {
     public static let urlNavPrefix      = "https://ntnk.app/"
     
     public static let notenikURLScheme  = "notenik"
+    
+    public static let tempDisplayBase   = "temp_display"
+    
+    public static let tempDisplayExt    = "html"
+    
+    public static let filesFolderName   = "files"
     
     //-------------------------------------------------------------
     //
