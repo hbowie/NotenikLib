@@ -156,6 +156,10 @@ public class DisplayPrefs {
         tempCSS.append("\nth, td { ")
         tempCSS.append("\n  padding: 6px; ")
         tempCSS.append("\n} ")
+        tempCSS.append("\nimg { ")
+        tempCSS.append("\n  max-width: 100%; ")
+        tempCSS.append("\n  height: auto; ")
+        tempCSS.append("\n} ")
         
         // tempCSS.append("\ncode { overflow: auto }")
         return tempCSS
