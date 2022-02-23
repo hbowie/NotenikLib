@@ -190,6 +190,8 @@ public struct NotenikConstants {
     static let mathJaxCommon            = "mathjax"
     static let imgLocal                 = "Local Images"
     static let imgLocalCommon           = "localimages"
+    static let missingTargets           = "Missing Targets"
+    static let missingTargetsCommon     = "missingtargets"
     static let windowNumbers            = "Window Numbers"
     static let windowNumbersCommon      = "windownumbers"
     

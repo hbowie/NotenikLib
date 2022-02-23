@@ -73,19 +73,21 @@ public class NoteDisplay {
             bodyHTML = mdBodyParser!.html
             wikilinks = mdBodyParser!.wikiLinkList
             includedNotes = mkdownContext.includedNotes
-            for link in mdBodyParser!.wikiLinkList.links {
-                if !link.targetFound {
-                    let newNote = Note(collection: note.collection)
-                    _ = newNote.setTitle(link.originalTarget)
-                    newNote.setID()
-                    if collection.backlinksDef == nil {
-                        _ = newNote.setBody("Created by Wiki Style Link found in the body of the Note titled [[\(note.title.value)]].")
-                    } else {
-                        _ = newNote.setBacklinks(note.title.value)
-                        _ = newNote.setBody("Created by Wiki Style Link found in the body of the Note titled \(note.title.value).")
+            if collection.missingTargets {
+                for link in mdBodyParser!.wikiLinkList.links {
+                    if !link.targetFound {
+                        let newNote = Note(collection: note.collection)
+                        _ = newNote.setTitle(link.originalTarget)
+                        newNote.setID()
+                        if collection.backlinksDef == nil {
+                            _ = newNote.setBody("Created by Wiki-style Link found in the body of the Note titled [[\(note.title.value)]].")
+                        } else {
+                            _ = newNote.setBacklinks(note.title.value)
+                            _ = newNote.setBody("Created by Wiki-style Link found in the body of the Note titled \(note.title.value).")
+                        }
+                        _ = io.addNote(newNote: newNote)
+                        wikiAdds = true
                     }
-                    _ = io.addNote(newNote: newNote)
-                    wikiAdds = true
                 }
             }
         }
