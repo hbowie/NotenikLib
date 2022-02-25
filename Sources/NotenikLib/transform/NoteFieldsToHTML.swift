@@ -510,22 +510,12 @@ public class NoteFieldsToHTML {
                 markedup.finishParagraph()
                 markedup.newLine()
             }
-        } else if note.collection.h1Titles {
-            markedup.heading(level: 1, text: titleToDisplay)
-        } else if parms.concatenated && note.collection.levelFieldDef != nil {
-            var level = note.level.getInt()
-            if level < 1 {
-                level = 1
-            } else if level > 6 {
-                level = 6
-            }
-            markedup.heading(level: level, text: titleToDisplay, addID: true, idText: note.title.value)
         } else {
-            markedup.startParagraph()
-            markedup.startStrong()
-            markedup.append(titleToDisplay)
-            markedup.finishStrong()
-            markedup.finishParagraph()
+            markedup.displayLine(opt: note.collection.titleDisplayOption,
+                                 text: titleToDisplay,
+                                 depth: note.depth,
+                                 addID: true,
+                                 idText: note.title.value)
         }
     }
     

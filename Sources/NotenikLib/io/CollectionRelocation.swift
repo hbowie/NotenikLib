@@ -93,7 +93,7 @@ public class CollectionRelocation {
         // toCollection!.notesSubFolder = fromCollection!.notesSubFolder
         toCollection!.mirrorAutoIndex = fromCollection!.mirrorAutoIndex
         toCollection!.bodyLabel = fromCollection!.bodyLabel
-        toCollection!.h1Titles = fromCollection!.h1Titles
+        toCollection!.titleDisplayOption = fromCollection!.titleDisplayOption
         toCollection!.streamlined = fromCollection!.streamlined
         toCollection!.mathJax = fromCollection!.mathJax
         

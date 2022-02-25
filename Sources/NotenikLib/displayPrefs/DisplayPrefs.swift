@@ -160,6 +160,12 @@ public class DisplayPrefs {
         tempCSS.append("\n  max-width: 100%; ")
         tempCSS.append("\n  height: auto; ")
         tempCSS.append("\n} ")
+        tempCSS.append("\nh1 { font-size: 2.0em; margin-top: 0.7em; margin-bottom: 0.0em; font-weight: 600; font-style: normal;  }")
+        tempCSS.append("\nh2 { font-size: 1.8em; margin-top: 0.7em; margin-bottom: 0.0em; font-weight: 600; font-style: normal;  }")
+        tempCSS.append("\nh3 { font-size: 1.6em; margin-top: 0.7em; margin-bottom: 0.0em; font-weight: 600; font-style: normal;  }")
+        tempCSS.append("\nh4 { font-size: 1.4em; margin-top: 0.7em; margin-bottom: 0.0em; font-weight: 600; font-style: normal;  }")
+        tempCSS.append("\nh5 { font-size: 1.2em; margin-top: 0.7em; margin-bottom: 0.0em; font-weight: 600; font-style: normal;  }")
+        tempCSS.append("\nh6 { font-size: 1.0em; margin-top: 0.7em; margin-bottom: 0.0em; font-weight: 600; font-style: normal;  }")
         
         // tempCSS.append("\ncode { overflow: auto }")
         return tempCSS

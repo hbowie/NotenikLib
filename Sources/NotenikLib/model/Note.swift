@@ -801,6 +801,38 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
         }
     }
     
+    
+    /// Return a derived depth, using level, if available, otherwise seq depth, if available,
+    /// otherwise 1.
+    var depth: Int {
+        
+        // Use level, if we have it
+        if let levelDef = collection.levelFieldDef {
+            if let levelField = fields[levelDef.fieldLabel.commonForm] {
+                if let levelValue = levelField.value as? LevelValue {
+                    let config = collection.levelConfig
+                    let level = levelValue.getInt()
+                    if level >= config.low && level <= config.high {
+                        return level
+                    }
+                }
+            }
+        }
+        
+        if let seqDef = collection.seqFieldDef {
+            if let seqField = fields[seqDef.fieldLabel.commonForm] {
+                if let seqValue = seqField.value as? SeqValue {
+                    let seqDepth = seqValue.numberOfLevels
+                    if seqDepth >= 1 {
+                        return seqDepth
+                    }
+                }
+            }
+        }
+        
+        return 1
+    }
+    
     //
     // Functions and variables concerning the Note's level field.
     //

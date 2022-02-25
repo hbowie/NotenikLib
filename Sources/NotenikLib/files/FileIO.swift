@@ -241,7 +241,7 @@ public class FileIO: NotenikIO, RowConsumer {
         }
         str.append(label: NotenikConstants.mirrorAutoIndex,   value: "\(collection!.mirrorAutoIndex)")
         str.append(label: NotenikConstants.bodyLabelDisplay,  value: "\(collection!.bodyLabel)")
-        str.append(label: NotenikConstants.h1TitlesDisplay,   value: "\(collection!.h1Titles)")
+        str.append(label: NotenikConstants.titleDisplayOpt,   value: "\(collection!.titleDisplayOption.rawValue)")
         str.append(label: NotenikConstants.streamlinedReading, value: "\(collection!.streamlined)")
         str.append(label: NotenikConstants.mathJax, value: "\(collection!.mathJax)")
         str.append(label: NotenikConstants.imgLocal, value: "\(collection!.imgLocal)")
@@ -554,10 +554,20 @@ public class FileIO: NotenikIO, RowConsumer {
             collection!.bodyLabel = bodyLabel.isTrue
         }
         
-        let h1TitlesField = infoNote.getField(label: NotenikConstants.h1TitlesDisplayCommon)
-        if h1TitlesField != nil {
+        let h1TitlesField = infoNote.getField(label: "displayh1titles")
+        let titleDisplayField = infoNote.getField(label: NotenikConstants.titleDisplayOptCommon)
+        if titleDisplayField == nil && h1TitlesField != nil {
             let h1Titles = BooleanValue(h1TitlesField!.value.value)
-            collection!.h1Titles = h1Titles.isTrue
+            if h1Titles.isTrue {
+                collection!.titleDisplayOption = .h1
+            } else {
+                collection!.titleDisplayOption = .pBold
+            }
+        } else if titleDisplayField != nil {
+            let titleDisplayStr = infoNote.getFieldAsString(label: NotenikConstants.titleDisplayOptCommon)
+            if let titleDisplayOpt = LineDisplayOption(rawValue: titleDisplayStr) {
+                collection!.titleDisplayOption = titleDisplayOpt
+            }
         }
         
         let streamlinedField = infoNote.getField(label: NotenikConstants.streamlinedReadingCommon)

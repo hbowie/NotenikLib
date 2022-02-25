@@ -180,6 +180,8 @@ public struct NotenikConstants {
     static let shortcut = "Shortcut"
     static let h1TitlesDisplay          = "Display H1 Titles"
     static let h1TitlesDisplayCommon    = "displayh1titles"
+    static let titleDisplayOpt          = "Title Display Option"
+    static let titleDisplayOptCommon    = "titledisplayoption"
     static let streamlinedReading       = "Streamlined Reading"
     static let streamlinedReadingCommon = "streamlinedreading"
     static let webBookFolder            = "Web Book Folder"

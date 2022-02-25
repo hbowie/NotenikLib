@@ -134,15 +134,11 @@ public class NoteDisplaySample {
         code.templateEndIf()
         
         // Format Title next
-        if collection.h1Titles {
-            code.heading(level: 1, text: "=$\(titleLabel)\(shortMods)$=")
-        } else {
-            code.startParagraph()
-            code.startStrong()
-            code.append("=$\(titleLabel)\(shortMods)$=")
-            code.finishStrong()
-            code.finishParagraph()
-        }
+        code.displayLine(opt: collection.titleDisplayOption,
+                         text: "=$\(titleLabel)\(shortMods)$=",
+                         depth: 1,
+                         addID: false,
+                         idText: nil)
         
         // Now format everything else.
         datesAndTimes = false

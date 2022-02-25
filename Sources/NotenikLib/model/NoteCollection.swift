@@ -40,7 +40,7 @@ public class NoteCollection {
     public  var mirrorAutoIndex = false
 
     public  var bodyLabel = true
-    public  var h1Titles = false
+    public  var titleDisplayOption: LineDisplayOption = .pBold
     public  var streamlined = false
     public  var mathJax = false
     public  var imgLocal = false

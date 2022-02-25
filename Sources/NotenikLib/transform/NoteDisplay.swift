@@ -448,15 +448,11 @@ public class NoteDisplay {
         let code = Markedup(format: parms.format)
         if field.def == collection.titleFieldDef {
             mkdownContext.setTitleToParse(title: field.value.value)
-            if collection.h1Titles {
-                code.heading(level: 1, text: field.value.value)
-            } else {
-                code.startParagraph()
-                code.startStrong()
-                code.append(field.value.value)
-                code.finishStrong()
-                code.finishParagraph()
-            }
+            code.displayLine(opt: collection.titleDisplayOption,
+                             text: field.value.value,
+                             depth: note.depth,
+                             addID: true,
+                             idText: field.value.value)
         } else if field.def == collection.tagsFieldDef {
             code.startParagraph()
             code.startEmphasis()
