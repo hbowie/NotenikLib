@@ -11,7 +11,8 @@
 
 import Foundation
 
-/// A Singleton Class for sharing and updating appearance preferences for the Display tab
+/// A Singleton Class for sharing and updating appearance preferences for the Display tab.
+/// This is also the source of default CSS used for the display.
 public class DisplayPrefs {
     
     // Provide a single standard shared singleton instance
@@ -166,6 +167,7 @@ public class DisplayPrefs {
         tempCSS.append("\nh4 { font-size: 1.4em; margin-top: 0.7em; margin-bottom: 0.0em; font-weight: 600; font-style: normal;  }")
         tempCSS.append("\nh5 { font-size: 1.2em; margin-top: 0.7em; margin-bottom: 0.0em; font-weight: 600; font-style: normal;  }")
         tempCSS.append("\nh6 { font-size: 1.0em; margin-top: 0.7em; margin-bottom: 0.0em; font-weight: 600; font-style: normal;  }")
+        tempCSS.append("\nul.checklist { list-style-type: none; }")
         
         // tempCSS.append("\ncode { overflow: auto }")
         return tempCSS
