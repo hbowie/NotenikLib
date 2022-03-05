@@ -3,7 +3,7 @@
 //
 //  Created by Herb Bowie on 12/14/20.
 
-//  Copyright © 2020 - 2021 Herb Bowie (https://hbowie.net)
+//  Copyright © 2020 - 2022 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -36,6 +36,9 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
     var readme = false
     var infofile = false
     var indexFile = false
+    var isDir = false
+    var isPackage = false
+    var dirPackageDetermined = false
     
     /// The lowest level folder in the supplied file name path.
     public var folder = ""
@@ -207,7 +210,7 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
         guard isFileLink else { return }
         let filePath = path
         guard filePath.count > 0 else { return }
-        let isDirectory = isDir
+        determineDirAndPackage()
         var remainingStartIndex = filePath.startIndex
         var remainingEndIndex = filePath.endIndex
         var lastDotIndex = filePath.endIndex
@@ -242,7 +245,7 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
         if lastDotIndex < filePath.endIndex && lastDotIndex > remainingStartIndex {
             possibleExt = String(filePath[possibleExtStart..<filePath.endIndex])
         }
-        if possibleExt.count > 0 && !isDirectory {
+        if possibleExt.count > 0 && (!isDir || isPackage) {
             setExt(possibleExt)
             remainingEndIndex = lastDotIndex
         }
@@ -253,7 +256,7 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
             remaining = String(filePath[remainingStartIndex..<remainingEndIndex])
         }
         if remaining.count > 0 {
-            if !isDirectory {
+            if !isDir {
                 setBase(remaining)
             } else {
                 anotherFolder(remaining)
@@ -380,11 +383,12 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
         // if str.starts(with: "file:///Users/hbowie/Library/Developer/Xcode/") {
         //     type = .xcodeDev
         // } else
+        determineDirAndPackage()
         if str.hasSuffix("/Notenik.app/") {
             type = .notenikApp
         // } else if str.contains("/Notenik-iOS.app/") {
         //     type = .notenikApp
-        } else if FileUtils.isDir(path) {
+        } else if isDir {
             type = .folder
             determineFolderSubType()
         } else {
@@ -424,7 +428,9 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
     
     func determineFolderSubType() {
         let name = fileOrFolderName
-        if name == ResourceFileSys.reportsFolderName {
+        if isPackage {
+            type = .package
+        } else if name == ResourceFileSys.reportsFolderName {
             type = .reportsFolder
         } else if name == ResourceFileSys.mirrorFolderName {
             type = .mirrorFolder
@@ -435,6 +441,7 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
     /// performed upon initialization or when a new value is set.
     public func determineCollectionType() {
         guard !collectionTypeDetermined else { return }
+        determineDirAndPackage()
         guard type == .folder ||
                 type == .ordinaryCollection ||
                (type == .xcodeDev && isDir) else {
@@ -527,11 +534,18 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
         return defURL.path
     }
     
-    var isDir: Bool {
-        guard isFileLink else { return false }
+    func determineDirAndPackage() {
+        guard !dirPackageDetermined else { return }
+        dirPackageDetermined = true
+        isDir = false
+        isPackage = false
+        guard isFileLink else { return }
         let defPath = path
-        guard defPath.count > 0 else { return false }
-        return FileUtils.isDir(defPath)
+        guard defPath.count > 0 else { return }
+        isDir = FileUtils.isDir(defPath)
+        guard isDir else { return }
+        guard let dirURL = url else { return }
+        isPackage = (try? dirURL.resourceValues(forKeys: [.isPackageKey]).isPackage) ?? false
     }
     
     /// Is this a local file resource that is reachable?
