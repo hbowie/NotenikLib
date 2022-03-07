@@ -289,6 +289,9 @@ public class FileIO: NotenikIO, RowConsumer {
                 value = "<longtext>"
             } else if def.fieldType.typeString == NotenikConstants.lookupType {
                 value = "<lookup: \(def.lookupFrom)>"
+            } else if def.fieldType.typeString == NotenikConstants.seqCommon
+                        && collection!.seqFormatter.formatStack.count > 0 {
+                value = "<seq: \(collection!.seqFormatter.toCodes())>"
             } else if def.fieldType.typeString != NotenikConstants.stringType {
                 value = "<\(def.fieldType.typeString)>"
             }

@@ -14,7 +14,7 @@ import Foundation
 import NotenikUtils
 
 /// One segment of a sequence value.
-class SeqSegment {
+public class SeqSegment {
     
     var value = ""
     var punctuation = ""
@@ -24,11 +24,11 @@ class SeqSegment {
     var allUppercase = true
     var numberType:  SeqNumberType = .digits
     
-    init() {
+    public init() {
         
     }
     
-    init(_ text: String) {
+    public init(_ text: String) {
         for c in text {
             append(c)
         }

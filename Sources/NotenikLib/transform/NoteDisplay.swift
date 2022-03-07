@@ -379,10 +379,9 @@ public class NoteDisplay {
                 bottomHTML.startUnorderedList(klass: nil)
                 for tocNote in tocNotes {
                     let tocTitle = tocNote.title.value
-                    let tocSeq = tocNote.seq
                     bottomHTML.startListItem()
                     if !tocNote.klass.frontOrBack {
-                        bottomHTML.append("\(tocSeq) ")
+                        bottomHTML.append("\(tocNote.formattedSeq) ")
                     }
                     bottomHTML.link(text: tocTitle, path: parms.assembleWikiLink(title: tocTitle))
                     let aka = tocNote.aka.value

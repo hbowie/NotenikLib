@@ -48,7 +48,11 @@ class ApplyTemplateValues {
             // Attempt to parse the value field, if there is one.
             let val = templateNote.getFieldAsValue(label: def.fieldLabel.commonForm)
             if val.count > 0 {
-                parseValue(def: def, value: val.value)
+                if let seqValue = val as? SeqValue {
+                    parseValue(def: def, value: seqValue.originalValue)
+                } else {
+                    parseValue(def: def, value: val.value)
+                }
             }
             
             collection.registerDef(def)
@@ -136,6 +140,12 @@ class ApplyTemplateValues {
                 let config = collection.levelConfig
                 config.set(typeValues.str)
                 collection.typeCatalog.levelValueConfig = config
+            }
+        }
+        
+        if def.fieldType.typeString == NotenikConstants.seqCommon {
+            if typeValues.count > 0 {
+                collection.seqFormatter = SeqFormatter(with: typeValues.str)
             }
         }
         

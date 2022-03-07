@@ -913,6 +913,16 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
         }
     }
     
+    /// Return a formatted Seq, basec on Collection prefs
+    public var formattedSeq: String {
+        
+        guard collection.seqFieldDef != nil else { return "" }
+        
+        guard let seqValue = getFieldAsValue(def: collection.seqFieldDef!) as? SeqValue else { return "" }
+
+        return collection.seqFormatter.format(seq: seqValue)
+    }
+    
     //
     // Functions and variables concerning the Note's Attribution field.
     //

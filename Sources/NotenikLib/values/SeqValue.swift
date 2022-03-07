@@ -20,6 +20,8 @@ public class SeqValue: StringValue {
     
     var seqStack = SeqStack()
     
+    var originalValue = ""
+    
     public override init() {
         super.init()
     }
@@ -87,6 +89,7 @@ public class SeqValue: StringValue {
     /// Set this sequence value to the provided string
     override func set (_ value : String) {
         super.set(value)
+        originalValue = value
         seqStack = SeqStack()
         var nextSegment = SeqSegment()
         var lastPunctuation = ""

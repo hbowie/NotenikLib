@@ -51,6 +51,8 @@ public class NoteCollection {
     public  var displayTemplate = ""
     public  var displayCSS = ""
     
+    public  var seqFormatter = SeqFormatter()
+    
     // Store some key and singular field definitions for easy access.
     public  var idFieldDef:     FieldDefinition
     public  var titleFieldDef:  FieldDefinition
