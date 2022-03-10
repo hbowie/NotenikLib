@@ -29,6 +29,7 @@ public enum NotenikLinkType {
     case ordinaryCollection     // an ordinary notenik collection
     case webCollection          // collection with notes stashed into a 'notes' subfolder
     case realm                  // a folder that might contain collections
+    case accessFolder           // a folder to which Notenik may be granted unfettered access
     
     case file                   // some sort of file
     

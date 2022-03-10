@@ -430,6 +430,8 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
         let name = fileOrFolderName
         if isPackage {
             type = .package
+        } else if url != nil && url! == FileManager.default.homeDirectoryForCurrentUser {
+            type = .accessFolder
         } else if name == ResourceFileSys.reportsFolderName {
             type = .reportsFolder
         } else if name == ResourceFileSys.mirrorFolderName {
