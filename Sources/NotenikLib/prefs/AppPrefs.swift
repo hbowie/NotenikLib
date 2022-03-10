@@ -38,6 +38,8 @@ public class AppPrefs {
     let lastVersionPromptedForReviewKey = "last-version-prompted-for-review"
     let lastVersionNewsReportedForKey = "last-version-news-reported-for"
     
+    let appAppearanceKey = "app-appearance"
+    
     let favoritesColumnsKey = "favorites-columns"
     let favoritesRowsKey = "favorites-rows"
     let favoritesColumnWidthKey = "favorites-column-width"
@@ -65,6 +67,8 @@ public class AppPrefs {
     var _appLaunching = false
     
     var _qd: Bool = false
+    
+    var _appearance = "system"
     
     var _startupTips = true
     
@@ -211,6 +215,11 @@ public class AppPrefs {
             _kbWindow = nkbw!
         }
         
+        let aa = defaults.string(forKey: appAppearanceKey)
+        if aa != nil {
+            _appearance = aa!
+        }
+        
         _uc = defaults.integer(forKey: useCountKey)
         
         // Get the Last Version Prompted for Review.
@@ -306,6 +315,16 @@ public class AppPrefs {
         set {
             _qd = !newValue
             defaults.set(_qd, forKey: quickDeletesKey)
+        }
+    }
+    
+    public var appAppearance: String {
+        get {
+            return _appearance
+        }
+        set {
+            _appearance = newValue
+            defaults.set(_appearance, forKey: appAppearanceKey)
         }
     }
     

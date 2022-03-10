@@ -268,16 +268,17 @@ public class NotesMkdownContext: MkdownContext {
     var tagsListLevel = 0
     
     /// Generate a separate page organized by Tags.
-    public func mkdownTagsOutline() -> String {
+    public func mkdownTagsOutline(mods: String) -> String {
         guard io.collection != nil else { return "" }
         guard io.collectionOpen else { return "" }
+        let includeUntagged = mods.isEmpty
         tagsCode = Markedup(format: .htmlFragment)
         tagsListLevel = 0
         openTagsList()
         let iterator = io.makeTagsNodeIterator()
         var tagsNode = iterator.next()
         while tagsNode != nil {
-            generateTagsNode(node: tagsNode!, depth: iterator.depth)
+            generateTagsNode(node: tagsNode!, depth: iterator.depth, includeUntagged: includeUntagged)
             tagsNode = iterator.next()
         }
         closeTagContent(downTo: 0)
@@ -285,7 +286,7 @@ public class NotesMkdownContext: MkdownContext {
     }
     
     /// Generate html code for the next node.
-    func generateTagsNode(node: TagsNode, depth: Int) {
+    func generateTagsNode(node: TagsNode, depth: Int, includeUntagged: Bool) {
         switch node.type {
         case .root:
             break
@@ -298,21 +299,23 @@ public class NotesMkdownContext: MkdownContext {
             openTagsList()
         case .note:
             let note = node.note!
-            let seq = note.seq.value
-            let title = note.title.value
-            let link = displayParms.assembleWikiLink(title: title)
-            tagsCode.startListItem()
-            if seq.count > 0 {
-                tagsCode.write("\(seq) ")
+            if includeUntagged || note.hasTags() {
+                let seq = note.seq.value
+                let title = note.title.value
+                let link = displayParms.assembleWikiLink(title: title)
+                tagsCode.startListItem()
+                if seq.count > 0 {
+                    tagsCode.write("\(seq) ")
+                }
+                let text = htmlConverter.convert(from: title)
+                tagsCode.link(text: text, path: link)
+                tagsCode.finishListItem()
             }
-            let text = htmlConverter.convert(from: title)
-            tagsCode.link(text: text, path: link)
-            tagsCode.finishListItem()
         }
     }
     
     func openTagsList() {
-        tagsCode.startUnorderedList(klass: nil)
+        tagsCode.startUnorderedList(klass: "tags-list")
         tagsListLevel += 1
     }
     

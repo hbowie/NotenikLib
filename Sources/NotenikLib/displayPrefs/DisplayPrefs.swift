@@ -168,6 +168,7 @@ public class DisplayPrefs {
         tempCSS.append("\nh5 { font-size: 1.2em; margin-top: 0.7em; margin-bottom: 0.0em; font-weight: 600; font-style: normal;  }")
         tempCSS.append("\nh6 { font-size: 1.0em; margin-top: 0.7em; margin-bottom: 0.0em; font-weight: 600; font-style: normal;  }")
         tempCSS.append("\nul.checklist { list-style-type: none; }")
+        tempCSS.append("\nul.tags-list { list-style-type: none; }")
         
         // tempCSS.append("\ncode { overflow: auto }")
         return tempCSS

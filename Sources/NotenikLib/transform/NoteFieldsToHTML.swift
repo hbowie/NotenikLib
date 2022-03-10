@@ -472,7 +472,7 @@ public class NoteFieldsToHTML {
         if parms.streamlined && note.hasSeq() {
             if !note.klass.frontOrBack && !note.klass.quote {
                 if parms.included.value != IncludeChildrenList.orderedList {
-                    titleToDisplay = note.seq.value + " " + note.title.value
+                    titleToDisplay = note.formattedSeq + " " + note.title.value
                 }
             }
         }
