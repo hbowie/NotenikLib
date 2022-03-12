@@ -262,6 +262,10 @@ public protocol NotenikIO {
     /// - Returns: Either the note at that position, or nil, if the index is out of range.
     func getNote(at: Int) -> Note?
     
+    /// Get the Note that is known by the passed identifier, one way or another.
+    /// - Returns: The matching Note, if one could be found. 
+    func getNote(knownAs: String) -> Note?
+    
     /// Get the existing note with the specified ID.
     ///
     /// - Parameter id: The ID we are looking for.
@@ -283,6 +287,10 @@ public protocol NotenikIO {
     /// - Parameter alsoKnownAs: The AKA value we are looking for. 
     /// - Returns: The Note having this aka value, if one exists; otherwise nil.
     func getNote(alsoKnownAs: String) -> Note?
+    
+    /// Return the Alias entries for the Collection.
+    /// - Returns: All of the AKA aliases, plus the Notes to which they point. 
+    func getAKAEntries() -> AKAentries
     
     // -----------------------------------------------------------
     //

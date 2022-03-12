@@ -22,7 +22,7 @@ class BunchOfNotes {
     var notesTree = TagsTree()
     var shortIDs  = ShortIDs()
     var timestampDict = [String : Note]()
-    var akaDict   = [String : Note]()
+    var akaAll = AKAentries()
     var listIndex = 0
     
     /// Return the number of notes in the current collection.
@@ -83,7 +83,7 @@ class BunchOfNotes {
         guard existingNote == nil else {
             return "A Note already exists with an identical or very similar title"
         }
-        let akaNote = akaDict[noteID]
+        let akaNote = akaAll.getNote(commonID: noteID)
         guard akaNote == nil else {
             return "Another Note already exists that is known by this identifier"
         }
@@ -127,8 +127,7 @@ class BunchOfNotes {
         
         if collection.akaFieldDef != nil {
             for alias in note.aka {
-                let aliasCommon = StringUtils.toCommon(alias)
-                akaDict[aliasCommon] = note
+                akaAll.setNote(id: alias, note: note)
             }
         }
         
@@ -239,6 +238,49 @@ class BunchOfNotes {
         }
     }
     
+    /// Get the Note that is known by the passed identifier, one way or another.
+    /// - Returns: The matching Note, if one could be found.
+    func getNote(knownAs: String) -> Note? {
+
+        // Check for first possible case: title within the wiki link
+        // points directly to another note having that same title.
+        let titleID = StringUtils.toCommon(knownAs)
+        var knownNote = getNote(forID: titleID)
+        if knownNote != nil {
+            return knownNote!
+        }
+        
+        // Check for second possible case: title within the wiki link
+        // uses the singular form of a word, but the word appears in its
+        // plural form within the target note's title.
+        knownNote = getNote(forID: titleID + "s")
+        if knownNote != nil {
+            return knownNote!
+        }
+        
+        // Check for third possible case: title within the wiki link
+        // refers to an alias by which a Note is also known.
+        if collection.akaFieldDef != nil {
+            knownNote = getNote(alsoKnownAs: titleID)
+            if knownNote != nil {
+                return knownNote!
+            }
+        }
+        
+        guard collection.hasTimestamp else { return nil }
+        
+        // Check for fifth possible case: string within the wiki link
+        // is already a timestamp pointing to another note.
+        guard knownAs.count < 15 && knownAs.count > 11 else { return nil }
+        knownNote = getNote(forTimestamp: knownAs)
+        if knownNote != nil {
+            return knownNote!
+        }
+        
+        // Nothing worked, so return nada / zilch.
+        return nil
+    }
+    
     /// Get the existing note with the specified ID.
     ///
     /// - Parameter id: The ID we are looking for.
@@ -268,7 +310,13 @@ class BunchOfNotes {
     /// - Returns: The Note having this aka value, if one exists; otherwise nil.
     func getNote(alsoKnownAs aka: String) -> Note? {
         guard collection.akaFieldDef != nil else { return nil }
-        return akaDict[aka]
+        return akaAll.getNote(commonID: aka)
+    }
+    
+    /// Return the Alias entries for the Collection.
+    /// - Returns: All of the AKA aliases, plus the Notes to which they point.
+    func getAKAEntries() -> AKAentries {
+        return akaAll
     }
     
     /// Return the next note in the sorted list, along with its index position.
@@ -343,7 +391,7 @@ class BunchOfNotes {
     /// Close the currently open collection (if any).
     func close() {
         notesDict = [:]
-        akaDict = [:]
+        akaAll = AKAentries()
         notesList = NotesList()
         notesTree = TagsTree()
         shortIDs = ShortIDs()

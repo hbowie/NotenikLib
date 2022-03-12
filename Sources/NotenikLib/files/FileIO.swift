@@ -1232,6 +1232,62 @@ public class FileIO: NotenikIO, RowConsumer {
         return bunch!.getNote(at: index)
     }
     
+    /// Get the Note that is known by the passed identifier, one way or another.
+    /// - Returns: The matching Note, if one could be found.
+    public func getNote(knownAs: String) -> Note? {
+        guard collection != nil && collectionOpen else { return nil }
+        
+        // Check for first possible case: title within the wiki link
+        // points directly to another note having that same title.
+        let titleID = StringUtils.toCommon(knownAs)
+        var knownNote = getNote(forID: titleID)
+        if knownNote != nil {
+            aliasList.add(titleID: titleID, timestamp: knownNote!.timestamp.value)
+            return knownNote!
+        }
+        
+        // Check for second possible case: title within the wiki link
+        // uses the singular form of a word, but the word appears in its
+        // plural form within the target note's title.
+        knownNote = getNote(forID: titleID + "s")
+        if knownNote != nil {
+            return knownNote!
+        }
+        
+        // Check for third possible case: title within the wiki link
+        // refers to an alias by which a Note is also known.
+        if collection!.akaFieldDef != nil {
+            knownNote = getNote(alsoKnownAs: titleID)
+            if knownNote != nil {
+                return knownNote!
+            }
+        }
+        
+        guard collection!.hasTimestamp else { return nil }
+        
+        // Check for fourth possible case: title within the wiki link
+        // used to point directly to another note having that same title,
+        // but the target note's title has since been modified.
+        let timestamp = aliasList.get(titleID: titleID)
+        if timestamp != nil {
+            knownNote = getNote(forTimestamp: timestamp!)
+            if knownNote != nil {
+                return knownNote!
+            }
+        }
+        
+        // Check for fifth possible case: string within the wiki link
+        // is already a timestamp pointing to another note.
+        guard knownAs.count < 15 && knownAs.count > 11 else { return nil }
+        knownNote = getNote(forTimestamp: knownAs)
+        if knownNote != nil {
+            return knownNote!
+        }
+        
+        // Nothing worked, so return nada / zilch.
+        return nil
+    }
+    
     /// Get the existing note with the specified ID.
     ///
     /// - Parameter id: The ID we are looking for.
@@ -1256,6 +1312,13 @@ public class FileIO: NotenikIO, RowConsumer {
     public func getNote(alsoKnownAs aka: String) -> Note? {
         guard collection != nil && collectionOpen else { return nil }
         return bunch!.getNote(alsoKnownAs: aka)
+    }
+    
+    /// Return the Alias entries for the Collection.
+    /// - Returns: All of the AKA aliases, plus the Notes to which they point.
+    public func getAKAEntries() -> AKAentries {
+        guard collection != nil && collectionOpen else { return AKAentries() }
+        return bunch!.getAKAEntries()
     }
     
     /// In conformance with MkdownWikiLinkLookup protocol, lookup a title given a timestamp.
