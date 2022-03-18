@@ -163,6 +163,9 @@ public class NoteTransformer {
     public func rebuildIndices() -> [LogEvent] {
         var errors: [LogEvent] = []
         
+        guard let noteIO = io else { return errors }
+        guard let collection = noteIO.collection else { return errors }
+        
         for indexFileName in noteIndexFileNames {
             let template = Template()
             
@@ -180,7 +183,7 @@ public class NoteTransformer {
                 return errors
             }
             
-            template.supplyData(notesList: io.notesList, dataSource: io.collection!.lib.getPath(type: .notes))
+            template.supplyData(notesList: io.notesList, dataSource: collection.lib.getPath(type: .notes))
             
             ok = template.generateOutput()
             guard ok else {
