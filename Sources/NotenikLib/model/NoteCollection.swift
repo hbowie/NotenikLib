@@ -32,7 +32,7 @@ public class NoteCollection {
     public  var otherFields = false
     public  var readOnly    : Bool = false
             var customFields: [SortField] = []
-            var hasTimestamp = false
+    public  var hasTimestamp = false
     public  var isRealmCollection = false
             var noteFileFormat: NoteFileFormat = .toBeDetermined
             var hashTags    : Bool = false

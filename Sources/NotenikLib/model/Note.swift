@@ -308,9 +308,29 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     /* ---------------------------------------------------------
      
      The following fields and functions identify and manipulate
-     the unique indentifier for this Note
+     the unique identifier for this Note
      
      --------------------------------------------------------- */
+    
+    public func getNotenikLink(preferringTimestamp: Bool = false) -> String {
+        
+        var str = "notenik://open?"
+        
+        if collection.shortcut.count > 0 {
+            str.append("shortcut=\(collection.shortcut)")
+        } else {
+            let folderURL = URL(fileURLWithPath: collection.fullPath)
+            let encodedPath = String(folderURL.absoluteString.dropFirst(7))
+            str.append("path=\(encodedPath)")
+        }
+        
+        if preferringTimestamp && collection.hasTimestamp {
+            str.append("&timestamp=\(timestamp.value)")
+        } else {
+            str.append("&id=\(id)")
+        }
+        return str
+    }
     
     /// Provide a value to uniquely identify this note within its Collection, and provide
     /// conformance to the Identifiable protocol.
