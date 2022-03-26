@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 12/4/18.
-//  Copyright © 2018 - 2021 Herb Bowie (https://hbowie.net)
+//  Copyright © 2018 - 2022 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -325,7 +325,7 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
         }
         
         if preferringTimestamp && collection.hasTimestamp {
-            str.append("&timestamp=\(timestamp.value)")
+            str.append("&timestamp=\(timestampAsString)")
         } else {
             str.append("&id=\(id)")
         }
@@ -412,12 +412,6 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
         return envModDate
     }
     
-    func setTimestamp(_ timestamp: String) -> Bool {
-        let ok = setField(label: NotenikConstants.timestamp, value: timestamp)
-        setID()
-        return ok
-    }
-    
     /// Return the date the note was originally added
     public var dateAdded: DateTimeValue {
         let val = getFieldAsValue(label: NotenikConstants.dateAdded)
@@ -435,16 +429,6 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
             return val as! DateTimeValue
         } else {
             return DateTimeValue(val.value)
-        }
-    }
-    
-    /// Retum the timestamp value
-    public var timestamp: TimestampValue {
-        let val = getFieldAsValue(label: NotenikConstants.timestamp)
-        if val is TimestampValue {
-            return val as! TimestampValue
-        } else {
-            return TimestampValue(val.value)
         }
     }
     
@@ -513,10 +497,6 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     /// Does this note have a date modified?
     func hasDateModified() -> Bool {
         return dateModified.count > 0
-    }
-    
-    func hasTimestamp() -> Bool {
-        return timestamp.count > 0
     }
     
     //
@@ -821,6 +801,10 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
         }
     }
     
+    //
+    // Functions and variables concerning the Note's depth.
+    //
+    
     
     /// Return a derived depth, using level, if available, otherwise seq depth, if available,
     /// otherwise 1.
@@ -941,6 +925,46 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
         guard let seqValue = getFieldAsValue(def: collection.seqFieldDef!) as? SeqValue else { return "" }
 
         return collection.seqFormatter.format(seq: seqValue)
+    }
+    
+    //
+    // Functions and variables concerning the Note's Timestamp field.
+    //
+    
+    func hasTimestamp() -> Bool {
+        guard collection.hasTimestamp else { return false }
+        guard let timestampDef = getTimestampDef() else { return false }
+        guard self.contains(def: timestampDef) else { return false }
+        return true
+    }
+    
+    func setTimestamp(_ timestamp: String) -> Bool {
+        let ok = setField(label: NotenikConstants.timestamp, value: timestamp)
+        setID()
+        return ok
+    }
+    
+    /// Retum the timestamp value
+    public var timestamp: TimestampValue {
+        let val = getFieldAsValue(label: NotenikConstants.timestamp)
+        if val is TimestampValue {
+            return val as! TimestampValue
+        } else {
+            return TimestampValue(val.value)
+        }
+    }
+    
+    /// Return the timestamp, if the Note has one, or an empty string otherwise.
+    public var timestampAsString: String {
+        guard collection.hasTimestamp else { return "" }
+        guard let timestampDef = getTimestampDef() else { return "" }
+        guard self.contains(def: timestampDef) else { return "" }
+        let field = getFieldAsValue(def: timestampDef)
+        return field.value
+    }
+    
+    public func getTimestampDef() -> FieldDefinition? {
+        collection.dict.getDef(NotenikConstants.timestamp)
     }
     
     //

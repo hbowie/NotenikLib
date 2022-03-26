@@ -1242,7 +1242,7 @@ public class FileIO: NotenikIO, RowConsumer {
         let titleID = StringUtils.toCommon(knownAs)
         var knownNote = getNote(forID: titleID)
         if knownNote != nil {
-            aliasList.add(titleID: titleID, timestamp: knownNote!.timestamp.value)
+            aliasList.add(titleID: titleID, timestamp: knownNote!.timestampAsString)
             return knownNote!
         }
         
@@ -1334,7 +1334,7 @@ public class FileIO: NotenikIO, RowConsumer {
         let titleID = StringUtils.toCommon(linkText)
         var linkedNote = getNote(forID: titleID)
         if linkedNote != nil {
-            aliasList.add(titleID: titleID, timestamp: linkedNote!.timestamp.value)
+            aliasList.add(titleID: titleID, timestamp: linkedNote!.timestampAsString)
             return linkText
         }
         

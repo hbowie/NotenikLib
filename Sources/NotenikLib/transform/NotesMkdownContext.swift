@@ -68,7 +68,7 @@ public class NotesMkdownContext: MkdownContext {
         let titleID = StringUtils.toCommon(linkText)
         var linkedNote = io.getNote(forID: titleID)
         if linkedNote != nil {
-            io.aliasList.add(titleID: titleID, timestamp: linkedNote!.timestamp.value)
+            io.aliasList.add(titleID: titleID, timestamp: linkedNote!.timestampAsString)
             return linkedNote!.title.value
         }
         

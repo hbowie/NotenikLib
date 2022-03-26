@@ -216,21 +216,36 @@ public class ResourceFileSys: CustomStringConvertible, Comparable {
         guard lib.hasAvailable(type: .notes) else { return false }
         guard !note.fileInfo.isEmpty else { return false }
         
+        let preTimestamp = note.timestampAsString
+        
+        guard writeNoteAtomic(note) else { return false }
+        
+        let noteURL = note.fileInfo.url
+        if noteURL != nil {
+            updateEnvDates(note: note, noteURL: noteURL!)
+            if collection.hasTimestamp {
+                let postTimestamp = note.timestampAsString
+                if !postTimestamp.isEmpty && postTimestamp != preTimestamp {
+                    let ok = writeNoteAtomic(note)
+                    if !ok {
+                        logError("Trouble rewriting Note with timestamp")
+                    }
+                }
+            }
+        }
+        type = .note
+        
+        return true
+    }
+    
+    func writeNoteAtomic(_ note: Note) -> Bool {
         let writer = BigStringWriter()
         let maker = NoteLineMaker(writer)
         let fieldsWritten = maker.putNote(note)
         guard fieldsWritten > 0 else { return false }
         
         let written = write(str: writer.bigString)
-        guard written else { return false }
-        
-        let noteURL = note.fileInfo.url
-        if noteURL != nil {
-            updateEnvDates(note: note, noteURL: noteURL!)
-        }
-        type = .note
-        
-        return true
+        return written
     }
     
     /// Update the Note with the latest creation and modification dates from our storage environment

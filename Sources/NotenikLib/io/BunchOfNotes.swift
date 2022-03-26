@@ -119,7 +119,7 @@ class BunchOfNotes {
         }
         
         if collection.hasTimestamp {
-            let stamp = note.timestamp.value
+            let stamp = note.timestampAsString
             if stamp.count > 0 {
                 timestampDict[stamp] = note
             }
@@ -163,7 +163,7 @@ class BunchOfNotes {
         
         // Remove the note from the timestamp dictionary
         if collection.hasTimestamp {
-            timestampDict.removeValue(forKey: note.timestamp.value)
+            timestampDict.removeValue(forKey: note.timestampAsString)
         }
         
         return true
