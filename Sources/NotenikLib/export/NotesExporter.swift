@@ -85,6 +85,8 @@ public class NotesExporter {
         
         guard noteIO.collection != nil && noteIO.collectionOpen else { return -1 }
         
+        displayParms.curlyApostrophes = collection.curlyApostrophes
+        
         exportErrors = 0
         
         dict = noteIO.collection!.dict
@@ -184,6 +186,7 @@ public class NotesExporter {
         displayParms.wikiLinkSuffix = ""
         displayParms.mathJax = collection.mathJax
         displayParms.localMj = false
+        displayParms.curlyApostrophes = collection.curlyApostrophes
         displayParms.concatenated = true
         
         markup = Markedup(format: markupFormat)

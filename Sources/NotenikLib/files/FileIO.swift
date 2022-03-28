@@ -246,6 +246,7 @@ public class FileIO: NotenikIO, RowConsumer {
         str.append(label: NotenikConstants.mathJax, value: "\(collection!.mathJax)")
         str.append(label: NotenikConstants.imgLocal, value: "\(collection!.imgLocal)")
         str.append(label: NotenikConstants.missingTargets, value: "\(collection!.missingTargets)")
+        str.append(label: NotenikConstants.curlyAposts, value: "\(collection!.curlyApostrophes)")
         if collection!.lastStartupDate.count > 0 {
             str.append(label: NotenikConstants.lastStartupDate, value: collection!.lastStartupDate)
         }
@@ -595,6 +596,12 @@ public class FileIO: NotenikIO, RowConsumer {
         if missingTargetsField != nil {
             let missingTargets = BooleanValue(missingTargetsField!.value.value)
             collection!.missingTargets = missingTargets.isTrue
+        }
+        
+        let curlyApostsField = infoNote.getField(label: NotenikConstants.curlyAposts)
+        if curlyApostsField != nil {
+            let curlyApostrophes = BooleanValue(curlyApostsField!.value.value)
+            collection!.curlyApostrophes = curlyApostrophes.isTrue
         }
         
         let noteFileFormatField = infoNote.getField(label: NotenikConstants.noteFileFormat)

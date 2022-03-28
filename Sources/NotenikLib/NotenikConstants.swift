@@ -194,6 +194,8 @@ public struct NotenikConstants {
     static let imgLocalCommon           = "localimages"
     static let missingTargets           = "Missing Targets"
     static let missingTargetsCommon     = "missingtargets"
+    static let curlyAposts              = "Curly Apostrophes"
+    static let curlyApostsCommon        = "curlyapostscommon"
     static let windowNumbers            = "Window Numbers"
     static let windowNumbersCommon      = "windownumbers"
     

@@ -141,6 +141,7 @@ public class WebBookMaker {
         parms.wikiLinkSuffix = "." + htmlFileExt
         parms.mathJax = collection.mathJax
         parms.localMj = false
+        parms.curlyApostrophes = collection.curlyApostrophes
         if epub {
             parms.imagesPath = "../\(imagesFolderName)"
         } else {

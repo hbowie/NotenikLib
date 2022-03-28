@@ -45,6 +45,7 @@ public class NoteCollection {
     public  var mathJax = false
     public  var imgLocal = false
     public  var missingTargets = false
+    public  var curlyApostrophes = true
     public  var lastStartupDate = ""
             var todaysDate = ""
     
