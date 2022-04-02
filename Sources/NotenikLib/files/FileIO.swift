@@ -282,14 +282,14 @@ public class FileIO: NotenikIO, RowConsumer {
                 value = collection!.statusConfig.statusOptionsAsString
             } else if def.fieldLabel.commonForm == NotenikConstants.levelCommon {
                 value = "<level: \(collection!.levelConfig.intsWithLabels)>"
-            } else if def.pickList != nil && def.fieldType.typeString != NotenikConstants.authorCommon {
-                value = def.pickList!.valueString
             } else if def.fieldLabel.commonForm == NotenikConstants.bodyCommon {
                 value = ""
             } else if def.fieldType is LongTextType {
                 value = "<longtext>"
             } else if def.fieldType.typeString == NotenikConstants.lookupType {
                 value = "<lookup: \(def.lookupFrom)>"
+            } else if def.pickList != nil && def.fieldType.typeString != NotenikConstants.authorCommon {
+                value = def.pickList!.valueString
             } else if def.fieldType.typeString == NotenikConstants.seqCommon
                         && collection!.seqFormatter.formatStack.count > 0 {
                 value = "<seq: \(collection!.seqFormatter.toCodes())>"
