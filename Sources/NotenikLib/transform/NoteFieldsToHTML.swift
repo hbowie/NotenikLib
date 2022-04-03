@@ -469,11 +469,9 @@ public class NoteFieldsToHTML {
     func displayTitle(note: Note, markedup: Markedup) {
         
         var titleToDisplay = note.title.value
-        if parms.streamlined && note.hasSeq() {
+        if parms.streamlined && note.hasSeq() && !parms.included.asList{
             if !note.klass.frontOrBack && !note.klass.quote {
-                if parms.included.value != IncludeChildrenList.orderedList {
-                    titleToDisplay = note.formattedSeq + " " + note.title.value
-                }
+                titleToDisplay = note.formattedSeq + " " + note.title.value
             }
         }
         
