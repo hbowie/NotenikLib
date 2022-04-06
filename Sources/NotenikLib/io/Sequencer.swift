@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 9/20/19.
-//  Copyright © 2019 - 2021 Herb Bowie (https://hbowie.net)
+//  Copyright © 2019 - 2022 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -142,7 +142,7 @@ public class Sequencer {
     }
     
     /// Update Seq and/or Tags field based on outline structure (based on seq + level).
-    public func outlineUpdatesBasedOnLevel(updateSeq: Bool, updateTags: Bool) -> (Int, String) {
+    public func outlineUpdatesBasedOnLevel(updateSeq: Bool, tagsAction: SeqTagsAction) -> (Int, String) {
         
         let (ready, errMsg) = readyForUpdates()
         guard ready else { return (0, errMsg) }
@@ -238,15 +238,17 @@ public class Sequencer {
             for tagValue in currTags.tags {
                 let tag = tagValue.value
                 if tag.hasPrefix(levelsHead) {
-                    if newTags.count > 0 { newTags.append(",") }
-                    newTags.append(newLevelTags)
+                    if tagsAction == .update {
+                        if newTags.count > 0 { newTags.append(",") }
+                        newTags.append(newLevelTags)
+                    }
                     replaced = true
                 } else {
                     if newTags.count > 0 { newTags.append(",") }
                     newTags.append(tag)
                 }
             }
-            if !replaced {
+            if !replaced && tagsAction == .update {
                 if newTags.count > 0 { newTags.append(",") }
                 newTags.append(newLevelTags)
             }
@@ -258,7 +260,7 @@ public class Sequencer {
                 updateNote = true
             }
             
-            if updateTags && newLevelTags != note!.tags.value {
+            if (tagsAction == .update || tagsAction == .remove) && newTags != note!.tags.value {
                 updateNote = true
             }
             
@@ -267,7 +269,7 @@ public class Sequencer {
                 if updateSeq {
                     updatedSeqs.append(SeqValue(newSeq))
                 }
-                if updateTags {
+                if tagsAction == .update || tagsAction == .remove {
                     updatedTags.append(newTags)
                 }
             }
@@ -277,7 +279,7 @@ public class Sequencer {
         }
         
         // Now perform the updates.
-        _ = applyUpdates(updateSeq: updateSeq, updateTags: updateTags)
+        _ = applyUpdates(updateSeq: updateSeq, updateTags: (tagsAction == .update || tagsAction == .remove))
         
         return (notesToUpdate.count, "")
     }
