@@ -286,15 +286,7 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
     }
     
     var isNoteExt: Bool {
-        if preferredExt != nil && preferredExt! == extLower {
-            return true
-        }
-        switch extLower {
-        case "txt", "text", "markdown", "md", "mdown", "mkdown", "mdtext", "notenik", "nnk":
-            return true
-        default:
-            return false
-        }
+        return ResourceFileSys.isLikelyNoteFile(fileExt: extLower, preferredNoteExt: preferredExt)
     }
     
     /// Set the value for the base part of the file name

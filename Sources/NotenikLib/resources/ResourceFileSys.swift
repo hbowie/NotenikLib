@@ -489,18 +489,11 @@ public class ResourceFileSys: CustomStringConvertible, Comparable {
             type = .template
         } else if base == NotenikConstants.tempDisplayBase && extLower == NotenikConstants.tempDisplayExt {
             type = .tempDisplay
-        } else {
-            switch extLower {
-            case ResourceFileSys.scriptExt:
-                type = .script
-            case preferredNoteExt:
-                type = .note
-            case "txt", "text", "markdown", "md", "mdown", "mkdown", "mdtext", "notenik", "nnk":
-                type = .note
-            default:
-                break
-            }
-        }
+        } else if ResourceFileSys.isLikelyNoteFile(fileExt: extLower, preferredNoteExt: preferredNoteExt) {
+            type = .note
+        } else if extLower == ResourceFileSys.scriptExt {
+            type = .script
+        } 
     }
     
     // -----------------------------------------------------------
@@ -515,6 +508,30 @@ public class ResourceFileSys: CustomStringConvertible, Comparable {
                           category: "ResourceFileSys",
                           level: .error,
                           message: msg)
+    }
+    
+    // -----------------------------------------------------------
+    //
+    // MARK: Static methods.
+    //
+    // -----------------------------------------------------------
+    
+    public static func isLikelyNoteFile(fileURL: URL, preferredNoteExt: String?) -> Bool {
+        return ResourceFileSys.isLikelyNoteFile(fileExt: fileURL.pathExtension,
+                                                preferredNoteExt: preferredNoteExt)
+    }
+    
+    public static func isLikelyNoteFile(fileExt: String, preferredNoteExt: String?) -> Bool {
+        let extLower = fileExt.lowercased()
+        switch extLower {
+        case preferredNoteExt:
+            return true
+        case "txt", "text", "markdown", "md", "mdown", "mkdown", "mdtext", "mktext", "notenik", "nnk":
+            return true
+        default:
+            break
+        }
+        return false
     }
     
     // -----------------------------------------------------------
