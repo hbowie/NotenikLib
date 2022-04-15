@@ -336,6 +336,111 @@ public class NotesMkdownContext: MkdownContext {
     
     // -----------------------------------------------------------
     //
+    // MARK: Generate HTML for a Tags Cloud.
+    //
+    // -----------------------------------------------------------
+    
+    var tagsList: [String] = []
+    var tagsConcat = ""
+    var tagsLast = ""
+    
+    /// Return a tags cloud of the collection, formatted in HTML.
+    public func mkdownTagsCloud(mods: String) -> String {
+        guard io.collection != nil else { return "" }
+        guard io.collectionOpen else { return "" }
+        tagsCode = Markedup(format: .htmlFragment)
+        
+        // Perform first pass.
+        tagsLast = ""
+        tagsCode.startUnorderedList(klass: "tags-cloud")
+        var iterator = io.makeTagsNodeIterator()
+        var tagsNode = iterator.next()
+        while tagsNode != nil {
+            generateTagsCloudNode(pass: 1, node: tagsNode!, depth: iterator.depth)
+            tagsNode = iterator.next()
+        }
+        tagsCode.finishUnorderedList()
+        
+        tagsCode.horizontalRule()
+        
+        // Perform second pass.
+        tagsLast = ""
+        tagsCode.startDiv(klass: "tags-contents")
+        iterator = io.makeTagsNodeIterator()
+        tagsNode = iterator.next()
+        while tagsNode != nil {
+            generateTagsCloudNode(pass: 2, node: tagsNode!, depth: iterator.depth)
+            tagsNode = iterator.next()
+        }
+        if !tagsLast.isEmpty {
+            tagsCode.finishUnorderedList()
+        }
+        tagsCode.finishDiv()
+        
+        return tagsCode.code
+    }
+    
+    /// Generate html code for the next node.
+    func generateTagsCloudNode(pass: Int, node: TagsNode, depth: Int) {
+        switch node.type {
+        case .root:
+            break
+        case .tag:
+            if tagsList.count >= depth {
+                tagsList[depth - 1] = node.tag!.forDisplay
+            } else {
+                tagsList.append(node.tag!.forDisplay)
+            }
+            tagsConcat = ""
+            var i = 0
+            while i < depth {
+                if i > 0 {
+                    tagsConcat.append(".")
+                }
+                tagsConcat.append(tagsList[i])
+                i += 1
+            }
+        case .note:
+            let note = node.note!
+            guard note.hasTags() else { break }
+
+            if tagsConcat != tagsLast {
+                if pass == 1 {
+                    startTagsCloudFirstPass()
+                } else {
+                    startTagsCloudSecondPass()
+                }
+                tagsLast = tagsConcat
+            }
+            
+            guard pass == 2 else { break }
+            
+            let title = note.title.value
+            let link = displayParms.assembleWikiLink(title: title)
+            let text = htmlConverter.convert(from: title)
+            tagsCode.startListItem()
+            tagsCode.link(text: text, path: link)
+            tagsCode.finishListItem()
+
+        }
+    }
+    
+    func startTagsCloudFirstPass() {
+        tagsCode.startListItem()
+        tagsCode.link(text: tagsConcat, path: "#tags.\(tagsConcat)")
+        tagsCode.finishListItem()
+    }
+    
+    func startTagsCloudSecondPass() {
+        if !tagsLast.isEmpty {
+            tagsCode.finishUnorderedList()
+        }
+        tagsCode.heading(level: 5, text: tagsConcat, addID: true, idText: "tags.\(tagsConcat)")
+        tagsCode.startUnorderedList(klass: nil)
+    }
+    
+    // -----------------------------------------------------------
+    //
     // MARK: Include another item (Note or file). 
     //
     // -----------------------------------------------------------

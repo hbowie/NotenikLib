@@ -182,4 +182,23 @@ public class TagsNode: Comparable, CustomStringConvertible {
     var countChildren: Int {
         return children.count
     }
+    
+    public func display() {
+        print(" ")
+        print("TagsNode.display")
+        print("  - Type = \(type)")
+        switch type {
+        case .root:
+            break
+        case .tag:
+            print("  - Tags = \(tag!.forDisplay)")
+        case .note:
+            print("  - Title = \(note!.title.value)")
+            if note!.hasTags() {
+                print("  - Tags = \(note!.tags.value)")
+            } else {
+                print("  - Untagged")
+            }
+        }
+    }
 }
