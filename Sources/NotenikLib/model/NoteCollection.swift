@@ -229,6 +229,22 @@ public class NoteCollection {
         }
     }
     
+    
+    /// Populate the field dictionary of a new Collection, using the definitions from this Collection.
+    /// - Parameter to: The new Collection whose dictionary is to be populated. 
+    public func populateFieldDefs(to: NoteCollection) {
+        var i = 0
+        while i < dict.count {
+            if let def = dict.getDef(i) {
+                if let result = to.dict.addDef(def) {
+                    to.registerDef(result)
+                }
+            }
+            i += 1
+        }
+        to.finalize()
+    }
+    
     /// Attempt to obtain or create a Field Definition for the given Label.
     ///
     /// Note that the Collection's Field Dictionary may be updated as part of this call.

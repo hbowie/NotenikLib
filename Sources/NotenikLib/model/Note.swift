@@ -281,7 +281,16 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
         for toDef in toDefs {
             var fromField = getField(def: toDef)
             if fromField == nil {
-                fromField = getFieldByType(def: toDef)
+                switch toDef.fieldType.typeString {
+                case NotenikConstants.booleanType: break
+                case NotenikConstants.dateType: break
+                case NotenikConstants.longTextType: break
+                case NotenikConstants.lookupType: break
+                case NotenikConstants.pickFromType: break
+                case NotenikConstants.stringType: break
+                default:
+                    fromField = getFieldByType(def: toDef)
+                }
             }
             let toField = note2.getField(def: toDef)
             if fromField == nil && toField == nil {
@@ -1560,7 +1569,7 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
         }
     }
     
-    func display() {
+    public func display() {
         print(" ")
         print ("Note.display")
         for def in collection.dict.list {
