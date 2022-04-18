@@ -297,7 +297,7 @@ public class NoteCollection {
     }
     
     /// Keep track of the first or only field definitions of various types with special functionality.
-    func registerDef(_ newDef: FieldDefinition?) {
+    public func registerDef(_ newDef: FieldDefinition?) {
         
         guard let def = newDef else { return }
         
