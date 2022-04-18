@@ -303,7 +303,23 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
                 toField!.value.set(fromField!.value.value)
             }
         }
+
+        if !toDict.locked && note2.collection.otherFields {
+            copyMissingFields(to: note2)
+        }
+        
         note2.setID()
+    }
+    
+    func copyMissingFields(to note2: Note) {
+
+        for fromDef in collection.dict.list {
+            guard let fromField = getField(def: fromDef) else { continue }
+            let toField = note2.getField(def: fromDef)
+            if toField == nil {
+                _ = note2.addField(def: fromDef, strValue: fromField.value.value)
+            }
+        }
     }
     
     /// Copy attachment file names from this note to another one. 
@@ -1573,7 +1589,7 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
         print(" ")
         print ("Note.display")
         for def in collection.dict.list {
-            print ("Field Label Proper: \(def.fieldLabel.properForm) + common: \(def.fieldLabel.commonForm) + type: \(def.fieldType)")
+            print ("Field Label - Proper: \(def.fieldLabel.properForm), common: \(def.fieldLabel.commonForm), type: \(def.fieldType)")
             let field = fields[def.fieldLabel.commonForm]
             if field == nil {
                 print(" - No value found for this field for this Note")
