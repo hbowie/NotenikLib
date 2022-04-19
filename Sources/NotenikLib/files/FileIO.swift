@@ -504,13 +504,16 @@ public class FileIO: NotenikIO, RowConsumer {
         
         guard collection!.lib.hasAvailable(type: .collection) else { return false }
         guard let url = collection!.lib.getURL(type: .collection) else { return false }
-        if collection!.lib.itemsFound == 0 {
-            collection!.setTitleFromURL(url)
-            return true
-        } else if collection!.lib.hasAvailable(type: .info) {
+        if collection!.lib.hasAvailable(type: .info) {
             collection!.setTitleFromURL(url)
             return true
         } else if collection!.lib.notesFound > 0 {
+            collection!.setTitleFromURL(url)
+            return true
+        } else if collection!.lib.itemsFound == 0 {
+            collection!.setTitleFromURL(url)
+            return true
+        } else if collection!.lib.subFoldersFound == collection!.lib.itemsFound {
             collection!.setTitleFromURL(url)
             return true
         } else {

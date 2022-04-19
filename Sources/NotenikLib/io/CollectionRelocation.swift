@@ -16,6 +16,8 @@ import NotenikUtils
 /// An object that moves or copies a Collection from one path to another.
 public class CollectionRelocation {
     
+    let fm = FileManager.default
+    
     var fromPath = ""
     var fromIO = FileIO()
     var fromCollection: NoteCollection?
@@ -51,6 +53,25 @@ public class CollectionRelocation {
         toPath = to
         self.move = move
         
+        // Copy or Move Nested Collections.
+        do {
+            let dirContents = try fm.contentsOfDirectory(atPath: from)
+            for dirEntry in dirContents {
+                let subFrom = FileUtils.joinPaths(path1: from, path2: dirEntry)
+                let isDir = FileUtils.isDir(subFrom)
+                if isDir {
+                    let infoPath = FileUtils.joinPaths(path1: subFrom, path2: ResourceFileSys.infoFileName)
+                    if fm.fileExists(atPath: infoPath) {
+                        let subTo = FileUtils.joinPaths(path1: to, path2: dirEntry)
+                        let subRelo = CollectionRelocation()
+                        _ = subRelo.copyOrMoveCollection(from: subFrom, to: subTo, move: move)
+                    }
+                }
+            }
+        } catch {
+            logError("Could not read contents of directory at \(from)")
+        }
+        
         // Init counters
         errors = 0
         notesWritten = 0
@@ -83,6 +104,7 @@ public class CollectionRelocation {
         toCollection = toIO.collection!
         toDict = toCollection!.dict
         
+        toCollection!.title = fromCollection!.title
         toCollection!.noteType = fromCollection!.noteType
         toCollection!.idFieldDef = fromCollection!.idFieldDef.copy()
         toCollection!.sortParm = fromCollection!.sortParm
@@ -96,6 +118,7 @@ public class CollectionRelocation {
         toCollection!.titleDisplayOption = fromCollection!.titleDisplayOption
         toCollection!.streamlined = fromCollection!.streamlined
         toCollection!.mathJax = fromCollection!.mathJax
+        toCollection!.shortcut = fromCollection!.shortcut
         
         toNotesPath = toCollection!.lib.getPath(type: .notes)
 
@@ -108,7 +131,10 @@ public class CollectionRelocation {
             toDef.fieldLabel = toLabel
             toDef.typeCatalog = def.typeCatalog
             toDef.fieldType = def.fieldType
-            _ = toDict.addDef(toDef)
+            toDef.lookupFrom = def.lookupFrom
+            if let addedDef = toDict.addDef(toDef) {
+                toCollection?.registerDef(addedDef)
+            }
         }
         guard toIO.newCollection(collection: toCollection!, withFirstNote: false) else {
             logError("Could not open requested output folder at \(toPath) as a new Notenik collection")
@@ -121,7 +147,8 @@ public class CollectionRelocation {
         while nextNote != nil {
             let fromNote = nextNote!
             let toNote = Note(collection: toCollection!)
-            for def in fromDict.list {
+            fromNote.copyDefinedFields(to: toNote)
+            /* for def in fromDict.list {
                 let toDef = toDict.getDef(def.fieldLabel.commonForm)
                 if toDef != nil {
                     let field = fromNote.getField(def: toDef!)
@@ -133,7 +160,7 @@ public class CollectionRelocation {
                     }
                 }
             }
-            toNote.setID()
+            toNote.setID() */
             toNote.fileInfo.ext = toCollection!.preferredExt
             toNote.fileInfo.format = .notenik
             toNote.fileInfo.genFileName()
@@ -157,6 +184,17 @@ public class CollectionRelocation {
         
         // Let's carry along any timestamp aliases.
         toIO.importAliasList(from: fromIO)
+        
+        // If this new Collection has a shortcut, then make it known globally.
+        if let collection = toIO.collection {
+            if let url = collection.fullPathURL {
+                if !collection.shortcut.isEmpty {
+                    let link = NotenikLink(url: url, isCollection: true)
+                    link.shortcut = collection.shortcut
+                    MultiFileIO.shared.register(link: link)
+                }
+            }
+        }
         
         // Now let's close the I/O modules for the from and to collections. 
         fromIO.closeCollection()

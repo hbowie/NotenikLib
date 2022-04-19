@@ -15,7 +15,7 @@ import Foundation
 /// Info about a Notenik Collection. 
 public class MultiFileEntry {
     public var link =    NotenikLink()
-    var io:       FileIO?
+    public var io:       FileIO?
     
     public init (link: NotenikLink) {
         self.link = link
