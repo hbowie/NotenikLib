@@ -59,10 +59,9 @@ public class MultiFileIO {
     }
     
     /// Attempt to get a Note from the indicated lookup Collection.
-    public func getNote(shortcut: String, forID id: String) -> Note? {
+    public func getNote(shortcut: String, knownAs vagueID: String) -> Note? {
         guard let io = getFileIO(shortcut: shortcut) else { return nil }
-        let commonID = StringUtils.toCommon(id)
-        return io.getNote(forID: commonID)
+        return io.getNote(knownAs: vagueID)
     }
     
     public func getNotesList(shortcut: String) -> NotesList? {
@@ -140,6 +139,13 @@ public class MultiFileIO {
             register(link: link, io: io)
         }
         return io
+    }
+    
+    public func getLink(shortcut: String) -> NotenikLink? {
+        guard let entry = entries[shortcut] else {
+            return nil
+        }
+        return entry.link
     }
     
     // -----------------------------------------------------------

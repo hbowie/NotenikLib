@@ -535,7 +535,7 @@ public class NoteFieldsToHTML {
         
         var detailsFound = false
         let shortcut = field.def.lookupFrom
-        let lookupNote = MultiFileIO.shared.getNote(shortcut: shortcut, forID: field.value.value)
+        let lookupNote = MultiFileIO.shared.getNote(shortcut: shortcut, knownAs: field.value.value)
         if lookupNote == nil {
             markedup.startParagraph()
             markedup.append(field.def.fieldLabel.properForm)

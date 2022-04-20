@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 8/23/21.
 //
-//  Copyright © 2021 Herb Bowie (https://hbowie.net)
+//  Copyright © 2021 - 2022 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -30,12 +30,10 @@ public class FieldGrabber {
             guard field.def.fieldType is LookupType else { continue }
             guard !field.def.lookupFrom.isEmpty else { continue }
             guard field.value.hasData else { continue }
-            let id = StringUtils.toCommon(field.value.value)
-            let lookupNote = MultiFileIO.shared.getNote(shortcut: field.def.lookupFrom, forID: id)
+            let lookupNote = MultiFileIO.shared.getNote(shortcut: field.def.lookupFrom, knownAs: field.value.value)
             guard lookupNote != nil else { continue }
             let field = getField(note: lookupNote!, label: label.commonForm)
             guard field != nil else { continue }
-            // print("FieldGrabber.lookupField returned label = \(label.properForm), value = \(field!.value.value)")
             return field
         }
         return nil
