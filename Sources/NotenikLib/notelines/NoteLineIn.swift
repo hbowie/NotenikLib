@@ -318,6 +318,7 @@ class NoteLineIn {
         print(" ")
         print("NoteLineIn")
         print("  - line: \(line)")
+        print("  - mmd meta start/end line \(mmdMetaStartEndLine)")
         print("  - label: \(label.properForm)")
         print("  - valid label? \(validLabel)")
         print("  - value: \(value)")

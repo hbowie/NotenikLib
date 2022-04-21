@@ -461,6 +461,7 @@ public class NoteCollection {
         print(" ")
         print("Collection info")
         print("  - Title: \(title)")
+        print("  - File Format: \(noteFileFormat)")
         if akaFieldDef != nil {
             print("  - AKA Field: \(akaFieldDef!.fieldLabel.properForm)")
         }
