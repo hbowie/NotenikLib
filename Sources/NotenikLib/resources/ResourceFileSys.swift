@@ -47,7 +47,7 @@ public class ResourceFileSys: CustomStringConvertible, Comparable {
     public var isReadable = false
     public var isDirectory = false
     
-    var type: ResourceType = .unknown
+    public var type: ResourceType = .unknown
 
     var base = ""
     var baseLower = ""
@@ -71,7 +71,7 @@ public class ResourceFileSys: CustomStringConvertible, Comparable {
     }
     
     /// Initialize with the path to the enclosing folder, plus the item within the folder.
-    init(folderPath: String, fileName: String, type: ResourceType = .unknown, preferredNoteExt: String = "txt") {
+    public init(folderPath: String, fileName: String, type: ResourceType = .unknown, preferredNoteExt: String = "txt") {
         self.folderPath = folderPath
         self.type = type
         if fileName.hasPrefix(ResourceFileSys.cloudyPrefix) && fileName.hasSuffix(ResourceFileSys.cloudySuffix) {
