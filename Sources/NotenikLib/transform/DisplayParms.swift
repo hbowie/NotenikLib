@@ -75,7 +75,7 @@ public class DisplayParms {
     
     public var formatIsHTML: Bool {
         switch format {
-        case .htmlDoc, .htmlFragment:
+        case .htmlDoc, .xhtmlDoc, .htmlFragment:
             return true
         default:
             return false
