@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 6/4/21.
 //
-//  Copyright © 2021 Herb Bowie (https://hbowie.net)
+//  Copyright © 2021-2022 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -17,7 +17,7 @@ import NotenikUtils
 /// Configuration information for a field that can have both an integer and character values.
 public class IntWithLabelConfig {
     
-    public var low = 0
+    public var low = 1
     
     public var high = 9
     
@@ -40,6 +40,7 @@ public class IntWithLabelConfig {
     ///                      corresponding label. Punctuation is optional but may be added
     ///                      for readability.
     func set (_ options: String) {
+        guard !options.isEmpty else { return }
         clear()
         var firstInt = true
         var i = -1
