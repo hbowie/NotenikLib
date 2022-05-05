@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 2/26/21.
 //
-//  Copyright © 2021 Herb Bowie (https://hbowie.net)
+//  Copyright © 2021 - 2022 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -475,6 +475,8 @@ public class ResourceFileSys: CustomStringConvertible, Comparable {
             type = .license
         } else if (_fName == "README" || _fName == "README.txt" || _fName == "README.md" || _fName == "- README.txt") {
             type = .readme
+        } else if _fName == "robots.txt" {
+            type = .robots
         } else if (baseLower == "collection parms") {
             type = .collectionParms
         } else if (_fName == ResourceFileSys.aliasFileName) {

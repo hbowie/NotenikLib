@@ -29,6 +29,7 @@ public enum ResourceType {
     case note 
     case notes
     case notesSubfolder
+    case robots
     case parent
     case readme
     case reports

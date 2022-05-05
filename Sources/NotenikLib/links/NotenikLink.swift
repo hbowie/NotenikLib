@@ -496,9 +496,10 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
                 if itemLink.type == .folder {
                     foldersFound += 1
                 } else if itemLink.type == .noteFile {
-                    notesFound += 1
                     if itemPath == "robots.txt" {
                         robotsFileFound = true
+                    } else {
+                        notesFound += 1
                     }
                 }
             }
