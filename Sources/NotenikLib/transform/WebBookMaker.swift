@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 7/6/21.
 //
-//  Copyright © 2021-2022 Herb Bowie (https://hbowie.net)
+//  Copyright © 2021 - 2022 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -14,7 +14,8 @@ import Foundation
 
 import NotenikUtils
 
-/// A class to make web books.
+/// A class to make web books. Note that the output can be formatted as an EPUB, or
+/// as a  website. Even the EPUB format, though, can become part of a larger website.
 public class WebBookMaker {
     
     let fm = FileManager.default
@@ -22,9 +23,7 @@ public class WebBookMaker {
     let headerFileName = "header"
     let headerFileExt = "html"
     let lineBreak = "\n"
-    let cssFolderName = "css"
-    let cssFileName = "styles"
-    let cssFileExt = "css"
+
     let htmlFolderName = "html"
     let htmlFileExt = "html"
     let imagesFolderName = "images"
@@ -34,36 +33,29 @@ public class WebBookMaker {
     let tagsFileName = "tags-outline-for-book"
     let tagsPageTitle = "Tags Outline"
     
-    var parms = DisplayParms()
-    var display = NoteDisplay()
-    
-    var collectionURL: URL
-    var collectionLink: NotenikLink
-    var collection: NoteCollection
-    var io: FileIO
-    
-    var epub = true
-    var firstPage = true
-    
-    var bookFolder:     URL
     var headerFile:     URL
     var pubFolder:      URL
-    var cssFolder:      URL
-    var cssFile:        URL
+
     var htmlFolder:     URL
     var imagesFolder:   URL
     var opfFile:        URL!
     var tagsFile:       URL!
     
     var header = ""
-    var defaultCSS = ""
-    var bookTitle = ""
-    var opfManifest = ""
-    var opfSpine = ""
+
     var filesDeleted = 0
     var filesWritten = 0
     
     let htmlConverter = StringConverter()
+    
+    var collectionURL:  URL
+    var collectionLink: NotenikLink
+    var collection:     NoteCollection
+    var io:             FileIO
+    
+    var bookFolder:     URL
+    
+    var epub = true
     
     /// Attempt to initialize an instance.
     public init?(input: URL, output: URL, epub: Bool) {
@@ -82,9 +74,7 @@ public class WebBookMaker {
         } else {
             pubFolder = bookFolder
         }
-        cssFolder = pubFolder.appendingPathComponent(cssFolderName, isDirectory: true)
-        guard FileUtils.ensureFolder(forURL: cssFolder) else { return nil }
-        cssFile = URL(fileURLWithPath: cssFileName, relativeTo: cssFolder).appendingPathExtension(cssFileExt)
+
         if epub {
             htmlFolder = pubFolder.appendingPathComponent(htmlFolderName, isDirectory: true)
             guard FileUtils.ensureFolder(forURL: htmlFolder) else { return nil }
@@ -93,10 +83,6 @@ public class WebBookMaker {
         }
         imagesFolder = pubFolder.appendingPathComponent(imagesFolderName, isDirectory: true)
         guard FileUtils.ensureFolder(forURL: imagesFolder) else { return nil }
-        if epub {
-            opfFile = URL(fileURLWithPath: opfFileName, relativeTo: pubFolder).appendingPathExtension(opfFileExt)
-            tagsFile = URL(fileURLWithPath: tagsFileName, relativeTo: htmlFolder).appendingPathExtension(htmlFileExt)
-        }
         
         // Open the input.
         collectionLink = NotenikLink(url: input)
@@ -124,16 +110,12 @@ public class WebBookMaker {
         
         parms = DisplayParms()
         parms.setCSS(useFirst: collection.displayCSS, useSecond: DisplayPrefs.shared.bodyCSS)
-        defaultCSS = parms.cssString
-        defaultCSS.append("\nimg { max-width: 100%; border: 4px solid gray; }")
-        defaultCSS.append("\nbody { max-width: 33em; margin: 0 auto; float: none; }")
+
         if epub {
-            parms.cssString = "../\(cssFolderName)/\(cssFileName).\(cssFileExt)"
+            parms.format = .xhtmlDoc
         } else {
-            parms.cssString = "\(cssFolderName)/\(cssFileName).\(cssFileExt)"
+            parms.format = .htmlDoc
         }
-        parms.cssLinkToFile = true
-        parms.format = .htmlDoc
         parms.sortParm = .seqPlusTitle
         parms.streamlined = true
         parms.wikiLinkPrefix = ""
@@ -150,11 +132,17 @@ public class WebBookMaker {
         parms.header = header
         
         htmlConverter.addHTML()
+        
+        if epub {
+            opfFile = URL(fileURLWithPath: opfFileName, relativeTo: pubFolder).appendingPathExtension(opfFileExt)
+            tagsFile = URL(fileURLWithPath: tagsFileName, relativeTo: htmlFolder).appendingPathExtension(htmlFileExt)
+        }
     }
     
     /// Create an index file pointing to the first page of the book.
     /// - Parameter indexURL: The URL of the file to be written.
     /// - Returns: An error message, if problems.
+    /*
     public func webBookIndexRedirect(_ indexURL: URL) -> String? {
         
         let (note1, _) = io.firstNote()
@@ -197,17 +185,59 @@ public class WebBookMaker {
             return "Could not write Web Book Index Redirect file to \(indexURL.path)"
         }
         return nil
-    }
+    } */
+    
+    // -----------------------------------------------------------
+    //
+    // MARK: Generate a Web Book.
+    //
+    // -----------------------------------------------------------
     
     /// Use the Collection found at the input URL to generate a Web book within the output URL.
     public func generate() -> Int {
         
-        opfManifest = ""
-        writeLineToManifest(indentLevel: 1, text: "<manifest>")
+        if epub {
+            generateMimetype()
+            manifestStarted = false
+            generateManifest(noteTitle: nil, finish: false)
+            spineStarted = false
+            generateSpine(noteTitle: nil, finish: false)
+        }
         
-        opfSpine = ""
         generateCSS()
         
+        deleteOldFiles()
+        
+        // Now generate fresh content.
+        filesWritten = 0
+        io.sortParm = .seqPlusTitle
+        bookTitle = ""
+        var (note, position) = io.firstNote()
+        firstPage = true
+        while note != nil && position.valid {
+            generate(note: note!)
+            (note, position) = io.nextNote(position)
+            firstPage = false
+        }
+        
+        // Now finish up.
+        if epub {
+            generateManifest(noteTitle: nil, finish: true)
+            generateSpine(noteTitle: nil, finish: true)
+            writeOPF()
+        }
+        
+        logInfo(msg: "\(filesWritten) files written to \(bookFolder)")
+        return filesWritten
+    }
+    
+    // -----------------------------------------------------------
+    //
+    // MARK: Delete old files before regenerating them.
+    //
+    // -----------------------------------------------------------
+    
+    func deleteOldFiles() {
         // Delete any html files already present in the output folder.
         filesDeleted = 0
         do {
@@ -241,48 +271,92 @@ public class WebBookMaker {
             communicateError("Could not read directory at \(imagesFolder)")
         }
         logInfo(msg: "\(filesDeleted) files deleted from \(imagesFolder)")
-        
-        // Now generate fresh content.
-        filesWritten = 0
-        io.sortParm = .seqPlusTitle
-        
-        var (note, position) = io.firstNote()
-        firstPage = true
-        while note != nil && position.valid {
-            generate(note: note!)
-            (note, position) = io.nextNote(position)
-            firstPage = false
-        }
-        
-        writeLineToManifest(indentLevel: 1, text: "</manifest>")
-        
-        if epub {
-            writeOPF()
-        }
-        
-        logInfo(msg: "\(filesWritten) files written to \(bookFolder)")
-        return filesWritten
     }
+    
+    // -----------------------------------------------------------
+    //
+    // MARK: Generate mimetype file for an EPUB.
+    //
+    // -----------------------------------------------------------
+    
+    let mimetypeFileName = "mimetype"
+    var mimetypeFile:   URL!
+    
+    func generateMimetype() {
+
+
+        mimetypeFile = URL(fileURLWithPath: mimetypeFileName, relativeTo: pubFolder)
+
+        let mimetype = "application/epub+zip"
+        do {
+            try mimetype.write(to: mimetypeFile, atomically: true, encoding: .utf8)
+        } catch {
+            communicateError("Could not mimetype to \(mimetypeFile!)")
+        }
+    }
+    
+    // -----------------------------------------------------------
+    //
+    // MARK: Generate a default CSS style sheet.
+    //
+    // -----------------------------------------------------------
+    
+    let cssFolderName = "css"
+    let cssFileName = "styles"
+    let cssFileExt = "css"
+    
+    var cssFolder:      URL?
+    var cssFile:        URL?
+    
+    var defaultCSS = ""
     
     /// If the CSS file already exists, then leave it in place.
     func generateCSS() {
+        
+        cssFolder = pubFolder.appendingPathComponent(cssFolderName, isDirectory: true)
+        guard FileUtils.ensureFolder(forURL: cssFolder!) else { return }
+        cssFile = URL(fileURLWithPath: cssFileName, relativeTo: cssFolder).appendingPathExtension(cssFileExt)
+        
+        defaultCSS = parms.cssString
+        defaultCSS.append("\nimg { max-width: 100%; border: 4px solid gray; }")
+        defaultCSS.append("\nbody { max-width: 33em; margin: 0 auto; float: none; }")
+        
+        if epub {
+            parms.cssString = "../\(cssFolderName)/\(cssFileName).\(cssFileExt)"
+        } else {
+            parms.cssString = "\(cssFolderName)/\(cssFileName).\(cssFileExt)"
+        }
+        parms.cssLinkToFile = true
+        
         var css = ""
         do {
-            css = try String(contentsOf: cssFile)
+            css = try String(contentsOf: cssFile!)
         } catch {
             css = ""
         }
         guard css.isEmpty else { return }
         css = defaultCSS
         do {
-            try css.write(to: cssFile, atomically: true, encoding: .utf8)
+            try css.write(to: cssFile!, atomically: true, encoding: .utf8)
             filesWritten += 1
         } catch {
-            communicateError("Could not write CSS file to \(cssFile)")
+            communicateError("Could not write CSS file to \(cssFile!)")
         }
     }
     
-    /// Generate for the next Note. 
+    // -----------------------------------------------------------
+    //
+    // MARK: Generate appropriate output for each Note.
+    //
+    // -----------------------------------------------------------
+    
+    var bookTitle = ""
+    var firstPage = true
+    
+    var parms = DisplayParms()
+    var display = NoteDisplay()
+    
+    /// Generate appropriate output for the next Note.
     func generate(note: Note) {
         
         let title = note.title.value
@@ -311,20 +385,23 @@ public class WebBookMaker {
         let written = FileUtils.saveToDisk(strToWrite: code,
                                            outputURL: fileURL,
                                            createDirectories: true,
-                                           checkForChanges: true)
+                                           checkForChanges: false)
         
         if firstPage && !epub {
             let indexURL = URL(fileURLWithPath: "index", relativeTo: htmlFolder).appendingPathExtension(htmlFileExt)
             _ = FileUtils.saveToDisk(strToWrite: code,
                                      outputURL: indexURL,
                                      createDirectories: false,
-                                     checkForChanges: true)
+                                     checkForChanges: false)
         }
         
         if written {
             filesWritten += 1
-            writeNoteToManifest(title: title)
             copyImageAsNeeded(note: note)
+            if epub {
+                generateManifest(noteTitle: title, finish: false)
+                generateSpine(noteTitle: title, finish: false)
+            }
         } 
     }
     
@@ -333,32 +410,96 @@ public class WebBookMaker {
         let toName = note.imageCommonName
         let toURL = imagesFolder.appendingPathComponent(toName)
         do {
-            try FileManager.default.copyItem(at: fromURL, to: toURL)
+            try fm.copyItem(at: fromURL, to: toURL)
         } catch {
-            print("Image Copy failed!")
-            print("  - from: \(fromURL)")
-            print("  - to:   \(toURL)")
+            communicateError("Image Copy Failed -- from: \(fromURL) -- to: \(toURL)")
         }
     }
     
-    func writeNoteToManifest(title: String) {
-        var text = "<item href=\""
-        text.append(htmlFolderName)
-        text.append("/")
-        text.append(StringUtils.toCommonFileName(title))
-        text.append(".")
-        text.append(htmlFileExt)
-        text.append("\" id=\"")
-        text.append(StringUtils.toCommon(title))
-        text.append("\" media-type=\"text/html\"/>")
-        writeLineToManifest(indentLevel: 2, text: text)
-        // "<item href="\/epub30-titlepage.xhtml" id="ttl" media-type="application/xhtml+xml"/>"
+    // -----------------------------------------------------------
+    //
+    // MARK: Generate an OPF manifest.
+    //
+    // -----------------------------------------------------------
+    
+    var opfManifest = ""
+    var manifestStarted = false
+    
+    func generateManifest(noteTitle: String?, finish: Bool = false) {
+        
+        if !manifestStarted {
+            opfManifest = ""
+            writeLineToManifest(indentLevel: 1, text: "<manifest>")
+            manifestStarted = true
+        }
+        
+        if let title = noteTitle {
+            if !title.isEmpty {
+                var text = "<item href=\""
+                text.append(htmlFolderName)
+                text.append("/")
+                text.append(StringUtils.toCommonFileName(title))
+                text.append(".")
+                text.append(htmlFileExt)
+                text.append("\" id=\"")
+                text.append(StringUtils.toCommon(title))
+                text.append("\" media-type=\"text/html\"/>")
+                writeLineToManifest(indentLevel: 2, text: text)
+                // "<item href="\/epub30-titlepage.xhtml" id="ttl" media-type="application/xhtml+xml"/>"
+            }
+        }
+        
+        if finish {
+            writeLineToManifest(indentLevel: 1, text: "</manifest>")
+        }
     }
     
     func writeLineToManifest(indentLevel: Int, text: String) {
         let indent = String(repeating: " ", count: indentLevel * 2)
         opfManifest.append(indent + text + lineBreak)
     }
+    
+    // -----------------------------------------------------------
+    //
+    // MARK: Generate an OPF spine.
+    //
+    // -----------------------------------------------------------
+    
+    var opfSpine = ""
+    var spineStarted = false
+    
+    func generateSpine(noteTitle: String?, finish: Bool = false) {
+        
+        if !spineStarted {
+            opfSpine = ""
+            writeLineToSpine(indentLevel: 1, text: "<spine toc=\"ncx\">")
+            spineStarted = true
+        }
+        
+        if let title = noteTitle {
+            if !title.isEmpty {
+                var text = "<itemref idref=\""
+                text.append(StringUtils.toCommon(title))
+                text.append("\" />")
+                writeLineToSpine(indentLevel: 2, text: text)
+            }
+        }
+        
+        if finish {
+            writeLineToSpine(indentLevel: 1, text: "</spine>")
+        }
+    }
+    
+    func writeLineToSpine(indentLevel: Int, text: String) {
+        let indent = String(repeating: " ", count: indentLevel * 2)
+        opfSpine.append(indent + text + lineBreak)
+    }
+    
+    // -----------------------------------------------------------
+    //
+    // MARK: Write out the OPF file for an epub.
+    //
+    // -----------------------------------------------------------
     
     func writeOPF() {
         var opf = ""
@@ -374,6 +515,8 @@ public class WebBookMaker {
         
         opf.append(opfManifest)
         
+        opf.append(opfSpine)
+        
         opf.append("</package>\n")
         
         do {
@@ -383,6 +526,12 @@ public class WebBookMaker {
             communicateError("Problems writing OPF file to \(opfFile!)")
         }
     }
+    
+    // -----------------------------------------------------------
+    //
+    // MARK: Utility methods.
+    //
+    // -----------------------------------------------------------
     
     /// Send an informational message to the log.
     func logInfo(msg: String) {
