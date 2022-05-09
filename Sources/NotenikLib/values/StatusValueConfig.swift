@@ -47,7 +47,7 @@ public class StatusValueConfig {
     }
     
     /// Get the lowest index for this config. This should be the least complete status. 
-    var lowIndex: Int {
+    public var lowIndex: Int {
         var i = 0
         for option in statusOptions {
             if option.count > 0 && option != " "  { return i }
@@ -57,7 +57,7 @@ public class StatusValueConfig {
     }
     
     /// Get the highest index for this config. This should be the most complete status.
-    var highIndex: Int {
+    public var highIndex: Int {
         var i = 10
         while i > 0 {
             i -= 1
