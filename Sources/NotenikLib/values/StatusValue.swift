@@ -1,9 +1,9 @@
 //
 //  StatusValue.swift
-//  Notenik
+//  NotenikLib
 //
 //  Created by Herb Bowie on 12/7/18.
-//  Copyright © 2018 - 2019 Herb Bowie (https://hbowie.net)
+//  Copyright © 2018 - 2022 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -33,6 +33,7 @@ public class StatusValue: StringValue {
     
     /// Toggle between most complete status and least complete.
     func toggle(config: StatusValueConfig) {
+        guard statusInt >= 0 else { return }
         var toggleIndex = 0
         if statusInt >= config.highIndex {
             toggleIndex = config.lowIndex
@@ -44,6 +45,7 @@ public class StatusValue: StringValue {
     
     /// Increment this status to the next valid value. 
     func increment(config: StatusValueConfig) {
+        guard statusInt >= 0 else { return }
         var incIndex = 0
         if statusInt < config.highIndex {
             incIndex = statusInt + 1
@@ -77,32 +79,7 @@ public class StatusValue: StringValue {
     /// Set the status using a string and the passed Status Value Config
     func set(str: String, config: StatusValueConfig) {
         super.set(str)
-        var digits = 0
-        for c in str {
-            if StringUtils.isDigit(c) {
-                digits += 1
-            }
-        }
-        guard digits < 2 else { return }
-        var i = config.get(str)
-        if i >= 0 {
-            statusInt = i
-            self.value = config.getFullString(fromIndex: i)
-            self.label = config.get(i)
-        } else {
-            let trimmed = StringUtils.trim(str)
-            if trimmed.count >= 1 {
-                let c = StringUtils.charAt(index: 0, str: trimmed)
-                if StringUtils.isDigit(c) {
-                    i = Int(String(c))!
-                    if config.validStatus(i) {
-                        statusInt = i
-                        self.value = config.getFullString(fromIndex: i)
-                        self.label = config.get(i)
-                    }
-                }
-            }
-        }
+        (statusInt, label) = config.match(str)
     }
     
     
@@ -133,7 +110,7 @@ public class StatusValue: StringValue {
     }
     
     public func display() {
-        print("StatusValue int = \(statusInt), value = \(value)")
+        print("StatusValue int = \(statusInt), label = \(label), value = \(value)")
     }
     
 }

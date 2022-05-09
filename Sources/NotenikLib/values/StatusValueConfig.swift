@@ -18,7 +18,15 @@ public class StatusValueConfig {
     
     public var statusOptions : [String] = []
     
-    public var doneThreshold = 6 
+    public var freeformValues: [String] = []
+    
+    public var doneThreshold = 6
+    
+    // -----------------------------------------------------------
+    //
+    // MARK: Methods to get and set the options as a whole.
+    //
+    // -----------------------------------------------------------
     
     init() {
         statusOptions.append("Idea")             // 0
@@ -88,6 +96,7 @@ public class StatusValueConfig {
             statusOptions[i] = ""
             i += 1
         }
+        freeformValues = []
     }
     
     /// Set the label for a given index
@@ -109,8 +118,25 @@ public class StatusValueConfig {
         return opts
     }
     
+    // -----------------------------------------------------------
+    //
+    // MARK: Methods to deal with specific status values.
+    //
+    // -----------------------------------------------------------
+    
+    func registerValue(_ value: String) {
+        let (index, _) = match(value)
+        if index >= 0 { return }
+        let valueLower = StringUtils.trim(value).lowercased()
+        for ff in freeformValues {
+            if valueLower == ff { return }
+        }
+        freeformValues.append(valueLower)
+        freeformValues.sort()
+    }
+    
     /// Is this status integer valid?
-    func validStatus(_ i : Int) -> Bool {
+    func validStatus(_ i: Int) -> Bool {
         let label = get(i)
         return label.count > 0 && label != " "
     }
@@ -134,8 +160,13 @@ public class StatusValueConfig {
     /// Format a String starting with the status integer, followed by a hyphen,
     /// followed by the standard label.
     public func getFullString(fromLabel label: String) -> String {
-        let i = get(label)
-        return getFullString(fromIndex: i)
+        
+        let (i, _) = match(label)
+        if i >= 0 {
+            return getFullString(fromIndex: i)
+        } else {
+            return label
+        }
     }
     
     /// Format a String starting with the status integer, followed by a hyphen,
@@ -150,156 +181,95 @@ public class StatusValueConfig {
     
     public func normalize(str: String, withDigit: Bool) -> String {
         
-        // Make sure we have something to normalize.
-        guard !str.isEmpty else { return str }
-        
-        // If we have a leading digit, use that, if possible.
-        if let firstChar: Character = str.first {
-            if let index = firstChar.wholeNumberValue {
-                let statusOption = statusOptions[index]
-                if !statusOption.isEmpty {
-                    if withDigit {
-                        return String(index) + " - " + statusOption
-                    } else {
-                        return statusOption
-                    }
-                }
-            }
+        let (index, label) = match(str)
+        if withDigit && index >= 0 {
+            return String(index) + " - " + label
+        } else {
+            return label
         }
-        
-        // Look for an alpha label.
-        let lower = str.lowercased()
-        var looking = true
-        var alphaLabel = ""
-        for char in lower {
-            if StringUtils.isDigit(char) || char.isWhitespace || char == "-" {
-                // keep looking
-            } else {
-                looking = false
-            }
-            if !looking {
-                alphaLabel.append(char)
-            }
-        }
-        
-        // Make sure we have an alpha label worth searching for.
-        guard alphaLabel.count > 2 else { return str }
-        
-        // Look for at least a partial match.
-        var i = 0
-        for nextLabel in statusOptions {
-            guard !nextLabel.isEmpty else {
-                i += 1
-                continue
-            }
-            if nextLabel.lowercased().hasPrefix(alphaLabel) {
-                if withDigit {
-                    return (String(i) + " - " + nextLabel)
-                } else {
-                    return nextLabel
-                }
-            }
-            i += 1
-        }
-        
-        // No match, so return the value we were passed.
-        return str
     }
     
     public func getIndexFor(str: String) -> Int? {
         
-        // Make sure we have something to search for.
-        guard !str.isEmpty else { return nil }
-        
-        // If we have a leading digit, use that, if possible.
-        if let firstChar: Character = str.first {
-            if let index = firstChar.wholeNumberValue {
-                let statusOption = statusOptions[index]
-                if !statusOption.isEmpty {
-                    return index
-                }
-            }
+        let (index, _) = match(str)
+        if index >= 0 {
+            return index
+        } else {
+            return nil
         }
-        
-        // Look for an alpha label.
-        let lower = str.lowercased()
-        var looking = true
-        var alphaLabel = ""
-        for char in lower {
-            if StringUtils.isDigit(char) || char.isWhitespace || char == "-" {
-                // keep looking
-            } else {
-                looking = false
-            }
-            if !looking {
-                alphaLabel.append(char)
-            }
-        }
-        
-        // Make sure we have an alpha label worth searching for.
-        guard alphaLabel.count > 2 else { return nil }
-        
-        // Look for at least a partial match.
-        var i = 0
-        for nextLabel in statusOptions {
-            guard !nextLabel.isEmpty else {
-                i += 1
-                continue
-            }
-            if nextLabel.lowercased().hasPrefix(alphaLabel) {
-                return i
-            }
-            i += 1
-        }
-        
-        // No match, so return nil.
-        return nil
     }
     
     /// Return the corresponding index for the passed label (or partial label),
     /// or -1 if the label is invalid. 
     public func get(_ label: String) -> Int {
-        if label.count > 0 {
-            let firstChar = StringUtils.charAt(index: 0, str: label)
-            var index = 0
-            if StringUtils.isDigit(firstChar) {
-                index = Int(String(firstChar))!
-                let statusOption = statusOptions[index]
-                if statusOption.count > 0 {
-                    return index
+        
+        let (index, _) = match(label)
+        return index
+    }
+    
+    /// Look for a matching status entry, by either a digit or a partial label.
+    /// - Parameter str: A status string, possibly starting with a digit.
+    /// - Returns: The index pointing to the entry, or -1 if no match; and
+    ///            the matching label, or the input string, if no match.
+    public func match(_ str: String) -> (Int, String) {
+        
+        var position: ScanPosition = .beginning
+        var alphaLabel = ""
+        var pendingSpaces = 0
+        for char in str.lowercased() {
+            
+            if position == .beginning {
+                if char.isWhitespace {
+                    continue
+                } else if let index = char.wholeNumberValue {
+                    if index >= 0 && index <= 9 {
+                        let statusOption = statusOptions[index]
+                        if !statusOption.isEmpty {
+                            return (index, statusOption)
+                        }
+                    }
+                }
+                position = .seekingAlpha
+            }
+            
+            if position == .seekingAlpha {
+                if char.isWhitespace || char.isNumber || char == "-" {
+                    continue
+                }
+                position = .alphaFound
+            }
+            
+            if position == .alphaFound {
+                if char.isWhitespace {
+                    pendingSpaces += 1
+                } else {
+                    if pendingSpaces > 0 {
+                        alphaLabel.append(" ")
+                        pendingSpaces = 0
+                    }
+                    alphaLabel.append(char)
                 }
             }
         }
-        let lower = label.lowercased()
-        var j = 0
-        var looking = true
-        var alphaLabel = ""
-        while j < lower.count {
-            let nextChar = StringUtils.charAt(index: j, str: lower)
-            if StringUtils.isDigit(nextChar) || nextChar == " " || nextChar == "-" {
-                // Keep looking
-            } else {
-                looking = false
-            }
-            if !looking {
-                alphaLabel.append(nextChar)
-            }
-            j += 1
-        }
-        var found = false
+        
+        // Make sure we have an alpha label worth trying to match.
+        guard alphaLabel.count > 2 else { return (-1, str) }
+        
+        // Look for at least a partial match.
         var i = 0
-        while !found && i <= 9 {
-            let nextLabel = statusOptions[i]
-            found = nextLabel.count > 0 && nextLabel.lowercased().hasPrefix(lower)
-            if !found {
+        for nextLabel in statusOptions {
+            guard !nextLabel.isEmpty else {
                 i += 1
+                continue
             }
+            if nextLabel.lowercased().hasPrefix(alphaLabel) {
+                return (i, nextLabel)
+            }
+            i += 1
         }
-        if found {
-            return i
-        } else {
-            return -1
-        }
+        
+        // No match, so return the input string.
+        return (-1, str)
     }
     
     func display() {
@@ -312,6 +282,12 @@ public class StatusValueConfig {
             print("  \(i). \(statusOptions[i])")
             i += 1
         }
+    }
+    
+    enum ScanPosition {
+        case beginning
+        case seekingAlpha
+        case alphaFound
     }
     
 }

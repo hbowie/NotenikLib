@@ -131,6 +131,10 @@ class BunchOfNotes {
             }
         }
         
+        if note.hasStatus() {
+            collection.statusConfig.registerValue(note.status.value)
+        }
+        
         return true
 
     }
