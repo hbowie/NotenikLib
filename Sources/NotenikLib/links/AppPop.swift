@@ -165,8 +165,6 @@ public class AppPop {
     ///   - bundleName: The name of an identified app within the folder.
     func handleApp(appFolder: URL, bundleName: String) {
         
-        let appURL = appFolder.appendingPathComponent(bundleName)
-        
         // Get the app name, without the trailing '.app'
         var components = bundleName.components(separatedBy: ".")
         guard components.count > 1 else { return }
