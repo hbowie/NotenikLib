@@ -21,8 +21,6 @@ public class AppPop {
     
     let fm = FileManager.default
     
-    let byteCountFormatter = ByteCountFormatter()
-    
     let linkToLaunchProper = "Link to Launch"
     let webLinkProper      = "Web Link"
     let appVersionProper   = "App Version"
@@ -30,18 +28,21 @@ public class AppPop {
     let minSysVersionProper = "Minimum System Version"
     let licenseKeyProper   = "License Key"
     
+    let statusConfig = "0 - Suggested; 6 - Installed; 7 - Trial; 8 - Rejected; 9 - Enabled; "
+    
     var linkToLaunchDef = FieldDefinition()
     var webLinkDef      = FieldDefinition()
     var dateModifiedDef = FieldDefinition()
     var appVersionDef   = FieldDefinition()
     var minSysVersionDef = FieldDefinition()
     var licenseKeyDef   = FieldDefinition()
+    var statusDef       = FieldDefinition()
     
     var noteIO: NotenikIO!
     
     /// Initialize a new instance.
     public init() {
-        byteCountFormatter.countStyle = .file
+
     }
     
     /// Scan the provided app folder, and update the specified Collection
@@ -60,6 +61,19 @@ public class AppPop {
         // the Collection dictionary. Add them if they are
         // missing.
         dict.unlock()
+        
+        // Status
+        if let stDef = dict.getDef(NotenikConstants.status) {
+            statusDef = stDef
+        } else {
+            if let stDef = dict.addDef(typeCatalog: types, label: NotenikConstants.status) {
+                statusDef = stDef
+                collection.registerDef(statusDef)
+                let config = collection.statusConfig
+                config.set(statusConfig)
+                collection.typeCatalog.statusValueConfig = config
+            }
+        }
 
         // Link to Launch
         if let llDef = dict.getDef(linkToLaunchProper) {
@@ -117,6 +131,7 @@ public class AppPop {
             }
         }
         
+        // License Key
         if let lkDef = dict.getDef(licenseKeyProper) {
             licenseKeyDef = lkDef
         } else {
@@ -205,6 +220,11 @@ public class AppPop {
     ///   - bundleName: The name of this app within the folder.
     ///   - note: The Note to be updated with the app info.
     func updateNote(appFolder: URL, bundleName: String, note: Note) {
+        
+        // Update status, if not yet present.
+        if !note.hasStatus() {
+            _ = note.setStatus("6 - Installed")
+        }
 
         // Update with Link to Launch value.
         let linkToLaunch = appFolder.appendingPathComponent(bundleName, isDirectory: false)
@@ -259,7 +279,7 @@ public class AppPop {
             if let appCategory = infoDict.object(forKey: "LSApplicationCategoryType") {
                 let catStr = "\(appCategory)"
                 let uselessPrefix = "public.app-category."
-                var cat = "category."
+                var cat = ""
                 if catStr.starts(with: uselessPrefix) {
                     cat.append(String(catStr.dropFirst(uselessPrefix.count)))
                     _ = note.setTags(cat)
@@ -267,7 +287,6 @@ public class AppPop {
                     cat.append(catStr)
                     _ = note.setTags(cat)
                 }
-                
             }
         }
     }
