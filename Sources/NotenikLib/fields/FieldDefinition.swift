@@ -19,6 +19,7 @@ public class FieldDefinition: Comparable, CustomStringConvertible {
     public var fieldLabel:  FieldLabel = FieldLabel()
     public var fieldType:   AnyType = StringType()
     public var pickList:    PickList?
+    public var comboList:   ComboList?
     public var lookupFrom:  String = ""
     
     /// Initialize with no parameters, defaulting to a simple String type.
@@ -38,6 +39,7 @@ public class FieldDefinition: Comparable, CustomStringConvertible {
         fieldLabel.set(label)
         fieldType = typeCatalog.assignType(label: fieldLabel, type: nil)
         pickList = fieldType.genPickList()
+        comboList = fieldType.genComboList()
     }
     
     /// Initialize with a FieldLabel object
@@ -46,6 +48,7 @@ public class FieldDefinition: Comparable, CustomStringConvertible {
         self.fieldLabel = label
         fieldType = typeCatalog.assignType(label: label, type: nil)
         pickList = fieldType.genPickList()
+        comboList = fieldType.genComboList()
     }
     
     /// Initialize with a string label and an integer type
@@ -54,6 +57,7 @@ public class FieldDefinition: Comparable, CustomStringConvertible {
         fieldLabel.set(label)
         fieldType = typeCatalog.assignType(label: fieldLabel, type: type)
         pickList = fieldType.genPickList()
+        comboList = fieldType.genComboList()
     }
     
     var isBody: Bool {
@@ -65,6 +69,7 @@ public class FieldDefinition: Comparable, CustomStringConvertible {
         copy.fieldLabel = self.fieldLabel.copy()
         copy.fieldType  = self.fieldType
         copy.pickList   = self.pickList
+        copy.comboList  = self.comboList
         return copy
     }
     

@@ -361,6 +361,12 @@ class BunchIO: NotenikIO, RowConsumer  {
         return deleted
     }
     
+    /// Register a new Combo Value. 
+    public func registerComboValue(comboDef: FieldDefinition, value: String) {
+        guard bunch != nil else { return }
+        bunch!.registerComboValue(comboDef: comboDef, value: value)
+    }
+    
     /// Select the note at the given position in the sorted list.
     ///
     /// - Parameter index: An index value pointing to a position in the list.

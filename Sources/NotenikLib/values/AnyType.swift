@@ -73,4 +73,8 @@ public class AnyType {
         return nil
     }
     
+    func genComboList() -> ComboList? {
+        return nil
+    }
+    
 }

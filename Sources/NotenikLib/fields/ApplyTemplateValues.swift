@@ -119,12 +119,17 @@ class ApplyTemplateValues {
             let pickList = KlassPickList(values: typeValues.str)
             pickList.setDefaults()
             def.pickList = pickList
+        } else if typeStrCommon == NotenikConstants.comboType {
+            let comboList = ComboList()
+            def.comboList = comboList
+            def.fieldType = collection.typeCatalog.assignType(label: def.fieldLabel, type: typeStrCommon)
         } else if typeStrCommon == NotenikConstants.lookupType {
             def.fieldType = collection.typeCatalog.assignType(label: def.fieldLabel, type: typeStrCommon)
             def.lookupFrom = typeValues.str
         } else {
             def.fieldType = collection.typeCatalog.assignType(label: def.fieldLabel, type: typeStrCommon)
             def.pickList = def.fieldType.genPickList()
+            def.comboList = def.fieldType.genComboList()
         }
         
         if def.fieldType.typeString == NotenikConstants.statusCommon {

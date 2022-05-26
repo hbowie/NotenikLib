@@ -103,6 +103,9 @@ public class ModWhenChanged {
                 } else {
                     field!.value = newValue
                 }
+                if def.fieldType.typeString == NotenikConstants.comboType {
+                    io.registerComboValue(comboDef: def, value: userValue)
+                }
                 modified = true
             }
             i += 1

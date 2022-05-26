@@ -95,6 +95,7 @@ class BunchOfNotes {
     /// - Parameter note: The note to be added, whether from a data store or from a user
     /// - Returns: True if the note was added to the collection, false if it could not be added.
     func add(note: Note) -> Bool {
+
         let noteID = note.id
         let existingNote = notesDict[noteID]
         guard existingNote == nil else { return false }
@@ -135,8 +136,25 @@ class BunchOfNotes {
             collection.statusConfig.registerValue(note.status.value)
         }
         
+        registerComboValues(note: note)
+        
         return true
 
+    }
+    
+    public func registerComboValues(note: Note) {
+        for comboDef in collection.comboDefs {
+            if let field = note.getField(def: comboDef) {
+                if field.value.hasData {
+                    registerComboValue(comboDef: comboDef, value: field.value.value)
+                }
+            }
+        }
+    }
+    
+    public func registerComboValue(comboDef: FieldDefinition, value: String) {
+        guard let comboList = comboDef.comboList else { return }
+        comboList.registerValue(value)
     }
     
     

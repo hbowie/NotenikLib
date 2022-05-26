@@ -3,7 +3,7 @@
 //  NotenikLib
 //
 //  Created by Herb Bowie on 10/25/19.
-//  Copyright © 2019 - 2021 Herb Bowie (https://hbowie.net)
+//  Copyright © 2019 - 2022 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -22,6 +22,7 @@ public class AllTypes {
     let bodyType    = BodyType()
     let booleanType = BooleanType()
     let codeType    = CodeType()
+    let comboType   = ComboType()
     let dateAddedType = DateAddedType()
     let dateModifiedType = DateModifiedType()
     let dateType    = DateType()
@@ -114,6 +115,7 @@ public class AllTypes {
         teaserType.commonLabel = "teaser"
         fieldTypes.append(teaserType)
         
+        fieldTypes.append(comboType)
         fieldTypes.append(minutesToReadType)
         fieldTypes.append(pickListType)
         fieldTypes.append(ratingType)

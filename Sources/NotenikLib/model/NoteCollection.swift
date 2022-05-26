@@ -87,6 +87,7 @@ public class NoteCollection {
             var dateCount = 0
             var linkCount = 0
     
+            var comboDefs:     [FieldDefinition] = []
             var pickLists:     [FieldDefinition] = []
     public  var klassDefs:     [KlassDef] = []
     public  var lastNewKlass   = ""
@@ -448,8 +449,12 @@ public class NoteCollection {
     
     /// Finalize things after all dictionary definitions have been loaded. 
     func finalize() {
+        comboDefs = []
         pickLists = []
         for def in dict.list {
+            if def.comboList != nil {
+                comboDefs.append(def)
+            }
             if def.pickList != nil {
                 pickLists.append(def)
             }

@@ -131,12 +131,13 @@ public struct NotenikConstants {
     //-------------------------------------------------------------
     
     public static let booleanType       = "boolean"
+    public static let comboType         = "combo"
     public static let dateType          = "date"
     public static let labelType         = "label"
     public static let longTextType      = "longtext"
+    public static let lookupType        = "lookup"
     public static let stringType        = "string"
     public static let pickFromType      = "pickfrom"
-    public static let lookupType        = "lookup"
     
     //-------------------------------------------------------------
     //

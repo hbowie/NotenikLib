@@ -1089,6 +1089,12 @@ public class FileIO: NotenikIO, RowConsumer {
         return (returnNote, returnPosition)
     }
     
+    /// Register a new Combo Value.
+    public func registerComboValue(comboDef: FieldDefinition, value: String) {
+        guard bunch != nil else { return }
+        bunch!.registerComboValue(comboDef: comboDef, value: value)
+    }
+    
     /// Delete the given note
     ///
     /// - Parameter noteToDelete: The note to be deleted.

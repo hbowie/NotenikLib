@@ -206,6 +206,9 @@ public protocol NotenikIO {
     /// Reload the note in memory from the backing data store.
     func reloadNote(_ noteToReload: Note) -> Note?
     
+    /// Register a new Combo Value. 
+    func registerComboValue(comboDef: FieldDefinition, value: String)
+    
     // -----------------------------------------------------------
     //
     // MARK: Access Notes
