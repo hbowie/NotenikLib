@@ -847,12 +847,12 @@ public class TemplateUtil {
         switch wikiStyle {
         case "1":
             let mkdown = MkdownParser(markdown, options: mkdownOptions)
-            mkdown.setWikiLinkFormatting(prefix: "", format: .fileName, suffix: ".html", context: nil)
+            mkdown.setWikiLinkFormatting(prefix: "", format: .fileName, suffix: ".html", context: workspace?.mkdownContext)
             mkdown.parse()
             return mkdown.html
         case "2":
             let mkdown = MkdownParser(markdown, options: mkdownOptions)
-            mkdown.setWikiLinkFormatting(prefix: "#", format: .fileName, suffix: "", context: nil)
+            mkdown.setWikiLinkFormatting(prefix: "#", format: .fileName, suffix: "", context: workspace?.mkdownContext)
             mkdown.parse()
             return mkdown.html
         default:

@@ -26,6 +26,8 @@ public class ScriptWorkspace {
     
     public var collection  = NoteCollection()
     
+    public var mkdownContext: NotesMkdownContext?
+    
     var typeCatalog = AllTypes()
     
     var inputURL:     URL?

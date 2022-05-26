@@ -211,6 +211,8 @@ public class NoteTransformer {
             playCommand.module = .script
             playCommand.action = .play
             scripter.playCommand(playCommand)
+            
+            scripter.close()
         }
         
         return errors

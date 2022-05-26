@@ -252,6 +252,14 @@ public class ScriptEngine: RowConsumer {
         return nil
     }
     
+    public func close() {
+        if let mdc = workspace.mkdownContext {
+            if mdc.io.collectionOpen {
+                mdc.io.closeCollection()
+            }
+        }
+    }
+    
     func newWorkspace() {
         workspace = ScriptWorkspace()
     }

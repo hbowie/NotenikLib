@@ -34,5 +34,7 @@ public class ScriptPlayer {
         playCommand.action = .play
         scripter.playCommand(playCommand)
         
+        scripter.close()
+        
     }
 }

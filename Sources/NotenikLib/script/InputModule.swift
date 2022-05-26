@@ -65,6 +65,12 @@ class InputModule: RowConsumer {
         
         // Clear the pending filter rules whenever we input a new file
         workspace.pendingRules = []
+        if let mdc = workspace.mkdownContext {
+            if mdc.io.collectionOpen {
+                mdc.io.closeCollection()
+            }
+        }
+        workspace.mkdownContext = nil
         
         guard let openURL = workspace.inputURL else {
             logError("Input Open couldn't make sense of the location '\(command.valueWithPathResolved)'")
@@ -159,6 +165,7 @@ class InputModule: RowConsumer {
         }
         workspace.collection = collection!
         workspace.typeCatalog = workspace.collection.typeCatalog
+        workspace.mkdownContext = NotesMkdownContext(io: io, displayParms: nil)
         
         var (note, position) = io.firstNote()
         while note != nil {
@@ -166,7 +173,7 @@ class InputModule: RowConsumer {
             notesInput += 1
             (note, position) = io.nextNote(position)
         }
-        io.closeCollection()
+        // io.closeCollection()
         logInfo("\(notesInput) rows read from \(openURL.path)")
     }
     
