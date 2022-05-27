@@ -645,6 +645,42 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     }
     
     //
+    // Functions and variables concerning the Note's teaser field.
+    //
+    
+    /// Return the note's teaser value.
+    public var teaser: TeaserValue {
+        guard collection.teaserFieldDef != nil else {
+            return TeaserValue()
+        }
+        let val = getFieldAsValue(def: collection.teaserFieldDef!)
+        if val is TeaserValue {
+            return val as! TeaserValue
+        } else {
+            return TeaserValue(val.value)
+        }
+    }
+    
+    /// Does thos note have a non-blank teaser field?
+    public func hasTeaser() -> Bool {
+        guard collection.teaserFieldDef != nil else { return false }
+        return teaser.count > 0
+    }
+    
+    /// Get the teaser field, if one exists.
+    public func getTeaserAsField() -> NoteField? {
+        guard collection.teaserFieldDef != nil else { return nil }
+        return getField(def: collection.teaserFieldDef!)
+    }
+    
+    /// Attempt to set the Note's teaser value.
+    public func setTeaser(_ teaser: String) -> Bool {
+        guard collection.teaserFieldDef != nil else { return false }
+        return setField(label: collection.teaserFieldDef!.fieldLabel.commonForm,
+                        value: teaser)
+    }
+    
+    //
     // Functions and variables concerning the Note's tags.
     //
     

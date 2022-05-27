@@ -75,6 +75,7 @@ public class NoteCollection {
     public  var workLinkFieldDef: FieldDefinition
     public  var workTitleFieldDef: FieldDefinition
     public  var workTypeFieldDef: FieldDefinition
+    public  var teaserFieldDef: FieldDefinition?
     public  var bodyFieldDef:   FieldDefinition
     public  var dateAddedFieldDef: FieldDefinition?
     public  var imageNameFieldDef: FieldDefinition?
@@ -390,6 +391,11 @@ public class NoteCollection {
         case NotenikConstants.seqCommon:
             if seqFieldDef == nil {
                 seqFieldDef = def
+            }
+            
+        case NotenikConstants.teaserCommon:
+            if teaserFieldDef == nil {
+                teaserFieldDef = def
             }
             
         case NotenikConstants.levelCommon:

@@ -38,10 +38,12 @@ public class KlassPickList: PickList {
         var str = "<class:  "
         var valueIndex = 0
         for value in values {
-            if valueIndex > 0 {
-                str.append(", ")
+            if !value.isEmpty && value.value != " " {
+                if valueIndex > 0 {
+                    str.append(", ")
+                }
+                str.append(String(describing: value))
             }
-            str.append(String(describing: value))
             valueIndex += 1
         }
         str.append(" >")

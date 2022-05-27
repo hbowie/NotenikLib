@@ -383,6 +383,8 @@ public class NoteFieldsToHTML {
                 break
             case NotenikConstants.tagsCommon:
                 break
+            case NotenikConstants.teaserCommon:
+                break
             case NotenikConstants.seqCommon:
                 break
             case NotenikConstants.akaCommon:
@@ -417,6 +419,7 @@ public class NoteFieldsToHTML {
             code.finishParagraph()
             code.codeBlock(field.value.value)
         } else if field.def.fieldType.typeString == NotenikConstants.longTextType ||
+                    field.def.fieldType.typeString == NotenikConstants.teaserCommon ||
                     field.def.fieldType.typeString == NotenikConstants.bodyCommon {
             code.startParagraph()
             code.append(field.def.fieldLabel.properForm)

@@ -1,9 +1,10 @@
 //
-//  LongTextValue.swift
-//  Notenik
+//  TeaserValue.swift
+//  NotenikLib
 //
-//  Created by Herb Bowie on 12/4/18.
-//  Copyright © 2019 Herb Bowie (https://powersurgepub.com)
+//  Created by Herb Bowie on 5/26/22.
+//
+//  Copyright © 2022 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -14,7 +15,7 @@ import Foundation
 /// A class to contain long strings of text, including multiple lines with line breaks.
 ///
 /// Note that the resulting value will not be allowed to have blank lines at its start or its end.
-public class LongTextValue: StringValue {
+public class TeaserValue: StringValue {
     
     /// Number of blank lines encountered but not yet added to value
     var pendingBlankLines = 0
@@ -41,7 +42,7 @@ public class LongTextValue: StringValue {
         }
     }
     
-    /// When something non-blank is encountered, add all the pending blank lines. 
+    /// When something non-blank is encountered, add all the pending blank lines.
     func addPendingBlankLines() {
         while pendingBlankLines > 0 {
             value.append("\n")

@@ -45,7 +45,7 @@ public class AllTypes {
     let statusType  = StatusType()
     let stringType  = StringType()
     let tagsType    = TagsType()
-    let teaserType  = LongTextType()
+    let teaserType  = TeaserType()
     let titleType   = TitleType()
     let timestampType = TimestampType()
     let wikilinkType = WikilinkType()
@@ -111,8 +111,6 @@ public class AllTypes {
         fieldTypes.append(longTextType)
         fieldTypes.append(lookupType)
         
-        teaserType.properLabel = "Teaser"
-        teaserType.commonLabel = "teaser"
         fieldTypes.append(teaserType)
         
         fieldTypes.append(comboType)
