@@ -383,10 +383,13 @@ public class NoteFieldsToHTML {
                 break
             case NotenikConstants.tagsCommon:
                 break
-            case NotenikConstants.teaserCommon:
-                break
             case NotenikConstants.seqCommon:
                 break
+            case NotenikConstants.teaserCommon:
+                displayMarkdown(field, markedup: code, mkdownContext: mkdownContext)
+                if !collection.bodyLabel && note.hasBody() {
+                    code.horizontalRule()
+                }
             case NotenikConstants.akaCommon:
                 code.startParagraph()
                 code.startEmphasis()
@@ -421,18 +424,7 @@ public class NoteFieldsToHTML {
         } else if field.def.fieldType.typeString == NotenikConstants.longTextType ||
                     field.def.fieldType.typeString == NotenikConstants.teaserCommon ||
                     field.def.fieldType.typeString == NotenikConstants.bodyCommon {
-            code.startParagraph()
-            code.append(field.def.fieldLabel.properForm)
-            code.append(": ")
-            code.finishParagraph()
-            if parms.formatIsHTML {
-                markdownToMarkedup(markdown: field.value.value,
-                                   context: mkdownContext,
-                                   writer: code)
-            } else {
-                code.append(field.value.value)
-                code.newLine()
-            }
+            displayMarkdown(field, markedup: code, mkdownContext: mkdownContext)
         } else if field.def.fieldType.typeString == NotenikConstants.dateType {
             code.startParagraph()
             code.append(field.def.fieldLabel.properForm)
@@ -527,6 +519,23 @@ public class NoteFieldsToHTML {
         markedup.append(": ")
         markedup.append(field.value.value)
         markedup.finishParagraph()
+    }
+    
+    func displayMarkdown(_ field: NoteField,
+                         markedup: Markedup,
+                         mkdownContext: MkdownContext?) {
+        markedup.startParagraph()
+        markedup.append(field.def.fieldLabel.properForm)
+        markedup.append(": ")
+        markedup.finishParagraph()
+        if parms.formatIsHTML {
+            markdownToMarkedup(markdown: field.value.value,
+                               context: mkdownContext,
+                               writer: markedup)
+        } else {
+            markedup.append(field.value.value)
+            markedup.newLine()
+        }
     }
     
     /// Display a lookup field.

@@ -97,6 +97,8 @@ public class NoteCollection {
     
     public  var titleToParse   = ""
     public  var tocNoteID      = ""
+    public  var teasers        = false
+    
     public  var windowPosStr   = ""
     
     /// Default initialization of a new Collection.

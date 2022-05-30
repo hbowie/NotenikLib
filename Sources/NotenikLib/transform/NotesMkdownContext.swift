@@ -26,7 +26,6 @@ public class NotesMkdownContext: MkdownContext {
     // -----------------------------------------------------------
     
     var io: NotenikIO
-    // var collection = NoteCollection()
     var displayParms = DisplayParms()
     
     let htmlConverter = StringConverter()
@@ -332,6 +331,102 @@ public class NotesMkdownContext: MkdownContext {
             tagsCode.finishListItem()
         }
         tagsListLevel -= 1
+    }
+    
+    // -----------------------------------------------------------
+    //
+    // MARK: Generate HTML with teasers for children.
+    //
+    // -----------------------------------------------------------
+    
+    /// Return a list of children, with teasers formatted in HTML.
+    public func mkdownTeasers() -> String {
+
+        guard let collection = io.collection else { return "" }
+        guard io.collectionOpen else { return "" }
+        
+        guard collection.seqFieldDef != nil else { return "" }
+        guard collection.teaserFieldDef != nil else { return "" }
+        guard collection.levelFieldDef != nil else { return "" }
+        guard collection.sortParm == .seqPlusTitle else { return "" }
+        
+        
+        guard let parent = io.getNote(knownAs: collection.titleToParse) else { return "" }
+        let currentPosition = io.positionOfNote(parent)
+        let (nextNote, nextPosition) = io.nextNote(currentPosition)
+        guard nextPosition.valid && nextNote != nil else { return "" }
+        
+        var children: [Note] = []
+        
+        let nextLevel = nextNote!.level
+        let nextSeq = nextNote!.seq
+
+        hasLevel = (collection.levelFieldDef != nil)
+        hasSeq = (collection.seqFieldDef != nil)
+        
+        var followingNote: Note?
+        followingNote = nextNote
+        var followingPosition = nextPosition
+        var followingLevel = LevelValue(i: nextLevel.getInt(), config: io.collection!.levelConfig)
+        var followingSeq = nextSeq.dupe()
+        
+        var displayedChildCount = 0
+        
+        while followingNote != nil
+                && followingPosition.valid
+                && followingLevel > parent.level
+                && followingLevel == nextLevel
+                && followingSeq > parent.seq {
+            
+            children.append(followingNote!)
+            
+            let (nextUpNote, nextUpPosition) = io.nextNote(followingPosition)
+
+            displayedChildCount += 1
+
+            followingNote = nextUpNote
+            followingPosition = nextUpPosition
+
+            if followingNote != nil {
+                followingLevel = followingNote!.level
+                followingSeq = followingNote!.seq
+            }
+        }
+        
+        let teasers = Markedup()
+        let startingFormat = displayParms.format
+        displayParms.format = .htmlFragment
+        let mkdownOptions = displayParms.genMkdownOptions()
+        
+        for child in children {
+            
+            teasers.startParagraph()
+            
+            let seq = child.seq
+            let seqStack = seq.seqStack
+            let finalSegment = seqStack.segments[seqStack.max]
+            teasers.append("\(finalSegment.value). ")
+            
+            let mkdown = MkdownParser(child.teaser.value, options: mkdownOptions)
+            // mkdown.setWikiLinkFormatting(prefix: "", format: .fileName, suffix: ".html", context: workspace?.mkdownContext)
+            // mkdown.setWikiLinkFormatting(prefix: "#", format: .fileName, suffix: "", context: workspace?.mkdownContext)
+            mkdown.setWikiLinkFormatting(prefix: mkdownOptions.wikiLinkPrefix,
+                                         format: mkdownOptions.wikiLinkFormatting,
+                                         suffix: mkdownOptions.wikiLinkSuffix,
+                                         context: self)
+            mkdown.parse()
+            let stripped = StringUtils.removeParagraphTags(mkdown.html)
+            teasers.append(stripped)
+ 
+            teasers.finishParagraph()
+        }
+        
+        displayParms.format = startingFormat
+        if displayedChildCount > 0 {
+            collection.teasers = true
+        }
+        
+        return teasers.code
     }
     
     // -----------------------------------------------------------

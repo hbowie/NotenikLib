@@ -51,6 +51,7 @@ public class NoteDisplay {
         let mkdownContext = NotesMkdownContext(io: io, displayParms: parms)
         mkdownContext.setTitleToParse(title: note.title.value)
         let collection = note.collection
+        collection.teasers = false
         minutesToRead = nil
         mdBodyParser = nil
         bodyHTML = nil
@@ -245,13 +246,15 @@ public class NoteDisplay {
                 nextTitle = nextNote!.title.value
                 nextLevel = nextNote!.level
                 nextSeq = nextNote!.seq
-                formatToCforBottom(note,
-                                   io: io,
-                                   nextNote: nextNote!,
-                                   nextPosition: nextPosition,
-                                   nextLevel: nextLevel,
-                                   nextSeq: nextSeq,
-                                   bottomHTML: bottomHTML)
+                if !note.collection.teasers {
+                    formatToCforBottom(note,
+                                       io: io,
+                                       nextNote: nextNote!,
+                                       nextPosition: nextPosition,
+                                       nextLevel: nextLevel,
+                                       nextSeq: nextSeq,
+                                       bottomHTML: bottomHTML)
+                }
             } else {
                 nextTitle = ""
             }
