@@ -276,6 +276,7 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     /// - Parameter note2: The Note to be updated with this Note's field values.
     public func copyDefinedFields(to note2: Note) {
 
+        var fromFieldsCopied: [String: FieldDefinition] = [:]
         let toDict = note2.collection.dict
         let toDefs = toDict.list
         for toDef in toDefs {
@@ -297,10 +298,14 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
                 // Nothing to do here -- just move on
             } else if fromField == nil && toField != nil {
                 toField!.value.set("")
+            } else if fromFieldsCopied[fromField!.def.fieldLabel.commonForm] != nil {
+                // Already found a home for this field -- don't copy it again
             } else if fromField != nil && toField == nil {
                 _ = note2.addField(def: toDef, strValue: fromField!.value.value)
+                fromFieldsCopied[fromField!.def.fieldLabel.commonForm] = fromField!.def
             } else {
                 toField!.value.set(fromField!.value.value)
+                fromFieldsCopied[fromField!.def.fieldLabel.commonForm] = fromField!.def
             }
         }
 
