@@ -18,16 +18,7 @@ public class KlassValue: StringValue {
         super.set(value.lowercased())
     }
     
-    var quote: Bool {
-        switch value {
-        case NotenikConstants.quoteKlass, NotenikConstants.quotationKlass:
-            return true
-        default:
-            return false
-        }
-    }
-    
-    var frontOrBack: Bool {
+    public var frontOrBack: Bool {
         switch value {
         case NotenikConstants.authorKlass:
             return true
@@ -48,7 +39,7 @@ public class KlassValue: StringValue {
         }
     }
     
-    var frontMatter: Bool {
+    public var frontMatter: Bool {
         switch value {
         case NotenikConstants.frontKlass, NotenikConstants.introKlass, NotenikConstants.prefaceKlass:
             return true
@@ -60,6 +51,15 @@ public class KlassValue: StringValue {
     public var biblio: Bool {
         switch value {
         case NotenikConstants.authorKlass, NotenikConstants.workKlass:
+            return true
+        default:
+            return false
+        }
+    }
+    
+    public var quote: Bool {
+        switch value {
+        case NotenikConstants.quoteKlass, NotenikConstants.quotationKlass:
             return true
         default:
             return false
