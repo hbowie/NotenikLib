@@ -375,10 +375,11 @@ public class NotesMkdownContext: MkdownContext {
         while followingNote != nil
                 && followingPosition.valid
                 && followingLevel > parent.level
-                && followingLevel == nextLevel
                 && followingSeq > parent.seq {
             
-            children.append(followingNote!)
+            if followingLevel == nextLevel {
+                children.append(followingNote!)
+            }
             
             let (nextUpNote, nextUpPosition) = io.nextNote(followingPosition)
 
