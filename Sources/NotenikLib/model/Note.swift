@@ -1073,7 +1073,7 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     public func hasKlass() -> Bool {
         guard collection.klassFieldDef != nil else { return false }
         let val = getFieldAsValue(def: collection.klassFieldDef!)
-        return val is KlassValue
+        return val is KlassValue && !val.value.isEmpty
     }
     
     /// Set the Note's Class value.
