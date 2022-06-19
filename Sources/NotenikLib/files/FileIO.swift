@@ -918,18 +918,21 @@ public class FileIO: NotenikIO, RowConsumer {
     
     /// Load A list of available reports from the reports folder.
     public func loadKlassDefs() {
+        
         collection!.klassDefs = []
-        guard let klassFieldDef = collection?.klassFieldDef else {
-            return
-        }
-        guard let klassPickList = klassFieldDef.pickList else {
-            return
-        }
+        
         guard let lib = collection?.lib else { return }
         guard lib.hasAvailable(type: .klassFolder) else {
             return
         }
         let klassFolder = lib.klassFolder
+        
+        /* guard let klassFieldDef = collection?.klassFieldDef else {
+            return
+        }
+        guard let klassPickList = klassFieldDef.pickList else {
+            return
+        } */
         
         guard let contents = lib.getContents(type: .klassFolder) else { return }
         
@@ -952,7 +955,9 @@ public class FileIO: NotenikIO, RowConsumer {
             klassDef.defaultValues = klassNote
             guard klassDef.fieldDefs.count > 0 else { continue }
             collection!.klassDefs.append(klassDef)
-            klassPickList.registerValue(klassDef.name)
+            if let klassPickList = collection?.klassFieldDef?.pickList {
+                klassPickList.registerValue(klassDef.name)
+            }
         }
         collection!.klassDefs.sort()
         logInfo("\(collection!.klassDefs.count) Class Template(s) Loaded from the class folder")
