@@ -1516,6 +1516,9 @@ public class FileIO: NotenikIO, RowConsumer {
         if ok && errors > 0 {
             ok = false
         }
+        if ok {
+            changeAllKlassExtensions(to: to)
+        }
         return ok
     }
     
@@ -1540,6 +1543,17 @@ public class FileIO: NotenikIO, RowConsumer {
             position = nextPos
         }
         return errors
+    }
+    
+    func changeAllKlassExtensions(to newFileExt: String) {
+        guard collection != nil && collectionOpen else { return }
+        guard let lib = collection?.lib else { return }
+        guard lib.hasAvailable(type: .klassFolder) else { return }
+        let klassFolder = lib.getResource(type: .klassFolder)
+        guard let contents = klassFolder.getResourceContents() else { return }
+        for resource in contents {
+            _ = resource.changeExt(to: newFileExt)
+        }
     }
     
     // -----------------------------------------------------------
