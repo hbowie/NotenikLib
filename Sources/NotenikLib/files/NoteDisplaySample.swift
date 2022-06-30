@@ -93,8 +93,8 @@ public class NoteDisplaySample {
         // -----------------------------------------------------------
         
         var css = ""
-        if displayPrefs.bodyCSS != nil {
-            css = displayPrefs.bodyCSS!
+        if displayPrefs.displayCSS != nil {
+            css = displayPrefs.displayCSS!
         }
         let cssFile = ResourceFileSys(parent: notes,
                                       fileName: ResourceFileSys.displayCSSFileName,

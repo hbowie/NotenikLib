@@ -20,6 +20,8 @@ public class DisplayPrefs {
     
     let defaults = UserDefaults.standard
     
+    let appPrefs = AppPrefs.shared
+    
     let longFontListKey = "long-font-list"
     var _longFontList = false
     let defaultLongFontList = false
@@ -32,8 +34,8 @@ public class DisplayPrefs {
     var _displaySize: String?
     let defaultSize = "12"
     
-    let displayCSSKey = "display-css"
-    var _displayCSS: String?
+    let fontCSSKey = "display-css"
+    var _fontCSS: String?
     
     var displayMaster: NoteDisplayMaster?
     
@@ -52,8 +54,8 @@ public class DisplayPrefs {
             setDefaultSize()
         }
         
-        _displayCSS = defaults.string(forKey: displayCSSKey)
-        if _displayCSS == nil || _displayCSS!.count == 0 {
+        _fontCSS = defaults.string(forKey: fontCSSKey)
+        if _fontCSS == nil || _fontCSS!.count == 0 {
             buildCSS()
         }
     }
@@ -105,6 +107,16 @@ public class DisplayPrefs {
         }
     }
     
+    public var fontCSS: String? {
+        get {
+            return _fontCSS
+        }
+        set {
+            _fontCSS = newValue
+            defaults.set(_fontCSS, forKey: fontCSSKey)
+        }
+    }
+    
     public func buildCSS() {
         var tempCSS = ""
         tempCSS += "font-family: "
@@ -115,7 +127,7 @@ public class DisplayPrefs {
             setDefaultSize()
         }
         tempCSS += sizePlusUnit!
-        css = tempCSS
+        fontCSS = tempCSS
     }
     
     public func buildCSS(f: String, s: String) -> String {
@@ -129,16 +141,18 @@ public class DisplayPrefs {
         return tempCSS
     }
     
-    /// Apply the CSS to the entire body. 
-    public var bodyCSS: String? {
+    /// Supply the complete CSS to be used for displaying a Note.
+    public var displayCSS: String? {
         var tempCSS = darkModeAdjustments()
         tempCSS.append("body { ")
-        tempCSS.append("\ntab-size: 4; ")
-        tempCSS.append("\nmargin: 1em; ")
-        if css != nil {
-            tempCSS.append(css!)
+        tempCSS.append("\n  tab-size: 4; ")
+        tempCSS.append("\n  margin: 1em; ")
+        tempCSS.append("\n  background-color: var(--background-color);")
+        tempCSS.append("\n  color: var(--text-color); \n")
+        if fontCSS != nil {
+            tempCSS.append(fontCSS!)
         }
-        tempCSS.append(" }")
+        tempCSS.append("}")
         tempCSS.append("\nblockquote { ")
         tempCSS.append("\n  border-left: 0.4em solid #999;")
         tempCSS.append("\n  margin-left: 0;")
@@ -207,18 +221,44 @@ public class DisplayPrefs {
     }
     
     public func darkModeAdjustments() -> String {
-        let tempCSS = """
+        var tempCSS = ""
+        
+        if appPrefs.appAppearance == "system" || appPrefs.appAppearance == "light" {
+            tempCSS.append("""
         :root {
             color-scheme: light dark;
+            --background-color: #FFFFFF;
+            --text-color: #000000;
             --link-color: Blue;
             --highlight-color: Gainsboro
         }
-        @media screen and (prefers-color-scheme: dark) {
+        
+        """)
+        }
+        
+        if appPrefs.appAppearance == "system" {
+            tempCSS.append("@media screen and (prefers-color-scheme: dark) { \n")
+        }
+        
+        if appPrefs.appAppearance == "system" || appPrefs.appAppearance == "dark" {
+            tempCSS.append("""
           :root {
+            --background-color: #000000;
+            --text-color: #F0F0F0;
             --link-color: #93d5ff;
             --highlight-color: DimGray
           }
+        
+        """)
         }
+            
+        if appPrefs.appAppearance == "system" {
+            tempCSS.append("""
+        }
+        
+        """)
+        }
+        tempCSS.append("""
         a {
             color: var(--link-color);
         }
@@ -226,18 +266,8 @@ public class DisplayPrefs {
             background-color: var(--highlight-color);
         }
         
-        """
+        """)
         return tempCSS
-    }
-    
-    public var css: String? {
-        get {
-            return _displayCSS
-        }
-        set {
-            _displayCSS = newValue
-            defaults.set(_displayCSS, forKey: displayCSSKey)
-        }
     }
     
     public func setMaster(master: NoteDisplayMaster) {

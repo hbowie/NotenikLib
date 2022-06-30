@@ -48,7 +48,7 @@ public class DisplayParms {
     
     public func setFrom(collection: NoteCollection) {
         cssString = collection.displayCSS
-        setCSS(useFirst: collection.displayCSS, useSecond: DisplayPrefs.shared.bodyCSS)
+        setCSS(useFirst: collection.displayCSS, useSecond: DisplayPrefs.shared.displayCSS)
         displayTemplate = collection.displayTemplate
         format = .htmlDoc
         sortParm = collection.sortParm

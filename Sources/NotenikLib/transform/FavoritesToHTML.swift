@@ -124,7 +124,7 @@ public class FavoritesToHTML {
     
     func buildCSS() {
         css = ""
-        let displayCSS = DisplayPrefs.shared.bodyCSS
+        let displayCSS = DisplayPrefs.shared.displayCSS
         if displayCSS != nil {
             writeLineToCSS(displayCSS!)
         }

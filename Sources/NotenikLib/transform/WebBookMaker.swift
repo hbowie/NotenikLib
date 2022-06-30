@@ -109,7 +109,7 @@ public class WebBookMaker {
         }
         
         parms = DisplayParms()
-        parms.setCSS(useFirst: collection.displayCSS, useSecond: DisplayPrefs.shared.bodyCSS)
+        parms.setCSS(useFirst: collection.displayCSS, useSecond: DisplayPrefs.shared.displayCSS)
 
         if epub {
             parms.format = .xhtmlDoc

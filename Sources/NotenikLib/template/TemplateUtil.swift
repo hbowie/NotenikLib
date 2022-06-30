@@ -96,10 +96,10 @@ public class TemplateUtil {
         emailSingleQuoteConverter.addEmailQuotes()
         noBreakConverter.addNoBreaks()
         parms = DisplayParms()
-        if DisplayPrefs.shared.bodyCSS == nil {
+        if DisplayPrefs.shared.displayCSS == nil {
             parms.cssString = ""
         } else {
-            parms.cssString = DisplayPrefs.shared.bodyCSS!
+            parms.cssString = DisplayPrefs.shared.displayCSS!
         }
         noteFieldsToHTML = NoteFieldsToHTML()
         resetGroupValues()
