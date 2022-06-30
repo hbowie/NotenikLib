@@ -40,6 +40,8 @@ public class AppPrefs {
     
     let appAppearanceKey = "app-appearance"
     
+    let indentSpacingKey = "indent-spacing"
+    
     let favoritesColumnsKey = "favorites-columns"
     let favoritesRowsKey = "favorites-rows"
     let favoritesColumnWidthKey = "favorites-column-width"
@@ -72,6 +74,8 @@ public class AppPrefs {
     var _qd: Bool = false
     
     var _appearance = "system"
+    
+    var _indentSpacing = 1
     
     var _startupTips = true
     
@@ -228,6 +232,15 @@ public class AppPrefs {
             _appearance = aa!
         }
         
+        let isp = defaults.integer(forKey: indentSpacingKey)
+        if isp > 9 {
+            _indentSpacing = 0
+        } else if isp == 0 {
+            _indentSpacing = 1
+        } else {
+            _indentSpacing = isp
+        }
+        
         _uc = defaults.integer(forKey: useCountKey)
         
         // Get the Last Version Prompted for Review.
@@ -334,6 +347,24 @@ public class AppPrefs {
             _appearance = newValue
             defaults.set(_appearance, forKey: appAppearanceKey)
         }
+    }
+    
+    public var indentSpacing: Int {
+        get {
+            return _indentSpacing
+        }
+        set {
+            _indentSpacing = newValue
+            if _indentSpacing == 0 {
+                defaults.set(10, forKey: indentSpacingKey)
+            } else {
+                defaults.set(_indentSpacing, forKey: indentSpacingKey)
+            }
+        }
+    }
+    
+    public func indentSpaces(level: Int) -> String {
+        return String(repeating: " ", count: level * _indentSpacing)
     }
     
     public var tipsAtStartup: Bool {
