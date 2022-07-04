@@ -299,8 +299,9 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     /// defined in the second note's collection dictionary. 
     ///
     /// - Parameter note2: The Note to be updated with this Note's field values.
-    public func copyDefinedFields(to note2: Note) {
+    public func copyDefinedFields(to note2: Note, addDefs: Bool = false) {
 
+        // Copy fields defined in to dictionary.
         var fromFieldsCopied: [String: FieldDefinition] = [:]
         let toDict = note2.collection.dict
         let toDefs = toDict.list
@@ -335,6 +336,8 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
         }
 
         if !toDict.locked && note2.collection.otherFields {
+            copyMissingFields(to: note2)
+        } else if addDefs {
             copyMissingFields(to: note2)
         }
         

@@ -36,6 +36,10 @@ public class FieldDictionary {
         return (dict.count > 0)
     }
     
+    public var isLocked: Bool {
+        return locked
+    }
+    
     /// Lock the dictionary so that no more definitions may be added
     public func lock() {
         locked = true
