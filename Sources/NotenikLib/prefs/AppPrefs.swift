@@ -63,6 +63,15 @@ public class AppPrefs {
     let noteActionKey = "note-action"
     var _noteAction = ""
     
+    let dateContentKey = "date-content"
+    var _dateContent = ""
+    
+    let dateFormatKey = "date-format"
+    var _dateFormat = ""
+    
+    let customDateFormatKey = "custom-date-format"
+    var _customDateFormat = ""
+    
     let tipsWindowKey = "tips-window"
     var _tipsWindow = ""
     
@@ -215,6 +224,21 @@ public class AppPrefs {
         let ntact = defaults.string(forKey: noteActionKey)
         if ntact != nil {
             _noteAction = ntact!
+        }
+        
+        let dtcon = defaults.string(forKey: dateContentKey)
+        if dtcon != nil && !dtcon!.isEmpty {
+            _dateContent = dtcon!
+        }
+        
+        let dtfor = defaults.string(forKey: dateFormatKey)
+        if dtfor != nil && !dtfor!.isEmpty {
+            _dateFormat = dtfor!
+        }
+        
+        let dtcus = defaults.string(forKey: customDateFormatKey)
+        if dtcus != nil && !dtcus!.isEmpty {
+            _customDateFormat = dtcus!
         }
         
         let tipsw = defaults.string(forKey: tipsWindowKey)
@@ -460,6 +484,36 @@ public class AppPrefs {
         set {
             _noteAction = newValue
             defaults.set(_noteAction, forKey: noteActionKey)
+        }
+    }
+    
+    public var dateContent: String {
+        get {
+            return _dateContent
+        }
+        set {
+            _dateContent = newValue
+            defaults.set(_dateContent, forKey: dateContentKey)
+        }
+    }
+    
+    public var dateFormat: String {
+        get {
+            return _dateFormat
+        }
+        set {
+            _dateFormat = newValue
+            defaults.set(_dateFormat, forKey: dateFormatKey)
+        }
+    }
+    
+    public var customDateFormat: String {
+        get {
+            return _customDateFormat
+        }
+        set {
+            _customDateFormat = newValue
+            defaults.set(_customDateFormat, forKey: customDateFormatKey)
         }
     }
     
