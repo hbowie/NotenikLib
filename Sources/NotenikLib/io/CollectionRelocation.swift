@@ -226,7 +226,7 @@ public class CollectionRelocation {
                 }
             } else {
                 copySubfolder(folderName: ResourceFileSys.reportsFolderName, move: move)
-                copySubfolder(folderName: ResourceFileSys.mirrorFolderName, move: move)
+                copySubfolder(folderName: ResourceFileSys.mirrorFolderName, move: move, logErrors: false)
             }
         }
         
@@ -280,7 +280,7 @@ public class CollectionRelocation {
     }
     
     /// Try to copy a subfolder from the old collection to the new one.
-    func copySubfolder(folderName: String, move: Bool = false) {
+    func copySubfolder(folderName: String, move: Bool = false, logErrors: Bool = true) {
         
         let fromFolderPath = makeFromFilePath(fileName: folderName)
         guard FileUtils.isDir(fromFolderPath) else { return }
@@ -295,8 +295,10 @@ public class CollectionRelocation {
                 try FileManager.default.removeItem(at: fromFolderURL)
             }
         } catch {
-            logError("Problems moving subfolder named \(folderName)")
-            errors += 1
+            if logErrors {
+                logError("Problems moving subfolder named \(folderName)")
+                errors += 1
+            }
         }
     }
     
