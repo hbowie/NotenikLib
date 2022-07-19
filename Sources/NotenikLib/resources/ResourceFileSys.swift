@@ -294,7 +294,11 @@ public class ResourceFileSys: CustomStringConvertible, Comparable {
             break
         }
         for item in items {
-            let resource = ResourceFileSys(folderPath: actualPath, fileName: item, type: contentType,  preferredNoteExt: preferredNoteExt)
+            var itemType = contentType
+            if contentType == .report && item.hasSuffix(ResourceFileSys.scriptExt) {
+                itemType = .script
+            }
+            let resource = ResourceFileSys(folderPath: actualPath, fileName: item, type: itemType,  preferredNoteExt: preferredNoteExt)
             contents.append(resource)
         }
         return contents

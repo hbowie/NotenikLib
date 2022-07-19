@@ -708,6 +708,8 @@ public class TemplateUtil {
                 let markedUp = Markedup(format: .htmlFragment)
                 markedUp.parse(text: modifiedValue, startingLastCharWasWhiteSpace: true)
                 modifiedValue = String(describing: markedUp)
+            } else if charLower == "i" {
+                modifiedValue = StringUtils.toCommon(modifiedValue)
             } else if char == "k" {
                 formatString.append("h")
             } else if char == "K" {
