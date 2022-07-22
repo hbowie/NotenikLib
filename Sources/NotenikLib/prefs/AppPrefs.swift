@@ -78,6 +78,9 @@ public class AppPrefs {
     let kbWindowKey = "nkb-window"
     var _kbWindow = ""
     
+    let grantAccessKey = "grant-access"
+    var _grantAccessOpt = 1
+    
     var _appLaunching = false
     
     var _qd: Bool = false
@@ -265,6 +268,11 @@ public class AppPrefs {
             _indentSpacing = isp
         }
         
+        let gao = defaults.integer(forKey: grantAccessKey)
+        if gao > 0 && gao <= 3 {
+            _grantAccessOpt = gao
+        }
+        
         _uc = defaults.integer(forKey: useCountKey)
         
         // Get the Last Version Prompted for Review.
@@ -389,6 +397,16 @@ public class AppPrefs {
     
     public func indentSpaces(level: Int) -> String {
         return String(repeating: " ", count: level * _indentSpacing)
+    }
+    
+    public var grantAccessOption: Int {
+        get {
+            return _grantAccessOpt
+        }
+        set {
+            _grantAccessOpt = newValue
+            defaults.set(_grantAccessOpt, forKey: grantAccessKey)
+        }
     }
     
     public var tipsAtStartup: Bool {
