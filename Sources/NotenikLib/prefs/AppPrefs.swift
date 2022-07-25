@@ -269,8 +269,10 @@ public class AppPrefs {
         }
         
         let gao = defaults.integer(forKey: grantAccessKey)
-        if gao > 0 && gao <= 3 {
+        if gao > 0 && gao <= 2 {
             _grantAccessOpt = gao
+        } else if gao == 3 {
+            _grantAccessOpt = 2
         }
         
         _uc = defaults.integer(forKey: useCountKey)
