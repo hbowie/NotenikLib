@@ -88,8 +88,14 @@ public class Template {
     /// Merge the supplied data with the template to generate output.
     ///
     /// - Returns: True if everything went smoothly, false if problems. 
-    public func generateOutput() -> Bool {
+    public func generateOutput(templateOutputConsumer: TemplateOutputConsumer? = nil) -> Bool {
         
+        if templateOutputConsumer != nil {
+            if workspace == nil {
+                workspace = ScriptWorkspace()
+            }
+            workspace!.templateOutputConsumer = templateOutputConsumer
+        }
         guard util.templateOK else { return false }
         if notesList.count > 0 {
             collection = notesList[0].collection

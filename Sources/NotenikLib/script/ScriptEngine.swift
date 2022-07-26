@@ -41,6 +41,15 @@ public class ScriptEngine: RowConsumer {
  
     }
     
+    public var templateOutputConsumer: TemplateOutputConsumer? {
+        get {
+            return workspace.templateOutputConsumer
+        }
+        set {
+            workspace.templateOutputConsumer = newValue
+        }
+    }
+    
     /// Do something with the next field produced.
     ///
     /// - Parameters:
@@ -96,8 +105,10 @@ public class ScriptEngine: RowConsumer {
                 stopIfRecording()
                 if command.module != lastCommandModule || lastCommandAction == .play || command.action == .open {
                     let holdURL = workspace.scriptURL
+                    let holdConsumer = workspace.templateOutputConsumer
                     workspace = ScriptWorkspace()
                     workspace.scriptURL = holdURL
+                    workspace.templateOutputConsumer = holdConsumer
                     command.workspace = workspace
                 }
             }

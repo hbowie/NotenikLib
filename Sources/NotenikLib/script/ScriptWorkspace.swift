@@ -51,6 +51,8 @@ public class ScriptWorkspace {
     
     public var scriptLog   = ""
     
+    var templateOutputConsumer: TemplateOutputConsumer?
+    
     init() {
         let parentRealmPath = AppPrefs.shared.parentRealmPath
         if parentRealmPath.count > 0 {

@@ -181,10 +181,11 @@ public class TemplateUtil {
     /// - Parameter filePath: The complete path to the desired output file.
     func openOutput(filePath: String) {
         closeOutput()
+
         let absFilePath = templateFileName.resolveRelative(path: filePath)
         textOutURL = URL(fileURLWithPath: absFilePath)
         textOutFileName = FileName(absFilePath)
-        
+    
         // If we have a web root, then figure out the relative path up to it
         // for possible later use.
         relativePathToRoot = ""
@@ -201,6 +202,7 @@ public class TemplateUtil {
         } else {
             relativePathToRoot = nil
         }
+
         outputOpen = true
     }
     
@@ -373,9 +375,11 @@ public class TemplateUtil {
         } // end while looking for trailing char
     } // end func
     
-    /// Close the output file, writing it out to disk if it was open.
+    /// Close the output file, sending it to the appropriate output. 
     func closeOutput() {
-        if outputOpen && textOutURL != nil {
+        if let consumer = workspace?.templateOutputConsumer {
+            consumer.consumeTemplateOutput(outputLines)
+        } else if outputOpen && textOutURL != nil {
             _ = FileUtils.saveToDisk(strToWrite: outputLines,
                                  outputURL: textOutURL!,
                                  createDirectories: true,

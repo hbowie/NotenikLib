@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 5/17/21.
 //
-//  Copyright © 2021 Herb Bowie (https://hbowie.net)
+//  Copyright © 2021-2022 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -20,7 +20,9 @@ public class ScriptPlayer {
         
     }
     
-    public func playScript(fileName: String) {
+    public func playScript(fileName: String, templateOutputConsumer: TemplateOutputConsumer? = nil) {
+        
+        scripter.templateOutputConsumer = templateOutputConsumer
         
         let openCommand = ScriptCommand(workspace: scripter.workspace)
         openCommand.module = .script
