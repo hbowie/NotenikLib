@@ -199,6 +199,7 @@ public class ScriptEngine: RowConsumer {
             return
         }
         logInfo("Starting to play script located at \(scriptURL.path) on \(DateUtils.shared.dateTimeToday)")
+        workspace.exportPath = command.value
         workspace.scriptingStage = .playing
         rowsRead = 0
         reader = DelimitedReader()

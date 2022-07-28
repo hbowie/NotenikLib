@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 2/27/21.
 //
-//  Copyright © 2021 Herb Bowie (https://hbowie.net)
+//  Copyright © 2021-2022 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -48,6 +48,7 @@ public class ResourceLibrary {
     var mirrorFolder      = ResourceFileSys()
     var reportsFolder     = ResourceFileSys()
     var klassFolder       = ResourceFileSys()
+    var exportFolder      = ResourceFileSys()
     
     var infoCollection:   NoteCollection?
     
@@ -71,6 +72,7 @@ public class ResourceLibrary {
         mirrorFolder    = ResourceFileSys()
         reportsFolder   = ResourceFileSys()
         klassFolder     = ResourceFileSys()
+        exportFolder    = ResourceFileSys()
         
         infoCollection  = NoteCollection()
     }
@@ -123,6 +125,8 @@ public class ResourceLibrary {
             return displayFile.isAvailable
         case .displayCSS:
             return displayCSSFile.isAvailable
+        case .exportFolder:
+            return exportFolder.isAvailable
         case .info:
             return infoFile.isAvailable
         case .klassFolder:
@@ -158,6 +162,8 @@ public class ResourceLibrary {
             return displayFile.actualPath
         case .displayCSS:
             return displayCSSFile.actualPath
+        case .exportFolder:
+            return exportFolder.actualPath
         case .info:
             return infoFile.actualPath
         case .klassFolder:
@@ -193,6 +199,8 @@ public class ResourceLibrary {
             return displayFile.url
         case .displayCSS:
             return displayCSSFile.url
+        case .exportFolder:
+            return exportFolder.url
         case .info:
             return infoFile.url
         case .klassFolder:
@@ -228,6 +236,8 @@ public class ResourceLibrary {
             return displayFile
         case .displayCSS:
             return displayCSSFile
+        case .exportFolder:
+            return exportFolder
         case .info:
             return infoFile
         case .klassFolder:
@@ -288,6 +298,8 @@ public class ResourceLibrary {
         switch type {
         case .attachments:
             return attachmentsFolder.getResourceContents()
+        case .exportFolder:
+            return exportFolder.getResourceContents()
         case .klassFolder:
             return klassFolder.getResourceContents()
         case .mirror:
@@ -506,6 +518,9 @@ public class ResourceLibrary {
         
         // Set the location for a possible reports folder. 
         reportsFolder = ResourceFileSys(folderPath: notesFolder.actualPath, fileName: ResourceFileSys.reportsFolderName)
+        
+        // Set the location for a possible export folder.
+        exportFolder = ResourceFileSys(folderPath: notesFolder.actualPath, fileName: ResourceFileSys.exportFolderName)
         
         // Set the location for a possible attachments folder.
         attachmentsFolder = ResourceFileSys(folderPath:notesFolder.actualPath, fileName: NotenikConstants.filesFolderName)

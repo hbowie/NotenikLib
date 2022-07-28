@@ -16,6 +16,8 @@ import NotenikUtils
 /// A workspace to be shared between the Script Engine and its various modules. 
 public class ScriptWorkspace {
     
+    var exportPath = ""
+    
     var parentPath = ""
     
     public var scriptURL:     URL?

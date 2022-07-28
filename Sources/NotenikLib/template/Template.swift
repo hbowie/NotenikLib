@@ -95,7 +95,12 @@ public class Template {
                 workspace = ScriptWorkspace()
             }
             workspace!.templateOutputConsumer = templateOutputConsumer
-        }
+            if util.workspace == nil {
+                util.setWorkspace(workspace!)
+            } else {
+                util.workspace!.templateOutputConsumer = templateOutputConsumer
+            }
+        } 
         guard util.templateOK else { return false }
         if notesList.count > 0 {
             collection = notesList[0].collection

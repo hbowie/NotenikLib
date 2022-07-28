@@ -20,7 +20,7 @@ public class ScriptPlayer {
         
     }
     
-    public func playScript(fileName: String, templateOutputConsumer: TemplateOutputConsumer? = nil) {
+    public func playScript(fileName: String, exportPath: String = "", templateOutputConsumer: TemplateOutputConsumer? = nil) {
         
         scripter.templateOutputConsumer = templateOutputConsumer
         
@@ -34,6 +34,7 @@ public class ScriptPlayer {
         let playCommand = ScriptCommand(workspace: scripter.workspace)
         playCommand.module = .script
         playCommand.action = .play
+        playCommand.value = exportPath
         scripter.playCommand(playCommand)
         
         scripter.close()

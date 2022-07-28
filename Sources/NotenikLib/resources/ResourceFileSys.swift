@@ -31,6 +31,7 @@ public class ResourceFileSys: CustomStringConvertible, Comparable {
     public static let displayCSSFileName = "display.css"
     public static let displayHTMLFileName = "display.html"
     static let dsstoreFileName   = ".DS_Store"
+    static let exportFolderName  = "export"
     static let infoFileName      = "- INFO.nnk"
     static let klassFolderName   = "class"
     static let mirrorFolderName  = "mirror"
@@ -297,6 +298,8 @@ public class ResourceFileSys: CustomStringConvertible, Comparable {
             var itemType = contentType
             if contentType == .report && item.hasSuffix(ResourceFileSys.scriptExt) {
                 itemType = .script
+            } else if type == .exportFolder && item.hasSuffix(ResourceFileSys.scriptExt) {
+                itemType = .exportScript
             }
             let resource = ResourceFileSys(folderPath: actualPath, fileName: item, type: itemType,  preferredNoteExt: preferredNoteExt)
             contents.append(resource)
@@ -465,6 +468,8 @@ public class ResourceFileSys: CustomStringConvertible, Comparable {
             type = .reports
         } else if _fName == NotenikConstants.filesFolderName {
             type = .attachments
+        } else if _fName == ResourceFileSys.exportFolderName {
+            type = .exportFolder
         }
     }
         

@@ -26,6 +26,9 @@ class BunchIO: NotenikIO, RowConsumer  {
     var reports: [MergeReport] = []
     var reportsFullPath: String? = nil
     
+    /// A list of export scripts availabe for the currently open Collection.
+    public var exportScripts: [ExportScript] = []
+    
     var pickLists = ValuePickLists()
     
     var bunch          : BunchOfNotes?
@@ -264,6 +267,11 @@ class BunchIO: NotenikIO, RowConsumer  {
     
     /// Load the list of reports available for this collection.
     func loadReports() {
+        // Nothing to do here. 
+    }
+    
+    /// Load the list of export scripts available for this collection.
+    func loadExportScripts() {
         // Nothing to do here. 
     }
     

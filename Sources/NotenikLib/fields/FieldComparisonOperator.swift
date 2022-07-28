@@ -16,7 +16,6 @@ class FieldComparisonOperator: CustomStringConvertible {
     
     var description = ""
     
-
     var op: ComparisonOperator = .undefined
     
     /// Initialize with a string contaning symbols, words or an abbreviation.
@@ -102,6 +101,11 @@ class FieldComparisonOperator: CustomStringConvertible {
             return compareInts(int1!, int2!)
         }
         
+        var value1Lower = ""
+        if compareLowercase {
+            value1Lower = value1.value.lowercased()
+        }
+        
         // Compare the string values.
         switch op {
         case .equals:
@@ -117,21 +121,30 @@ class FieldComparisonOperator: CustomStringConvertible {
         case .lessThanOrEqualTo:
             return value1.value <= value2
         case .contains:
-            return value1.value.contains(value2)
+            return value1Lower.contains(value2)
         case .doesNotContaIn:
-            return !(value1.value.contains(value2))
+            return !(value1Lower.contains(value2))
         case .startsWith:
-            return value1.value.hasPrefix(value2)
+            return value1Lower.hasPrefix(value2)
         case .doesNotStartWith:
-            return !(value1.value.hasPrefix(value2))
+            return !(value1Lower.hasPrefix(value2))
         case .endsWith:
-            return value1.value.hasSuffix(value2)
+            return value1Lower.hasSuffix(value2)
         case .doesNotEndWith:
-            return !(value1.value.hasSuffix(value2))
+            return !(value1Lower.hasSuffix(value2))
         default:
             return true
         }
         
+    }
+    
+    var compareLowercase: Bool {
+        switch op {
+        case .contains, .doesNotContaIn, .startsWith, .doesNotStartWith, .endsWith, .doesNotEndWith:
+            return true
+        default:
+            return false
+        }
     }
     
     /// Is this operator valid for integers?

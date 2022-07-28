@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 12/14/18.
-//  Copyright © 2018 - 2021 Herb Bowie (https://hbowie.net)
+//  Copyright © 2018 - 2022 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -34,6 +34,9 @@ public protocol NotenikIO {
     
     /// A list of reports available for the currently open Collection. 
     var reports: [MergeReport] { get }
+    
+    /// A list of export scripts availabe for the currently open Collection.
+    var exportScripts: [ExportScript] { get }
     
     /// A list of notes in the Collection.
     var notesList: NotesList { get }
@@ -160,6 +163,15 @@ public protocol NotenikIO {
     
     /// Load the list of reports available for this collection. 
     func loadReports()
+    
+    // -----------------------------------------------------------
+    //
+    // MARK: Load Export Scripts.
+    //
+    // -----------------------------------------------------------
+    
+    /// Load the list of export scripts available for this collection.
+    func loadExportScripts()
     
     // -----------------------------------------------------------
     //

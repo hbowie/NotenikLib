@@ -1,6 +1,6 @@
 //
 //  MergeReport.swift
-//  Notenik
+//  NotenikLib
 //
 //  Created by Herb Bowie on 6/4/19.
 //  Copyright © 2019-2022 Herb Bowie (https://hbowie.net)

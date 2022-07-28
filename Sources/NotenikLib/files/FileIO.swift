@@ -32,6 +32,9 @@ public class FileIO: NotenikIO, RowConsumer {
     /// A list of reports available for the currently open Collection.
     public var reports: [MergeReport] = []
     
+    /// A list of export scripts availabe for the currently open Collection.
+    public var exportScripts: [ExportScript] = []
+    
     /// The Collection of Notes stored in memory.
     var bunch: BunchOfNotes?
     
@@ -375,6 +378,7 @@ public class FileIO: NotenikIO, RowConsumer {
         if resourceLib.reportsFolder.isAvailable {
             loadReports()
         }
+        loadExportScripts()
         loadKlassDefs()
         
         let notesContents = collection!.lib.notesFolder.getResourceContents(preferredNoteExt: collection!.preferredExt)
@@ -907,7 +911,25 @@ public class FileIO: NotenikIO, RowConsumer {
                 reports.append(report)
             }
         }
-
+    }
+    
+    // -----------------------------------------------------------
+    //
+    // MARK: Load Export Scripts.
+    //
+    // -----------------------------------------------------------
+    
+    /// Load the list of export scripts available for this collection.
+    public func loadExportScripts() {
+        exportScripts = []
+        guard let lib = collection?.lib else { return }
+        guard lib.hasAvailable(type: .exportFolder) else { return }
+        guard let contents = lib.getContents(type: .exportFolder) else { return }
+        for item in contents {
+            if item.type == .exportScript {
+                exportScripts.append(ExportScript(scriptName: item.base))
+            }
+        }
     }
     
     // -----------------------------------------------------------

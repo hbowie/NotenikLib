@@ -940,6 +940,12 @@ public class TemplateUtil {
             return dataFileName.base
         case "dateparent":
             return dataFileName.path
+        case "exportpath":
+            if workspace == nil {
+                return ""
+            } else {
+                return workspace!.exportPath
+            }
         case "parentfolder":
             return dataFileName.folder
         case "today":

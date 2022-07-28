@@ -21,8 +21,8 @@ class FilterRule {
     
     init(field: FieldDefinition, op: FieldComparisonOperator, to: String) {
         self.field = field
-        self.op = op
-        self.to = to
+        setOp(op)
+        setTo(str: to)
     }
     
     init(dict: FieldDictionary, label: String, op: String, to: String) {
@@ -34,9 +34,21 @@ class FilterRule {
             logError("Field label of \(label) could not be found in input source")
         }
         
-        self.op = FieldComparisonOperator(op)
+        setOp(FieldComparisonOperator(op))
         
-        self.to = to
+        setTo(str: to)
+    }
+    
+    func setOp(_ op: FieldComparisonOperator) {
+        self.op = op
+    }
+    
+    func setTo(str: String) {
+        if op.compareLowercase {
+            self.to = str.lowercased()
+        } else {
+            self.to = str
+        }
     }
     
     func logRule() {
