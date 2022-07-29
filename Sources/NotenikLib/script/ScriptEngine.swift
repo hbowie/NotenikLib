@@ -73,10 +73,14 @@ public class ScriptEngine: RowConsumer {
             command.object = value
         case "value":
             command.value = value
-            if value.hasPrefix("#PATH#") {
+            if value.hasPrefix(ScriptEngine.pathPlaceHolder) {
                 let scriptFileName = FileName(workspace.scriptURL!)
                 let scriptFolderName = FileName(scriptFileName.path)
-                command.valueWithPathResolved = scriptFolderName.resolveRelative(path: String(value.dropFirst(ScriptEngine.pathPlaceHolder.count)))
+                var relativePath = String(value.dropFirst(ScriptEngine.pathPlaceHolder.count))
+                if relativePath.hasPrefix("/") {
+                    relativePath = String(relativePath.dropFirst(1))
+                }
+                command.valueWithPathResolved = scriptFolderName.resolveRelative(path: relativePath)
             } else {
                 command.valueWithPathResolved = value
             }
@@ -142,22 +146,6 @@ public class ScriptEngine: RowConsumer {
         }
         lastCommandModule = command.module
         lastCommandAction = command.action
-    }
-    
-    
-    /// Process a Browse command.
-    /// - Parameters:
-    ///   - workspace: The shared workspace to be used.
-    ///   - command: The command to be executed.
-    func browse(workspace: ScriptWorkspace, command: ScriptCommand) {
-        guard let url = URL(string: command.value) else {
-            logError("Cannot Browse a URL with a value of \(command.value)")
-            return
-        }
-        guard NSWorkspace.shared.open(url) else {
-            logError("Could not Browse the specified URL: \(command.value)")
-            return
-        }
     }
     
     /// Play a command to be executed by the Scripting Engine itself.
@@ -248,6 +236,21 @@ public class ScriptEngine: RowConsumer {
         lastScriptURL = workspace.scriptURL
         workspace.closeScriptWriter()
         logInfo("Stopped recording of script located at \(workspace.scriptURL!)")
+    }
+    
+    /// Process a Browse command.
+    /// - Parameters:
+    ///   - workspace: The shared workspace to be used.
+    ///   - command: The command to be executed.
+    func browse(workspace: ScriptWorkspace, command: ScriptCommand) {
+        guard let url = URL(string: command.value) else {
+            logError("Cannot Browse a URL with a value of \(command.value)")
+            return
+        }
+        guard NSWorkspace.shared.open(url) else {
+            logError("Could not Browse the specified URL: \(command.value)")
+            return
+        }
     }
     
     /// Factory method to create a command populated with the given module.
