@@ -81,6 +81,9 @@ public class AppPrefs {
     let grantAccessKey = "grant-access"
     var _grantAccessOpt = 1
     
+    let queryOutKey = "query-output-window-numbers"
+    var _queryOut = ""
+    
     var _appLaunching = false
     
     var _qd: Bool = false
@@ -275,6 +278,10 @@ public class AppPrefs {
             _grantAccessOpt = 2
         }
         
+        if let qout = defaults.string(forKey: queryOutKey) {
+            _queryOut = qout
+        }
+        
         _uc = defaults.integer(forKey: useCountKey)
         
         // Get the Last Version Prompted for Review.
@@ -408,6 +415,16 @@ public class AppPrefs {
         set {
             _grantAccessOpt = newValue
             defaults.set(_grantAccessOpt, forKey: grantAccessKey)
+        }
+    }
+    
+    public var queryOutputWindowNumbers: String {
+        get {
+            return _queryOut
+        }
+        set {
+            _queryOut = newValue
+            defaults.set(_queryOut, forKey: queryOutKey)
         }
     }
     
