@@ -203,7 +203,7 @@ public class DisplayPrefs {
         tempCSS.append("\n  padding: 2px 12px 2px 12px; ")
         tempCSS.append("\n  margin: 10px 10px 10px 10px; ")
         tempCSS.append("\n  min-width: 40px; ")
-        tempCSS.append("\n  text-aligh: center; ")
+        tempCSS.append("\n  text-align: center; ")
         tempCSS.append("\n} ")
         
         // tempCSS.append("\ncode { overflow: auto }")

@@ -962,9 +962,22 @@ public class TemplateUtil {
             } else {
                 return relativePathToRoot
             }
+        case "displaycss":
+            return displayCSS
         default:
             return nil
         }
+    }
+    
+    var displayCSS: String {
+        let parms = DisplayParms()
+        guard let collection = workspace?.collection else { return "" }
+        parms.setCSS(useFirst: collection.displayCSS,
+                     useSecond: DisplayPrefs.shared.displayCSS)
+        var defaultCSS = parms.cssString
+        defaultCSS.append("\nimg { max-width: 100%; border: 4px solid gray; }")
+        defaultCSS.append("\nbody { max-width: 33em; margin: 0 auto; float: none; }")
+        return defaultCSS
     }
     
     /// Look for a replacement value for the passed field label.
