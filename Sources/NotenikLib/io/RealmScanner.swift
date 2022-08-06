@@ -77,6 +77,8 @@ public class RealmScanner {
                     // Ignore disk image bundles
                 } else if itemPath.hasSuffix(ResourceFileSys.scriptExt) {
                     scriptFileFound(folderPath: folderPath, realm: realm, itemFullPath: itemFullPath)
+                } else if itemPath.hasSuffix(".bbprojectd") {
+                    bbEditProjectFileFound(folderPath: folderPath, realm: realm, itemFullPath: itemFullPath)
                 } else if FileUtils.isDir(itemFullPath) {
                     if !foldersToSkip.contains(itemPath) {
                         scanFolder(folderPath: itemFullPath, realm: realm)
@@ -98,7 +100,8 @@ public class RealmScanner {
             if infoCollection != nil {
 
                 let realmNote = Note(collection: realmIO.collection!)
-                let titleOK = realmNote.setTitle(infoIO.collection!.title)
+                let titleOK = realmNote.setTitle(folderURL.lastPathComponent)
+                // let titleOK = realmNote.setTitle(infoIO.collection!.title)
                 if !titleOK {
                     logError("Unable to find a Title for Collection located at \(folderPath)")
                 }
@@ -146,11 +149,11 @@ public class RealmScanner {
             folderIndex -= 1
         }
         var title = ""
-        while folderIndex < scriptFileName.folders.count {
+        /* while folderIndex < scriptFileName.folders.count {
             title.append(String(scriptFileName.folders[folderIndex]))
             title.append(" ")
             folderIndex += 1
-        }
+        } */
         title.append(scriptFileName.fileName)
         let titleOK = scriptNote.setTitle(title)
         if !titleOK {
@@ -179,6 +182,51 @@ public class RealmScanner {
         }
         if titleOK && linkOK && tagsOK && (addedNote != nil) { return }
         logError("Couldn't record script file at \(itemFullPath)")
+    }
+    
+    /// Add the BBEdit Project  file to the Realm Collection.
+    func bbEditProjectFileFound(folderPath: String, realm: Realm, itemFullPath: String) {
+        let bbURL = URL(fileURLWithPath: itemFullPath)
+        let bbNote = Note(collection: realmCollection!)
+        let bbFileName = FileName(itemFullPath)
+        var folderIndex = bbFileName.folders.count - 1
+        if bbFileName.folders[folderIndex] == "reports" || bbFileName.folders[folderIndex] == "scripts" {
+            folderIndex -= 1
+        }
+        var title = ""
+        /* while folderIndex < bbFileName.folders.count {
+            title.append(String(bbFileName.folders[folderIndex]))
+            title.append(" / ")
+            folderIndex += 1
+        } */
+        title.append(bbFileName.fileName)
+        let titleOK = bbNote.setTitle(title)
+        if !titleOK {
+            print("BBEdit Note Title could not be set to \(title)")
+        }
+        let linkOK = bbNote.setLink(bbURL.absoluteString)
+        if !linkOK {
+            print("BBEdit Link could not be set to \(bbURL.absoluteString)")
+        }
+        var tags = "BBEdit Projects"
+        if itemFullPath.hasPrefix(collectionPath) {
+            tags.append(", ")
+            tags.append(collectionTag)
+            tags.append(".scripts")
+        } else {
+            tags.append(", ")
+            tags.append(TagsValue.tagify(bbFileName.folder))
+        }
+        let tagsOK = bbNote.setTags(tags)
+        if !tagsOK {
+            print("BBEdit Note Tags could not be set to \(tags)")
+        }
+        let (addedNote, _) = realmIO.addNote(newNote: bbNote)
+        if addedNote == nil {
+            print("BBEdit Note titled \(bbNote.title.value) could not be added")
+        }
+        if titleOK && linkOK && tagsOK && (addedNote != nil) { return }
+        logError("Couldn't record BBEdit Project file at \(itemFullPath)")
     }
     
     /// Send an error message to the log.
