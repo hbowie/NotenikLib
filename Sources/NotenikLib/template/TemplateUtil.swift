@@ -38,6 +38,7 @@ public class TemplateUtil {
     var linesToOutput = ""
     var outputOpen = false
     var outputLineCount = 0
+    var outputOnlyIfNew = false
     
     /// A relative path from the location of the output file to the
     /// root of the enclosing website.
@@ -179,7 +180,7 @@ public class TemplateUtil {
     /// Open an output file, as requested from an open command.
     ///
     /// - Parameter filePath: The complete path to the desired output file.
-    func openOutput(filePath: String) {
+    func openOutput(filePath: String, operand2: String = "") {
         closeOutput()
 
         let absFilePath = templateFileName.resolveRelative(path: filePath)
@@ -204,6 +205,8 @@ public class TemplateUtil {
         }
 
         outputOpen = true
+        
+        outputOnlyIfNew = (StringUtils.toCommon(operand2) == "ifnew")
     }
     
     /// Copy a file from one location to another. 
@@ -380,10 +383,18 @@ public class TemplateUtil {
         if let consumer = workspace?.templateOutputConsumer {
             consumer.consumeTemplateOutput(outputLines)
         } else if outputOpen && textOutURL != nil {
-            _ = FileUtils.saveToDisk(strToWrite: outputLines,
-                                 outputURL: textOutURL!,
-                                 createDirectories: true,
-                                 checkForChanges: true)
+            var skipWrite = false
+            if outputOnlyIfNew {
+                if FileManager.default.fileExists(atPath: textOutURL!.path) {
+                    skipWrite = true
+                }
+            }
+            if !skipWrite {
+                _ = FileUtils.saveToDisk(strToWrite: outputLines,
+                                     outputURL: textOutURL!,
+                                     createDirectories: true,
+                                     checkForChanges: true)
+            }
         } else {
             linesToOutput = outputLines
         }

@@ -340,7 +340,12 @@ class TemplateLine {
     func processOutputCommand(note: Note) {
         guard !util.skippingData else { return }
         guard tokens.count >= 2 else { return }
-        util.openOutput(filePath: util.replaceVariables(str: String(tokens[1]), note: note).line)
+        var op2 = ""
+        if tokens.count >= 3 {
+            op2 = String(tokens[2])
+        }
+        util.openOutput(filePath: util.replaceVariables(str: String(tokens[1]), note: note).line,
+                        operand2: op2)
     }
     
     /// Process a Set Command
