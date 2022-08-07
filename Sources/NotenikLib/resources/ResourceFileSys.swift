@@ -399,6 +399,10 @@ public class ResourceFileSys: CustomStringConvertible, Comparable {
         guard exists else { return false }
         guard let urlToRemove = url else { return false }
         do {
+            try fm.trashItem(at: urlToRemove, resultingItemURL: nil)
+            return true
+        } catch { }
+        do {
             try fm.removeItem(at: urlToRemove)
         } catch {
             logError("Error trying to remove item at: \(urlToRemove.path)")
