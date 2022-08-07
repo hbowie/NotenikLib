@@ -19,6 +19,6 @@ public enum modIfChangedOutcome {
     case tryAgain
     case discard
     case add
-    case deleteAndAdd
+    case modWithKeyChanges
     case modify
 }

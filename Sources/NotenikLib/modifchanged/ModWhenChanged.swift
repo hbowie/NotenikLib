@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 4/5/19.
-//  Copyright © 2019 - 2021 Herb Bowie (https://powersurgepub.com)
+//  Copyright © 2019 - 2021 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -123,7 +123,8 @@ public class ModWhenChanged {
             }
         }
         
-        if modNote.hasBody() && AppPrefs.shared.parseUsingNotenik && (collection.minutesToReadDef != nil || collection.wikilinksDef != nil || collection.backlinksDef != nil) {
+        if modNote.hasBody() && AppPrefs.shared.parseUsingNotenik &&
+            (collection.minutesToReadDef != nil || collection.wikilinksDef != nil || collection.backlinksDef != nil) {
             
             // Parse the body field.
             let body = modNote.body
@@ -170,7 +171,7 @@ public class ModWhenChanged {
             if !newNoteRequested {
                 newID = (startingNote.noteID != modID)
                 if newID {
-                    outcome = .deleteAndAdd
+                    outcome = .modWithKeyChanges
                 }
             }
             if newID {
@@ -178,11 +179,11 @@ public class ModWhenChanged {
             }
             if outcome == .modify {
                 if startingNote.sortKey != modNote.sortKey {
-                    outcome = .deleteAndAdd
+                    outcome = .modWithKeyChanges
                 } else if startingNote.tags != modNote.tags {
-                    outcome = .deleteAndAdd
+                    outcome = .modWithKeyChanges
                 } else if collection.akaFieldDef != nil && startingNote.aka != modNote.aka {
-                    outcome = .deleteAndAdd
+                    outcome = .modWithKeyChanges
                 }
             }
             if modID.count == 0 {
@@ -210,18 +211,20 @@ public class ModWhenChanged {
                 logError("Problems adding note titled \(modNote.title)")
                 return (.tryAgain, nil)
             }
-        case .deleteAndAdd:
+        case .modWithKeyChanges:
             modNote.fileInfo.optRegenFileName()
             let attachmentsOK = io.reattach(from: startingNote, to: modNote)
             if !attachmentsOK {
                 logError("Problems renaming attachments for \(modNote.title)")
             }
-            let (_, _) = io.deleteSelectedNote(preserveAttachments: true)
-            let (addedNote, _) = io.addNote(newNote: modNote)
-            if addedNote != nil {
-                return (outcome, addedNote)
+            let (updatedNote, _) = io.modNote(oldNote: startingNote, newNote: modNote)
+            
+            // let (_, _) = io.deleteSelectedNote(preserveAttachments: true)
+            // let (addedNote, _) = io.addNote(newNote: modNote)
+            if updatedNote != nil {
+                return (outcome, updatedNote)
             } else {
-                logError("Problems adding note titled \(modNote.title)")
+                logError("Problems updating note titled \(modNote.title)")
                 return (.tryAgain, nil)
             }
         case .modify:

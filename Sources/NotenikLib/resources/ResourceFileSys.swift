@@ -436,6 +436,31 @@ public class ResourceFileSys: CustomStringConvertible, Comparable {
         return true
     }
     
+    func rename(to newPath: String) -> Bool {
+        guard isAvailable else { return false }
+        let oldPath = actualPath
+        guard oldPath != newPath else { return false }
+        do {
+            try fm.moveItem(atPath: oldPath, toPath: newPath)
+        } catch let error as NSError {
+            logError("Could not rename file from \(oldPath) to \(newPath)")
+            logError("Due to \(error)")
+            return false
+        }
+        let newName = FileName(newPath)
+        self.folderPath = newName.path
+        let fileName = newName.fileName
+        if fileName.hasPrefix(ResourceFileSys.cloudyPrefix) && fileName.hasSuffix(ResourceFileSys.cloudySuffix) {
+            let start = fileName.index(fileName.startIndex, offsetBy: ResourceFileSys.cloudyPrefix.count)
+            let end = fileName.index(fileName.endIndex, offsetBy: (0 - ResourceFileSys.cloudySuffix.count))
+            self.fileName = String(fileName[start..<end])
+        } else {
+            self.fileName = fileName
+        }
+        checkStatus(preferredNoteExt: "txt")
+        return true
+    }
+    
     // -----------------------------------------------------------
     //
     // MARK: Figure out what sort of file system resource we have. 

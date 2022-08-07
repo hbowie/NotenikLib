@@ -999,9 +999,55 @@ public class FileIO: NotenikIO, RowConsumer {
     ///   - newNote: The new version of the note.
     /// - Returns: The modified note and its position.
     public func modNote(oldNote: Note, newNote: Note) -> (Note?, NotePosition) {
-        let modOK = deleteNote(oldNote)
-        guard modOK else { return (nil, NotePosition(index: -1)) }
-        return addNote(newNote: newNote)
+
+        guard collection != nil && collectionOpen else { return (nil, NotePosition(index: -1)) }
+        guard newNote.hasTitle() else { return (nil, NotePosition(index: -1)) }
+        
+        // Delete the old note from memory.
+        var deleted = false
+        deleted = bunch!.delete(note: oldNote)
+        guard deleted else { return (nil, NotePosition(index: -1)) }
+        
+        // Get New Note ready for storage.
+        if collection!.hasTimestamp {
+            if !newNote.hasTimestamp() {
+                _ = newNote.setTimestamp("")
+            }
+        }
+        ensureUniqueID(for: newNote)
+        
+        // Add the new note to memory.
+        let added = bunch!.add(note: newNote)
+        guard added else { return (nil, NotePosition(index: -1)) }
+        
+        // Rename the Note file if needed.
+        newNote.fileInfo.genFileName()
+        guard let oldPath = oldNote.fileInfo.fullPath else {
+            return (nil, NotePosition(index: -1))
+        }
+        guard let newPath = newNote.fileInfo.fullPath else {
+            return (nil, NotePosition(index: -1))
+        }
+        if oldPath != newPath {
+            let notesFolder = oldNote.collection.lib.getResource(type: .notes)
+            let fileName = oldNote.fileInfo.baseDotExt
+            let noteResource = ResourceFileSys(parent: notesFolder, fileName: fileName!, type: .note)
+            let renameOK = noteResource.rename(to: newPath)
+            if !renameOK {
+                logError("Could not rename file from \(oldPath) to \(newPath)")
+                return (nil, NotePosition(index: -1))
+            }
+        }
+        
+        // Save the changes to the Note file. 
+        let written = writeNote(newNote)
+        if !written {
+            return (nil, NotePosition(index: -1))
+        } else {
+            let (_, position) = bunch!.selectNote(newNote)
+            return (newNote, position)
+        }
+
     }
     
     /// Add a new Note to the Collection
