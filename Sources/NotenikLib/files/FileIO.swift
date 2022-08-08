@@ -1162,33 +1162,57 @@ public class FileIO: NotenikIO, RowConsumer {
         return (returnNote, returnPosition)
     }
     
-    /// Register a new Combo Value.
-    public func registerComboValue(comboDef: FieldDefinition, value: String) {
-        guard bunch != nil else { return }
-        bunch!.registerComboValue(comboDef: comboDef, value: value)
-    }
-    
     /// Delete the given note
     ///
     /// - Parameter noteToDelete: The note to be deleted.
     /// - Returns: True if delete was successful, false otherwise.
-    public func deleteNote(_ noteToDelete: Note) -> Bool {
+    public func deleteNote(_ noteToDelete: Note, preserveAttachments: Bool = false) -> Bool {
         
+        // Make sure we have an open collection available to us.
         guard collection != nil && collectionOpen else { return false }
+        guard let lib = collection?.lib else { return false }
         
+        // See if we can find the note to be deleted.
+        let position = positionOfNote(noteToDelete)
+        guard position.valid else { return false }
+        let noteResource = lib.getNoteResource(note: noteToDelete)
+        guard noteResource != nil && noteResource!.isAvailable else { return false }
+        
+        // Delete the note from memory.
         var deleted = false
         deleted = bunch!.delete(note: noteToDelete)
         guard deleted else { return false }
 
-        let noteURL = noteToDelete.fileInfo.url
-        deleted = FileUtils.removeItem(at: noteURL)
-        if !deleted {
-            Logger.shared.log(subsystem: "com.powersurgepub.notenik",
-                              category: "FileIO",
-                              level: .error,
-                              message: "Could not delete note file at '\(noteURL!.path)'")
+        // Delete any attachments, unless asked to preserve them.
+        if !preserveAttachments {
+            for attachment in noteToDelete.attachments {
+                let attachmentResource = lib.getAttachmentResource(fileName: attachment.fullName)
+                if attachmentResource == nil {
+                    logError("Problems deleting attachment named \(attachment.fullName)")
+                } else {
+                    let deleted = attachmentResource!.remove()
+                    if !deleted {
+                        logError("Problems deleting attachment named \(attachment.fullName)")
+                    }
+                }
+            }
         }
+        
+        // Now delete the disk file.
+        deleted = noteResource!.remove()
+        if !deleted {
+            logError("Could not delete selected note at: \(noteResource!.actualPath)")
+            return false
+        }
+        
+        // Return the success indicator. 
         return deleted
+    }
+    
+    /// Register a new Combo Value.
+    public func registerComboValue(comboDef: FieldDefinition, value: String) {
+        guard bunch != nil else { return }
+        bunch!.registerComboValue(comboDef: comboDef, value: value)
     }
     
     /// Read a note from disk.

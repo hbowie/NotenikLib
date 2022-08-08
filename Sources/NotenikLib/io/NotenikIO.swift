@@ -213,7 +213,7 @@ public protocol NotenikIO {
     ///
     /// - Parameter oldNote: The note to be deleted.
     /// - Returns: True if delete was successful, false otherwise.
-    func deleteNote(_ oldNote: Note) -> Bool
+    func deleteNote(_ oldNote: Note, preserveAttachments: Bool) -> Bool
     
     /// Reload the note in memory from the backing data store.
     func reloadNote(_ noteToReload: Note) -> Note?

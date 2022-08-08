@@ -163,7 +163,7 @@ class BunchIO: NotenikIO, RowConsumer  {
         
         // Now do the actual deletes
         for note in notesToDelete {
-            let deleted = deleteNote(note)
+            let deleted = deleteNote(note, preserveAttachments: false)
             if !deleted {
                 print ("Problems deleting note!")
             }
@@ -323,7 +323,7 @@ class BunchIO: NotenikIO, RowConsumer  {
     ///   - newNote: The new version of the note.
     /// - Returns: The modified note and its position.
     func modNote(oldNote: Note, newNote: Note) -> (Note?, NotePosition) {
-        let modOK = deleteNote(oldNote)
+        let modOK = deleteNote(oldNote, preserveAttachments: false)
         guard modOK else { return (nil, NotePosition(index: -1)) }
         return addNote(newNote: newNote)
     }
@@ -363,7 +363,7 @@ class BunchIO: NotenikIO, RowConsumer  {
     ///
     /// - Parameter noteToDelete: The note to be deleted.
     /// - Returns: True if delete was successful, false otherwise.
-    func deleteNote(_ noteToDelete: Note) -> Bool {
+    func deleteNote(_ noteToDelete: Note, preserveAttachments: Bool) -> Bool {
         guard collection != nil && collectionOpen else { return false }
         let deleted = bunch!.delete(note: noteToDelete)
         return deleted
