@@ -122,6 +122,7 @@ public class NotenikFolderList: Sequence {
         for shortcut in shortcuts {
             let shortcutSplit = shortcut.components(separatedBy: ", ")
             if shortcutSplit.count == 2 {
+                logInfo("Loading Shortcut of \(shortcutSplit[0]) with path of \(shortcutSplit[1])")
                 let id = shortcutSplit[0]
                 let linkStr = shortcutSplit[1]
                 updateWithShortcut(linkStr: linkStr, shortcut: id)
