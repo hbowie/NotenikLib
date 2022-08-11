@@ -36,15 +36,14 @@ public class KlassPickList: PickList {
     
     public override var valueString: String {
         var str = "<class:  "
-        var valueIndex = 0
+        let initialStrCount = str.count
         for value in values {
             if !value.isEmpty && value.value != " " {
-                if valueIndex > 0 {
+                if str.count > initialStrCount {
                     str.append(", ")
                 }
                 str.append(String(describing: value))
             }
-            valueIndex += 1
         }
         str.append(" >")
         return str
