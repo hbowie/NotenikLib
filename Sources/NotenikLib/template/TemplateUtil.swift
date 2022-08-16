@@ -863,6 +863,13 @@ public class TemplateUtil {
     func convertMarkdownToHTML(_ markdown: String) -> String {
         switch wikiStyle {
         case "1":
+            if workspace != nil {
+                if workspace!.mkdownContext != nil {
+                    workspace!.mkdownContext!.displayParms.wikiLinkPrefix = ""
+                    workspace!.mkdownContext!.displayParms.wikiLinkFormat = .fileName
+                    workspace!.mkdownContext!.displayParms.wikiLinkSuffix = ".html"
+                }
+            }
             let mkdown = MkdownParser(markdown, options: mkdownOptions)
             mkdown.setWikiLinkFormatting(prefix: "", format: .fileName, suffix: ".html", context: workspace?.mkdownContext)
             mkdown.parse()
