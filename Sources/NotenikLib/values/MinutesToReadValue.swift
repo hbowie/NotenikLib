@@ -21,7 +21,7 @@ public class MinutesToReadValue: StringValue {
         calculate(with: counts)
     }
     
-    let wordsPerMinute = 200
+    let wordsPerMinute = 225
     
     func calculate(with counts: MkdownCounts) {
         let exactMinutes: Double = Double(counts.words) / Double(wordsPerMinute)
