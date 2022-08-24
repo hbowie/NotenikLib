@@ -35,6 +35,7 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
     
     var readme = false
     var infofile = false
+    var infoParentFile = false
     var indexFile = false
     var isDir = false
     var isPackage = false
@@ -303,6 +304,7 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
         var l = 0
         readme = true
         infofile = true
+        infoParentFile = false
         indexFile = true
         for c in baseLower {
             if StringUtils.isWhitespace(c) {
@@ -343,6 +345,10 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
         if !isNoteExt {
             readme = false
             infofile = false
+        }
+        if infofile && baseLower.contains("parent") {
+            infofile = false
+            infoParentFile = true
         }
     }
     
@@ -409,6 +415,8 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
             type = .readmeFile
         } else if infofile {
             type = .infoFile
+        } else if infoParentFile {
+            type = .infoParentFile
         } else if name == ResourceFileSys.aliasFileName {
             type = .aliasFile
         } else if isNoteExt {
@@ -453,6 +461,13 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
             return
         }
         
+        let infoParentFile = ResourceFileSys(folderPath: folderPath, fileName: ResourceFileSys.infoParentFileName)
+        if infoParentFile.exists && infoParentFile.isReadable {
+            type = .parentRealm
+            collectionTypeDetermined = true
+            return
+        }
+        
         // See if there is a sub-folder containing the notes.
         let notesPath = FileUtils.joinPaths(path1: folderPath, path2: ResourceFileSys.notesFolderName)
         if fm.fileExists(atPath: notesPath)
@@ -467,7 +482,6 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
         do {
             contents = try fm.contentsOfDirectory(atPath: folderPath)
         } catch {
-            print("Unexpected error: \(error)")
             Logger.shared.log(subsystem: "com.powersurgepub.notenik.macos",
                               category: "NotenikLink",
                               level: .error,
@@ -510,7 +524,7 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
         } else if notesFound > 0 && !robotsFileFound {
             type = .ordinaryCollection
         } else if foldersFound > 0 {
-            type = .realm
+            type = .parentRealm
         } else if itemsFound == 0 {
             type = .emptyFolder
         }

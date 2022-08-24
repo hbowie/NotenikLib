@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 5/16/19.
-//  Copyright © 2019 - 2021 Herb Bowie (https://hbowie.net)
+//  Copyright © 2019 - 2022 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -69,6 +69,8 @@ public class RealmScanner {
                                                        path2: itemPath)
                 if itemPath == ResourceFileSys.infoFileName {
                     infoFileFound(folderPath: folderPath, realm: realm, itemFullPath: itemFullPath)
+                } else if itemPath == ResourceFileSys.infoParentFileName {
+                    infoParentFileFound(folderPath: folderPath, realm: realm, itemPath: itemPath)
                 } else if itemPath.hasPrefix(".") {
                     // Ignore invisible files
                 } else if itemPath.hasSuffix(".app") {
@@ -136,6 +138,20 @@ public class RealmScanner {
             }
         } else {
             logError("Unable to initialize Collection located at \(folderPath)")
+        }
+    }
+    
+    /// Collect info about the parent realm from its info file.
+    func infoParentFileFound(folderPath: String, realm: Realm, itemPath: String) {
+        guard realmCollection != nil else { return }
+        guard realmCollection!.windowPosStr.isEmpty else { return }
+        let infoCollection = NoteCollection(realm: realm)
+        infoCollection.path = folderPath
+        let infoParentFile = ResourceFileSys(folderPath: folderPath, fileName: itemPath)
+        guard let infoNote = infoParentFile.readNote(collection: infoCollection) else { return }
+        let windowNumbers = infoNote.getField(label: NotenikConstants.windowNumbersCommon)
+        if windowNumbers != nil && !windowNumbers!.value.isEmpty {
+            realmCollection!.windowPosStr = windowNumbers!.value.value
         }
     }
     
@@ -235,5 +251,16 @@ public class RealmScanner {
                           category: "RealmScanner",
                           level: .error,
                           message: msg)
+    }
+    
+    public static func saveInfoFile(collection: NoteCollection) -> Bool {
+        guard collection.isRealmCollection else { return false }
+        guard let lib = collection.lib else { return false }
+        let str = NoteString(title: collection.title)
+        if !collection.windowPosStr.isEmpty {
+            str.append(label: NotenikConstants.windowNumbers, value: collection.windowPosStr)
+        }
+        let saveOK = lib.saveInfoParent(str: str.str)
+        return saveOK
     }
 }

@@ -103,7 +103,7 @@ public class NotenikFolderList: Sequence {
                 let notenikFolder = NotenikLink(url: doc,
                                                 location: .iCloudContainer)
                 switch notenikFolder.type {
-                case .folder, .ordinaryCollection, .webCollection, .realm:
+                case .folder, .ordinaryCollection, .webCollection, .parentRealm:
                     add(notenikFolder)
                 default:
                     break

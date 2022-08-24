@@ -40,6 +40,7 @@ public class ResourceLibrary {
     var notesSubFolder    = ResourceFileSys()
     var readmeFile        = ResourceFileSys()
     var infoFile          = ResourceFileSys()
+    var infoParentFile    = ResourceFileSys()
     var templateFile      = ResourceFileSys()
     var displayFile       = ResourceFileSys()
     var displayCSSFile    = ResourceFileSys()
@@ -64,6 +65,7 @@ public class ResourceLibrary {
         notesSubFolder  = ResourceFileSys()
         readmeFile      = ResourceFileSys()
         infoFile        = ResourceFileSys()
+        infoParentFile  = ResourceFileSys()
         templateFile    = ResourceFileSys()
         displayFile     = ResourceFileSys()
         displayCSSFile  = ResourceFileSys()
@@ -129,6 +131,8 @@ public class ResourceLibrary {
             return exportFolder.isAvailable
         case .info:
             return infoFile.isAvailable
+        case .infoParent:
+            return infoParentFile.isAvailable
         case .klassFolder:
             return klassFolder.isAvailable
         case .mirror:
@@ -166,6 +170,8 @@ public class ResourceLibrary {
             return exportFolder.actualPath
         case .info:
             return infoFile.actualPath
+        case .infoParent:
+            return infoParentFile.actualPath
         case .klassFolder:
             return klassFolder.actualPath
         case .mirror:
@@ -203,6 +209,8 @@ public class ResourceLibrary {
             return exportFolder.url
         case .info:
             return infoFile.url
+        case .infoParent:
+            return infoParentFile.url
         case .klassFolder:
             return klassFolder.url
         case .mirror:
@@ -240,6 +248,8 @@ public class ResourceLibrary {
             return exportFolder
         case .info:
             return infoFile
+        case .infoParent:
+            return infoParentFile
         case .klassFolder:
             return klassFolder
         case .mirror:
@@ -323,6 +333,11 @@ public class ResourceLibrary {
             let infoCollection = NoteCollection(realm: realm)
             infoCollection.path = notesFolder.actualPath
             return infoFile.readNote(collection: infoCollection)
+        case .infoParent:
+            guard infoParentFile.isAvailable else { return nil }
+            let infoCollection = NoteCollection(realm: realm)
+            infoCollection.path = notesFolder.actualPath
+            return infoParentFile.readNote(collection: infoCollection)
         default:
             return nil
         }
@@ -332,6 +347,8 @@ public class ResourceLibrary {
         
         switch type {
         case .info:
+            return getNote(type: type)
+        case .infoParent:
             return getNote(type: type)
         case .template:
             guard templateFile.isAvailable else { return nil }
@@ -350,7 +367,7 @@ public class ResourceLibrary {
         guard notesFolder.isAvailable else { return nil }
         
         switch type {
-        case .info:
+        case .info, .infoParent:
             return getNote(type: type)
         case .note:
             let noteResource = ResourceFileSys(parent: notesFolder, fileName: fileName, type: .note)
@@ -436,6 +453,11 @@ public class ResourceLibrary {
         return infoFile.write(str: str)
     }
     
+    func saveInfoParent(str: String) -> Bool {
+        infoParentFile = ResourceFileSys(parent: collection, fileName: ResourceFileSys.infoParentFileName, type: .infoParent)
+        return infoParentFile.write(str: str)
+    }
+    
     func saveTemplate(str: String, ext: String) -> Bool {
         if !templateFile.exists {
             templateFile = ResourceFileSys(parent: notesFolder,
@@ -509,6 +531,8 @@ public class ResourceLibrary {
             }
         }
         
+        infoParentFile = ResourceFileSys(folderPath: parentPath, fileName: ResourceFileSys.infoParentFileName)
+        
         // Determine which folder actually contains the Notes.
         if notesSubFolder.isAvailable {
             notesFolder = ResourceFileSys(folderPath: notesSubFolder.actualPath, fileName: "")
@@ -565,6 +589,10 @@ public class ResourceLibrary {
                 case .info:
                     if !infoFile.isAvailable {
                         infoFile = resource
+                    }
+                case .infoParent:
+                    if !infoParentFile.isAvailable {
+                        infoParentFile = resource
                     }
                 case .noise:
                     break

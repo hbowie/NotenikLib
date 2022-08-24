@@ -28,7 +28,7 @@ public enum NotenikLinkType {
     
     case ordinaryCollection     // an ordinary notenik collection
     case webCollection          // collection with notes stashed into a 'notes' subfolder
-    case realm                  // a folder that might contain collections
+    case parentRealm            // a folder that might contain collections
     case accessFolder           // a folder to which Notenik may be granted unfettered access
     
     case file                   // some sort of file
@@ -38,6 +38,7 @@ public enum NotenikLinkType {
     case dotFile                // a file (other than dsstore) with a name beginning with a dot
     case dsstore                // a dot DS_Store file - pretend it's not there
     case infoFile               // A Notenik info file
+    case infoParentFile         // A Notenik info file for a parent realm
     case licenseFile            // A file named 'LICENSE'
     case noteFile               // A file with a valid note extension
     case readmeFile             // A file that wants to be read

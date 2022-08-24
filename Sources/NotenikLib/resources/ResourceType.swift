@@ -24,6 +24,7 @@ public enum ResourceType {
     case exportFolder
     case exportScript
     case info
+    case infoParent
     case klassFolder
     case license
     case mirror
