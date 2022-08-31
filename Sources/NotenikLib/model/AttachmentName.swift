@@ -22,7 +22,7 @@ public class AttachmentName: Comparable, NSCopying, CustomStringConvertible {
     var separator = " | "
     var sepCharFound = false
     public var suffix = ""
-    public var ext = ""
+    public var ext = FileExtension("")
     
     /// Standard string representation to conform to CustomStringConvertible.
     public var description: String {
@@ -32,7 +32,7 @@ public class AttachmentName: Comparable, NSCopying, CustomStringConvertible {
     /// The full name for the attachment, consisting of
     /// prefix, separator, suffix and file extension.
     public var fullName: String {
-        return prefix + separator + suffix + ext
+        return prefix + separator + suffix + ext.originalExtWithDot
     }
     
     /// The common file name to be used for this attachment, when
@@ -40,7 +40,7 @@ public class AttachmentName: Comparable, NSCopying, CustomStringConvertible {
     public var commonName: String {
         return (StringUtils.toCommonFileName(prefix)
             + "-" + StringUtils.toCommonFileName(suffix)
-                + StringUtils.toCommonFileName(ext))
+                + self.ext.lowercaseExtWithDot)
     }
     
     /// Is the first attachment name less than the second?
@@ -59,7 +59,7 @@ public class AttachmentName: Comparable, NSCopying, CustomStringConvertible {
         newAttachmentName.prefix = self.prefix
         newAttachmentName.separator = self.separator
         newAttachmentName.suffix = self.suffix
-        newAttachmentName.ext = self.ext
+        newAttachmentName.ext = FileExtension(self.ext.originalExtSansDot)
         return newAttachmentName
     }
     
@@ -70,7 +70,7 @@ public class AttachmentName: Comparable, NSCopying, CustomStringConvertible {
         separator = ""
         sepCharFound = false
         suffix = ""
-        ext = ""
+        var extWork = ""
         guard let fnBase = note.fileInfo.base else { return false }
         prefix = fnBase
         var index = fullName.index(fullName.startIndex, offsetBy: prefix.count)
@@ -82,13 +82,13 @@ public class AttachmentName: Comparable, NSCopying, CustomStringConvertible {
                     sepCharFound = true
                 }
             } else if char == "." {
-                if ext.count > 0 {
-                    suffix.append(ext)
-                    ext = ""
+                if extWork.count > 0 {
+                    suffix.append(extWork)
+                    extWork = ""
                 }
-                ext.append(char)
-            } else if ext.count > 0 {
-                ext.append(char)
+                extWork.append(char)
+            } else if extWork.count > 0 {
+                extWork.append(char)
             } else if sepCharFound {
                 suffix.append(char)
             } else {
@@ -98,6 +98,7 @@ public class AttachmentName: Comparable, NSCopying, CustomStringConvertible {
             index = fullName.index(after: index)
         }
         guard sepCharFound && suffix.count > 0 else { return false }
+        self.ext = FileExtension(extWork)
         return true
     }
     
@@ -111,13 +112,12 @@ public class AttachmentName: Comparable, NSCopying, CustomStringConvertible {
         self.prefix = ""
         self.separator = ""
         self.suffix = ""
-        self.ext = ""
         guard let fnBase = note.fileInfo.base else { return }
         let fromFileName = FileName(fromFile)
         self.prefix = fnBase
         self.separator = preferredSeparator
         self.suffix = suffix
-        self.ext = "." + fromFileName.ext
+        self.ext = FileExtension(fromFileName.ext)
     }
     
     /// Change the prefix based on the passed note, but leave
