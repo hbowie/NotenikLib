@@ -639,6 +639,11 @@ public class TemplateUtil {
         var linkedTagsPathDone = false
         var linkedTagsClass = ""
         
+        var zStage = 0
+        var zPrefix = ""
+        var zSuffix = ""
+        var zClass = ""
+        
         var formatFileName = false
         var readableFileName = false
         
@@ -679,6 +684,16 @@ public class TemplateUtil {
                     linkedTagsClass.append(char)
                 } else {
                     linkedTagsPath.append(char)
+                }
+            } else if zStage > 0 && zStage < 4 {
+                if char == ";" {
+                    zStage += 1
+                } else if zStage == 1 {
+                    zPrefix.append(char)
+                } else if zStage == 2 {
+                    zSuffix.append(char)
+                } else if zStage == 3 {
+                    zClass.append(char)
                 }
             } else if wordDemarcationPending {
                 if charLower == "u" || charLower == "l" || charLower == "a" {
@@ -783,6 +798,8 @@ public class TemplateUtil {
                 modifiedValue = xmlConverter.convert(from: modifiedValue)
             } else if char == "y" {
                 formatString.append(char)
+            } else if char == "z" {
+                zStage = 1
             } else if charLower == "'" {
                 modifiedValue = emailSingleQuoteConverter.convert(from: modifiedValue)
             } else if char.isWholeNumber {
@@ -836,12 +853,42 @@ public class TemplateUtil {
             modifiedValue = tags.getLinkedTags(parent: relative + linkedTagsPath, htmlClass: linkedTagsClass)
         }
         
+        if zStage > 0 {
+            modifiedValue = zTags(tagsString: modifiedValue, prefix: zPrefix, suffix: zSuffix, htmlClass: zClass)
+        }
+        
         if formatString.count > 0 {
             let date = DateValue(modifiedValue)
             modifiedValue = date.format(with: formatString)
         }
         
         return modifiedValue
+    }
+    
+    func zTags(tagsString: String, prefix: String, suffix: String, htmlClass: String)-> String {
+        var html = ""
+        let tags = TagsValue(tagsString)
+        for tag in tags.tags {
+            if html.count > 0 { // }&& htmlClass.count == 0 {
+                html.append(", ")
+            }
+            var str = ""
+            var link = ""
+            for level in tag.levels {
+                if str.count > 0 {
+                    str.append(".")
+                    link.append("-")
+                }
+                str.append(level.forDisplay)
+                link.append(StringUtils.toCommonFileName(level.forDisplay))
+            }
+            var klass = ""
+            if htmlClass.count > 0 {
+                klass = " class='" + htmlClass + "'"
+            }
+            html.append("<a\(klass) href='" + prefix + link + suffix + "' rel='tag'>" + str + "</a>")
+        }
+        return html
     }
     
     func separateVariables(from: String, separator: Character) -> String {
