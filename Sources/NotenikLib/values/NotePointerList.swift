@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 10/3/21.
 //
-//  Copyright © 2021 Herb Bowie (https://hbowie.net)
+//  Copyright © 2021 - 2022 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -13,13 +13,14 @@
 import Foundation
 
 import NotenikUtils
+import NotenikMkdown
 
 /// A list of pointers to Notes.
 public class NotePointerList: CustomStringConvertible, Collection, Sequence {
 
-    public typealias Element = NotePointer
+    public typealias Element = WikiLinkTarget
     
-    public var list: [NotePointer] = []
+    public var list: [WikiLinkTarget] = []
     
     public var startIndex: Int {
         return 0
@@ -33,7 +34,7 @@ public class NotePointerList: CustomStringConvertible, Collection, Sequence {
         return i + 1
     }
     
-    public subscript(position: Int) -> NotePointer {
+    public subscript(position: Int) -> WikiLinkTarget {
         return list[position]
     }
     
@@ -45,7 +46,7 @@ public class NotePointerList: CustomStringConvertible, Collection, Sequence {
     public var value: String {
         var str = ""
         for pointer in list {
-            str.append(pointer.title)
+            str.append(pointer.pathSlashItem)
             str.append(";; ")
         }
         return str
@@ -101,7 +102,7 @@ public class NotePointerList: CustomStringConvertible, Collection, Sequence {
     /// by the lowest common denominator representation.
     /// - Parameter title: The Title of a Note.
     public func add(title: String) {
-        let newPointer = NotePointer(title: title)
+        let newPointer = WikiLinkTarget(title)
         var index = 0
         while index < list.count && newPointer > list[index] {
             index += 1
@@ -116,9 +117,9 @@ public class NotePointerList: CustomStringConvertible, Collection, Sequence {
     }
     
     public func remove(title: String) {
-        let pointerToRemove = NotePointer(title: title)
+        let pointerToRemove = WikiLinkTarget(title)
         var index = 0
-        while index < list.count && pointerToRemove.common != list[index].common {
+        while index < list.count && pointerToRemove.pathSlashID != list[index].pathSlashID {
             index += 1
         }
         if index < list.count {
@@ -134,7 +135,7 @@ public class NotePointerList: CustomStringConvertible, Collection, Sequence {
     /// The Iterator.
     public class NotePointerIterator: IteratorProtocol {
 
-        public typealias Element = NotePointer
+        public typealias Element = WikiLinkTarget
         
         var pointers: NotePointerList
         
@@ -144,7 +145,7 @@ public class NotePointerList: CustomStringConvertible, Collection, Sequence {
             self.pointers = pointers
         }
         
-        public func next() -> NotePointer? {
+        public func next() -> WikiLinkTarget? {
             guard index >= 0 && index < pointers.list.count else { return nil }
             let nextPointer = pointers.list[index]
             index += 1

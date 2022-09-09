@@ -92,6 +92,10 @@ public class DisplayParms {
         }
     }
     
+    func assembleWikiLink(target: WikiLinkTarget) -> String {
+        return wikiLinkPrefix + target.formatWikiLink(format: wikiLinkFormat) + wikiLinkSuffix
+    }
+    
     /// Create a wiki link, based on the wiki parms.
     func assembleWikiLink(title: String) -> String {
         return wikiLinkPrefix + formatWikiLink(title) + wikiLinkSuffix

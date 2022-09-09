@@ -127,12 +127,9 @@ public class RealmScanner {
                 }
                 
                 _ = infoIO.loadInfoFile()
-                if !infoCollection!.shortcut.isEmpty {
-                    let folderLink = NotenikLink(url: folderURL, isCollection: true)
-                    folderLink.shortcut = infoCollection!.shortcut
-                    MultiFileIO.shared.register(link: folderLink)
-                }
-                
+                let folderLink = NotenikLink(url: folderURL, isCollection: true)
+                folderLink.shortcut = infoCollection!.shortcut
+                MultiFileIO.shared.register(link: folderLink)
             } else {
                 logError("Unable to initialize Collection located at \(folderPath)")
             }

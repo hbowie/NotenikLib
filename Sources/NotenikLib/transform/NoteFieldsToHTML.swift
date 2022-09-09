@@ -245,7 +245,7 @@ public class NoteFieldsToHTML {
         linksHTML.startUnorderedList(klass: nil)
         for pointer in pointers {
             linksHTML.startListItem()
-            linksHTML.link(text: pointer.title, path: parms.assembleWikiLink(title: pointer.title))
+            linksHTML.link(text: pointer.pathSlashItem, path: parms.assembleWikiLink(target: pointer))
             linksHTML.finishListItem()
         }
         linksHTML.finishUnorderedList()
@@ -263,7 +263,7 @@ public class NoteFieldsToHTML {
         linksHTML.startUnorderedList(klass: nil)
         for pointer in pointers {
             linksHTML.startListItem()
-            linksHTML.link(text: pointer.title, path: parms.assembleWikiLink(title: pointer.title))
+            linksHTML.link(text: pointer.pathSlashItem, path: parms.assembleWikiLink(target: pointer))
             linksHTML.finishListItem()
         }
         linksHTML.finishUnorderedList()

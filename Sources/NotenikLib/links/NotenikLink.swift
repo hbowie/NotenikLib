@@ -69,19 +69,19 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
      Part 1 of the url, delimited by a colon and zero or more slashes
      (as in "http://" or "mailto:")
      */
-    var linkPart1 : Substring? = nil
+    public var linkPart1 : Substring? = nil
     
     /// The user name part of an e-mail address, if one is present, or the sub-domain.
-    var linkPart2 : Substring? = nil
+    public var linkPart2 : Substring? = nil
     
     /// The domain name
-    var linkPart3 : Substring? = nil
+    public var linkPart3 : Substring? = nil
     
     /// Anything following the domain name, except for a trailing slash.
-    var linkPart4 : Substring? = nil
+    public var linkPart4 : Substring? = nil
     
     /// An ending slash, if one is present. */
-    var linkPart5 : Substring? = nil
+    public var linkPart5 : Substring? = nil
     
     public var linkStr: String {
         if url == nil {

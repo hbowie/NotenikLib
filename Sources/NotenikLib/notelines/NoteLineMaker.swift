@@ -171,7 +171,7 @@ public class NoteLineMaker {
     func putWikilinks(def: FieldDefinition, notePointers: NotePointerList) {
         writer.endLine()
         for notePointer in notePointers {
-            writer.writeLine("\(def.fieldLabel.properForm): \(notePointer.title)")
+            writer.writeLine("\(def.fieldLabel.properForm): \(notePointer.pathSlashItem)")
         }
         fieldsWritten += 1
     }

@@ -36,18 +36,27 @@ public class MultiFileIO {
     
     /// Register a known Collection with an assigned shortcut.
     public func register(link: NotenikLink) {
-        
-        guard !link.shortcut.isEmpty else { return }
-        let entry = entries[link.shortcut]
+        var id = ""
+        if !link.shortcut.isEmpty {
+            id = link.shortcut
+        } else if !link.folder.isEmpty {
+            id = link.folder
+        } else {
+            return
+        }
         let newEntry = MultiFileEntry(link: link)
-        if entry == nil || entry!.link != newEntry.link {
-            entries[link.shortcut] = newEntry
+        let entry = entries[id]
+        if entry == nil {
+            entries[id] = newEntry
+        } else if link.shortcut.isEmpty {
+            return
+        } else if entry!.link != newEntry.link {
+            entries[id] = newEntry
         }
     }
     
     /// Register an I/O module for a Collection.
     public func register(link: NotenikLink, io: FileIO) {
-        
         guard !link.shortcut.isEmpty else { return }
         let entry = entries[link.shortcut]
         let newEntry = MultiFileEntry(link: link, io: io)

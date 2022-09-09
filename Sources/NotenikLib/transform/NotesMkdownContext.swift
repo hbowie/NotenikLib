@@ -57,60 +57,11 @@ public class NotesMkdownContext: MkdownContext {
     /// - Parameter title: A wiki link target that is possibly a timestamp instead of a title.
     /// - Returns: The corresponding title, if the lookup was successful, otherwise the title
     ///            that was passed as input.
-    public func mkdownWikiLinkLookup(linkText: String) -> String? {
+    public func mkdownWikiLinkLookup(linkText: String) -> WikiLinkTarget? {
         
-        guard io.collection != nil else { return linkText }
-        guard io.collectionOpen else { return linkText }
-        
-        // Check for first possible case: title within the wiki link
-        // points directly to another note having that same title.
-        let titleID = StringUtils.toCommon(linkText)
-        var linkedNote = io.getNote(forID: titleID)
-        if linkedNote != nil {
-            io.aliasList.add(titleID: titleID, timestamp: linkedNote!.timestampAsString)
-            return linkedNote!.title.value
-        }
-        
-        // Check for second possible case: title within the wiki link
-        // uses the singular form of a word, but the word appears in its
-        // plural form within the target note's title.
-        linkedNote = io.getNote(forID: titleID + "s")
-        if linkedNote != nil {
-            return linkedNote!.title.value
-        }
-        
-        // Check for third possible case: title within the wiki link
-        // refers to an alias by which a Note is also known. 
-        if io.collection!.akaFieldDef != nil {
-            linkedNote = io.getNote(alsoKnownAs: titleID)
-            if linkedNote != nil {
-                return linkedNote!.title.value
-            }
-        }
-        
-        guard io.collection!.hasTimestamp else { return nil }
-        
-        // Check for fourth possible case: title within the wiki link
-        // used to point directly to another note having that same title,
-        // but the target note's title has since been modified.
-        let timestamp = io.aliasList.get(titleID: titleID)
-        if timestamp != nil {
-            linkedNote = io.getNote(forTimestamp: timestamp!)
-            if linkedNote != nil {
-                return linkedNote!.title.value
-            }
-        }
-        
-        // Check for fifth possible case: string within the wiki link
-        // is already a timestamp pointing to another note.
-        guard linkText.count < 15 && linkText.count > 11 else { return linkText }
-        linkedNote = io.getNote(forTimestamp: linkText)
-        if linkedNote != nil {
-            return linkedNote!.title.value
-        }
-        
-        // Nothing worked, so return nada / zilch.
-        return nil
+        let resolution = NoteLinkResolution(io: io, linkText: linkText)
+        NoteLinkResolver.resolve(resolution: resolution)
+        return resolution.genWikiLinkTarget()
     }
     
     // -----------------------------------------------------------
@@ -572,28 +523,28 @@ public class NotesMkdownContext: MkdownContext {
     
     func includeFromNote(item: String, style: String) -> String? {
         
-        guard io.collection != nil else { return item }
-        guard io.collectionOpen else { return item }
+        let resolution = NoteLinkResolution(io: io, linkText: item)
+        NoteLinkResolver.resolve(resolution: resolution)
+
+        guard resolution.result != .badInput else { return item }
         
-        guard let noteTitle = mkdownWikiLinkLookup(linkText: item) else { return nil }
-        let noteID = StringUtils.toCommon(noteTitle)
-        guard let note = io.getNote(forID: noteID) else {
+        guard resolution.result == .resolved else {
             return "Note titled '\(item)' could not be included"
         }
         
-        includedNotes.append(noteID)
+        includedNotes.append(resolution.pathSlashID)
         
         switch style {
         case "body":
-            return note.body.value
+            return resolution.resolvedNote!.body.value
         case "note":
-            return includeTextFromNote(note: note)
+            return includeTextFromNote(note: resolution.resolvedNote!)
         case "quotebody", "quote-body":
-            return includeQuoteFromNote(note: note, withAttrib: false)
+            return includeQuoteFromNote(note: resolution.resolvedNote!, withAttrib: false)
         case "quote":
-            return includeQuoteFromNote(note: note)
+            return includeQuoteFromNote(note: resolution.resolvedNote!)
         default:
-            return note.body.value
+            return resolution.resolvedNote!.body.value
         }
     }
     

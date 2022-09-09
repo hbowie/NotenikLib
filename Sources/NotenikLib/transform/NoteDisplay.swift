@@ -78,7 +78,7 @@ public class NoteDisplay {
                 for link in mdBodyParser!.wikiLinkList.links {
                     if !link.targetFound {
                         let newNote = Note(collection: note.collection)
-                        _ = newNote.setTitle(link.originalTarget)
+                        _ = newNote.setTitle(link.originalTarget.item)
                         newNote.setID()
                         if collection.backlinksDef == nil {
                             _ = newNote.setBody("Created by Wiki-style Link found in the body of the Note titled [[\(note.title.value)]].")

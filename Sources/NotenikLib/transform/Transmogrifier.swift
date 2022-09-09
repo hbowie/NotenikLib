@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 10/4/21.
 //
-//  Copyright © 2021 Herb Bowie (https://hbowie.net)
+//  Copyright © 2021 - 2022 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -48,7 +48,7 @@ public class Transmogrifier {
             var j = 0
             while j < oldLinks.count {
                 let oldLink = oldLinks[j]
-                if newLink.targetCommon == oldLink.common {
+                if newLink.bestTarget.pathSlashID == oldLink.pathSlashID {
                     matched = true
                     oldLinks.remove(at: j)
                     break
@@ -68,24 +68,24 @@ public class Transmogrifier {
         
         for newLink in newLinks {
             noteUpdated = true
-            let linkedNote = io.getNote(forID: newLink.targetCommon)
+            let (targetIO, linkedNote) = getNote(newLink.bestTarget)
             if linkedNote != nil {
                 let modNote = linkedNote!.copy() as! Note
                 let backLinks = modNote.backlinks
                 backLinks.add(title: note.title.value)
                 _ = modNote.setBacklinks(backLinks)
-                _ = io.modNote(oldNote: linkedNote!, newNote: modNote)
+                _ = targetIO!.modNote(oldNote: linkedNote!, newNote: modNote)
             }
         }
         for oldLink in oldLinks {
             noteUpdated = true
-            let linkedNote = io.getNote(forID: oldLink.common)
+            let (targetIO, linkedNote) = getNote(oldLink)
             if linkedNote != nil {
                 let modNote = linkedNote!.copy() as! Note
                 let backLinks = modNote.backlinks
                 backLinks.remove(title: note.title.value)
                 _ = modNote.setBacklinks(backLinks)
-                _ = io.modNote(oldNote: linkedNote!, newNote: modNote)
+                _ = targetIO!.modNote(oldNote: linkedNote!, newNote: modNote)
             }
         }
         
@@ -118,13 +118,12 @@ public class Transmogrifier {
             let noteLinkList = noteDisplay.wikilinks
             if noteLinkList != nil {
                 for link in noteLinkList!.links {
-                    
-                    link.fromTitle = note!.title.value
+                    link.setFrom(path: "", item: note!.title.value)
                     
                     // Add a Note if a target is missing
                     if !link.targetFound {
                         let newNote = Note(collection: note!.collection)
-                        _ = newNote.setTitle(link.originalTarget)
+                        _ = newNote.setTitle(link.originalTarget.item)
                         newNote.setID()
                         _ = io.addNote(newNote: newNote)
                     }
@@ -136,19 +135,19 @@ public class Transmogrifier {
                     }
                     
                     // Record this link in the from dict.
-                    let fromTitles = from[link.fromCommon]
+                    let fromTitles = from[link.fromTarget.item]
                     if fromTitles == nil {
-                        from[link.fromCommon] = ListOfTitles(title: toTitle)
+                        from[link.fromTarget.itemID] = ListOfTitles(title: toTitle.pathSlashItem)
                     } else {
-                        from[link.fromCommon]!.add(title: toTitle)
+                        from[link.fromTarget.itemID]!.add(title: toTitle.pathSlashItem)
                     }
                     
                     // Record this link in the To dict
-                    let toTitles = to[link.targetCommon]
+                    let toTitles = to[link.bestTarget.pathSlashID]
                     if toTitles == nil {
-                        to[link.targetCommon] = ListOfTitles(title: link.fromTitle)
+                        to[link.bestTarget.pathSlashID] = ListOfTitles(title: link.fromTarget.pathSlashItem)
                     } else {
-                        to[link.targetCommon]!.add(title: link.fromTitle)
+                        to[link.bestTarget.pathSlashID]!.add(title: link.fromTarget.pathSlashItem)
                     }
                 }
             }
@@ -204,6 +203,20 @@ public class Transmogrifier {
         }
         
         return backlinksCount
+    }
+    
+    let multiIO = MultiFileIO.shared
+    
+    /// Look for a Note, using the path to access a differnet Collection via MultifileIO, if path is non-blank.
+    func getNote(_ target: WikiLinkTarget) -> (NotenikIO?, Note?) {
+        var targetIO = io
+        if target.hasPath {
+            if let ioFromPath = multiIO.getFileIO(shortcut: target.path) {
+                targetIO = ioFromPath
+            }
+        }
+        let linkedNote = targetIO.getNote(forID: target.itemID)
+        return (targetIO, linkedNote)
     }
     
     class ListOfTitles {
