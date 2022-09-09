@@ -178,20 +178,34 @@ public class NotesMkdownContext: MkdownContext {
         let mkdown = Markedup(format: .htmlFragment)
         termCount = 0
         pageCount = 0
-        // var lastLetter = " "
+        var lastLetter = " "
+        
+        // Generate Table of Contents
+        mkdown.startParagraph()
+        for term in indexCollection.list {
+            let initialLetter = term.term.prefix(1).uppercased()
+            if initialLetter != lastLetter {
+                mkdown.link(text: initialLetter, path: "#letter-\(initialLetter.lowercased())")
+                mkdown.newLine()
+                lastLetter = initialLetter
+            }
+        }
+        mkdown.finishParagraph()
+        
+        // Generate the index
+        lastLetter = " "
         mkdown.startDefinitionList(klass: nil)
         for term in indexCollection.list {
             termCount += 1
-            // let initialLetter = term.term.prefix(1).uppercased()
-            
-            /* if initialLetter != lastLetter {
+            let initialLetter = term.term.prefix(1).uppercased()
+            if initialLetter != lastLetter {
                 if lastLetter != " " {
                     mkdown.finishDefinitionList()
                 }
-                mkdown.heading(level: 2, text: "--- \(initialLetter) ---")
+                mkdown.heading(level: 3, text: "&mdash; \(initialLetter) &mdash;", addID: true, idText: "letter-\(initialLetter)")
                 lastLetter = initialLetter
                 mkdown.startDefinitionList(klass: nil)
-            } */
+            }
             mkdown.startDefTerm()
             mkdown.append(term.term)
             mkdown.finishDefTerm()
