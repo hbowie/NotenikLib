@@ -224,6 +224,193 @@ public class NotesMkdownContext: MkdownContext {
     
     // -----------------------------------------------------------
     //
+    // MARK: Generate HTML for a Collection Search Form.
+    //
+    // -----------------------------------------------------------
+    
+    /// Return a search page for the Collection, formatted in HTML.
+    public func mkdownSearch(siteURL: String) -> String {
+        
+        // Generate the page, formatted using HTML.
+        let markup = Markedup(format: .htmlFragment)
+        
+        markup.startDiv(klass: "search-page")
+        
+        markup.startDiv(klass: "search-form")
+        markup.startForm(action: "https://duckduckgo.com/", method: "get", id: "form-search")
+        markup.formLabel(labelFor: "input-search", labelText: "Enter your search term:")
+        markup.formInput(inputType: "text", name: "q", value: nil, id: "input-search")
+        markup.formInput(inputType: "hidden", name: "sites", value: siteURL, id: nil)
+        markup.formButton(buttonType: "submit", buttonText: "Search",
+                          klass: "btn btn-primary", id: "submit-search")
+        markup.finishForm()
+        markup.finishDiv()
+        
+        markup.startDiv(klass: nil, id: "search-results")
+        markup.finishDiv()
+        markup.finishDiv()
+        
+        markup.startScript()
+        markup.ensureNewLine()
+        markup.writeLine("let searchIndex = [ ")
+        var (note, position) = io.firstNote()
+        while note != nil {
+            
+            markup.writeLine("    { ")
+            
+            // Generate title
+            markup.writeLine("        title: \"\(note!.title.value)\", ")
+            
+            // Generate date
+            if note!.hasDate() {
+                markup.writeLine("        date: \"\(note!.getDateAsField()!)\", ")
+            } else {
+                markup.writeLine("        date: \"\", ")
+            }
+            
+            // Generate URL
+            let resolution = NoteLinkResolution(io: io, linkText: note!.title.value)
+            NoteLinkResolver.resolve(resolution: resolution)
+            if let target = resolution.genWikiLinkTarget() {
+                let url = displayParms.assembleWikiLink(target: target)
+                markup.writeLine("        url: \"\(url)\", ")
+            } else {
+                markup.writeLine("        url: \"\", ")
+            }
+            
+            // Generate summary
+            var summaryText = ""
+            if note!.hasTeaser() {
+                summaryText = note!.teaser.value
+            } else {
+                summaryText = StringUtils.summarize(note!.body.value)
+            }
+            let mkd = MkdownParser(summaryText, options: displayParms.genMkdownOptions())
+            mkd.parse()
+            
+            let escaped = StringUtils.prepHTMLforJSON(mkd.html)
+            markup.writeLine("        summary: \"\(escaped)\", ")
+            
+            // Generate content
+            let pureContent = StringUtils.purifyPunctuation(note!.body.value)
+            markup.writeLine("        content: \"\(pureContent)\"")
+            
+            markup.writeLine("    }, ")
+            (note, position) = io.nextNote(position)
+        }
+        markup.ensureNewLine()
+        markup.writeLine("]; ")
+        let searchScript = """
+        /**
+         * Based on Go Make Things blog post at:
+         * https://gomakethings.com/how-to-create-a-vanilla-js-search-page-for-a-static-website/
+         */
+        (function (window, document, undefined) {
+
+            'use strict';
+
+            //
+            // Variables
+            //
+
+            let form = document.querySelector('#form-search');
+            let input = document.querySelector('#input-search');
+            let resultList = document.querySelector('#search-results');
+
+            //
+            // Methods
+            //
+
+            /**
+             * Create the HTML for each result
+             * @param  {Object} article The article
+             * @param  {Number} id      The result index
+             * @return {String}         The markup
+             */
+            let createHTML = function (article, id) {
+                let html =
+                    '<div id="search-result-' + id + '">' +
+                        '<h4>' +
+                            '<a href="' + article.url + '">' +
+                                article.title +
+                            '</a>' +
+                        '</h2>' +
+                        article.summary + '<br>' +
+                    '</div>';
+                return html;
+            };
+
+            /**
+             * Create the markup for results
+             * @param  {Array} results The results to display
+             * @return {String}        The results HTML
+             */
+            let createResultsHTML = function (results) {
+                let html = '<p>Found ' + results.length + ' matching pages</p>';
+                html += results.map(function (article, index) {
+                    return createHTML(article, index);
+                }).join('');
+                return html;
+            };
+
+            /**
+             * Create the markup when no results are found
+             * @return {String} The markup
+             */
+            let createNoResultsHTML = function () {
+                return '<p>Sorry, no matches were found.</p>';
+            };
+
+            /**
+             * Search for matches
+             * @param  {String} query The term to search for
+             */
+            let search = function (query) {
+
+                // Variables
+                let reg = new RegExp(query, 'gi');
+                let priority1 = []
+                let priority2 = []
+
+                searchIndex.forEach(function (article) {
+                    if (reg.test(article.title)) return priority1.push(article);
+                    if (reg.test(article.content)) priority2.push(article);
+                });
+
+                let results = [].concat(priority1, priority2)
+
+                // Display the results
+                resultList.innerHTML = results.length < 1 ? createNoResultsHTML() : createResultsHTML(results);
+            };
+
+            /**
+             * Handle submit events
+             */
+            let submitHandler = function (event) {
+                event.preventDefault();
+                search(input.value);
+            };
+
+            //
+            // Inits & Event Listeners
+            //
+
+            // Make sure required content exists
+            if (!form || !input || !resultList || !searchIndex) return;
+
+            // Create a submit handler
+            form.addEventListener('submit', submitHandler);
+
+        })(window, document);
+        """
+        markup.append(searchScript)
+        markup.finishScript()
+
+        return markup.code
+    }
+    
+    // -----------------------------------------------------------
+    //
     // MARK: Generate HTML for a Tags Outline.
     //
     // -----------------------------------------------------------
