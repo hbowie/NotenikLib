@@ -137,8 +137,9 @@ public protocol NotenikIO {
     ///   - from: The location of the file to be attached.
     ///   - to: The Note to which the file is to be attached.
     ///   - with: The unique identifier for this attachment for this note.
+    ///   - move: Should the file be moved instead of copied?
     /// - Returns: True if attachment added successfully, false if any sort of failure.
-    func addAttachment(from: URL, to: Note, with: String) -> Bool
+    func addAttachment(from: URL, to: Note, with: String, move: Bool) -> Bool
     
     /// Reattach the attachments for this note to make sure they are attached
     /// to the new note.

@@ -238,7 +238,10 @@ public class CollectionRelocation {
         for attachment in fromNote.attachments {
             let attachmentURL = fromIO.getURLforAttachment(attachmentName: attachment)
             if attachmentURL != nil {
-                let attached = toIO.addAttachment(from: attachmentURL!, to: toNote, with: attachment.suffix)
+                let attached = toIO.addAttachment(from: attachmentURL!,
+                                                  to: toNote,
+                                                  with: attachment.suffix,
+                                                  move: false)
                 if attached {
                     if move {
                         let removed = FileUtils.removeItem(at: attachmentURL)

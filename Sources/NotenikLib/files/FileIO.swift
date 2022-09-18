@@ -802,11 +802,14 @@ public class FileIO: NotenikIO, RowConsumer {
     ///   - from: The location of the file to be attached.
     ///   - to: The Note to which the file is to be attached.
     ///   - with: The unique identifier for this attachment for this note.
+    ///   - move: Should the file be moved instead of copied?
     /// - Returns: True if attachment added successfully, false if any sort of failure.
-    public func addAttachment(from: URL, to: Note, with: String) -> Bool {
+    public func addAttachment(from: URL, to: Note, with: String, move: Bool) -> Bool {
         let attachmentName = AttachmentName()
         attachmentName.setName(fromFile: from, note: to, suffix: with)
-        let attachmentResource = collection!.lib.storeAttachment(fromURL: from, attachmentName: attachmentName.fullName)
+        let attachmentResource = collection!.lib.storeAttachment(fromURL: from,
+                                                                 attachmentName: attachmentName.fullName,
+                                                                 move: move)
         guard attachmentResource != nil else { return false }
         to.attachments.append(attachmentName)
         return true
@@ -847,17 +850,19 @@ public class FileIO: NotenikIO, RowConsumer {
                 continue
             }
             
-            let newResource = lib.storeAttachment(fromURL: fromResource.url!, attachmentName: newAttachmentName.fullName)
+            let newResource = lib.storeAttachment(fromURL: fromResource.url!,
+                                                  attachmentName: newAttachmentName.fullName,
+                                                  move: true)
             guard newResource != nil else {
-                logError("Problems copying attachment to new name at: \(toResource.actualPath)")
+                logError("Problems renaming attachment to: \(toResource.actualPath)")
                 allOK = false
                 continue
             }
             
-            let ok = fromResource.remove()
-            if !ok {
-                allOK = false
-            }
+            // let ok = fromResource.remove()
+            // if !ok {
+            //     allOK = false
+            // }
             
         }
         return allOK

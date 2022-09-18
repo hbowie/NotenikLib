@@ -403,8 +403,8 @@ public class ResourceLibrary {
     //
     // -----------------------------------------------------------
     
-    /// Copy a new attachment and store it in the attachment (aka files) subfolder.
-    func storeAttachment(fromURL: URL, attachmentName: String) -> ResourceFileSys? {
+    /// Copyor move  a new attachment and store it in the attachment (aka files) subfolder.
+    func storeAttachment(fromURL: URL, attachmentName: String, move: Bool) -> ResourceFileSys? {
         
         guard notesFolder.isAvailable else { return nil }
         
@@ -426,12 +426,21 @@ public class ResourceLibrary {
             logError("Attachment already exists at \(attachmentResource.actualPath)")
             return nil
         }
-
-        do {
-            try fm.copyItem(at: fromURL, to: attachmentResource.url!)
-        } catch {
-            logError("Couldn't copy the attachment to \(attachmentResource.actualPath)")
-            return nil
+        
+        if move {
+            do {
+                try fm.moveItem(at: fromURL, to: attachmentResource.url!)
+            } catch {
+                logError("Couldn't move the attachment to \(attachmentResource.actualPath)")
+                return nil
+            }
+        } else {
+            do {
+                try fm.copyItem(at: fromURL, to: attachmentResource.url!)
+            } catch {
+                logError("Couldn't copy the attachment to \(attachmentResource.actualPath)")
+                return nil
+            }
         }
         
         return ResourceFileSys(parent: attachmentsFolder, fileName: attachmentName, type: .attachment)
