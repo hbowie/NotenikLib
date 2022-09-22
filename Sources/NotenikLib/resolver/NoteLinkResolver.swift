@@ -57,10 +57,13 @@ public class NoteLinkResolver {
             return
         }
         
-        // Check for second possible case: title within the wiki link
-        // uses the singular form of a word, but the word appears in its
-        // plural form within the target note's title.
-        linkedNote = targetIO.getNote(forID: resolution.linkID + "s")
+        // Check for second possible case: a simple difference of singular
+        // vs. plural forms.
+        if resolution.linkID.hasSuffix("s") {
+            linkedNote = targetIO.getNote(forID: String(resolution.linkID.dropLast(1)))
+        } else {
+            linkedNote = targetIO.getNote(forID: resolution.linkID + "s")
+        }
         if linkedNote != nil {
             resolution.result = .resolved
             resolution.resolvedIO = targetIO
