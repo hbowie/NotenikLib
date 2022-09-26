@@ -389,9 +389,17 @@ public class NoteDisplay {
                     bottomHTML.link(text: tocTitle, path: parms.assembleWikiLink(title: tocTitle))
                     let aka = tocNote.aka.value
                     if !aka.isEmpty && (tocTitle.count + aka.count) < 60 {
-                        bottomHTML.startEmphasis()
-                        bottomHTML.append(" (aka: \(aka))")
-                        bottomHTML.finishEmphasis()
+                        let (matched, unmatched) = StringUtils.matchCounts(str1: tocTitle, str2: aka)
+                        var shorter = tocTitle.count
+                        if aka.count < shorter {
+                            shorter = aka.count
+                        }
+                        let matching: Double = Double(Double(matched) / Double(shorter))
+                        if !(matching > 0.60 || matched > unmatched) {
+                            bottomHTML.startEmphasis()
+                            bottomHTML.append(" (aka: \(aka))")
+                            bottomHTML.finishEmphasis()
+                        }
                     }
                     bottomHTML.finishListItem()
                 }
