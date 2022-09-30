@@ -802,6 +802,8 @@ public class TemplateUtil {
                 zStage = 1
             } else if charLower == "'" {
                 modifiedValue = emailSingleQuoteConverter.convert(from: modifiedValue)
+            } else if char == "\\" {
+                modifiedValue = StringUtils.prepHTMLforJSON(modifiedValue)
             } else if char.isWholeNumber {
                 number = (number * 10) + char.wholeNumberValue!
                 if !nextChar.isWholeNumber {
@@ -1052,6 +1054,31 @@ public class TemplateUtil {
     ///   - fromNote: The Note instance containing the field values to be used.
     /// - Returns: The replacement value, if the variable name was found, otherwise nil.
     func replaceVarWithValue(varName: String, fromNote: Note) -> String? {
+        if varName == "workrightsslug" {
+            let rights = FieldGrabber.getField(note: fromNote, label: NotenikConstants.workRightsCommon)
+            let holder = FieldGrabber.getField(note: fromNote, label: NotenikConstants.workRightsHolderCommon)
+            if rights != nil || holder != nil {
+                let date = FieldGrabber.getField(note: fromNote, label: NotenikConstants.dateCommon)
+                let author = FieldGrabber.getField(note: fromNote, label: NotenikConstants.authorCommon)
+                var slug = ""
+                if rights == nil || rights!.value.value.lowercased() == "copyright"{
+                    slug.append("&copy;")
+                } else {
+                    slug.append(rights!.value.value)
+                }
+                slug.append(" ")
+                if date != nil && !date!.value.value.isEmpty {
+                    slug.append(date!.value.value)
+                    slug.append(" ")
+                }
+                if holder != nil && !holder!.value.value.isEmpty {
+                    slug.append(holder!.value.value)
+                } else if author != nil && !author!.value.value.isEmpty {
+                    slug.append(author!.value.value)
+                }
+                return slug
+            }
+        }
         let field = FieldGrabber.getField(note: fromNote, label: varName)
         if field == nil {
             return nil
