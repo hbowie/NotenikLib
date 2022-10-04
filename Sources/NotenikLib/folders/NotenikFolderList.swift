@@ -130,6 +130,18 @@ public class NotenikFolderList: Sequence {
         }
     }
     
+    public func forgetShortcuts() {
+        AppPrefs.shared.shortcuts = ""
+        var forgotten = 0
+        for folder in folders {
+            if !folder.shortcut.isEmpty {
+                folder.shortcut = ""
+                forgotten += 1
+            }
+        }
+        logInfo("\(forgotten) Collection Shortcuts Forgotten")
+    }
+    
     public func savePrefs() {
         var shortcuts = ""
         for folder in folders {
