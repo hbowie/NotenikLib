@@ -65,6 +65,26 @@ class NoteIndexReader: RowImporter {
             return
         }
         
+        let dict = collection!.dict
+        var indexTypeSource: IndexTypeSource = .fromTypeField
+        var shortcut = ""
+        if dict.contains(NotenikConstants.typeCommon) {
+            indexTypeSource = .fromTypeField
+        } else if collection!.klassFieldDef != nil {
+            indexTypeSource = .fromKlassField
+        } else {
+            indexTypeSource = .fromShortcut
+            if !collection!.shortcut.isEmpty {
+                shortcut = collection!.shortcut
+            } else {
+                if let folder = collection!.lib.getURL(type: .collection)?.lastPathComponent {
+                    shortcut = folder
+                } else {
+                    indexTypeSource = .fromTypeField
+                }
+            }
+        }
+        
         labels.append("Initial Letter")
         labels.append("Term")
         labels.append("Lower Case Term")
@@ -73,10 +93,19 @@ class NoteIndexReader: RowImporter {
         labels.append("Page Type")
         labels.append("Anchor")
         
+        
         var (note, position) = io.firstNote()
         while note != nil {
             if note!.hasTitle() && note!.hasIndex() {
-                let pageType = note!.getFieldAsString(label: NotenikConstants.typeCommon)
+                var pageType = ""
+                switch indexTypeSource {
+                case .fromTypeField:
+                    pageType = note!.getFieldAsString(label: NotenikConstants.typeCommon)
+                case .fromKlassField:
+                    pageType = note!.getFieldAsString(label: NotenikConstants.klassCommon)
+                case .fromShortcut:
+                    pageType = shortcut
+                }
                 indexCollection.add(page: note!.title.value, pageType: pageType, index: note!.index)
             }
             (note, position) = io.nextNote(position)
@@ -124,6 +153,12 @@ class NoteIndexReader: RowImporter {
         if workspace != nil {
             workspace!.writeErrorToLog(msg)
         }
+    }
+    
+    enum IndexTypeSource {
+        case fromTypeField
+        case fromKlassField
+        case fromShortcut
     }
     
 }
