@@ -1054,30 +1054,13 @@ public class TemplateUtil {
     ///   - fromNote: The Note instance containing the field values to be used.
     /// - Returns: The replacement value, if the variable name was found, otherwise nil.
     func replaceVarWithValue(varName: String, fromNote: Note) -> String? {
-        if varName == "workrightsslug" {
-            let rights = FieldGrabber.getField(note: fromNote, label: NotenikConstants.workRightsCommon)
-            let holder = FieldGrabber.getField(note: fromNote, label: NotenikConstants.workRightsHolderCommon)
-            if rights != nil || holder != nil {
-                let date = FieldGrabber.getField(note: fromNote, label: NotenikConstants.dateCommon)
-                let author = FieldGrabber.getField(note: fromNote, label: NotenikConstants.authorCommon)
-                var slug = ""
-                if rights == nil || rights!.value.value.lowercased() == "copyright"{
-                    slug.append("&copy;")
-                } else {
-                    slug.append(rights!.value.value)
-                }
-                slug.append(" ")
-                if date != nil && !date!.value.value.isEmpty {
-                    slug.append(date!.value.value)
-                    slug.append(" ")
-                }
-                if holder != nil && !holder!.value.value.isEmpty {
-                    slug.append(holder!.value.value)
-                } else if author != nil && !author!.value.value.isEmpty {
-                    slug.append(author!.value.value)
-                }
-                return slug
-            }
+        if varName == NotenikConstants.workRightsSlugCommon {
+            let slug = genWorkRightsSlug(fromNote: fromNote)
+            if !slug.isEmpty { return slug }
+        }
+        if varName == NotenikConstants.authorWorkSlugCommon {
+            let slug = genAuthorWorkSlug(fromNote: fromNote)
+            if !slug.isEmpty { return slug }
         }
         let field = FieldGrabber.getField(note: fromNote, label: varName)
         if field == nil {
@@ -1092,6 +1075,101 @@ public class TemplateUtil {
             }
             return field!.value.value
         }
+    }
+    
+    func genWorkRightsSlug(fromNote: Note) -> String {
+        var slug = ""
+        let rights = FieldGrabber.getField(note: fromNote, label: NotenikConstants.workRightsCommon)
+        let holder = FieldGrabber.getField(note: fromNote, label: NotenikConstants.workRightsHolderCommon)
+        if rights != nil || holder != nil {
+            let date = FieldGrabber.getField(note: fromNote, label: NotenikConstants.dateCommon)
+            let author = FieldGrabber.getField(note: fromNote, label: NotenikConstants.authorCommon)
+            if rights == nil || rights!.value.value.lowercased() == "copyright"{
+                slug.append("&copy;")
+            } else {
+                slug.append(rights!.value.value)
+            }
+            slug.append(" ")
+            if date != nil && !date!.value.value.isEmpty {
+                slug.append(date!.value.value)
+                slug.append(" ")
+            }
+            if holder != nil && !holder!.value.value.isEmpty {
+                slug.append(holder!.value.value)
+            } else if author != nil && !author!.value.value.isEmpty {
+                slug.append(author!.value.value)
+            }
+        }
+        return slug
+    }
+    
+    func genAuthorWorkSlug(fromNote: Note) -> String {
+        let markedUp = Markedup(format: .htmlFragment)
+        
+        if let author = FieldGrabber.getField(note: fromNote, label: NotenikConstants.authorCommon) {
+            let authorLink = FieldGrabber.getField(note: fromNote, label: NotenikConstants.authorLinkCommon)
+            if authorLink != nil {
+                markedUp.startLink(path: authorLink!.value.value)
+            }
+            markedUp.append(author.value.value)
+            if authorLink != nil {
+                markedUp.finishLink()
+            }
+        }
+        
+        if let workTitle = FieldGrabber.getField(note: fromNote, label: NotenikConstants.workTitleCommon) {
+            if workTitle.value.value.lowercased() != "unknown" {
+                if !markedUp.code.isEmpty {
+                    markedUp.append(", ")
+                }
+                var majorWork = true
+                if let workType = FieldGrabber.getField(note: fromNote, label: NotenikConstants.workTypeCommon) {
+                    if workType.value.value.lowercased() != "unknown" {
+                        markedUp.append("from the \(workType.value.value.lowercased()) ")
+                        switch workType.value.value.lowercased() {
+                        case "album", "book", "cd", "film", "novel", "play", "television show", "video":
+                            majorWork = true
+                        default:
+                            majorWork = false
+                        }
+                    }
+                }
+                if majorWork {
+                    markedUp.startCite()
+                } else {
+                    markedUp.leftDoubleQuote()
+                }
+                let workLink = FieldGrabber.getField(note: fromNote, label: NotenikConstants.workLinkCommon)
+                if workLink != nil {
+                    markedUp.startLink(path: workLink!.value.value)
+                }
+                markedUp.append(workTitle.value.value)
+                if workLink != nil {
+                    markedUp.finishLink()
+                }
+                if majorWork {
+                    markedUp.finishCite()
+                } else {
+                    markedUp.rightDoubleQuote()
+                }
+            }
+        }
+        if !markedUp.code.isEmpty {
+            var slugDate = ""
+            let workDate = FieldGrabber.getField(note: fromNote, label: NotenikConstants.workDateCommon)
+            if workDate != nil {
+                slugDate = workDate!.value.value
+            } else {
+                let date = FieldGrabber.getField(note: fromNote, label: NotenikConstants.dateCommon)
+                if date != nil {
+                    slugDate = date!.value.value
+                }
+            }
+            if !slugDate.isEmpty {
+                markedUp.append(", \(slugDate)")
+            }
+        }
+        return markedUp.code
     }
     
     /// Send an informative message to the log.
