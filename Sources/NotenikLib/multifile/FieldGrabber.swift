@@ -21,8 +21,14 @@ public class FieldGrabber {
     public static func getField (note: Note, label: String) -> NoteField? {
         let fieldLabel = FieldLabel(label)
         let field = note.fields[fieldLabel.commonForm]
-        if field != nil { return field }
-        return tryLookupFields(note: note, label: fieldLabel)
+        if field != nil {
+            return field
+        }
+        if note.title.value.isEmpty {
+            return nil
+        } else {
+            return tryLookupFields(note: note, label: fieldLabel)
+        }
     }
     
     public static func tryLookupFields(note: Note, label: FieldLabel) -> NoteField? {

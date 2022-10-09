@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 6/2/21.
 //
-//  Copyright © 2021 Herb Bowie (https://hbowie.net)
+//  Copyright © 2021 - 2022 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -16,7 +16,7 @@ public class WorkTypeList {
     
     public static let shared = WorkTypeList()
     
-    public let originalTypes = ["unknown", "Album", "Article", "Blog Post", "Book", "CD", "Comment", "Conference", "Essay", "Film", "Interview", "Lecture", "Letter", "Novel", "Obituary", "Paper", "Play", "Podcast", "Poem", "Preface", "Presentation", "Remarks", "Sermon", "Song", "Speech", "Story", "Television Show", "Video"]
+    public let originalTypes = ["unknown", "Album", "Article", "Blog Post", "Book", "CD", "Comment", "Conference", "Editorial", "Essay", "Film", "Interview", "Lecture", "Letter", "Novel", "Obituary", "Opinion", "Paper", "Play", "Podcast", "Poem", "Preface", "Presentation", "Remarks", "Sermon", "Song", "Speech", "Story", "Television Show", "Video"]
     
     public var allTypes: [String] = []
     

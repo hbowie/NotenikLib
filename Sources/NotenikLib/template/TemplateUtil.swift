@@ -986,7 +986,7 @@ public class TemplateUtil {
         }
         
         if value == nil {
-            value = replaceVarWithValue(varName: varName, fromNote: note)
+            value = replaceExtendedVarWithValue(varName: varName, fromNote: note)
         }
         
         return value
@@ -1053,15 +1053,67 @@ public class TemplateUtil {
     ///   - varName: The desire field label (aka variable name)
     ///   - fromNote: The Note instance containing the field values to be used.
     /// - Returns: The replacement value, if the variable name was found, otherwise nil.
-    func replaceVarWithValue(varName: String, fromNote: Note) -> String? {
+    func replaceExtendedVarWithValue(varName: String, fromNote: Note) -> String? {
+        
+        // First check for various derived values
+        
         if varName == NotenikConstants.workRightsSlugCommon {
             let slug = genWorkRightsSlug(fromNote: fromNote)
             if !slug.isEmpty { return slug }
         }
+        
         if varName == NotenikConstants.authorWorkSlugCommon {
             let slug = genAuthorWorkSlug(fromNote: fromNote)
             if !slug.isEmpty { return slug }
         }
+        
+        if varName == NotenikConstants.theWorkTypeSlugCommon {
+            if let workTypeField = FieldGrabber.getField(note: fromNote, label: NotenikConstants.workTypeCommon) {
+                if let workType = workTypeField.value as? WorkTypeValue {
+                    return workType.theType
+                }
+            }
+            return ""
+        }
+        
+        if varName == NotenikConstants.majorWorkCommon {
+            var isMajor = true
+            if let workTypeField = FieldGrabber.getField(note: fromNote, label: NotenikConstants.workTypeCommon) {
+                if let workType = workTypeField.value as? WorkTypeValue {
+                    isMajor = workType.isMajor
+                }
+            }
+            if isMajor {
+                return "true"
+            } else {
+                return "false"
+            }
+        }
+        
+        if varName == NotenikConstants.knownWorkTitleCommon {
+            if let workTitleField = FieldGrabber.getField(note: fromNote, label: NotenikConstants.workTitleCommon) {
+                let workTitle = workTitleField.value.value
+                if workTitle == "unknown" {
+                    return ""
+                } else {
+                    return workTitle
+                }
+            }
+        }
+        
+        return replaceVarWithValue(varName: varName, fromNote: fromNote)
+    }
+    
+    /// Look for a replacement value for the passed field label.
+    ///
+    /// - Parameters:
+    ///   - varName: The desire field label (aka variable name)
+    ///   - fromNote: The Note instance containing the field values to be used.
+    /// - Returns: The replacement value, if the variable name was found, otherwise nil.
+    func replaceVarWithValue(varName: String, fromNote: Note) -> String? {
+        
+        // If not one of the derived values, then just look for a Note field with the
+        // supplied variable name.
         let field = FieldGrabber.getField(note: fromNote, label: varName)
         if field == nil {
             return nil
@@ -1123,14 +1175,12 @@ public class TemplateUtil {
                     markedUp.append(", ")
                 }
                 var majorWork = true
-                if let workType = FieldGrabber.getField(note: fromNote, label: NotenikConstants.workTypeCommon) {
-                    if workType.value.value.lowercased() != "unknown" {
-                        markedUp.append("from the \(workType.value.value.lowercased()) ")
-                        switch workType.value.value.lowercased() {
-                        case "album", "book", "cd", "film", "novel", "play", "television show", "video":
-                            majorWork = true
-                        default:
-                            majorWork = false
+                if let workTypeField = FieldGrabber.getField(note: fromNote, label: NotenikConstants.workTypeCommon) {
+                    if let workType = workTypeField.value as? WorkTypeValue {
+                        majorWork = workType.isMajor
+                        let theType = workType.theType
+                        if !theType.isEmpty {
+                            markedUp.append("from\(theType)")
                         }
                     }
                 }

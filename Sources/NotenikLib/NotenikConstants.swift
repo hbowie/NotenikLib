@@ -28,7 +28,6 @@ public struct NotenikConstants {
     public static let author        = "Author"
     public static let authorCommon  = "author"
     public static let authorLinkCommon = "authorlink"
-    public static let authorWorkSlugCommon = "authorworkslug"
     public static let backlinks     = "Backlinks"
     public static let backlinksCommon = "backlinks"
     public static let body          = "Body"
@@ -126,7 +125,18 @@ public struct NotenikConstants {
     public static let workLargerTitleCommon = "worklargertitle"
     public static let workType         = "Work Type"
     public static let workTypeCommon   = "worktype"
+    
+    //-------------------------------------------------------------
+    //
+    // Derived fields that can be used in merge templates.
+    //
+    //-------------------------------------------------------------
+    
+    public static let authorWorkSlugCommon = "authorworkslug"
+    public static let theWorkTypeSlugCommon = "theworktypeslug"
+    public static let majorWorkCommon   = "majorwork"
     public static let workRightsSlugCommon = "workrightsslug"
+    public static let knownWorkTitleCommon = "knownworktitle"
     
     //-------------------------------------------------------------
     //

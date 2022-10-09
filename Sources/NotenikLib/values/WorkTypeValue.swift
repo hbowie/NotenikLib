@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 8/31/19.
-//  Copyright © 2019 - 2021 Herb Bowie (https://hbowie.net)
+//  Copyright © 2019 - 2022 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -22,6 +22,34 @@ public class WorkTypeValue: StringValue {
             self.value = value
         } else {
             self.value = types.originalTypes[index]
+        }
+    }
+    
+    /// Formats a string containing the word "the" followed by the work type
+    /// in lowercase.
+    /// - Returns: If the work type is blank or "unknown", then the method
+    ///   returns an empty string. Otherwise the method returns a string
+    ///   starting with " the " and ending with the work type value, in all
+    ///   lowercase characters.
+    var theType: String {
+        if value.isEmpty {
+            return ""
+        } else {
+            let lowered = value.lowercased()
+            if lowered == "unknown" {
+                return ""
+            } else {
+                return (" the \(lowered)")
+            }
+        }
+    }
+    
+    var isMajor: Bool {
+        switch value.lowercased() {
+        case "", "album", "book", "cd", "film", "novel", "play", "television show", "unknown", "video":
+            return true
+        default:
+            return false
         }
     }
 
