@@ -31,7 +31,7 @@ public class NoteFileInfo {
     public init(note: Note) {
         self.note = note
         self.collection = note.collection
-        format = collection.noteFileFormat 
+        setFormat(newFormat: collection.noteFileFormat)
     }
     
     /// Does this note have a file name?
@@ -40,6 +40,14 @@ public class NoteFileInfo {
             || ext == nil
             || base!.count == 0
             || ext!.count == 0
+    }
+    
+    public func setFormat(newFormat: NoteFileFormat) {
+        format = newFormat
+        if mmdOrYaml {
+            mmdMetaStartLine = "---"
+            mmdMetaEndLine = "---"
+        }
     }
     
     public var mmdOrYaml: Bool {

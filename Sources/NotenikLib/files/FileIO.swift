@@ -265,6 +265,9 @@ public class FileIO: NotenikIO, RowConsumer {
         if !collection!.windowPosStr.isEmpty {
             str.append(label: NotenikConstants.windowNumbers, value: collection!.windowPosStr)
         }
+        if collection!.noteFileFormat != .toBeDetermined {
+            str.append(label: NotenikConstants.noteFileFormat, value: collection!.noteFileFormat.rawValue)
+        }
 
         return lib.saveInfo(str: str.str)
     }

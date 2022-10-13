@@ -148,9 +148,7 @@ public class NoteLineParser {
                     if note.fileInfo.format != .yaml && fieldNumber > 2 {
                         note.fileInfo.format = .multiMarkdown
                     }
-                    label.set(NotenikConstants.body)
-                    label.validLabel = true
-                    def = note.collection.getDef(label: &label, allowDictAdds: allowDictAdds)!
+                    def = note.collection.bodyFieldDef
                     clearValue()
                     bodyStarted = true
                 } else {

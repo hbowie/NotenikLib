@@ -68,8 +68,6 @@ public struct NotenikConstants {
     public static let minutesToReadCommon = "minutestoread"
     static let mirrorAutoIndex  = "Mirror Auto Index"
     static let mirrorAutoIndexCommon = "mirrorautoindex"
-    static let noteFileFormat   = "Note File Format"
-    static let noteFileFormatCommon = "notefileformat"
     static let otherFields      = "Other Fields Allowed"
     static let otherFieldsCommon = "otherfieldsallowed"
     static let publisher        = "Publisher"
@@ -214,6 +212,8 @@ public struct NotenikConstants {
     static let curlyApostsCommon        = "curlyapostscommon"
     static let windowNumbers            = "Window Numbers"
     static let windowNumbersCommon      = "windownumbers"
+    static let noteFileFormat           = "Note File Format"
+    static let noteFileFormatCommon     = "notefileformat"
     
     //-------------------------------------------------------------
     //

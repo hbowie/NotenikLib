@@ -23,7 +23,7 @@ public enum NoteFileFormat: String {
     /// in YAML format, fields that can have multiple values have their values defined
     /// on one or more lines following the label line, with each new value line
     /// starting with a dash. 
-    case yaml = "yaml"
+    case yaml           = "yaml"
     
     /// In Notenik format, blank lines may separate metadata lines, and the
     /// body is explicitly identified with a Body label.
@@ -37,4 +37,21 @@ public enum NoteFileFormat: String {
     /// file name (minus the extension) and the entire file
     /// contents make up the body. 
     case plainText      = "txt"
+    
+    public var forDisplay: String {
+        switch self {
+        case .markdown:
+            return "Markdown"
+        case .multiMarkdown:
+            return "MultiMarkdown"
+        case .yaml:
+            return "YAML Frontmatter"
+        case .notenik:
+            return "Notenik"
+        case .plainText:
+            return "Plain Text"
+        case .toBeDetermined:
+            return "TBD"
+        }
+    }
 }

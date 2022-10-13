@@ -34,7 +34,7 @@ public class NoteCollection {
             var customFields: [SortField] = []
     public  var hasTimestamp = false
     public  var isRealmCollection = false
-            var noteFileFormat: NoteFileFormat = .toBeDetermined
+    public  var noteFileFormat: NoteFileFormat = .toBeDetermined
             var hashTags    : Bool = false
     public  var mirror:       NoteTransformer?
     public  var mirrorAutoIndex = false
@@ -233,6 +233,22 @@ public class NoteCollection {
         }
     }
     
+    public func setFileFormat(format: String) {
+        switch format {
+        case "nnk", "Notenik", "notenik":
+            noteFileFormat = .notenik
+        case "yaml", "YAML", "YAML Frontmatter":
+            noteFileFormat = .yaml
+        case "mmd", "multimarkdown", "MultiMarkdown":
+            noteFileFormat = .multiMarkdown
+        case "md", "markdown", "Markdown":
+            noteFileFormat = .markdown
+        case "txt", "plain text", "Plain Text":
+            noteFileFormat = .plainText
+        default:
+            noteFileFormat = .notenik
+        }
+    }
     
     /// Populate the field dictionary of a new Collection, using the definitions from this Collection.
     /// - Parameter to: The new Collection whose dictionary is to be populated. 

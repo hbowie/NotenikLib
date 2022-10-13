@@ -119,7 +119,6 @@ public class NoteLineMaker {
         }
         if note.fileInfo.mmdOrYaml && note.fileInfo.mmdMetaEndLine.count > 0 {
             writer.writeLine(note.fileInfo.mmdMetaEndLine)
-            writer.endLine()
         }
         if note.hasBody() {
             putBody(note)
@@ -184,7 +183,9 @@ public class NoteLineMaker {
             writer.endLine()
             putFieldValueOnSameLine(note.body)
         case .multiMarkdown:
-            writer.endLine()
+            if !note.fileInfo.mmdMetaEndLine.isEmpty && note.fileInfo.mmdMetaEndLine != " " {
+                writer.endLine()
+            }
             putFieldValueOnSameLine(note.body)
         case .yaml:
             putFieldValueOnSameLine(note.body)
