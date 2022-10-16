@@ -125,15 +125,11 @@ public class NoteLineParser {
                 note.fileInfo.mmdMetaEndLine = noteLine.line
                 note.fileInfo.format = .multiMarkdown
             } else if lineNumber == 1 && noteLine.mdH1Line && noteLine.value.count > 0 && !bodyStarted {
-                label.set(NotenikConstants.title)
-                label.validLabel = true
-                def = note.collection.getDef(label: &label, allowDictAdds: allowDictAdds)!
+                def = collection.titleFieldDef
                 value = noteLine.value
                 note.fileInfo.format = .markdown
             } else if note.fileInfo.format == .markdown && !bodyStarted && noteLine.mdTagsLine {
-                label.set(NotenikConstants.tags)
-                label.validLabel = true
-                def = note.collection.getDef(label: &label, allowDictAdds: allowDictAdds)!
+                def = collection.tagsFieldDef
                 value = noteLine.value
                 valueComplete = true
             } else if noteLine.validLabel {
