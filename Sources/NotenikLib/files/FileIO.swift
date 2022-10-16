@@ -268,6 +268,7 @@ public class FileIO: NotenikIO, RowConsumer {
         if collection!.noteFileFormat != .toBeDetermined {
             str.append(label: NotenikConstants.noteFileFormat, value: collection!.noteFileFormat.rawValue)
         }
+        str.append(label: NotenikConstants.hashTags, value: "\(collection!.hashTags)")
 
         return lib.saveInfo(str: str.str)
     }
@@ -622,6 +623,12 @@ public class FileIO: NotenikIO, RowConsumer {
             } else {
                 logError("\(noteFileFormatField!.value.value) is an invalid INFO file value for the key \(NotenikConstants.noteFileFormat).")
             }
+        }
+        
+        let hashTagsField = infoNote.getField(label: NotenikConstants.hashTags)
+        if hashTagsField != nil {
+            let hashTags = BooleanValue(hashTagsField!.value.value)
+            collection!.hashTags = hashTags.isTrue
         }
         
         let lastStartupDate = infoNote.getFieldAsString(label: NotenikConstants.lastStartupDateCommon)
@@ -1096,6 +1103,11 @@ public class FileIO: NotenikIO, RowConsumer {
         guard !note.fileInfo.isEmpty else { return false }
         
         note.setDateModNow()
+        if let tagsField = note.getTagsAsField() {
+            if let tags = tagsField.value as? TagsValue {
+                tags.hashTags = collection!.hashTags
+            }
+        }
         pickLists.registerNote(note: note)
         return collection!.lib.saveNote(note: note)
     }

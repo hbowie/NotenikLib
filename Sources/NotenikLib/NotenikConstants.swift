@@ -214,6 +214,8 @@ public struct NotenikConstants {
     static let windowNumbersCommon      = "windownumbers"
     static let noteFileFormat           = "Note File Format"
     static let noteFileFormatCommon     = "notefileformat"
+    static let hashTags                 = "Hash Tags"
+    static let hashTagsCommon           = "hashtags"
     
     //-------------------------------------------------------------
     //

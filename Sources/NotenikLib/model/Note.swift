@@ -727,7 +727,7 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
         return setField(label: collection.tagsFieldDef.fieldLabel.commonForm, value: tags)
     }
     
-    func getTagsAsField() -> NoteField? {
+    public func getTagsAsField() -> NoteField? {
         return getField(def: collection.tagsFieldDef)
     }
     
