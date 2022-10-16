@@ -46,7 +46,7 @@ public class WorkTypeValue: StringValue {
     
     var isMajor: Bool {
         switch value.lowercased() {
-        case "", "album", "book", "cd", "film", "novel", "play", "television show", "unknown", "video":
+        case "", "album", "book", "cd", "decision", "film", "novel", "play", "television show", "unknown", "video":
             return true
         default:
             return false
