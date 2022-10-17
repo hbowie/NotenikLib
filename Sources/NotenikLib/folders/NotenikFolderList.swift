@@ -207,7 +207,7 @@ public class NotenikFolderList: Sequence {
     }
     
     /// Add another folder to the list.
-    public func add(_ folder: NotenikLink) {
+    func add(_ folder: NotenikLink) {
         
         guard !folder.path.contains("Notenik.app/Contents/Resources") else {
             return

@@ -468,6 +468,9 @@ public class FileIO: NotenikIO, RowConsumer {
             for def in collection!.dict.list {
                 if !def.lookupFrom.isEmpty {
                     collection!.hasLookupFields = true
+                    MultiFileIO.shared.prepareForLookup(shortcut: def.lookupFrom,
+                                                        collectionPath: collectionPath,
+                                                        realm: realm)
                 }
             }
             

@@ -34,6 +34,83 @@ public class MultiFileIO {
     //
     // -----------------------------------------------------------
     
+    public func prepareForLookup(shortcut: String, collectionPath: String, realm: Realm) {
+
+        let entry = entries[shortcut]
+        if entry == nil {
+            scanForLookupCollection(shortcut: shortcut, collectionPath: collectionPath, realm: realm)
+        }
+        guard entry != nil else { return }
+        let _ = getFileIO(shortcut: shortcut)
+    }
+    
+    func scanForLookupCollection(shortcut: String, collectionPath: String, realm: Realm) {
+        var shortcutFound = scanFolder(shortcut: shortcut, folderPath: collectionPath, realm: realm)
+        if !shortcutFound {
+            let collectionURL = URL(fileURLWithPath: collectionPath)
+            let parentURL = collectionURL.deletingLastPathComponent()
+            shortcutFound = scanFolder(shortcut: shortcut, folderPath: parentURL.path, realm: realm)
+        }
+    }
+    
+    /// Scan folders recursively looking for signs that they are Notenik Collections
+    func scanFolder(shortcut: String, folderPath: String, realm: Realm) -> Bool {
+        var shortcutFound = false
+        do {
+            let dirContents = try FileManager.default.contentsOfDirectory(atPath: folderPath)
+            for itemPath in dirContents {
+                let itemFullPath = FileUtils.joinPaths(path1: folderPath,
+                                                       path2: itemPath)
+                if itemPath == ResourceFileSys.infoFileName {
+                    shortcutFound = infoFileFound(shortcut: shortcut, folderPath: folderPath, itemFullPath: itemFullPath, realm: realm)
+                    if shortcutFound {
+                        break
+                    }
+                } else if itemPath == ResourceFileSys.infoParentFileName {
+                    // No action needed
+                } else if itemPath.hasPrefix(".") {
+                    // Ignore invisible files
+                } else if itemPath.hasSuffix(".app") {
+                    // Ignore application bundles
+                } else if itemPath.hasSuffix(".dmg") {
+                    // Ignore disk image bundles
+                } else if FileUtils.isDir(itemFullPath) {
+                    shortcutFound = scanFolder(shortcut: shortcut, folderPath: itemFullPath, realm: realm)
+                }
+            }
+        } catch {
+            communicateError("Failed reading contents of folder at '\(folderPath)'")
+        }
+        return shortcutFound
+    }
+    
+    /// Add the Info file's collection to the collection of collections.
+    func infoFileFound(shortcut: String, folderPath: String, itemFullPath: String, realm: Realm) -> Bool {
+        var shortcutFound = false
+        let folderURL = URL(fileURLWithPath: folderPath)
+        let infoIO = FileIO()
+        let initOK = infoIO.initCollection(realm: realm, collectionPath: folderPath, readOnly: true)
+        if initOK {
+            if infoIO.collection != nil {
+                _ = infoIO.loadInfoFile()
+                if infoIO.collection!.shortcut == shortcut {
+                    let folderLink = NotenikLink(url: folderURL, isCollection: true)
+                    register(link: folderLink)
+                    shortcutFound = true
+                } else if infoIO.collection!.shortcut.isEmpty && folderURL.lastPathComponent == shortcut {
+                    let folderLink = NotenikLink(url: folderURL, isCollection: true)
+                    register(link: folderLink)
+                    shortcutFound = true
+                }
+            } else {
+                communicateError("Unable to initialize Collection located at \(folderPath)")
+            }
+        } else {
+            communicateError("Unable to initialize Collection located at \(folderPath)")
+        }
+        return shortcutFound
+    }
+    
     /// Register a known Collection with an assigned shortcut.
     public func register(link: NotenikLink) {
         var id = ""
@@ -155,6 +232,14 @@ public class MultiFileIO {
             return nil
         }
         return entry.link
+    }
+    
+    public func display() {
+        print("MultiFileIO.display")
+        for (key, entry) in entries {
+            print("key = \(key)")
+            entry.display()
+        }
     }
     
     // -----------------------------------------------------------

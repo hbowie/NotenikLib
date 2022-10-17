@@ -81,6 +81,7 @@ public class FieldDefinition: Comparable, CustomStringConvertible {
         print("FieldDefinition")
         fieldLabel.display()
         print("Field Type String: \(fieldType.typeString)")
+        print("Lookup from: \(lookupFrom)")
     }
     
     /// See if one field label is less than another, using the common form of the label.
