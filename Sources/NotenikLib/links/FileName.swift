@@ -179,20 +179,6 @@ public class FileName: CustomStringConvertible {
         baseLower = base.lowercased()
     }
     
-    func display() {
-        print("FileName.display")
-        print("  - Complete file name string = \(fileNameStr)")
-        print("    - File or Directory? \(fileOrDir)")
-        print("    - Path = \(path)")
-        print("    - Folder = \(folder)")
-        print("    - Base File Name = \(base)")
-        print("    - File Ext = \(ext)")
-        print("    - Folders:")
-        for f in folders {
-            print("      - \(f)")
-        }
-    }
-    
     /// Determine whether this file/folder is beneath/within the passed folder.
     ///
     /// - Parameter fn2: The possible parent to this file/folder.
@@ -276,10 +262,11 @@ public class FileName: CustomStringConvertible {
         }
         folderIndex = matchedFolders
         while folderIndex < fileName2.folders.count {
-            relPath.append(folder(at: folderIndex))
+            relPath.append(fileName2.folder(at: folderIndex))
             relPath.append("/")
+            folderIndex += 1
         }
-        relPath.append(fileName)
+        relPath.append(fileName2.fileName)
         return relPath
     }
     
@@ -291,6 +278,20 @@ public class FileName: CustomStringConvertible {
             return ""
         } else {
             return String(folders[at])
+        }
+    }
+    
+    public func display() {
+        print("FileName.display")
+        print("  - Complete file name string = \(fileNameStr)")
+        print("    - File or Directory? \(fileOrDir)")
+        print("    - Path = \(path)")
+        print("    - Folder = \(folder)")
+        print("    - Base File Name = \(base)")
+        print("    - File Ext = \(ext)")
+        print("    - Folders:")
+        for f in folders {
+            print("      - \(f)")
         }
     }
     

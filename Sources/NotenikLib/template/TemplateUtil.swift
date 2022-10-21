@@ -89,6 +89,8 @@ public class TemplateUtil {
     
     var wikiStyle: Character = "0"
     
+    var lastCopyToURL: URL?
+    
     /// Initialize things.
     public init() {
         let globalsCollection = NoteCollection()
@@ -233,6 +235,7 @@ public class TemplateUtil {
         if !ok {
             logError("Could not complete copyfile command")
         }
+        lastCopyToURL = toURL
     }
     
     func allFieldsToHTML(note: Note) {
@@ -1057,6 +1060,11 @@ public class TemplateUtil {
         
         // First check for various derived values
         
+        if varName == NotenikConstants.imageSlugCommon {
+            let slug = genImageSlug(fromNote: fromNote)
+            if !slug.isEmpty { return slug }
+        }
+        
         if varName == NotenikConstants.workRightsSlugCommon {
             let slug = genWorkRightsSlug(fromNote: fromNote)
             if !slug.isEmpty { return slug }
@@ -1180,7 +1188,7 @@ public class TemplateUtil {
                         majorWork = workType.isMajor
                         let theType = workType.theType
                         if !theType.isEmpty {
-                            markedUp.append("from\(theType)")
+                            markedUp.append("from\(theType) ")
                         }
                     }
                 }
@@ -1218,6 +1226,84 @@ public class TemplateUtil {
             if !slugDate.isEmpty {
                 markedUp.append(", \(slugDate)")
             }
+        }
+        return markedUp.code
+    }
+    
+    func genImageSlug(fromNote: Note) -> String {
+        
+        guard let imageAttachment = fromNote.getImageAttachment() else { return "" }
+        
+        guard workspace != nil && !workspace!.webRootPath.isEmpty else { return "" }
+        
+        let markedUp = Markedup(format: .htmlFragment)
+        
+        // See if we can come up with a URL for the image.
+        var imageURL: URL?
+        if lastCopyToURL != nil {
+            imageURL = lastCopyToURL!
+        } else {
+            let imagePath = NotenikConstants.filesFolderName + "/" + imageAttachment.fullName
+            imageURL = URL(fileURLWithPath: imagePath)
+        }
+        guard imageURL != nil else { return " "}
+        let imageFileName = FileName(imageURL!)
+        guard imageFileName.isBeneath(webRootFileName) else { return "" }
+        
+        guard textOutURL != nil else { return "" }
+        let imagePath = textOutFileName.makeRelative(path: imageURL!.path)
+        
+        let imageAltField = fromNote.getField(label: NotenikConstants.imageAltCommon)
+        var imageAlt = ""
+        if imageAltField != nil {
+            imageAlt = imageAltField!.value.value
+        }
+        
+        let imageCaptionField = fromNote.getField(label: NotenikConstants.imageCaptionCommon)
+        var imageCaption = ""
+        if imageCaptionField != nil {
+            imageCaption = imageCaptionField!.value.value
+        }
+        
+        let imageCreditField = fromNote.getField(label: NotenikConstants.imageCreditCommon)
+        var imageCredit = ""
+        if imageCreditField != nil {
+            imageCredit = imageCreditField!.value.value
+        }
+        
+        let imageCreditLinkField = fromNote.getField(label: NotenikConstants.imageCreditLinkCommon)
+        var imageCreditLink = ""
+        if imageCreditLinkField != nil {
+            imageCreditLink = imageCreditLinkField!.value.value
+        }
+        
+        var useFigure = false
+        if imageCaptionField != nil || imageCreditField != nil {
+            markedUp.startFigure()
+            useFigure = true
+        }
+
+        markedUp.image(alt: imageAlt, path: imagePath)
+        
+        if useFigure {
+            markedUp.startFigureCaption()
+            if imageCaption.isEmpty {
+                markedUp.append("Image Credit: ")
+                if !imageCreditLink.isEmpty {
+                    markedUp.startLink(path: imageCreditLink)
+                }
+                markedUp.append(imageCredit)
+                if !imageCreditLink.isEmpty {
+                    markedUp.finishLink()
+                }
+            } else {
+                markedUp.append(imageCaption)
+            }
+            markedUp.finishFigureCaption()
+        }
+        
+        if useFigure {
+            markedUp.finishFigure()
         }
         return markedUp.code
     }
