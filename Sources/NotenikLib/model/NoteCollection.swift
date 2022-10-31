@@ -27,6 +27,7 @@ public class NoteCollection {
             var sortDescending: Bool
     public  var typeCatalog  = AllTypes()
     public  var statusConfig: StatusValueConfig
+    public  var rankConfig:   RankValueConfig
     public  var levelConfig:  IntWithLabelConfig
     public  var preferredExt: String = "txt"
     public  var otherFields = false
@@ -63,6 +64,7 @@ public class NoteCollection {
     public  var dateFieldDef:   FieldDefinition
     public  var recursFieldDef: FieldDefinition
     public  var statusFieldDef: FieldDefinition
+    public  var rankFieldDef:   FieldDefinition?
     public  var levelFieldDef:  FieldDefinition?
     public  var seqFieldDef:    FieldDefinition?
     public  var klassFieldDef:  FieldDefinition?
@@ -123,6 +125,7 @@ public class NoteCollection {
         sortParm = .title
         sortDescending = false
         statusConfig = StatusValueConfig()
+        rankConfig = RankValueConfig()
         levelConfig  = IntWithLabelConfig()
         
         let today = Date()
@@ -214,6 +217,21 @@ public class NoteCollection {
         if fieldDef != nil {
             if let statusType = fieldDef!.fieldType as? StatusType {
                 statusType.statusValueConfig = statusConfig
+            }
+        }
+    }
+    
+    public func setCategoryConfig(_ options: String) {
+        
+        rankConfig.set(options)
+        
+        typeCatalog.rankValueConfig = rankConfig
+        
+        var categoryLabel = FieldLabel(NotenikConstants.rank)
+        let fieldDef = getDef(label: &categoryLabel, allowDictAdds: false)
+        if fieldDef != nil {
+            if let categoryType = fieldDef!.fieldType as? RankType {
+                categoryType.rankValueConfig = rankConfig
             }
         }
     }
@@ -369,6 +387,11 @@ public class NoteCollection {
         case NotenikConstants.bodyCommon:
             if bodyFieldDef.fieldLabel.commonForm == NotenikConstants.bodyCommon {
                 bodyFieldDef = def
+            }
+            
+        case NotenikConstants.rankCommon:
+            if rankFieldDef == nil {
+                rankFieldDef = def
             }
         
         case NotenikConstants.dateCommon:

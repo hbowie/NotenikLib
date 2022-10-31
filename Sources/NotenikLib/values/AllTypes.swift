@@ -38,6 +38,7 @@ public class AllTypes {
     let lookupType  = LookupType()
     let minutesToReadType = MinutesToReadType()
     let pickListType = PickListType()
+    let rankType    = RankType()
     let ratingType  = RatingType()
     let recursType  = RecursType()
     let seqType     = SeqType()
@@ -73,6 +74,15 @@ public class AllTypes {
         }
     }
     
+    var rankValueConfig: RankValueConfig {
+        get {
+            return rankType.rankValueConfig
+        }
+        set {
+            rankType.rankValueConfig = newValue
+        }
+    }
+    
     /// Initialize with all of the standard types. 
     init() {
         
@@ -88,6 +98,7 @@ public class AllTypes {
         
         fieldTypes.append(bodyType)
         fieldTypes.append(booleanType)
+        fieldTypes.append(rankType)
         fieldTypes.append(codeType)
         fieldTypes.append(dateAddedType)
         fieldTypes.append(dateModifiedType)

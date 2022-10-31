@@ -287,6 +287,8 @@ public class FileIO: NotenikIO, RowConsumer {
                 collection!.hasTimestamp = true
             } else if def.fieldLabel.commonForm == NotenikConstants.statusCommon {
                 value = collection!.statusConfig.statusOptionsAsString
+            } else if def.fieldType.typeString == NotenikConstants.rankCommon {
+                value = "<rank: \(collection!.rankConfig.possibleValuesAsString)>"
             } else if def.fieldLabel.commonForm == NotenikConstants.levelCommon {
                 value = "<level: \(collection!.levelConfig.intsWithLabels)>"
             } else if def.fieldLabel.commonForm == NotenikConstants.bodyCommon {

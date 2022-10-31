@@ -529,8 +529,11 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
         case .dateModified:
             return dateModifiedSortKey
         case .datePlusSeq:
-            
             return date.sortKey
+                + seq.sortKey
+                + title.sortKey
+        case .rankSeqTitle:
+            return rank.getSortKey(config: collection.rankConfig)
                 + seq.sortKey
                 + title.sortKey
         case .custom:
@@ -1019,6 +1022,33 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
         guard let seqValue = getFieldAsValue(def: collection.seqFieldDef!) as? SeqValue else { return "" }
 
         return collection.seqFormatter.format(seq: seqValue)
+    }
+    
+    //
+    // Functions and Variables concerning the Note's Rank field
+    //
+    
+    // Does this note have a Rank value?
+    public func hasRank() -> Bool {
+        guard collection.rankFieldDef != nil else { return false }
+        guard let rankValue = getFieldAsValue(def: collection.rankFieldDef!) as? RankValue else { return false }
+        guard rankValue.number > 0 || !rankValue.label.isEmpty else { return false }
+        return true
+    }
+    
+    public func setRank(_ rank: String) -> Bool {
+        guard collection.rankFieldDef != nil else { return false }
+        return setField(label: collection.rankFieldDef!.fieldLabel.commonForm, value: rank)
+    }
+    
+    public var rank: RankValue {
+        guard collection.rankFieldDef != nil else { return RankValue() }
+        let val = getFieldAsValue(def: collection.rankFieldDef!)
+        if val is RankValue {
+            return val as! RankValue
+        } else {
+            return RankValue(val.value)
+        }
     }
     
     //

@@ -709,6 +709,9 @@ public class TemplateUtil {
                 }
             } else if char == "_" {
                 modifiedValue = StringUtils.underscoresForSpaces(modifiedValue)
+            } else if char == ">" {
+                let (_, label) = StringUtils.splitNumberAndLabel(str: modifiedValue)
+                modifiedValue = label
             } else if char == "a" && (nextChar == "1" || nextChar == "2" || nextChar == "3") {
                 let authorValue = AuthorValue(modifiedValue)
                 switch nextChar {

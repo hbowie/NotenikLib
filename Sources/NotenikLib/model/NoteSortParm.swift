@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 12/27/18.
-//  Copyright © 2018 - 2021 Herb Bowie (https://hbowie.net)
+//  Copyright © 2018 - 2022 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -11,7 +11,7 @@
 
 import Foundation
 
-public enum NoteSortParm : Int {
+public enum NoteSortParm: Int {
     case title         = 0
     case seqPlusTitle  = 1
     case tasksByDate   = 2
@@ -23,6 +23,7 @@ public enum NoteSortParm : Int {
     case dateAdded     = 8
     case dateModified  = 9
     case datePlusSeq   = 10
+    case rankSeqTitle  = 11
     
     // Get or set with a String containing the raw value
     var str: String {

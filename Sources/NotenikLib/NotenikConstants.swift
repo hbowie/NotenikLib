@@ -74,6 +74,8 @@ public struct NotenikConstants {
     static let publisherCommon  = "publisher"
     static let pubCity          = "Publisher City"
     static let pubCityCommon    = "publishercity"
+    public static let rank          = "Rank"
+    public static let rankCommon    = "rank"
     public static let rating        = "Rating"
     public static let ratingCommon  = "rating"
     public static let recurs        = "Recurs"

@@ -148,6 +148,14 @@ class ApplyTemplateValues {
             }
         }
         
+        if def.fieldType.typeString == NotenikConstants.rankCommon {
+            if typeValues.count > 0 {
+                let config = collection.rankConfig
+                config.set(typeValues.str)
+                collection.typeCatalog.rankValueConfig = config
+            }
+        }
+        
         if def.fieldType.typeString == NotenikConstants.seqCommon {
             if typeValues.count > 0 {
                 collection.seqFormatter = SeqFormatter(with: typeValues.str)
