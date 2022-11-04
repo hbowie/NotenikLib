@@ -508,6 +508,15 @@ public class NoteCollection {
         }
     }
     
+    /// Copy info such as field definitions from this Collection to another. This will
+    /// be a shallow and incomplete copy. 
+    func copyImportantInfo(to collection2: NoteCollection) {
+        let dict2 = collection2.dict
+        for (_, def) in dict.dict {
+            _ = dict2.addDef(def)
+        }
+    }
+    
     /// Useful for debugging. 
     public func display() {
         print(" ")

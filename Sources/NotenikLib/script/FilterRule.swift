@@ -32,6 +32,13 @@ class FilterRule {
             self.field = possibleField!
         } else {
             logError("Field label of \(label) could not be found in input source")
+            let typeCat = AllTypes()
+            let fieldLabel = FieldLabel(label)
+            let fieldType = StringType()
+            let newField = FieldDefinition(typeCatalog: typeCat)
+            newField.fieldLabel = fieldLabel
+            newField.fieldType = fieldType
+            self.field = newField
         }
         
         setOp(FieldComparisonOperator(op))

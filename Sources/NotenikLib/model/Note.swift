@@ -1594,6 +1594,25 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
         return nil
     }
     
+    /// Force the addition of a Tag field. A singular Tag field is used as part of the
+    /// Tags Explosion logic. 
+    func addTag(value: String) {
+
+        var fieldLabel = FieldLabel(NotenikConstants.tag)
+        var def = collection.getDef(label: &fieldLabel, allowDictAdds: true)
+        if def == nil {
+            let fieldType = StringType()
+            let typeCat = AllTypes()
+            def = FieldDefinition(typeCatalog: typeCat)
+            def!.fieldLabel = fieldLabel
+            def!.fieldType = fieldType
+        }
+
+        let val = StringValue(value)
+        let field = NoteField(def: def!, value: val)
+        fields[NotenikConstants.tagCommon] = field
+    }
+    
     
     /// Add a field to the note, given a definition and a String value.
     ///

@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 7/24/19.
-//  Copyright © 2019 Herb Bowie (https://powersurgepub.com)
+//  Copyright © 2019 - 2022 Herb Bowie (https://powersurgepub.com)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -173,7 +173,6 @@ class InputModule: RowConsumer {
             notesInput += 1
             (note, position) = io.nextNote(position)
         }
-        // io.closeCollection()
         logInfo("\(notesInput) rows read from \(openURL.path)")
     }
     
@@ -185,6 +184,7 @@ class InputModule: RowConsumer {
     }
     
     func openNotenikSplitTags(openURL: URL) {
+        workspace.explodeTags = true
         let reader = NoteReader()
         reader.setContext(consumer: self, workspace: workspace)
         reader.read(fileURL: openURL)
@@ -211,9 +211,8 @@ class InputModule: RowConsumer {
             var xplNotes = 0
             for tag in tags.tags {
                 let tagNote = Note(collection: workspace.collection)
-                _ = tagNote.setField(label: NotenikConstants.tag, value: String(describing: tag))
                 note.copyFields(to: tagNote)
-                _ = tagNote.setField(label: NotenikConstants.tag, value: String(describing: tag))
+                tagNote.addTag(value: String(describing: tag))
                 workspace.list.append(tagNote)
                 notesInput += 1
                 xplNotes += 1
@@ -221,7 +220,7 @@ class InputModule: RowConsumer {
             if xplNotes == 0 {
                 let tagNote = Note(collection: workspace.collection)
                 note.copyFields(to: tagNote)
-                _ = tagNote.setField(label: NotenikConstants.tag, value: "")
+                tagNote.addTag(value: "")
                 workspace.list.append(tagNote)
                 notesInput += 1
             }

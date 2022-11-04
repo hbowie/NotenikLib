@@ -65,6 +65,10 @@ class NoteIndexReader: RowImporter {
             return
         }
         
+        if let ws = workspace {
+            collection!.copyImportantInfo(to: ws.collection)
+        }
+        
         let dict = collection!.dict
         var indexTypeSource: IndexTypeSource = .fromTypeField
         var shortcut = ""

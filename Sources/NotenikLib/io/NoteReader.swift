@@ -63,6 +63,10 @@ class NoteReader: RowImporter {
             return
         }
         
+        if let ws = workspace {
+            collection!.copyImportantInfo(to: ws.collection)
+        }
+        
         // Build the list of labels
         if split {
             labels.append(NotenikConstants.tag)
