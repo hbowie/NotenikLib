@@ -46,8 +46,9 @@ class TagsType: AnyType {
         if type == nil || type!.count == 0 {
            return (label.commonForm == commonLabel
             || label.commonForm == "keywords"
-            || label.commonForm == "category"
-            || label.commonForm == "categories")
+            // || label.commonForm == "category"
+            // || label.commonForm == "categories"
+           )
         } else {
             return (type! == typeString)
         }
