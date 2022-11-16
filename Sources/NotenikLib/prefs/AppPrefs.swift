@@ -78,6 +78,9 @@ public class AppPrefs {
     let kbWindowKey = "nkb-window"
     var _kbWindow = ""
     
+    let mcWindowKey = "master-class-window"
+    var _mcWindow = ""
+    
     let grantAccessKey = "grant-access"
     var _grantAccessOpt = 1
     
@@ -255,6 +258,11 @@ public class AppPrefs {
         let nkbw = defaults.string(forKey: kbWindowKey)
         if nkbw != nil {
             _kbWindow = nkbw!
+        }
+        
+        let nmcw = defaults.string(forKey: mcWindowKey)
+        if nmcw != nil {
+            _mcWindow = nmcw!
         }
         
         let aa = defaults.string(forKey: appAppearanceKey)
@@ -571,6 +579,16 @@ public class AppPrefs {
         set {
             _kbWindow = newValue
             defaults.set(_kbWindow, forKey: kbWindowKey)
+        }
+    }
+    
+    public var mcWindow: String {
+        get {
+            return _mcWindow
+        }
+        set {
+            _mcWindow = newValue
+            defaults.set(_mcWindow, forKey: mcWindowKey)
         }
     }
     

@@ -138,4 +138,19 @@ public class NoteFileInfo {
         }
     }
     
+    public func display() {
+        print("NoteFileInfo for Note titled '\(note.title.value)'")
+        if base == nil {
+            print("  - base is nil")
+        } else {
+            print("  - base is '\(base!)'")
+        }
+        if ext == nil {
+            print("  - ext is nil")
+        } else {
+            print("  - ext is '\(ext!)'")
+        }
+        print("  - matches ID source? \(matchesIDSource)")
+    }
+    
 }

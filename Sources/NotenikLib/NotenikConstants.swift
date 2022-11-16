@@ -252,4 +252,7 @@ public struct NotenikConstants {
     
     public static let tipsPath            = "notenik-tips"
     public static let tipsDesc            = "Notenik Tips"
+    
+    public static let mcPath              = "notenik-master-class"
+    public static let mcDesc              = "Notenik Master Class"
 }

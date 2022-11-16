@@ -536,6 +536,13 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
             return rank.getSortKey(config: collection.rankConfig)
                 + seq.sortKey
                 + title.sortKey
+        case .klassTitle:
+            return klass.sortKey
+                + title.sortKey
+        case .klassDateTitle:
+            return klass.sortKey
+                + date.sortKey
+                + title.sortKey
         case .custom:
             var key = ""
             for sortField in collection.customFields {
@@ -1154,7 +1161,7 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     /// Return the Note's Class Value
     public var klass: KlassValue {
         guard collection.klassFieldDef != nil else {
-            return KlassValue()
+            return KlassValue(getFieldAsString(label: NotenikConstants.type))
         }
         let val = getFieldAsValue(def: collection.klassFieldDef!)
         if val is KlassValue {

@@ -33,6 +33,7 @@ public class NotenikFolderList: Sequence {
     public var helpParent = NotenikFolderNode()
     public var kbNode     = NotenikFolderNode()
     public var tipsNode   = NotenikFolderNode()
+    public var mcNode     = NotenikFolderNode()
     
     public var count: Int { return folders.count }
     
@@ -57,6 +58,10 @@ public class NotenikFolderList: Sequence {
             tipsNode = NotenikFolderNode(bundlePath: NotenikConstants.tipsPath,
                                      desc: NotenikConstants.tipsDesc)
             _ = helpParent.addChild(newNode: tipsNode)
+        
+            mcNode = NotenikFolderNode(bundlePath: NotenikConstants.mcPath,
+                                       desc: NotenikConstants.mcDesc)
+            _ = helpParent.addChild(newNode: mcNode)
             
         #elseif os(iOS)
             
