@@ -764,6 +764,10 @@ public class TemplateUtil {
             } else if charLower == "o" {
                 if varNameCommon == NotenikConstants.bodyCommon && bodyHTML != nil {
                     modifiedValue = bodyHTML!
+                } else if varNameCommon == NotenikConstants.wikilinksCommon {
+                    modifiedValue = convertWikilinksToHTML(modifiedValue, backLinks: false)
+                } else if varNameCommon == NotenikConstants.backlinksCommon {
+                    modifiedValue = convertWikilinksToHTML(modifiedValue, backLinks: true)
                 } else {
                     modifiedValue = convertMarkdownToHTML(modifiedValue)
                 }
@@ -940,6 +944,47 @@ public class TemplateUtil {
             mkdown.parse()
             return mkdown.html
         }
+    }
+    
+    func convertWikilinksToHTML(_ linkStr: String, backLinks: Bool = false) -> String {
+        
+        var pointers = NotePointerList()
+        var title = ""
+        if backLinks {
+            let links = BacklinkValue(linkStr)
+            pointers = links.notePointers
+            title = "Back Links"
+        } else {
+            let links = WikilinkValue(linkStr)
+            pointers = links.notePointers
+            title = "Wiki Links"
+        }
+        guard pointers.count > 0 else { return linkStr }
+        
+        switch wikiStyle {
+        case "1":
+            parms.wikiLinkPrefix = ""
+            parms.wikiLinkFormat = .fileName
+            parms.wikiLinkSuffix = ".html"
+        case "2":
+            parms.wikiLinkPrefix = "#"
+            parms.wikiLinkFormat = .fileName
+            parms.wikiLinkSuffix = ""
+        default:
+            break
+        }
+        
+        let linksHTML = Markedup(format: .htmlFragment)
+        linksHTML.startDetails(summary: title)
+        linksHTML.startUnorderedList(klass: nil)
+        for pointer in pointers {
+            linksHTML.startListItem()
+            linksHTML.link(text: pointer.pathSlashItem, path: parms.assembleWikiLink(target: pointer))
+            linksHTML.finishListItem()
+        }
+        linksHTML.finishUnorderedList()
+        linksHTML.finishDetails()
+        return linksHTML.code
     }
     
     /// Convert Textile to HTML
