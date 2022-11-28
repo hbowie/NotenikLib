@@ -19,6 +19,7 @@ public class NoteLineMaker {
     public var writer: LineWriter
     let minCharsToValue = 8
     public var fieldsWritten = 0
+    var fieldMods = " "
     
     /// Initialize with no input, assuming the writer will be a Big String Writer.
     public init() {
@@ -79,6 +80,7 @@ public class NoteLineMaker {
         }
         
         fieldsWritten = 0
+        fieldMods = " "
         writer.open()
         if note.fileInfo.mmdOrYaml && note.fileInfo.mmdMetaStartLine.count > 0 {
             writer.writeLine(note.fileInfo.mmdMetaStartLine)
@@ -94,6 +96,7 @@ public class NoteLineMaker {
         var i = 0
         while i < collection.dict.count {
             let def = collection.dict.getDef(i)
+            fieldMods = " "
             if def != nil &&
                 def! != collection.titleFieldDef &&
                 def! != collection.bodyFieldDef &&
@@ -145,13 +148,14 @@ public class NoteLineMaker {
     
     func putTags(_ note: Note) {
         let tags = note.tags
+        fieldMods = " "
         if note.collection.hashTags {
-            tags.hashTags = true
+            fieldMods = "#"
         }
         switch note.fileInfo.format {
         case .markdown:
-            if tags.hashTags {
-                writer.writeLine(tags.value)
+            if note.collection.hashTags {
+                writer.writeLine(tags.valueToWrite(mods: fieldMods))
             } else {
                 writer.writeLine("#\(note.tags.value)")
             }
@@ -263,6 +267,6 @@ public class NoteLineMaker {
     ///
     /// - Parameter value: A StringValue or one of its descendants.
     func putFieldValueOnSameLine(_ value: StringValue) {
-        writer.writeLine(value.value)
+        writer.writeLine(value.valueToWrite(mods: fieldMods))
     }
 }

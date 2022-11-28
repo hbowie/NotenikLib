@@ -117,6 +117,32 @@ public class TagsValue: StringValue, MultiValues {
         }
     }
     
+    public override func valueToWrite(mods: String = " ") -> String {
+        
+        var prefix = ""
+        if mods.count > 0 && mods[mods.startIndex] == "#" {
+            prefix = "#"
+        }
+        var valToWrite = ""
+        var x = 0
+        for tag in tags {
+            if x > 0 {
+                valToWrite.append(", ")
+            }
+            valToWrite.append(prefix)
+            var y = 0
+            for level in tag.levels {
+                if y > 0 {
+                    valToWrite.append(".")
+                }
+                valToWrite.append(level.forDisplay)
+                y += 1
+            }
+            x += 1
+        }
+        return valToWrite
+    }
+    
     /// Create HTML Anchor links for the tags. Assume that periods separating multiple
     /// tags will be replaced by hyphens, when creating the href value. Separate
     /// multiple tags with commas.

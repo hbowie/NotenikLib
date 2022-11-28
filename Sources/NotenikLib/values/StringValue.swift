@@ -66,6 +66,10 @@ public class StringValue: CustomStringConvertible, Equatable, Comparable {
         return value.count
     }
     
+    public func valueToWrite(mods: String = " ") -> String {
+        return value
+    }
+    
     /// Return the description, used as the String value for the object
     public var description: String {
         return value
