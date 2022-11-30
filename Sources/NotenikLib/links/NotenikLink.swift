@@ -746,6 +746,7 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
         print("  - is file link? \(isFileLink)")
         print("  - is directory? \(isDir)")
         print("  - is web  link? \(isWebLink)")
+        print("  - collection type determined? \(collectionTypeDetermined)")
         print("  - type = \(type)")
         print("  - location = \(location)")
         print("  - sort key = '\(sortKey)'")

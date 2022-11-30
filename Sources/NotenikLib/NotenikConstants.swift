@@ -238,6 +238,8 @@ public struct NotenikConstants {
     
     public static let filesFolderName   = "files"
     
+    public static let infoFileExt       = "nnk"
+    
     //-------------------------------------------------------------
     //
     // Paths and Labels for Collections of Help Notes
