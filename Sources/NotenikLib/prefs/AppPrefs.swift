@@ -31,6 +31,8 @@ public class AppPrefs {
     let mediumTokenKey  = "medium-token"
     let microBlogUserKey = "micro-blog-user"
     let microBlogTokenKey = "micro-blog-token"
+    let mastodonUserNameKey = "mastodon-user-name"
+    let mastodonDomainKey   = "mastodon-domain"
     let tagsSelectKey   = "tags-to-select"
     let tagsSuppressKey = "tags-to-suppress"
     let parentRealmParentKey = "parent-realm-parent"
@@ -98,6 +100,9 @@ public class AppPrefs {
     var _startupTips = true
     
     var _mediumToken = ""
+    
+    var _mastodonUserName = ""
+    var _mastodonDomain = ""
     
     var _microBlogUser = ""
     var _microBlogToken = ""
@@ -194,6 +199,16 @@ public class AppPrefs {
         let mediumTokenDefault = defaults.string(forKey: mediumTokenKey)
         if mediumTokenDefault != nil {
             _mediumToken = mediumTokenDefault!
+        }
+        
+        let mastodonDomainDefault = defaults.string(forKey: mastodonDomainKey)
+        if mastodonDomainDefault != nil {
+            _mastodonDomain = mastodonDomainDefault!
+        }
+        
+        let mastodonUserNameDefault = defaults.string(forKey: mastodonUserNameKey)
+        if mastodonUserNameDefault != nil {
+            _mastodonUserName = mastodonUserNameDefault!
         }
         
         let microBlogUserDefault = defaults.string(forKey: microBlogUserKey)
@@ -453,6 +468,26 @@ public class AppPrefs {
         set {
             _mediumToken = newValue
             defaults.set(_mediumToken, forKey: mediumTokenKey)
+        }
+    }
+    
+    public var mastodonUserName: String {
+        get {
+            return _mastodonUserName
+        }
+        set {
+            _mastodonUserName = newValue
+            defaults.set(_mastodonUserName, forKey: mastodonUserNameKey)
+        }
+    }
+    
+    public var mastodonDomain: String {
+        get {
+            return _mastodonDomain
+        }
+        set {
+            _mastodonDomain = newValue
+            defaults.set(_mastodonDomain, forKey: mastodonDomainKey)
         }
     }
     

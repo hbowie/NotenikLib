@@ -117,6 +117,9 @@ public class TagsValue: StringValue, MultiValues {
         }
     }
     
+    /// Return the tags formatted for writing to disk.
+    /// - Parameter mods: A mod of '#' will cause each tag to be preceded by a hash sign.
+    /// - Returns: The formatted tags.
     public override func valueToWrite(mods: String = " ") -> String {
         
         var prefix = ""
@@ -136,6 +139,27 @@ public class TagsValue: StringValue, MultiValues {
                     valToWrite.append(".")
                 }
                 valToWrite.append(level.forDisplay)
+                y += 1
+            }
+            x += 1
+        }
+        return valToWrite
+    }
+    
+    public var microTags: String {
+        var valToWrite = ""
+        var x = 0
+        for tag in tags {
+            if x > 0 {
+                valToWrite.append(" ")
+            }
+            valToWrite.append("#")
+            var y = 0
+            for level in tag.levels {
+                if y > 0 {
+                    valToWrite.append(".")
+                }
+                valToWrite.append(StringUtils.wordDemarcation(level.forDisplay, caseMods: ["u", "u", "l"], delimiter: ""))
                 y += 1
             }
             x += 1

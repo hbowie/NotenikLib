@@ -18,7 +18,6 @@ import NotenikUtils
 public class Template {
     
     public var util = TemplateUtil()
-    var notesList = NotesList()
     var collection = NoteCollection()
     var workspace: ScriptWorkspace?
     
@@ -65,8 +64,8 @@ public class Template {
                              io: NotenikIO?,
                              bodyHTML: String? = nil,
                              minutesToRead: MinutesToReadValue? = nil) {
-        self.notesList = NotesList()
-        notesList.append(note)
+        util.notesList = NotesList()
+        util.notesList.append(note)
         util.dataFileName = FileName(dataSource)
         util.io = io
         util.bodyHTML = bodyHTML
@@ -79,7 +78,7 @@ public class Template {
     ///   - notesList: The list of Notes to be used.
     ///   - dataSource: A path identifying the source of the notes.
     public func supplyData(notesList: NotesList, dataSource: String) {
-        self.notesList = notesList
+        util.notesList = notesList
         util.dataFileName = FileName(dataSource)
         util.bodyHTML = nil
         util.minutesToRead = nil
@@ -102,8 +101,8 @@ public class Template {
             }
         } 
         guard util.templateOK else { return false }
-        if notesList.count > 0 {
-            collection = notesList[0].collection
+        if util.notesList.count > 0 {
+            collection = util.notesList[0].collection
         } else {
             collection = NoteCollection()
         }
@@ -123,7 +122,7 @@ public class Template {
         emptyNote = Note(collection: collection)
         while line != nil {
             if util.outputStage == .front {
-                line!.generateOutput(note: emptyNote)
+                line!.generateOutput(note: emptyNote, position: -1)
             } else if util.outputStage == .loop {
                 if line!.command != nil && line!.command! == .nextrec {
                     // Don't need to store the nextrec command line
@@ -135,7 +134,7 @@ public class Template {
                     processLoop()
                     endLoopProcessing()
                 } else {
-                    line!.generateOutput(note: emptyNote)
+                    line!.generateOutput(note: emptyNote, position: -1)
                 }
             }
             line = util.nextTemplateLine()
@@ -194,7 +193,7 @@ public class Template {
             if util.endGroup[i] {
                 if i < endGroupLines.count {
                     for endGroupLine in endGroupLines[i] {
-                        endGroupLine.generateOutput(note: emptyNote)
+                        endGroupLine.generateOutput(note: emptyNote, position: -1)
                     }
                 }
             }
@@ -205,7 +204,22 @@ public class Template {
     /// Merge that data in the Notes collection with the template lines
     /// between the nextrec and loop commands. 
     func processLoop() {
-        for note in notesList {
+        if util.outputOpen {
+            util.wikiStyle = "2"
+            util.parms.wikiLinkFormat = .fileName
+            util.parms.wikiLinkPrefix = "#"
+            util.parms.wikiLinkSuffix = ""
+        } else {
+            util.wikiStyle = "1"
+            util.parms.wikiLinkFormat = .fileName
+            util.parms.wikiLinkPrefix = ""
+            util.parms.wikiLinkSuffix = ".html"
+        }
+        
+        util.notesIndex = -1
+        for note in util.notesList {
+            util.notesIndex += 1
+            util.note = note
             processLoopForNote(note)
         }
     }
@@ -215,7 +229,7 @@ public class Template {
         util.skippingData = false
         util.endingGroup = false
         for line in loopLines {
-            line.generateOutput(note: note)
+            line.generateOutput(note: note, position: util.notesIndex)
         }
     }
 }

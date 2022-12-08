@@ -139,6 +139,11 @@ public struct NotenikConstants {
     public static let workRightsSlugCommon = "workrightsslug"
     public static let knownWorkTitleCommon = "knownworktitle"
     
+    public static let parentSlugCommon     = "parentslug"
+    public static let nextSlugCommon       = "nextslug"
+    public static let childrenSlugCommon   = "childrenslug"
+    
+    
     //-------------------------------------------------------------
     //
     // Field Type strings (if different from label)

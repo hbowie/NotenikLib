@@ -20,6 +20,10 @@ public class TemplateUtil {
     
     let fileManager = FileManager.default
     
+    var notesList = NotesList()
+    var notesIndex = -1
+    var note: Note?
+    
     var templateURL: URL?
     var templateFileName = FileName()
     
@@ -541,7 +545,7 @@ public class TemplateUtil {
     ///   - str: The string possibly containing variables.
     ///   - note: A Note containing data fields.
     /// - Returns: A line with variables replaced, with or without an ending line break.
-    func replaceVariables(str: String, note: Note) -> LineWithBreak {
+    func replaceVariables(str: String, note: Note, position: Int = -1) -> LineWithBreak {
         
         let out = LineWithBreak()
         
@@ -571,7 +575,7 @@ public class TemplateUtil {
             } else if lookingForEndVar {
                 if str.indexedEquals(index: i, str2: endVar) {
                     endPastDelim = str.index(i, offsetBy: endVar.count)
-                    appendVar(toLine: out, varName: varName, mods: mods, note: note)
+                    appendVar(toLine: out, varName: varName, mods: mods, note: note, position: position)
                     i = endPastDelim
                     lookingForEndVar = false
                     lookingForStartMods = false
@@ -599,11 +603,11 @@ public class TemplateUtil {
     ///   - varName: The name of the variable we're looking for.
     ///   - mods: Any modifier characters supplied by the user.
     ///   - note: A set of fields supplying values to be used.
-    func appendVar(toLine: LineWithBreak, varName: String, mods: String, note: Note) {
+    func appendVar(toLine: LineWithBreak, varName: String, mods: String, note: Note, position: Int = -1) {
         
         let varNameCommon = StringUtils.toCommon(varName)
         var replacementValue: String?
-        replacementValue = replaceVarWithValue(inLine: toLine, varName: varNameCommon, note: note)
+        replacementValue = replaceVarWithValue(inLine: toLine, varName: varNameCommon, note: note, position: position)
         
         if replacementValue != nil {
             replacementValue = applyModifiers(varNameCommon: varNameCommon,
@@ -1026,7 +1030,7 @@ public class TemplateUtil {
     ///   - varName: The name of the variable.
     ///   - note: The Note supplying the values.
     /// - Returns: The output line being built, with the variable name replaced.
-    func replaceVarWithValue(inLine: LineWithBreak, varName: String, note: Note) -> String? {
+    func replaceVarWithValue(inLine: LineWithBreak, varName: String, note: Note, position: Int = -1) -> String? {
 
         var value: String?
         
@@ -1037,7 +1041,7 @@ public class TemplateUtil {
         }
         
         if value == nil {
-            value = replaceExtendedVarWithValue(varName: varName, fromNote: note)
+            value = replaceExtendedVarWithValue(varName: varName, fromNote: note, position: position)
         }
         
         return value
@@ -1104,35 +1108,33 @@ public class TemplateUtil {
     ///   - varName: The desire field label (aka variable name)
     ///   - fromNote: The Note instance containing the field values to be used.
     /// - Returns: The replacement value, if the variable name was found, otherwise nil.
-    func replaceExtendedVarWithValue(varName: String, fromNote: Note) -> String? {
+    func replaceExtendedVarWithValue(varName: String, fromNote: Note, position: Int = -1) -> String? {
         
         // First check for various derived values
         
-        if varName == NotenikConstants.imageSlugCommon {
+        switch varName {
+            
+        case NotenikConstants.imageSlugCommon:
             let slug = genImageSlug(fromNote: fromNote)
             if !slug.isEmpty { return slug }
-        }
-        
-        if varName == NotenikConstants.workRightsSlugCommon {
+            
+        case NotenikConstants.workRightsSlugCommon:
             let slug = genWorkRightsSlug(fromNote: fromNote)
             if !slug.isEmpty { return slug }
-        }
-        
-        if varName == NotenikConstants.authorWorkSlugCommon {
+            
+        case NotenikConstants.authorWorkSlugCommon:
             let slug = genAuthorWorkSlug(fromNote: fromNote)
             if !slug.isEmpty { return slug }
-        }
-        
-        if varName == NotenikConstants.theWorkTypeSlugCommon {
+            
+        case NotenikConstants.theWorkTypeSlugCommon:
             if let workTypeField = FieldGrabber.getField(note: fromNote, label: NotenikConstants.workTypeCommon) {
                 if let workType = workTypeField.value as? WorkTypeValue {
                     return workType.theType
                 }
             }
             return ""
-        }
-        
-        if varName == NotenikConstants.majorWorkCommon {
+            
+        case NotenikConstants.majorWorkCommon:
             var isMajor = true
             if let workTypeField = FieldGrabber.getField(note: fromNote, label: NotenikConstants.workTypeCommon) {
                 if let workType = workTypeField.value as? WorkTypeValue {
@@ -1144,9 +1146,8 @@ public class TemplateUtil {
             } else {
                 return "false"
             }
-        }
-        
-        if varName == NotenikConstants.knownWorkTitleCommon {
+            
+        case NotenikConstants.knownWorkTitleCommon:
             if let workTitleField = FieldGrabber.getField(note: fromNote, label: NotenikConstants.workTitleCommon) {
                 let workTitle = workTitleField.value.value
                 if workTitle == "unknown" {
@@ -1155,6 +1156,18 @@ public class TemplateUtil {
                     return workTitle
                 }
             }
+            
+        case NotenikConstants.parentSlugCommon:
+            return genParentSlug(fromNote: fromNote, position: position)
+            
+        case NotenikConstants.nextSlugCommon:
+            return genNextSlug(fromNote: fromNote, position: position)
+            
+        case NotenikConstants.childrenSlugCommon:
+            return genChildrenSlug(fromNote: fromNote, position: position)
+            
+        default:
+            break
         }
         
         return replaceVarWithValue(varName: varName, fromNote: fromNote)
@@ -1183,6 +1196,105 @@ public class TemplateUtil {
             }
             return field!.value.value
         }
+    }
+    
+    func genNextSlug(fromNote: Note, position: Int) -> String {
+        
+        var label = "Next: "
+        var index = position + 1
+        if index >= notesList.count {
+            label = "Back to Top: "
+            index = 0
+        }
+        guard index < notesList.count else { return "" }
+        let note = notesList[index]
+        let title = note.title.value
+        let nextHTML = Markedup()
+        nextHTML.startParagraph()
+        nextHTML.append(label)
+        nextHTML.link(text: title, path: parms.assembleWikiLink(title: title))
+        nextHTML.finishParagraph()
+        return nextHTML.code
+    }
+    
+    func genParentSlug(fromNote: Note, position: Int) -> String {
+        
+        guard fromNote.hasSeq() || fromNote.hasLevel() else {
+            return ""
+        }
+        guard position > 0 else { return "" }
+        
+        let depth = fromNote.depth
+        var aboveIndex = position - 1
+        var aboveDepth = depth
+        while aboveIndex >= 0 && aboveDepth >= depth {
+            let aboveNote = notesList[aboveIndex]
+            aboveDepth = aboveNote.depth
+            if aboveDepth >= depth {
+                aboveIndex -= 1
+            }
+        }
+        
+        guard aboveIndex >= 0 && aboveDepth < depth else {
+            return ""
+        }
+        
+        let parent = notesList[aboveIndex]
+        let parentTitle = parent.title.value
+        let parentSeq = parent.seq
+        let parentHTML = Markedup()
+        parentHTML.horizontalRule()
+        parentHTML.startParagraph()
+        if parentSeq.count > 0 {
+            if !parent.klass.frontOrBack {
+                parentHTML.append("\(parentSeq) ")
+            }
+        }
+        parentHTML.link(text: parentTitle, path: parms.assembleWikiLink(title: parentTitle))
+        parentHTML.append("&nbsp;")
+        parentHTML.append("&#8593;")
+        parentHTML.finishParagraph()
+        return parentHTML.code
+        
+    }
+    
+    func genChildrenSlug(fromNote: Note, position: Int) -> String {
+        
+        guard fromNote.hasSeq() || fromNote.hasLevel() else { return "" }
+        let parentDepth = fromNote.depth
+        
+        var nextPosition = position + 1
+        guard position >= 0 && nextPosition < notesList.count else { return "" }
+        
+        var nextNote = notesList[nextPosition]
+        var nextDepth = nextNote.depth
+        let childDepth = nextDepth
+        guard childDepth > parentDepth else { return "" }
+        
+        let childrenHTML = Markedup()
+        childrenHTML.horizontalRule()
+        childrenHTML.heading(level: 4, text: "Contents")
+        childrenHTML.startUnorderedList(klass: nil)
+        while nextPosition < notesList.count && nextDepth > parentDepth {
+            if nextDepth == childDepth {
+                let tocTitle = nextNote.title.value
+                childrenHTML.startListItem()
+                if !nextNote.klass.frontOrBack {
+                    childrenHTML.append("\(nextNote.formattedSeq) ")
+                }
+                childrenHTML.link(text: tocTitle, path: parms.assembleWikiLink(title: tocTitle))
+                childrenHTML.finishListItem()
+            }
+            nextPosition += 1
+            if nextPosition < notesList.count {
+                nextNote = notesList[nextPosition]
+                nextDepth = nextNote.depth
+            }
+        }
+        
+        childrenHTML.finishUnorderedList()
+
+        return childrenHTML.code
     }
     
     func genWorkRightsSlug(fromNote: Note) -> String {

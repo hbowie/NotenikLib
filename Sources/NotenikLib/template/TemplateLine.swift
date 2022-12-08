@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 6/4/19.
-//  Copyright © 2019 - 2020 Herb Bowie (https://hbowie.net)
+//  Copyright © 2019 - 2022 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -126,19 +126,19 @@ class TemplateLine {
     /// Generate output for this template line, given the fields passed in the Note.
     ///
     /// - Parameter note: The current Note being processed.
-    func generateOutput(note: Note) {
+    func generateOutput(note: Note, position: Int) {
         if command == nil {
             if !util.skippingData {
-                let lineWithBreak = util.replaceVariables(str: text, note: note)
+                let lineWithBreak = util.replaceVariables(str: text, note: note, position: position)
                 util.writeOutput(lineWithBreak: lineWithBreak)
             }
         } else {
-            processCommand(note: note)
+            processCommand(note: note, position: position)
         }
     }
     
     /// Process a Template Command Line
-    func processCommand(note: Note) {
+    func processCommand(note: Note, position: Int) {
         switch command! {
         case .allFields:
             processAllFieldsCommand(note: note)
@@ -287,7 +287,6 @@ class TemplateLine {
             util.skippingData = true
             return
         }
-        
         
         // We have two or more operands
         let operand1 = util.replaceVariables(str: String(tokens[1]), note: note).line
