@@ -220,6 +220,8 @@ public struct NotenikConstants {
     static let curlyApostsCommon        = "curlyapostscommon"
     static let windowNumbers            = "Window Numbers"
     static let windowNumbersCommon      = "windownumbers"
+    static let columnWidths             = "Column Widths"
+    static let columnWidthsCommon       = "columnwidths"
     static let noteFileFormat           = "Note File Format"
     static let noteFileFormatCommon     = "notefileformat"
     static let hashTags                 = "Hash Tags"

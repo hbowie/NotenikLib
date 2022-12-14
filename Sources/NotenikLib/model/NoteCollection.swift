@@ -102,6 +102,7 @@ public class NoteCollection {
     public  var teasers        = false
     
     public  var windowPosStr   = ""
+    public  var columnWidths   = ColumnWidths()
     
     /// Default initialization of a new Collection.
     public init () {

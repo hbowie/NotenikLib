@@ -262,13 +262,18 @@ public class FileIO: NotenikIO, RowConsumer {
         if !collection!.webBookAsEPUB {
             str.append(label: NotenikConstants.webBookEPUB, value: "false")
         }
-        if !collection!.windowPosStr.isEmpty {
-            str.append(label: NotenikConstants.windowNumbers, value: collection!.windowPosStr)
-        }
+
         if collection!.noteFileFormat != .toBeDetermined {
             str.append(label: NotenikConstants.noteFileFormat, value: collection!.noteFileFormat.rawValue)
         }
+        
         str.append(label: NotenikConstants.hashTags, value: "\(collection!.hashTags)")
+        
+        if !collection!.windowPosStr.isEmpty {
+            str.append(label: NotenikConstants.windowNumbers, value: collection!.windowPosStr)
+        }
+
+        str.append(label: NotenikConstants.columnWidths, value: "\(collection!.columnWidths)")
 
         return lib.saveInfo(str: str.str)
     }
@@ -663,6 +668,11 @@ public class FileIO: NotenikIO, RowConsumer {
         let windowNumbers = infoNote.getField(label: NotenikConstants.windowNumbersCommon)
         if windowNumbers != nil && !windowNumbers!.value.isEmpty {
             collection!.windowPosStr = windowNumbers!.value.value
+        }
+        
+        let columnWidths = infoNote.getField(label: NotenikConstants.columnWidthsCommon)
+        if columnWidths != nil {
+            collection!.columnWidths.set(columnWidths!.value.value)
         }
         
         infoFound = true
