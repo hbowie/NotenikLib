@@ -77,6 +77,12 @@ public class AppPrefs {
     let tipsWindowKey = "tips-window"
     var _tipsWindow = ""
     
+    let mastHandleKey = "mastodon-handle"
+    var _mastHandle = ""
+    
+    let mastDomainKey = "mastodon-domain"
+    var _mastDomain = ""
+    
     let kbWindowKey = "nkb-window"
     var _kbWindow = ""
     
@@ -285,6 +291,16 @@ public class AppPrefs {
             _appearance = aa!
         }
         
+        let mh = defaults.string(forKey: mastHandleKey)
+        if mh != nil {
+            _mastHandle = purifyHandle(handle: mh!)
+        }
+        
+        let md = defaults.string(forKey: mastDomainKey)
+        if md != nil {
+            _mastDomain = purifyDomain(domain: md!)
+        }
+        
         let isp = defaults.integer(forKey: indentSpacingKey)
         if isp > 9 {
             _indentSpacing = 0
@@ -413,6 +429,42 @@ public class AppPrefs {
         }
     }
     
+    public var mastodonHandle: String {
+        get {
+            return _mastHandle
+        }
+        set {
+            _mastHandle = purifyHandle(handle: newValue)
+            defaults.set(_mastHandle, forKey: mastHandleKey)
+        }
+    }
+    
+    public func purifyHandle(handle: String) -> String {
+        if handle.starts(with: "@") {
+            return String(handle.dropFirst(1))
+        } else {
+            return handle
+        }
+    }
+    
+    public var mastodonDomain: String {
+        get {
+            return _mastDomain
+        }
+        set {
+            _mastDomain = purifyDomain(domain: newValue)
+            defaults.set(_mastDomain, forKey: mastDomainKey)
+        }
+    }
+    
+    public func purifyDomain(domain: String) -> String {
+        if domain.starts(with: "https://") {
+            return String(domain.dropFirst(8))
+        } else {
+            return domain
+        }
+    }
+    
     public var indentSpacing: Int {
         get {
             return _indentSpacing
@@ -478,16 +530,6 @@ public class AppPrefs {
         set {
             _mastodonUserName = newValue
             defaults.set(_mastodonUserName, forKey: mastodonUserNameKey)
-        }
-    }
-    
-    public var mastodonDomain: String {
-        get {
-            return _mastodonDomain
-        }
-        set {
-            _mastodonDomain = newValue
-            defaults.set(_mastodonDomain, forKey: mastodonDomainKey)
         }
     }
     
