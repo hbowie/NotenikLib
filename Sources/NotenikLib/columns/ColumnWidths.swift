@@ -75,6 +75,10 @@ public class ColumnWidths: CustomStringConvertible {
     
     public func add(title: String, min: Int, pref: Int, max: Int) {
         let column = ColumnWidth(title: title, min: min, pref: pref, max: max)
+        add(column)
+    }
+    
+    public func add(_ column: ColumnWidth) {
         columns[column.title] = column
     }
     

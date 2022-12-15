@@ -28,4 +28,8 @@ public class ColumnWidth {
         self.pref = pref
         self.max = max
     }
+    
+    public func display() {
+        print("ColumnWidth title = \(title), min = \(min), pref = \(pref), max = \(max)")
+    }
 }
