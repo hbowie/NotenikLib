@@ -327,8 +327,9 @@ public protocol NotenikIO {
     ///
     /// - Parameter importer: A Row importer that will return rows and columns.
     /// - Parameter fileURL: The URL of the file to be imported.
-    /// - Returns: The number of rows imported.
-    func importRows(importer: RowImporter, fileURL: URL) -> Int
+    /// - Parameter importParms: Parameters to control the operation of the import. 
+    /// - Returns: The number of rows added, the number of rows modified.
+    func importRows(importer: RowImporter, fileURL: URL, importParms: ImportParms) -> (Int, Int)
     
     // -----------------------------------------------------------
     //

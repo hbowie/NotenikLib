@@ -286,31 +286,35 @@ public class FileIO: NotenikIO, RowConsumer {
         
         let dict = collection!.dict
         var str = ""
+        var written: [String: FieldDefinition] = [:]
         for def in dict.list {
-            var value = ""
-            if def.fieldLabel.commonForm == NotenikConstants.timestampCommon {
-                collection!.hasTimestamp = true
-            } else if def.fieldLabel.commonForm == NotenikConstants.statusCommon {
-                value = collection!.statusConfig.statusOptionsAsString
-            } else if def.fieldType.typeString == NotenikConstants.rankCommon {
-                value = "<rank: \(collection!.rankConfig.possibleValuesAsString)>"
-            } else if def.fieldLabel.commonForm == NotenikConstants.levelCommon {
-                value = "<level: \(collection!.levelConfig.intsWithLabels)>"
-            } else if def.fieldLabel.commonForm == NotenikConstants.bodyCommon {
-                value = ""
-            } else if def.fieldType is LongTextType {
-                value = "<longtext>"
-            } else if def.fieldType.typeString == NotenikConstants.lookupType {
-                value = "<lookup: \(def.lookupFrom)>"
-            } else if def.pickList != nil && def.fieldType.typeString != NotenikConstants.authorCommon {
-                value = def.pickList!.valueString
-            } else if def.fieldType.typeString == NotenikConstants.seqCommon
-                        && collection!.seqFormatter.formatStack.count > 0 {
-                value = "<seq: \(collection!.seqFormatter.toCodes())>"
-            } else if def.fieldType.typeString != NotenikConstants.stringType {
-                value = "<\(def.fieldType.typeString)>"
+            if written[def.fieldLabel.commonForm] == nil {
+                var value = ""
+                if def.fieldLabel.commonForm == NotenikConstants.timestampCommon {
+                    collection!.hasTimestamp = true
+                } else if def.fieldLabel.commonForm == NotenikConstants.statusCommon {
+                    value = collection!.statusConfig.statusOptionsAsString
+                } else if def.fieldType.typeString == NotenikConstants.rankCommon {
+                    value = "<rank: \(collection!.rankConfig.possibleValuesAsString)>"
+                } else if def.fieldLabel.commonForm == NotenikConstants.levelCommon {
+                    value = "<level: \(collection!.levelConfig.intsWithLabels)>"
+                } else if def.fieldLabel.commonForm == NotenikConstants.bodyCommon {
+                    value = ""
+                } else if def.fieldType is LongTextType {
+                    value = "<longtext>"
+                } else if def.fieldType.typeString == NotenikConstants.lookupType {
+                    value = "<lookup: \(def.lookupFrom)>"
+                } else if def.pickList != nil && def.fieldType.typeString != NotenikConstants.authorCommon {
+                    value = def.pickList!.valueString
+                } else if def.fieldType.typeString == NotenikConstants.seqCommon
+                            && collection!.seqFormatter.formatStack.count > 0 {
+                    value = "<seq: \(collection!.seqFormatter.toCodes())>"
+                } else if def.fieldType.typeString != NotenikConstants.stringType {
+                    value = "<\(def.fieldType.typeString)>"
+                }
+                str.append("\(def.fieldLabel.properForm): \(value) \n\n")
+                written[def.fieldLabel.commonForm] = def
             }
-            str.append("\(def.fieldLabel.properForm): \(value) \n\n")
         }
         
         return lib.saveTemplate(str: str, ext: collection!.preferredExt)
@@ -1536,20 +1540,26 @@ public class FileIO: NotenikIO, RowConsumer {
     // -----------------------------------------------------------
     
     var notesImported = 0
+    var notesModified = 0
     var noteToImport: Note?
+    var importParms = ImportParms()
     
     /// Import Notes from a CSV or tab-delimited file
     ///
     /// - Parameter importer: A Row importer that will return rows and columns.
     /// - Parameter fileURL: The URL of the file to be imported.
     /// - Returns: The number of rows imported.
-    public func importRows(importer: RowImporter, fileURL: URL) -> Int {
+    public func importRows(importer: RowImporter, fileURL: URL, importParms: ImportParms) -> (Int, Int) {
         importer.setContext(consumer: self)
+        self.importParms = importParms
         notesImported = 0
-        guard collection != nil && collectionOpen else { return 0 }
+        guard collection != nil && collectionOpen else { return (0, 0) }
         noteToImport = Note(collection: collection!)
         importer.read(fileURL: fileURL)
-        return notesImported
+        if importParms.addingFields {
+            _ = saveTemplateFile()
+        }
+        return (notesImported, notesModified)
     }
     
     /// Do something with the next field produced.
@@ -1558,7 +1568,37 @@ public class FileIO: NotenikIO, RowConsumer {
     ///   - label: A string containing the column heading for the field.
     ///   - value: The actual value for the field.
     public func consumeField(label: String, value: String) {
-        let ok = noteToImport!.setField(label: label, value: value)
+        
+        let labelLower = label.lowercased()
+        
+        if labelLower == NotenikConstants.titleCommon {
+            importParms.titleFieldFound = true
+        }
+        
+        var ok = noteToImport!.setField(label: label, value: value)
+        if ok { return }
+        
+        guard let collect = collection else { return }
+        let dict = collect.dict
+        
+        if importParms.columnParm == .replace {
+            if !importParms.titleFieldFound && (labelLower == "name" || labelLower == "full name") {
+                let titleDef = collect.titleFieldDef
+                titleDef.fieldLabel = FieldLabel(label)
+                _ = saveTemplateFile()
+                ok = noteToImport!.setField(label: label, value: value)
+                if ok { return }
+            }
+        }
+        
+        if importParms.columnParm == .add || importParms.columnParm == .replace {
+            dict.unlock()
+            _ = dict.addDef(typeCatalog: collect.typeCatalog, label: label)
+            dict.lock()
+            ok = noteToImport!.setField(label: label, value: value)
+            if ok { return }
+        }
+        
         if !ok {
             logError("Could not set note field \(label) to value of \(value)")
         }
@@ -1570,7 +1610,30 @@ public class FileIO: NotenikIO, RowConsumer {
     ///   - labels: An array of column headings.
     ///   - fields: A corresponding array of field values.
     public func consumeRow(labels: [String], fields: [String]) {
+        
         noteToImport!.setID()
+        
+        if importParms.matching {
+            let existingNote = getNote(forID: noteToImport!.noteID)
+            if existingNote != nil {
+                let newNote = existingNote!.copy() as! Note
+                for (_, field) in noteToImport!.fields {
+                    if field.value.hasData {
+                        _ = newNote.setField(label: field.def.fieldLabel.properForm, value: field.value.value)
+                    }
+                }
+                (_, _) = modNote(oldNote: existingNote!, newNote: newNote)
+                notesModified += 1
+                noteToImport = Note(collection: collection!)
+                return
+            }
+        }
+        
+        if importParms.rowParm == .matchOnly {
+            noteToImport = Note(collection: collection!)
+            return
+        }
+        
         let (newNote, _) = addNote(newNote: noteToImport!)
         if newNote != nil {
             notesImported += 1

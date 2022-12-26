@@ -279,13 +279,13 @@ class BunchIO: NotenikIO, RowConsumer  {
     ///
     /// - Parameter fileURL: The URL of the file to be imported.
     /// - Returns: The number of notes imported.
-    func importRows(importer: RowImporter, fileURL: URL) -> Int {
+    func importRows(importer: RowImporter, fileURL: URL, importParms: ImportParms) -> (Int, Int) {
         notesImported = 0
-        guard collection != nil && collectionOpen else { return 0 }
+        guard collection != nil && collectionOpen else { return (0, 0) }
         importer.setContext(consumer: self)
         noteToImport = Note(collection: collection!)
         _ = importer.read(fileURL: fileURL)
-        return notesImported
+        return (notesImported, 0)
     }
     
     /// Do something with the next field produced.
