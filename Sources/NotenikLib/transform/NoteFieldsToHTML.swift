@@ -291,11 +291,7 @@ public class NoteFieldsToHTML {
             }
         // Format the tags field
         } else if field.def == collection.tagsFieldDef && parms.fullDisplay {
-            code.startParagraph()
-            code.startEmphasis()
-            code.append(field.value.value)
-            code.finishEmphasis()
-            code.finishParagraph()
+            displayTags(field, collection: collection, markedup: code)
         } else if field.def == collection.bodyFieldDef {
             if collection.bodyLabel {
                 code.startParagraph()
@@ -458,6 +454,29 @@ public class NoteFieldsToHTML {
         }
 
         return String(describing: code)
+    }
+    
+    /// Provide special formatting for the Tags field. 
+    func displayTags(_ field: NoteField, collection: NoteCollection, markedup: Markedup) {
+
+        let folderURL = URL(fileURLWithPath: collection.fullPath)
+        let encodedPath = String(folderURL.absoluteString.dropFirst(7))
+        
+        markedup.startParagraph()
+        markedup.startEmphasis()
+        if let tags = field.value as? TagsValue {
+            var tagsCount = 0
+            for tag in tags.tags {
+                if tagsCount > 0 {
+                    markedup.append(", ")
+                }
+                let link = "notenik://expand?path=\(encodedPath)&tag=\(tag.description)"
+                markedup.link(text: tag.description, path: link, style: "text-decoration: none")
+                tagsCount += 1
+            }
+        }
+        markedup.finishEmphasis()
+        markedup.finishParagraph()
     }
     
     // Display the Title of the Note in one of several possible formats.
