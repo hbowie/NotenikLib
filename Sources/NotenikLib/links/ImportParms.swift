@@ -31,6 +31,12 @@ public class ImportParms {
         return rowParm == .matchAndAdd || rowParm == .matchOnly
     }
     
+    public func display() {
+        print("Display ImportParms")
+        print("  - Column parm: \(columnParm)")
+        print("  - Row parm:    \(rowParm)")
+    }
+    
     public enum ColumnParm: String {
         case ignore  = "Ignore"
         case add     = "Add"
