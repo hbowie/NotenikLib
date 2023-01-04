@@ -47,7 +47,7 @@ public class TitleValue: StringValue {
     
     /// Set a new title value, converting to a lowest common denominator form while we're at it
     override func set(_ value: String) {
-        super.set(value)
+        super.set(StringUtils.cleanAndTrim(value))
         common = StringUtils.toCommon(value)
     }
     
