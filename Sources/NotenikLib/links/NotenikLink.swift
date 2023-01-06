@@ -3,7 +3,7 @@
 //
 //  Created by Herb Bowie on 12/14/20.
 
-//  Copyright © 2020 - 2022 Herb Bowie (https://hbowie.net)
+//  Copyright © 2020 - 2023 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -59,6 +59,8 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
     /// Lowercase file extension, without a leading dot
     public var extLower = ""
     
+    public var collectionTitle: String? = nil
+    
     public var scheme: String {
         guard url != nil else { return "" }
         guard url!.scheme != nil else { return "" }
@@ -99,6 +101,17 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
     /// A unique identifier for this object.
     public var id: String {
         return linkStr
+    }
+    
+    /// Return a brief string with which a user can  one link from another. 
+    public var briefDesc: String {
+        if collectionTitle != nil && !collectionTitle!.isEmpty {
+            return collectionTitle!
+        } else if let folderURL = url {
+            return AppPrefs.shared.idFolderFrom(url: folderURL)
+        } else {
+            return fileOrFolderName
+        }
     }
     
     /// Default initializer. Values must be set later. 
@@ -458,6 +471,7 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
         if infoFile.exists && infoFile.isReadable {
             type = .ordinaryCollection
             collectionTypeDetermined = true
+            seekCollectionTitle(infoFile: infoFile)
             return
         }
         
@@ -529,6 +543,54 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
             type = .emptyFolder
         }
         collectionTypeDetermined = true
+    }
+    
+    /// If this is a Collection, try to retrieve its title from its Info file.
+    func seekCollectionTitle() {
+        
+        guard collectionTitle == nil else { return }
+        collectionTitle = ""
+        
+        determineDirAndPackage()
+        
+        guard type == .folder ||
+                type == .ordinaryCollection ||
+               (type == .xcodeDev && isDir) else {
+            return
+        }
+        
+        let infoFile = ResourceFileSys(folderPath: path, fileName: ResourceFileSys.infoFileName)
+        guard infoFile.exists && infoFile.isReadable else {
+            return
+        }
+
+        seekCollectionTitle(infoFile: infoFile, ifBlank: true)
+    }
+    
+    /// If this is a Collection, try to retrieve its title from its Info file.
+    func seekCollectionTitle(infoFile: ResourceFileSys, ifBlank: Bool = false) {
+        
+        if collectionTitle == nil {
+            collectionTitle = ""
+        } else if collectionTitle!.isEmpty && !ifBlank {
+            return
+        }
+        
+        let text = infoFile.getText()
+        guard text.starts(with: "Title: ") else {
+            return
+        }
+        
+        var title = SolidString()
+        var i = 0
+        for c in text {
+            i += 1
+            if i < 8 { continue }
+            if c.isNewline { break }
+            title.append(c)
+        }
+        
+        collectionTitle = title.str
     }
     
     public var fileOrFolderName: String {

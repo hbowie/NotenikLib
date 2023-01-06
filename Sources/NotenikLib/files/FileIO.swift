@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 12/14/18.
-//  Copyright © 2018 - 2022 Herb Bowie (https://hbowie.net)
+//  Copyright © 2018 - 2023 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -235,6 +235,7 @@ public class FileIO: NotenikIO, RowConsumer {
         guard !collection!.readOnly else { return false }
         
         let str = NoteString(title: collection!.title)
+        str.append(label: NotenikConstants.titleSetByUser, value: "\(collection!.titleSetByUser)")
         str.appendLink(lib.getPath(type: .collection))
         str.append(label: "Sort Parm", value: collection!.sortParm.str)
         str.append(label: "Sort Descending", value: "\(collection!.sortDescending)")
@@ -550,6 +551,18 @@ public class FileIO: NotenikIO, RowConsumer {
         guard let infoNote = collection!.lib.getNote(type: .info) else { return nil }
 
         collection!.title = infoNote.title.value
+        
+        let titleSetByUserField = infoNote.getField(label: NotenikConstants.titleSetByUser)
+        if titleSetByUserField != nil {
+            let titleSetByUser = BooleanValue(titleSetByUserField!.value.value)
+            collection!.titleSetByUser = titleSetByUser.isTrue
+        } else {
+            if collection!.title == collection!.lib.notesFolder.url!.lastPathComponent || collection!.title == collection!.defaultTitle {
+                collection!.titleSetByUser = false
+            } else {
+                collection!.titleSetByUser = true
+            }
+        }
         
         let otherFieldsField = infoNote.getField(label: NotenikConstants.otherFields)
         if otherFieldsField != nil {

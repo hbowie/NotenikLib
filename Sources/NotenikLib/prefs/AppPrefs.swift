@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 5/25/19.
-//  Copyright © 2019 - 2022 Herb Bowie (https://hbowie.net)
+//  Copyright © 2019 - 2023 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -82,6 +82,12 @@ public class AppPrefs {
     
     let mastDomainKey = "mastodon-domain"
     var _mastDomain = ""
+    
+    let idFolderLevelsKey = "id-folder-levels"
+    var _idFolderLevels = 2
+    
+    let idFolderSepKey = "id-folder-sep"
+    var _idFolderSep = " / "
     
     let kbWindowKey = "nkb-window"
     var _kbWindow = ""
@@ -317,6 +323,20 @@ public class AppPrefs {
             _grantAccessOpt = 2
         }
         
+        let idf = defaults.integer(forKey: idFolderLevelsKey)
+        if idf > 0 {
+            _idFolderLevels = idf
+        } else {
+            _idFolderLevels = 2
+        }
+        
+        _idFolderSep = " / "
+        if let ids = defaults.string(forKey: idFolderSepKey) {
+            if !ids.isEmpty {
+                _idFolderSep = ids
+            }
+        } 
+        
         if let qout = defaults.string(forKey: queryOutKey) {
             _queryOut = qout
         }
@@ -551,6 +571,56 @@ public class AppPrefs {
             _microBlogToken = newValue
             defaults.set(_microBlogToken, forKey: microBlogTokenKey)
         }
+    }
+    
+    /// The number of folders to be included in the user-facing identification of a Collection.
+    public var idFolderLevels: Int {
+        get {
+            return _idFolderLevels
+        }
+        set {
+            _idFolderLevels = newValue
+            defaults.set(_idFolderLevels, forKey: idFolderLevelsKey)
+        }
+    }
+    
+    public var idFolderSep: String {
+        get {
+            return _idFolderSep
+        }
+        set {
+            _idFolderSep = newValue
+            defaults.set(_idFolderSep, forKey: idFolderSepKey)
+        }
+    }
+    
+    public func idFolderFrom(url: URL, below: URL? = nil) -> String {
+        let folders = url.pathComponents
+        var folderIndex = folders.count - idFolderLevels
+        if let parentURL = below {
+            if folderIndex < parentURL.pathComponents.count {
+                folderIndex = parentURL.pathComponents.count
+            }
+        }
+        var workingID = ""
+        while folderIndex < folders.count {
+            let folder = folders[folderIndex]
+            switch folder {
+            case "Library", "Documents", "Mobile Documents", "iCloud~com~powersurgepub~notenik~shared":
+                folderIndex += 1
+            case "Users":
+                folderIndex += 2
+            default:
+                if folderIndex > 0 && folders[folderIndex - 1] != "Users" {
+                    if !workingID.isEmpty {
+                        workingID.append(idFolderSep)
+                    }
+                    workingID.append(folder)
+                }
+                folderIndex += 1
+            }
+        }
+        return workingID
     }
     
     var parentRealmParent: String {

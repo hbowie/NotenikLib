@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 12/4/18.
-//  Copyright © 2019-2022 Herb Bowie (https://hbowie.net)
+//  Copyright © 2019 - 2023 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -17,6 +17,7 @@ import NotenikUtils
 public class NoteCollection {
     
     public  var title       = ""
+    public  var titleSetByUser = false
     public  var shortcut    = ""
     public  var lib:          ResourceLibrary!
     public  var duplicates  = 0
@@ -161,6 +162,30 @@ public class NoteCollection {
     public convenience init (realm: Realm) {
         self.init()
         lib.realm = realm
+    }
+    
+    public func userFacingLabel(below: URL? = nil) -> String {
+        if titleSetByUser {
+            return title
+        } else if let url = lib.notesFolder.url {
+            return AppPrefs.shared.idFolderFrom(url: url, below: below)
+        } else {
+            return "Error(s) identifying the Collection"
+        }
+    }
+    
+    public func setDefaultTitle() {
+        title = defaultTitle
+        titleSetByUser = false
+    }
+    
+    /// Construct a user-facing label for the Collection.
+    public var defaultTitle: String {
+        if let url = lib.notesFolder.url {
+            return AppPrefs.shared.idFolderFrom(url: url)
+        } else {
+            return ""
+        }
     }
     
     /// Get and set a path for the collection.

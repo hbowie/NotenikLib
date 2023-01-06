@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 12/11/18.
-//  Copyright © 2018 - 2022 Herb Bowie (https://hbowie.net)
+//  Copyright © 2018 - 2023 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -217,7 +217,7 @@ public struct NotenikConstants {
     static let missingTargets           = "Missing Targets"
     static let missingTargetsCommon     = "missingtargets"
     static let curlyAposts              = "Curly Apostrophes"
-    static let curlyApostsCommon        = "curlyapostscommon"
+    static let curlyApostsCommon        = "curlyapostrophes"
     static let windowNumbers            = "Window Numbers"
     static let windowNumbersCommon      = "windownumbers"
     static let columnWidths             = "Column Widths"
@@ -226,6 +226,8 @@ public struct NotenikConstants {
     static let noteFileFormatCommon     = "notefileformat"
     static let hashTags                 = "Hash Tags"
     static let hashTagsCommon           = "hashtags"
+    static let titleSetByUser           = "Title Set by User"
+    static let titleSetByUserCommon     = "titlesetbyuser"
     
     //-------------------------------------------------------------
     //

@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 8/26/20.
 
-//  Copyright © 2020 - 2022 Herb Bowie (https://hbowie.net)
+//  Copyright © 2020 - 2023 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -19,7 +19,8 @@ public class NotenikFolderList: Sequence {
     
     public static let shared = NotenikFolderList()
     
-    let fm = FileManager.default
+    let fm    = FileManager.default
+    let prefs = AppPrefs.shared
     
     var ubiquityIdentityToken: Any?
     public var iCloudContainerURL: URL?
@@ -262,7 +263,8 @@ public class NotenikFolderList: Sequence {
         } else {
             parent = root.addChild(type: .group, desc: "Recent")
         }
-        _ = parent.addChild(type: .folder, desc: folder.fileOrFolderName, folder: folder)
+        
+        _ = parent.addChild(type: .folder, desc: folder.briefDesc, folder: folder)
     }
     
     /// Remove the given folder from our internal lists. 

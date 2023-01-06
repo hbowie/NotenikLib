@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 5/16/19.
-//  Copyright © 2019 - 2022 Herb Bowie (https://hbowie.net)
+//  Copyright © 2019 - 2023 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -20,6 +20,7 @@ public class RealmScanner {
     
     public var realmIO: NotenikIO = BunchIO()
     var realmCollection: NoteCollection? = NoteCollection()
+    var realmURL: URL?
     
     let foldersToSkip = Set(["cgi-bin", "core", "css", "downloads", "files", "fonts", "images", "includes", "javascript", "js", "lib", "modules", "themes", "wp-admin", "wp-content", "wp-includes"])
     
@@ -37,6 +38,7 @@ public class RealmScanner {
         let realm = Realm(provider: provider)
         realm.path = path
         realm.name = path
+        realmURL = URL(fileURLWithPath: path, isDirectory: true)
         
         realmIO = BunchIO()
         realmCollection = realmIO.openCollection(realm: realm, collectionPath: "", readOnly: true)
@@ -98,11 +100,12 @@ public class RealmScanner {
         let infoIO = FileIO()
         let initOK = infoIO.initCollection(realm: realm, collectionPath: folderPath, readOnly: true)
         if initOK {
+            _ = infoIO.loadInfoFile()
             let infoCollection = infoIO.collection
             if infoCollection != nil {
-
                 let realmNote = Note(collection: realmIO.collection!)
-                let titleOK = realmNote.setTitle(folderURL.lastPathComponent)
+                let titleOK = realmNote.setTitle(infoCollection!.userFacingLabel(below: realmURL))
+                // (folderURL.lastPathComponent)
                 // let titleOK = realmNote.setTitle(infoIO.collection!.title)
                 if !titleOK {
                     logError("Unable to find a Title for Collection located at \(folderPath)")
@@ -161,16 +164,17 @@ public class RealmScanner {
         if scriptFileName.folders[folderIndex] == "reports" || scriptFileName.folders[folderIndex] == "scripts" {
             folderIndex -= 1
         }
-        var title = ""
+        // var title = ""
         /* while folderIndex < scriptFileName.folders.count {
             title.append(String(scriptFileName.folders[folderIndex]))
             title.append(" ")
             folderIndex += 1
         } */
-        title.append(scriptFileName.fileName)
-        let titleOK = scriptNote.setTitle(title)
+        let scriptTitle = AppPrefs.shared.idFolderFrom(url: scriptURL, below: realmURL)
+        // title.append(scriptFileName.fileName)
+        let titleOK = scriptNote.setTitle(scriptTitle)
         if !titleOK {
-            print("Title could not be set to \(title)")
+            print("Title could not be set to \(scriptTitle)")
         }
         let linkOK = scriptNote.setLink(scriptURL.absoluteString)
         if !linkOK {
@@ -206,13 +210,14 @@ public class RealmScanner {
         if bbFileName.folders[folderIndex] == "reports" || bbFileName.folders[folderIndex] == "scripts" {
             folderIndex -= 1
         }
-        var title = ""
+        // var title = ""
+        let title = AppPrefs.shared.idFolderFrom(url: bbURL, below: realmURL)
         /* while folderIndex < bbFileName.folders.count {
             title.append(String(bbFileName.folders[folderIndex]))
             title.append(" / ")
             folderIndex += 1
         } */
-        title.append(bbFileName.fileName)
+        // title.append(bbFileName.fileName)
         let titleOK = bbNote.setTitle(title)
         if !titleOK {
             print("BBEdit Note Title could not be set to \(title)")
