@@ -606,7 +606,7 @@ public class AppPrefs {
         while folderIndex < folders.count {
             let folder = folders[folderIndex]
             switch folder {
-            case "Library", "Documents", "Mobile Documents", "iCloud~com~powersurgepub~notenik~shared":
+            case "Library", "Documents", "Mobile Documents", "iCloud~com~powersurgepub~notenik~shared", "com~apple~CloudDocs":
                 folderIndex += 1
             case "Users":
                 folderIndex += 2
