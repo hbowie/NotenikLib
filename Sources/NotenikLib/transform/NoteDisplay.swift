@@ -379,7 +379,7 @@ public class NoteDisplay {
             }
             if tocNotes.count > 1 {
                 bottomHTML.heading(level: 4, text: "Contents")
-                bottomHTML.startUnorderedList(klass: nil)
+                bottomHTML.startUnorderedList(klass: "notenik-toc")
                 for tocNote in tocNotes {
                     let tocTitle = tocNote.title.value
                     bottomHTML.startListItem()
@@ -387,6 +387,7 @@ public class NoteDisplay {
                         bottomHTML.append("\(tocNote.formattedSeq) ")
                     }
                     bottomHTML.link(text: tocTitle, path: parms.assembleWikiLink(title: tocTitle))
+                    /*
                     let aka = tocNote.aka.value
                     if !aka.isEmpty && (tocTitle.count + aka.count) < 60 {
                         let (matched, unmatched) = StringUtils.matchCounts(str1: tocTitle, str2: aka)
@@ -400,7 +401,7 @@ public class NoteDisplay {
                             bottomHTML.append(" (aka: \(aka))")
                             bottomHTML.finishEmphasis()
                         }
-                    }
+                    } */
                     bottomHTML.finishListItem()
                 }
                 bottomHTML.finishUnorderedList()

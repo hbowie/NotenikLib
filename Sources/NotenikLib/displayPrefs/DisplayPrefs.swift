@@ -56,7 +56,7 @@ public class DisplayPrefs {
         
         _fontCSS = defaults.string(forKey: fontCSSKey)
         if _fontCSS == nil || _fontCSS!.count == 0 {
-            buildCSS()
+            buildFontCSS()
         }
     }
     
@@ -117,7 +117,7 @@ public class DisplayPrefs {
         }
     }
     
-    public func buildCSS() {
+    public func buildFontCSS() {
         var tempCSS = ""
         tempCSS += "font-family: "
         tempCSS += "\"" + font + "\""
@@ -144,67 +144,96 @@ public class DisplayPrefs {
     /// Supply the complete CSS to be used for displaying a Note.
     public var displayCSS: String? {
         var tempCSS = darkModeAdjustments()
-        tempCSS.append("body { ")
-        tempCSS.append("\n  tab-size: 4; ")
-        tempCSS.append("\n  margin: 1em; ")
-        tempCSS.append("\n  background-color: var(--background-color);")
-        tempCSS.append("\n  color: var(--text-color); \n")
+        tempCSS.append("""
+        body {
+          tab-size: 4;
+          margin: 1em;
+          background-color: var(--background-color);
+          color: var(--text-color);
+
+        """)
         if fontCSS != nil {
             tempCSS.append(fontCSS!)
         }
-        tempCSS.append("}")
-        tempCSS.append("\nblockquote { ")
-        tempCSS.append("\n  border-left: 0.4em solid #999;")
-        tempCSS.append("\n  margin-left: 0;")
-        tempCSS.append("\n  padding-left: 1em;")
-        tempCSS.append("\n} ")
-        tempCSS.append("\nfigure { ")
-        tempCSS.append("\n  margin-left: 0.2em;")
-        tempCSS.append("\n  padding-left: 0.2em;")
-        tempCSS.append("\n} ")
-        tempCSS.append("\ntable, th, td { ")
-        tempCSS.append("\n  border: 2px solid gray; ")
-        tempCSS.append("\n} ")
-        tempCSS.append("\ntable { ")
-        tempCSS.append("\n  border-collapse: collapse; ")
-        tempCSS.append("\n} ")
-        tempCSS.append("\nth, td { ")
-        tempCSS.append("\n  padding: 6px; ")
-        tempCSS.append("\n} ")
-        tempCSS.append("\nimg { ")
-        tempCSS.append("\n  max-width: 100%; ")
-        tempCSS.append("\n  height: auto; ")
-        tempCSS.append("\n} ")
-        tempCSS.append("\nh1 { font-size: 2.0em; margin-top: 0.7em; margin-bottom: 0.0em; font-weight: 600; font-style: normal;  }")
-        tempCSS.append("\nh2 { font-size: 1.8em; margin-top: 0.7em; margin-bottom: 0.0em; font-weight: 600; font-style: normal;  }")
-        tempCSS.append("\nh3 { font-size: 1.6em; margin-top: 0.7em; margin-bottom: 0.0em; font-weight: 600; font-style: normal;  }")
-        tempCSS.append("\nh4 { font-size: 1.4em; margin-top: 0.7em; margin-bottom: 0.0em; font-weight: 600; font-style: normal;  }")
-        tempCSS.append("\nh5 { font-size: 1.2em; margin-top: 0.7em; margin-bottom: 0.0em; font-weight: 600; font-style: normal;  }")
-        tempCSS.append("\nh6 { font-size: 1.0em; margin-top: 0.7em; margin-bottom: 0.0em; font-weight: 600; font-style: normal;  }")
-        tempCSS.append("\nul.checklist { list-style-type: none; }")
-        tempCSS.append("\nul.tags-list { list-style-type: none; }")
-        tempCSS.append("\nul.tags-cloud { ")
-        tempCSS.append("\n  list-style: none; ")
-        tempCSS.append("\n  padding-left: 0; ")
-        tempCSS.append("\n  display: flex; ")
-        tempCSS.append("\n  flex-wrap: wrap; ")
-        tempCSS.append("\n  align-items: center; ")
-        tempCSS.append("\n  justify-content: center; ")
-        tempCSS.append("\n  line-height: 2.5rem; ")
-        tempCSS.append("\n} ")
-        tempCSS.append("\nul.tags-cloud a { ")
-        tempCSS.append("\n  display: block; ")
-        tempCSS.append("\n  font-size: 1.1rem; ")
-        tempCSS.append("\n  font-weight: 600; ")
-        tempCSS.append("\n  text-decoration: none; ")
-        tempCSS.append("\n  position: relative; ")
-        tempCSS.append("\n  border-radius: 15px; ")
-        tempCSS.append("\n  background-color: var(--highlight-color); ")
-        tempCSS.append("\n  padding: 2px 12px 2px 12px; ")
-        tempCSS.append("\n  margin: 10px 10px 10px 10px; ")
-        tempCSS.append("\n  min-width: 40px; ")
-        tempCSS.append("\n  text-align: center; ")
-        tempCSS.append("\n} ")
+        tempCSS.append("""
+        }
+        blockquote {
+          border-left: 0.4em solid #999;
+          margin-left: 0;
+          padding-left: 1em;
+        }
+        figure {
+          margin-left: 0.2em;
+          padding-left: 0.2em;
+        }
+        table, th, td {
+          border: 2px solid gray;
+        }
+        table {
+          border-collapse: collapse;
+        }
+        th, td {
+          padding: 6px;
+        }
+        img {
+          max-width: 100%;
+          height: auto;
+        }
+        h1 { font-size: 2.0em; margin-top: 0.7em; margin-bottom: 0.0em; font-weight: 600; font-style: normal;  }
+        h2 { font-size: 1.8em; margin-top: 0.7em; margin-bottom: 0.0em; font-weight: 600; font-style: normal;  }
+        h3 { font-size: 1.6em; margin-top: 0.7em; margin-bottom: 0.0em; font-weight: 600; font-style: normal;  }
+        h4 { font-size: 1.4em; margin-top: 0.7em; margin-bottom: 0.0em; font-weight: 600; font-style: normal;  }
+        h5 { font-size: 1.2em; margin-top: 0.7em; margin-bottom: 0.0em; font-weight: 600; font-style: normal;  }
+        h6 { font-size: 1.0em; margin-top: 0.7em; margin-bottom: 0.0em; font-weight: 600; font-style: normal;  }
+        ul.checklist { list-style-type: none; }
+        ul.tags-list { list-style-type: none; }
+        ul.tags-cloud {
+          list-style: none;
+          padding-left: 0;
+          display: flex;
+          flex-wrap: wrap;
+          align-items: center;
+          justify-content: center;
+          line-height: 2.5rem;
+        }
+        ul.tags-cloud a {
+          display: block;
+          font-size: 1.1rem;
+          font-weight: 600;
+          text-decoration: none;
+          position: relative;
+          border-radius: 15px;
+          background-color: var(--highlight-color);
+          padding: 2px 12px 2px 12px;
+          margin: 10px 10px 10px 10px;
+          min-width: 40px;
+          text-align: center;
+        }
+        figure.notenik-quote-attrib {
+            margin-left: 2em;
+            margin-right: 2em;
+            margin-bottom: 2em;
+        }
+        figure.notenik-quote-attrib blockquote {
+          border-left: none;
+          margin-left: 0;
+          padding-left: 0;
+        }
+        figure.notenik-quote-attrib figcaption {
+            text-align: right;
+        }
+        .notenik-aka {
+            font-style: italic;
+            text-align: center;
+            margin-top: 0;
+        }
+        ul.notenik-toc {
+          list-style-type: none; /* Remove bullets */
+          padding: 0; /* Remove padding */
+          margin: 0; /* Remove margins */
+        }
+        
+        """)
         
         // tempCSS.append("\ncode { overflow: auto }")
         return tempCSS

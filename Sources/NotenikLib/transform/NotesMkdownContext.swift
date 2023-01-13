@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 7/12/21.
 //
-//  Copyright © 2021 - 2022 Herb Bowie (https://hbowie.net)
+//  Copyright © 2021 - 2023 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -62,6 +62,92 @@ public class NotesMkdownContext: MkdownContext {
         let resolution = NoteLinkResolution(io: io, linkText: linkText)
         NoteLinkResolver.resolve(resolution: resolution)
         return resolution.genWikiLinkTarget()
+    }
+    
+    // -----------------------------------------------------------
+    //
+    // MARK: Include another item (Note or file).
+    //
+    // -----------------------------------------------------------
+    
+    public func mkdownInclude(item: String, style: String) -> String? {
+        guard io.collection != nil else { return nil }
+        guard io.collectionOpen else { return nil }
+        var str: String?
+        if item.contains(".") {
+            str = includeFromFile(item: item)
+        }
+        if str == nil {
+            str = includeFromNote(item: item, style: style)
+        }
+        return str
+    }
+    
+    func includeFromFile(item: String) -> String? {
+        guard let collection = io.collection else { return nil }
+        guard let collectionURL = collection.fullPathURL else { return nil }
+        let fileURL = URL(fileURLWithPath: item,
+                                isDirectory: false,
+                                relativeTo: collectionURL)
+        if let str = try? String(contentsOf: fileURL) {
+            return str
+        }
+        return nil
+    }
+    
+    public func clearIncludedNotes() {
+        includedNotes = []
+    }
+    
+    func includeFromNote(item: String, style: String) -> String? {
+        
+        let resolution = NoteLinkResolution(io: io, linkText: item)
+        NoteLinkResolver.resolve(resolution: resolution)
+
+        guard resolution.result != .badInput else { return item }
+        
+        guard resolution.result == .resolved else {
+            return "Note titled '\(item)' could not be included"
+        }
+        
+        includedNotes.append(resolution.pathSlashID)
+        
+        switch style {
+        case "body":
+            return resolution.resolvedNote!.body.value
+        case "note":
+            return includeTextFromNote(note: resolution.resolvedNote!)
+        case "quotebody", "quote-body":
+            return includeQuoteFromNote(note: resolution.resolvedNote!, withAttrib: false)
+        case "quote":
+            return includeQuoteFromNote(note: resolution.resolvedNote!)
+        default:
+            return resolution.resolvedNote!.body.value
+        }
+    }
+    
+    func includeTextFromNote(note: Note) -> String? {
+        let maker = NoteLineMaker()
+        _ = maker.putNote(note)
+        if let writer = maker.writer as? BigStringWriter {
+            return writer.bigString
+        }
+        return nil
+    }
+    
+    func includeQuoteFromNote(note: Note, withAttrib: Bool = true) -> String? {
+        let markedUp = Markedup(format: .htmlFragment)
+        markedUp.newLine()
+        markedUp.newLine()
+        markedUp.startCompacting()
+        let fieldsToHTML = NoteFieldsToHTML()
+        fieldsToHTML.formatQuoteWithAttribution(note: note,
+                                                markedup: markedUp,
+                                                parms: displayParms,
+                                                io: io,
+                                                bodyHTML: nil,
+                                                withAttrib: withAttrib)
+        return markedUp.code
     }
     
     // -----------------------------------------------------------
@@ -685,89 +771,6 @@ public class NotesMkdownContext: MkdownContext {
         }
         tagsCode.heading(level: 5, text: tagsConcat, addID: true, idText: "tags.\(tagsConcat)")
         tagsCode.startUnorderedList(klass: nil)
-    }
-    
-    // -----------------------------------------------------------
-    //
-    // MARK: Include another item (Note or file). 
-    //
-    // -----------------------------------------------------------
-    
-    public func mkdownInclude(item: String, style: String) -> String? {
-        guard io.collection != nil else { return nil }
-        guard io.collectionOpen else { return nil }
-        var str: String?
-        if item.contains(".") {
-            str = includeFromFile(item: item)
-        }
-        if str == nil {
-            str = includeFromNote(item: item, style: style)
-        }
-        return str
-    }
-    
-    func includeFromFile(item: String) -> String? {
-        guard let collection = io.collection else { return nil }
-        guard let collectionURL = collection.fullPathURL else { return nil }
-        let fileURL = URL(fileURLWithPath: item,
-                                isDirectory: false,
-                                relativeTo: collectionURL) 
-        if let str = try? String(contentsOf: fileURL) {
-            return str
-        }
-        return nil
-    }
-    
-    public func clearIncludedNotes() {
-        includedNotes = []
-    }
-    
-    func includeFromNote(item: String, style: String) -> String? {
-        
-        let resolution = NoteLinkResolution(io: io, linkText: item)
-        NoteLinkResolver.resolve(resolution: resolution)
-
-        guard resolution.result != .badInput else { return item }
-        
-        guard resolution.result == .resolved else {
-            return "Note titled '\(item)' could not be included"
-        }
-        
-        includedNotes.append(resolution.pathSlashID)
-        
-        switch style {
-        case "body":
-            return resolution.resolvedNote!.body.value
-        case "note":
-            return includeTextFromNote(note: resolution.resolvedNote!)
-        case "quotebody", "quote-body":
-            return includeQuoteFromNote(note: resolution.resolvedNote!, withAttrib: false)
-        case "quote":
-            return includeQuoteFromNote(note: resolution.resolvedNote!)
-        default:
-            return resolution.resolvedNote!.body.value
-        }
-    }
-    
-    func includeTextFromNote(note: Note) -> String? {
-        let maker = NoteLineMaker()
-        _ = maker.putNote(note)
-        if let writer = maker.writer as? BigStringWriter {
-            return writer.bigString
-        }
-        return nil
-    }
-    
-    func includeQuoteFromNote(note: Note, withAttrib: Bool = true) -> String? {
-        let markedUp = Markedup(format: .htmlFragment)
-        let fieldsToHTML = NoteFieldsToHTML()
-        fieldsToHTML.formatQuoteWithAttribution(note: note,
-                                                markedup: markedUp,
-                                                parms: displayParms,
-                                                io: io,
-                                                bodyHTML: nil,
-                                                withAttrib: withAttrib)
-        return markedUp.code
     }
     
     /// Send an informational message to the log.

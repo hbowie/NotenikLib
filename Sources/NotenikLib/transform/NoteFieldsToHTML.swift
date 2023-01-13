@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 4/15/21.
 //
-//  Copyright © 2021 - 2022 Herb Bowie (https://hbowie.net)
+//  Copyright © 2021 - 2023 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -29,6 +29,8 @@ public class NoteFieldsToHTML {
     var attribution: NoteField?
     
     var quoted = false
+    
+    let attribBalancer = LineBalancer(maxChars: 43, sep: " <br>")
     
     public init() {
         
@@ -387,7 +389,9 @@ public class NoteFieldsToHTML {
                     code.horizontalRule()
                 }
             case NotenikConstants.akaCommon:
-                code.startParagraph()
+                break;
+                /*
+                code.startParagraph(klass: "notenik-\(field.def.fieldType.typeString)")
                 code.startEmphasis()
                 if field.def.fieldLabel.properForm == NotenikConstants.aka {
                     code.append("aka")
@@ -397,7 +401,7 @@ public class NoteFieldsToHTML {
                 code.append(": ")
                 code.append(field.value.value)
                 code.finishEmphasis()
-                code.finishParagraph()
+                code.finishParagraph() */
             default:
                 if field.def.fieldLabel.commonForm == NotenikConstants.teaserCommon {
                     break
@@ -636,9 +640,8 @@ public class NoteFieldsToHTML {
             mkdownContext = NotesMkdownContext(io: io!, displayParms: parms)
         }
         
-        
         if withAttrib && (note.hasAttribution() || note.hasAuthor() || note.hasWorkTitle()) {
-            markedup.startFigure()
+            markedup.startFigure(klass: "notenik-quote-attrib")
         }
         
         markedup.startBlockQuote()
@@ -657,16 +660,59 @@ public class NoteFieldsToHTML {
             markedup.startFigureCaption()
             if note.hasAttribution() {
                 markedup.newLine()
-                markdownToMarkedup(markdown: note.attribution.value,
+                let balanced = attribBalancer.balance(str: note.attribution.value)
+                markdownToMarkedup(markdown: balanced,
                                    context: mkdownContext,
                                    writer: markedup)
             } else {
                 markedup.newLine()
-                var attrib = "-- "
+                markedup.writeEmDash()
+                markedup.writeNonBreakingSpace()
+                var attrib = ""
                 let author = note.creatorValue
                 if author.count > 0 {
+                    let authorLinkField = FieldGrabber.getField(note: note, label: NotenikConstants.authorLinkCommon)
+                    var authorLink = ""
+                    if authorLinkField != nil {
+                        authorLink = authorLinkField!.value.value
+                    }
+                    if !authorLink.isEmpty {
+                        attrib.append("<a href=\"\(authorLink)\" class=\"notenik-attrib-link\">")
+                    }
                     attrib.append(author)
+                    if !authorLink.isEmpty {
+                        attrib.append("</a>")
+                    }
                 }
+                
+                if note.hasWorkTitle() {
+                    if attrib.count > 3 {
+                        attrib.append(", ")
+                    }
+                    let workLinkField = FieldGrabber.getField(note: note, label: note.collection.workLinkFieldDef.fieldLabel.commonForm)
+                    var workLink = ""
+                    if workLinkField != nil {
+                        workLink = workLinkField!.value.value
+                    }
+                    if !workLink.isEmpty {
+                        attrib.append("<a href=\"\(workLink)\" class=\"notenik-attrib-link\">")
+                    }
+                    /*
+                    let workTypeField = FieldGrabber.getField(note: note, label: note.collection.workTypeFieldDef.fieldLabel.commonForm)
+                    var workType = ""
+                    if workTypeField != nil {
+                        workType = workTypeField!.value.value.lowercased()
+                    }
+                    if !workType.isEmpty {
+                        attrib.append("from the \(workType) titled ")
+                    }
+                    */
+                    attrib.append("<cite>\(note.workTitle.value)</cite>")
+                    if !workLink.isEmpty {
+                        attrib.append("</a>")
+                    }
+                }
+                
                 if note.hasDate() {
                     if attrib.count > 0 {
                         attrib.append(", ")
@@ -674,22 +720,8 @@ public class NoteFieldsToHTML {
                     attrib.append(note.date.value)
                 }
                 
-                if note.hasWorkTitle() {
-                    if attrib.count > 3 {
-                        attrib.append(", ")
-                    }
-                    let workTypeField = FieldGrabber.getField(note: note, label: note.collection.workTypeFieldDef.fieldLabel.commonForm)
-                    var workType = ""
-                    if workTypeField != nil {
-                        workType = workTypeField!.value.value
-                    }
-                    if !workType.isEmpty {
-                        attrib.append("from the \(workType) titled ")
-                    }
-                    attrib.append("<cite>\(note.workTitle.value)</cite>")
-                }
-                
-                markedup.writeLine(attrib)
+                let balanced = attribBalancer.balance(str: attrib, prepending: 3)
+                markedup.writeLine(balanced)
             }
             markedup.finishFigureCaption()
             markedup.finishFigure()
