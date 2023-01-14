@@ -133,7 +133,7 @@ public class DateValue: StringValue {
         }
     }
     
-    var dMyWDate: String {
+    public var dMyWDate: String {
         if mm.count == 0 {
             return yyyy
         } else if dd.count == 0 {
@@ -144,6 +144,24 @@ public class DateValue: StringValue {
                 let monthName = DateUtils.shared.getShortMonthName(for: mm)
                 let dayOfWeekName = DateUtils.dayOfWeekNames[simple.dayOfWeek]
                 return "\(dd) \(monthName) \(yyyy) - \(dayOfWeekName)"
+            } else {
+                return dd + " " + DateUtils.shared.getShortMonthName(for: mm) + " " + yyyy
+            }
+        }
+    }
+    
+    /// Return date in YYYY mmm dd ww format, with a 2-letter day of the week at the end. 
+    public var dMyW2Date: String {
+        if mm.count == 0 {
+            return yyyy
+        } else if dd.count == 0 {
+            return "   " + DateUtils.shared.getShortMonthName(for: mm) + " " + yyyy
+        } else {
+            let simple = SimpleDate(yr: self.year, mn: self.month, dy: self.day)
+            if simple.goodDate {
+                let monthName = DateUtils.shared.getShortMonthName(for: mm)
+                let dayOfWeekName = DateUtils.dayOfWeekNames[simple.dayOfWeek].prefix(2)
+                return "\(dd) \(monthName) \(yyyy) / \(dayOfWeekName)"
             } else {
                 return dd + " " + DateUtils.shared.getShortMonthName(for: mm) + " " + yyyy
             }
