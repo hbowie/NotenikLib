@@ -25,7 +25,7 @@ public class NoteCollection {
     public  var dict        : FieldDictionary
     public  var hasLookupFields = false
     public  var sortParm    : NoteSortParm
-            var sortDescending: Bool
+    public  var sortDescending: Bool
     public  var typeCatalog  = AllTypes()
     public  var statusConfig: StatusValueConfig
     public  var rankConfig:   RankValueConfig
