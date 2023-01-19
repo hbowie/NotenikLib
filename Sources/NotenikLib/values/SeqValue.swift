@@ -64,7 +64,7 @@ public class SeqValue: StringValue {
         // as needed to get to the specified level.
         while level > seqStack.max {
             if seqStack.max >= 0 && !seqStack.segments[seqStack.max].endedByPunctuation {
-                seqStack.segments[seqStack.max].punctuation = "."
+                seqStack.segments[seqStack.max].endingPunctuation = "."
             }
             seqStack.append(SeqSegment("0"))
         }
@@ -97,9 +97,9 @@ public class SeqValue: StringValue {
         for c in value {
             nextSegment.append(c)
             if nextSegment.endedByPunctuation {
-                lastPunctuation = nextSegment.punctuation
+                lastPunctuation = nextSegment.endingPunctuation
                 seqStack.append(nextSegment)
-                nextSegment = SeqSegment()
+                nextSegment = SeqSegment(startingPunctuation: lastPunctuation)
             }
         }
         if nextSegment.count > 0 || lastPunctuation.count > 0 {

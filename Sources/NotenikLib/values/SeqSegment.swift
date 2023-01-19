@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 3/10/20.
-//  Copyright © 2021 Herb Bowie (https://hbowie.net)
+//  Copyright © 2023 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -17,7 +17,8 @@ import NotenikUtils
 public class SeqSegment {
     
     var value = ""
-    var punctuation = ""
+    var startingPunctuation = ""
+    var endingPunctuation = ""
     var padChar:     Character = " "
     var digits       = false
     var letters      = false
@@ -28,7 +29,18 @@ public class SeqSegment {
         
     }
     
+    public init(startingPunctuation: String) {
+        self.startingPunctuation = startingPunctuation
+    }
+    
     public init(_ text: String) {
+        for c in text {
+            append(c)
+        }
+    }
+    
+    public init(_ text: String, startingPunctuation: String) {
+        self.startingPunctuation = startingPunctuation
         for c in text {
             append(c)
         }
@@ -38,7 +50,8 @@ public class SeqSegment {
     public func dupe() -> SeqSegment {
         let newSegment = SeqSegment()
         newSegment.value = self.value
-        newSegment.punctuation = self.punctuation
+        newSegment.startingPunctuation = self.startingPunctuation
+        newSegment.endingPunctuation = self.endingPunctuation
         newSegment.padChar = self.padChar
         newSegment.digits = self.digits
         newSegment.letters = self.letters
@@ -51,6 +64,12 @@ public class SeqSegment {
     func append(_ c: Character) {
         if c == "0" && count == 0 {
             padChar = c
+            digits = true
+        } else if c == " " && startingPunctuation == ":" && numberType == .digits && value.count <= 2 {
+            if value.count == 0 {
+                value.append("00")
+            }
+            endingPunctuation.append(c)
         } else if c.isWhitespace {
             // Ignore whitespace
         } else if c == "$" {
@@ -70,11 +89,11 @@ public class SeqSegment {
         } else if StringUtils.isDigit(c) {
             value.append(c)
             digits = true
-        } else if c == "." || c == "-" {
+        } else if c == "." || c == "-" || c == ":" {
             if value.count == 0 {
                 value.append("0")
             }
-            punctuation.append(c)
+            endingPunctuation.append(c)
         } // end character evaluation
         
         if digits {
@@ -100,20 +119,39 @@ public class SeqSegment {
     }
     
     var endedByPunctuation: Bool {
-        return !punctuation.isEmpty
+        return !endingPunctuation.isEmpty
+    }
+    
+    var possibleTimeSegment: Bool {
+        if numberType == .digits && value.count < 3 && (startingPunctuation == ":" || startingPunctuation == "") {
+            return true
+        } else if amPM {
+            return true
+        }
+        return false
+    }
+    
+    var amPM: Bool {
+        guard value.count == 2 else { return false }
+        guard numberType == .lowercase || numberType == .uppercase else { return false }
+        let lowered = value.lowercased()
+        if lowered == "am" || lowered == "pm" {
+            return true
+        }
+        return false
     }
     
     func removePunctuation() {
-        punctuation = ""
+        endingPunctuation = ""
     }
     
     func valueWithPunctuation(position: Int) -> String {
         var str = ""
         
-        if value.count == 0 && (position > 0 || punctuation.count > 0) {
-            str = "0" + punctuation
+        if value.count == 0 && (position > 0 || endingPunctuation.count > 0) {
+            str = "0" + endingPunctuation
         } else {
-            str = value + punctuation
+            str = value + endingPunctuation
         }
         return str
     }

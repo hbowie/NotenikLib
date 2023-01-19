@@ -41,6 +41,15 @@ class SeqStack {
         return segments.count - 1
     }
     
+    var possibleTimeStack: Bool {
+        for segment in segments {
+            if !segment.possibleTimeSegment {
+                return false
+            }
+        }
+        return true
+    }
+    
     var value: String {
         if segments.count == 0 {
             return ""
@@ -61,8 +70,15 @@ class SeqStack {
     var sortKey: String {
         var key = ""
         var segIndex = 0
+        var lastShallBeFirst = false
+        if count > 0 && segments[max].amPM && possibleTimeStack {
+            key.append(segments[max].value.lowercased())
+            lastShallBeFirst = true
+        }
         for segment in segments {
-            if segIndex == 0 {
+            if lastShallBeFirst && segIndex == max {
+                // Skip it
+            } else if segIndex == 0 {
                 key.append(segment.pad(padChar: "0", padTo: 8, padLeft: true))
             } else {
                 key.append(segment.pad(padChar: "0", padTo: 4, padLeft: true))
