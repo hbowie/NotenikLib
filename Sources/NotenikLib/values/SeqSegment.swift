@@ -145,10 +145,17 @@ public class SeqSegment {
         endingPunctuation = ""
     }
     
-    func valueWithPunctuation(position: Int) -> String {
+    func valueWithPunctuation(position: Int, possibleTimeStack: Bool = false) -> String {
+        
         var str = ""
         
-        if value.count == 0 && (position > 0 || endingPunctuation.count > 0) {
+        if possibleTimeStack && numberType == .digits && value.count < 2 {
+            if value.count == 0 {
+                str = "00" + endingPunctuation
+            } else {
+                str = "0" + value + endingPunctuation
+            }
+        } else if value.count == 0 && (position > 0 || endingPunctuation.count > 0) {
             str = "0" + endingPunctuation
         } else {
             str = value + endingPunctuation

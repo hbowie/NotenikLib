@@ -1,9 +1,9 @@
 //
 //  DateValue.swift
-//  notenik
+//  NotenikLib
 //
 //  Created by Herb Bowie on 11/26/18.
-//  Copyright © 2018-2020 Herb Bowie (https://powersurgepub.com)
+//  Copyright © 2018 - 2023 Herb Bowie (https://powersurgepub.com)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -77,6 +77,18 @@ public class DateValue: StringValue {
         return DateUtils.shared.dateFromYMD(ymdDate)
     }
     
+    public var simpleDate: SimpleDate? {
+        guard isFullDate else { return nil }
+        return SimpleDate(yr: year, mn: month, dy: day)
+    }
+    
+    public var isFullDate: Bool {
+        guard yyyy.count > 0 else { return false }
+        guard mm.count > 0 else { return false }
+        guard dd.count > 0 else { return false }
+        return true
+    }
+    
     public var year: Int? {
         return Int(yyyy)
     }
@@ -93,16 +105,6 @@ public class DateValue: StringValue {
         return DateUtils.shared.ymdToday == self.ymdDate
     }
     
-    /// See if two of these objects have equal keys
-    static func == (lhs: DateValue, rhs: DateValue) -> Bool {
-        return lhs.ymdDate == rhs.ymdDate
-    }
-    
-    /// See which of these objects should come before the other in a sorted list
-    static func < (lhs: DateValue, rhs: DateValue) -> Bool {
-        return lhs.ymdDate < rhs.ymdDate
-    }
-    
     /// Return a value that can be used as a key for comparison purposes
     override var sortKey: String {
         if yyyy.count > 0 {
@@ -113,13 +115,21 @@ public class DateValue: StringValue {
     }
 
     /// Return a full or partial date in a yyyy-MM-dd format.
-    var ymdDate: String {
+    public var ymdDate: String {
         if mm.count == 0 {
             return yyyy
         } else if dd.count == 0 {
             return yyyy + "-" + mm
         } else {
             return yyyy + "-" + mm + "-" + dd
+        }
+    }
+    
+    public var yearAndMonth: String {
+        if mm.count == 0 {
+            return yyyy
+        } else {
+            return yyyy + "-" + mm
         }
     }
     
@@ -343,6 +353,16 @@ public class DateValue: StringValue {
             } // end if this might be our year
         } // end if we're just examining a normal number that is part of a date
     } // end of func processWhenNumbers
+    
+    /// See if two of these objects have equal keys
+    static func == (lhs: DateValue, rhs: DateValue) -> Bool {
+        return lhs.ymdDate == rhs.ymdDate
+    }
+    
+    /// See which of these objects should come before the other in a sorted list
+    static func < (lhs: DateValue, rhs: DateValue) -> Bool {
+        return lhs.ymdDate < rhs.ymdDate
+    }
     
     /// An inner class containing the parsing context.
     class ParseContext {

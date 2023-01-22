@@ -232,6 +232,10 @@ public class DisplayPrefs {
           padding: 0; /* Remove padding */
           margin: 0; /* Remove margins */
         }
+        table.notenik-calendar {
+          table-layout: fixed;
+          width: 100%;
+        }
         
         """)
         

@@ -58,8 +58,9 @@ class SeqStack {
         } else {
             var str = ""
             var position = 0
+            let timeStack = possibleTimeStack
             for segment in segments {
-                str.append(segment.valueWithPunctuation(position: position))
+                str.append(segment.valueWithPunctuation(position: position, possibleTimeStack: timeStack))
                 position += 1
             }
             return str
@@ -70,21 +71,37 @@ class SeqStack {
     var sortKey: String {
         var key = ""
         var segIndex = 0
-        var lastShallBeFirst = false
-        if count > 0 && segments[max].amPM && possibleTimeStack {
-            key.append(segments[max].value.lowercased())
-            lastShallBeFirst = true
+        var pm = false
+        if count > 2 && segments[max].amPM && segments[max].value.lowercased() == "pm" && possibleTimeStack {
+            pm = true
         }
         for segment in segments {
-            if lastShallBeFirst && segIndex == max {
-                // Skip it
-            } else if segIndex == 0 {
-                key.append(segment.pad(padChar: "0", padTo: 8, padLeft: true))
-            } else {
-                key.append(segment.pad(padChar: "0", padTo: 4, padLeft: true))
+            var appended = false
+            if pm && segIndex == 0 {
+                var adjusted = Int(segment.value)
+                if adjusted != nil {
+                    if adjusted! < 12 {
+                        adjusted! += 12
+                    }
+                    let adjustedValue = "\(adjusted!)"
+                    var adjustedChars = adjustedValue.count
+                    while adjustedChars < 8 {
+                        key.append("0")
+                        adjustedChars += 1
+                    }
+                    key.append(adjustedValue)
+                    appended = true
+                }
+            }
+            if !appended {
+                if segIndex == 0 {
+                    key.append(segment.pad(padChar: "0", padTo: 8, padLeft: true))
+                } else {
+                    key.append(segment.pad(padChar: "0", padTo: 4, padLeft: true))
+                }
             }
             // if segIndex < max {
-                key.append(".")
+            key.append(".")
             // }
             segIndex += 1
         }
