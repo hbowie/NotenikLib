@@ -581,7 +581,7 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
             return
         }
         
-        var title = SolidString()
+        let title = SolidString()
         var i = 0
         for c in text {
             i += 1

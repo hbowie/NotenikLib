@@ -235,6 +235,21 @@ public class DisplayPrefs {
         table.notenik-calendar {
           table-layout: fixed;
           width: 100%;
+          margin-top: 1em;
+          margin-bottom: 1em;
+        }
+        td.notenik-calendar-day-data {
+          vertical-align: top;
+        }
+        p.notenik-calendar-day-of-month {
+          margin-top: 0;
+          margin-bottom: 0;
+          text-align: right;
+          font-size: 1.2em;
+        }
+        p.notenik-calendar-day-contents {
+          margin-top: 0;
+          margin-bottom: 0;
         }
         
         """)

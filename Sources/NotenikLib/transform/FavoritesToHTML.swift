@@ -27,7 +27,6 @@ public class FavoritesToHTML {
     var rowCount = 0
     
     var noteIO: NotenikIO?
-    var outURL: URL?
     
     var css = ""
     var markedup = Markedup(format: .htmlDoc)
@@ -48,17 +47,15 @@ public class FavoritesToHTML {
         }
     }
     
-    public convenience init (noteIO: NotenikIO, outURL: URL) {
+    public convenience init (noteIO: NotenikIO) {
         self.init()
         self.noteIO = noteIO
-        self.outURL = outURL
     }
     
     /// Generate the web page.
-    public func generate() -> Bool {
+    public func generate() -> String {
         
-        guard let io = noteIO else { return false }
-        guard let url = outURL else { return false }
+        guard let io = noteIO else { return "" }
         
         buildCSS()
         markedup.startDoc(withTitle: "Bookmark \(favoritesCap)", withCSS: css)
@@ -106,20 +103,7 @@ public class FavoritesToHTML {
         markedup.finishDiv() // End row
         markedup.finishDiv() // End container
         markedup.finishDoc()
-        do {
-            try markedup.code.write(to: url, atomically: true, encoding: String.Encoding.utf8)
-            Logger.shared.log(subsystem: "com.powersurgepub.notenik",
-                              category: "FavoritesToHTML",
-                              level: .info,
-                              message: "\(favoritesCount) favorites written to \(url.path)")
-        } catch {
-            Logger.shared.log(subsystem: "com.powersurgepub.notenik",
-                              category: "FavoritesToHTML",
-                              level: .error,
-                              message: "Problems writing favorites to \(url.path)")
-            return false
-        }
-        return true
+        return markedup.code
     }
     
     func buildCSS() {

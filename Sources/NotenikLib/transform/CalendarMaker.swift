@@ -110,7 +110,9 @@ public class CalendarMaker {
             startWeekCode(for: date)
         }
         
-        startDayCode(for: date)
+        if currDate != nil && currDate! < date {
+            startDayCode(for: date)
+        }
     }
     
 
@@ -120,14 +122,14 @@ public class CalendarMaker {
         writer.startTable(klass: "notenik-calendar")
         
         writer.startTableRow()
-        writer.startTableHeader(style: "notenik-calendar-name-of-month", colspan: 7)
+        writer.startTableHeader(klass: "notenik-calendar-name-of-month", colspan: 7)
         writer.writeLine("\(date.monthName), \(date.year)")
         writer.finishTableHeader()
         writer.finishTableRow()
         
         writer.startTableRow()
         for dayOfWeek in 1...7 {
-            writer.startTableHeader(style: "notenik-calendar-name-of-day")
+            writer.startTableHeader(klass: "notenik-calendar-name-of-day")
             writer.writeLine(DateUtils.dayOfWeekNames[dayOfWeek])
             writer.finishTableHeader()
         }
@@ -141,7 +143,7 @@ public class CalendarMaker {
         firstDayOfMonth.setDayOfMonth(01)
         let firstDayOfWeek = firstDayOfMonth.dayOfWeek
         if firstDayOfWeek > 1 {
-            writer.startTableData(style: "notenik-calendar-filler", colspan: firstDayOfWeek - 1)
+            writer.startTableData(klass: "notenik-calendar-filler", colspan: firstDayOfWeek - 1)
             writer.writeNonBreakingSpace()
             writer.finishTableData()
         }
@@ -162,7 +164,7 @@ public class CalendarMaker {
         finishDayCode()
         
         if currDate!.dayOfWeek < 7 {
-            writer.startTableData(style: "notenik-calendar-filler", colspan: 7 - currDate!.dayOfWeek)
+            writer.startTableData(klass: "notenik-calendar-filler", colspan: 7 - currDate!.dayOfWeek)
             writer.writeNonBreakingSpace()
             writer.finishTableData()
         }
@@ -183,15 +185,19 @@ public class CalendarMaker {
     }
     
     func startDayCode(for date: SimpleDate) {
-        writer.startTableData(style: "notenik-calendar-day")
+        guard !dayStarted else { return }
+        writer.startTableData(klass: "notenik-calendar-day-data")
+        writer.startParagraph(klass: "notenik-calendar-day-of-month")
         writer.writeLine("\(date.day)")
-        writer.lineBreak()
+        writer.finishParagraph()
+        writer.startParagraph(klass: "notenik-calendar-day-contents")
         currDate = date.copy()
         dayStarted = true
     }
     
     func finishDayCode() {
         guard dayStarted else { return }
+        writer.finishParagraph()
         writer.finishTableData()
         dayStarted = false
     }
