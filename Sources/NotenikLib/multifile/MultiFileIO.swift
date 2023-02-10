@@ -235,10 +235,9 @@ public class MultiFileIO {
     }
     
     public func display() {
-        print("MultiFileIO.display")
         for (key, entry) in entries {
-            print("key = \(key)")
-            entry.display()
+            print("  - key = \(key), path = \(entry.link.path)")
+            // entry.display()
         }
     }
     

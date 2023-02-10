@@ -12,11 +12,21 @@
 
 import Foundation
 import NotenikMkdown
+import NotenikUtils
 
 public class NoteLinkResolution {
     public var fromIO:   NotenikIO?
     public var linkText: String = ""
-    public var linkPath: String = ""
+    
+    public var linkPath: String {
+        get {
+            return _linkPath
+        }
+        set {
+            _linkPath = StringUtils.trim(newValue)
+        }
+    }
+    var _linkPath: String = ""
     public var linkItem: String = ""
     public var linkID:   String = ""
     public var result:   ResolveResult = .badInput
