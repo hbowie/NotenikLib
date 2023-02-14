@@ -124,6 +124,7 @@ public class WebBookMaker {
         parms.mathJax = collection.mathJax
         parms.localMj = false
         parms.curlyApostrophes = collection.curlyApostrophes
+        parms.extLinksOpenInNewWindows = collection.extLinksOpenInNewWindows
         if epub {
             parms.imagesPath = "../\(imagesFolderName)"
         } else {

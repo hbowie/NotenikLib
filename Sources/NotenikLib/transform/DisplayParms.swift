@@ -33,6 +33,7 @@ public class DisplayParms {
     public var localMj = true
     public var localMjUrl: URL?
     public var curlyApostrophes = true
+    public var extLinksOpenInNewWindows = false
     public var imagesPath = ""
     public var header = ""
     public var included = IncludeChildrenValue()
@@ -55,6 +56,7 @@ public class DisplayParms {
         streamlined = collection.streamlined
         mathJax = collection.mathJax
         curlyApostrophes = collection.curlyApostrophes
+        extLinksOpenInNewWindows = collection.extLinksOpenInNewWindows
     }
     
     public func genMkdownOptions() -> MkdownOptions {
@@ -71,6 +73,7 @@ public class DisplayParms {
         options.localMj = localMj
         options.localMjUrl = localMjUrl
         options.curlyApostrophes = curlyApostrophes
+        options.extLinksOpenInNewWindows = extLinksOpenInNewWindows
     }
     
     public var formatIsHTML: Bool {

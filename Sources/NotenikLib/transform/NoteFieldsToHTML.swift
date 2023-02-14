@@ -30,7 +30,7 @@ public class NoteFieldsToHTML {
     
     var quoted = false
     
-    let attribBalancer = LineBalancer(maxChars: 43, sep: " <br>")
+    let attribBalancer = LineBalancer(maxChars: 50, sep: " <br>")
     
     public init() {
         

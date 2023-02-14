@@ -101,6 +101,7 @@ public class WebSiteMaker {
         parms.mathJax = collection.mathJax
         parms.localMj = false
         parms.curlyApostrophes = collection.curlyApostrophes
+        parms.extLinksOpenInNewWindows = collection.extLinksOpenInNewWindows
         parms.imagesPath = "\(imagesFolderName)"
         parms.header = header
         

@@ -86,6 +86,7 @@ public class NotesExporter {
         guard noteIO.collection != nil && noteIO.collectionOpen else { return -1 }
         
         displayParms.curlyApostrophes = collection.curlyApostrophes
+        displayParms.extLinksOpenInNewWindows = collection.extLinksOpenInNewWindows
         
         exportErrors = 0
         
@@ -189,6 +190,7 @@ public class NotesExporter {
         displayParms.mathJax = collection.mathJax
         displayParms.localMj = false
         displayParms.curlyApostrophes = collection.curlyApostrophes
+        displayParms.extLinksOpenInNewWindows = collection.extLinksOpenInNewWindows
         displayParms.concatenated = true
         
         markup = Markedup(format: markupFormat)

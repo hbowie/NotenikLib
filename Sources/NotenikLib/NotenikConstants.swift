@@ -218,6 +218,8 @@ public struct NotenikConstants {
     static let missingTargetsCommon     = "missingtargets"
     static let curlyAposts              = "Curly Apostrophes"
     static let curlyApostsCommon        = "curlyapostrophes"
+    static let extLinksNewWindows       = "Ext Links Open in New Windows"
+    static let extLinksNewWindowsCommon = "extlinksopeninnewwindows"
     static let windowNumbers            = "Window Numbers"
     static let windowNumbersCommon      = "windownumbers"
     static let columnWidths             = "Column Widths"

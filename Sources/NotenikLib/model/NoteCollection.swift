@@ -48,6 +48,7 @@ public class NoteCollection {
     public  var imgLocal = false
     public  var missingTargets = false
     public  var curlyApostrophes = true
+    public  var extLinksOpenInNewWindows = false
     public  var lastStartupDate = ""
             var todaysDate = ""
     
