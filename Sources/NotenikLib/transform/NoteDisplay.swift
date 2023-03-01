@@ -149,7 +149,7 @@ public class NoteDisplay {
                 topHTML.append("\(parentSeq) ")
             }
         }
-        topHTML.link(text: parentTitle, path: parms.assembleWikiLink(title: parentTitle))
+        topHTML.link(text: parentTitle, path: parms.assembleWikiLink(title: parentTitle), klass: Markedup.htmlClassNavLink)
         topHTML.append("&nbsp;")
         topHTML.append("&#8593;")
         topHTML.finishParagraph()
@@ -265,7 +265,7 @@ public class NoteDisplay {
         } else {
             bottomHTML.startParagraph()
             bottomHTML.append("Next: ")
-            bottomHTML.link(text: nextTitle, path: parms.assembleWikiLink(title: nextTitle))
+            bottomHTML.link(text: nextTitle, path: parms.assembleWikiLink(title: nextTitle), klass: Markedup.htmlClassNavLink)
             bottomHTML.finishParagraph()
         }
         
@@ -278,7 +278,7 @@ public class NoteDisplay {
         let firstTitle = firstNote!.title.value
         bottomHTML.startParagraph()
         bottomHTML.append("Back to Top: ")
-        bottomHTML.link(text: firstTitle, path: parms.assembleWikiLink(title: firstTitle))
+        bottomHTML.link(text: firstTitle, path: parms.assembleWikiLink(title: firstTitle), klass: Markedup.htmlClassNavLink)
         bottomHTML.finishParagraph()
     }
     
@@ -386,7 +386,7 @@ public class NoteDisplay {
                     if !tocNote.klass.frontOrBack {
                         bottomHTML.append("\(tocNote.formattedSeq) ")
                     }
-                    bottomHTML.link(text: tocTitle, path: parms.assembleWikiLink(title: tocTitle))
+                    bottomHTML.link(text: tocTitle, path: parms.assembleWikiLink(title: tocTitle), klass: Markedup.htmlClassNavLink)
                     /*
                     let aka = tocNote.aka.value
                     if !aka.isEmpty && (tocTitle.count + aka.count) < 60 {

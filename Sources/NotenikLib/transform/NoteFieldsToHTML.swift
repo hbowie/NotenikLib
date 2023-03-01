@@ -333,11 +333,20 @@ public class NoteFieldsToHTML {
             code.startParagraph()
             code.append(field.def.fieldLabel.properForm)
             code.append(": ")
-            var pathDisplay = field.value.value.removingPercentEncoding
+            let path = field.value.value
+            var pathDisplay = path.removingPercentEncoding
             if pathDisplay == nil {
-                pathDisplay = field.value.value
+                pathDisplay = path
             }
-            code.link(text: pathDisplay!, path: field.value.value)
+            var blankTarget = collection.extLinksOpenInNewWindows
+            if blankTarget {
+                if !(path.starts(with: "https://") || path.starts(with: "http://") || path.starts(with: "www.")) {
+                    blankTarget = false
+                }
+            }
+            code.link(text: pathDisplay!,
+                      path: path,
+                      blankTarget: blankTarget)
             code.finishParagraph()
         } else if field.def.fieldType is AttribType {
             markdownToMarkedup(markdown: field.value.value,

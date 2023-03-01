@@ -220,7 +220,7 @@ public class NotesMkdownContext: MkdownContext {
         let title = note.title.value
         let link = displayParms.assembleWikiLink(title: title)
         let text = htmlConverter.convert(from: title)
-        toc.link(text: text, path: link)
+        toc.link(text: text, path: link, klass: Markedup.htmlClassNavLink)
     }
     
     func closeTocEntries(downTo: Int) {
@@ -271,7 +271,7 @@ public class NotesMkdownContext: MkdownContext {
         for term in indexCollection.list {
             let initialLetter = term.term.prefix(1).uppercased()
             if initialLetter != lastLetter {
-                mkdown.link(text: initialLetter, path: "#letter-\(initialLetter.lowercased())")
+                mkdown.link(text: initialLetter, path: "#letter-\(initialLetter.lowercased())", klass: Markedup.htmlClassNavLink)
                 mkdown.newLine()
                 lastLetter = initialLetter
             }
@@ -300,7 +300,7 @@ public class NotesMkdownContext: MkdownContext {
                 mkdown.startDefDef()
                 let link = displayParms.assembleWikiLink(title: ref.page)
                 let text = htmlConverter.convert(from: ref.page)
-                mkdown.link(text: text, path: link)
+                mkdown.link(text: text, path: link, klass: Markedup.htmlClassNavLink)
                 mkdown.finishDefDef()
             }
         }
@@ -417,7 +417,7 @@ public class NotesMkdownContext: MkdownContext {
                 let html =
                     '<div id="search-result-' + id + '">' +
                         '<h4>' +
-                            '<a href="' + article.url + '">' +
+                            '<a href="' + article.url + '" class="nav-link">' +
                                 article.title +
                             '</a>' +
                         '</h2>' +
@@ -634,7 +634,7 @@ public class NotesMkdownContext: MkdownContext {
                     tagsCode.write("\(seq) ")
                 }
                 let text = htmlConverter.convert(from: title)
-                tagsCode.link(text: text, path: link)
+                tagsCode.link(text: text, path: link, klass: Markedup.htmlClassNavLink)
                 tagsCode.finishListItem()
             }
         }
@@ -842,7 +842,7 @@ public class NotesMkdownContext: MkdownContext {
             let link = displayParms.assembleWikiLink(title: title)
             let text = htmlConverter.convert(from: title)
             tagsCode.startListItem()
-            tagsCode.link(text: text, path: link)
+            tagsCode.link(text: text, path: link, klass: Markedup.htmlClassNavLink)
             tagsCode.finishListItem()
 
         }
