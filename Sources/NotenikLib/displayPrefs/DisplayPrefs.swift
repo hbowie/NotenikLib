@@ -3,13 +3,15 @@
 //  NotenikLib
 //
 //  Created by Herb Bowie on 5/8/19.
-//  Copyright © 2019-2023 Herb Bowie (https://hbowie.net)
+//  Copyright © 2019 - 2023 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
 //
 
 import Foundation
+
+import NotenikUtils
 
 /// A Singleton Class for sharing and updating appearance preferences for the Display tab.
 /// This is also the source of default CSS used for the display.
@@ -19,23 +21,25 @@ public class DisplayPrefs {
     public static let shared = DisplayPrefs()
     
     let defaults = UserDefaults.standard
-    
     let appPrefs = AppPrefs.shared
     
     let longFontListKey = "long-font-list"
     var _longFontList = false
     let defaultLongFontList = false
     
-    let displayFontKey = "display-font"
-    var _displayFont: String?
-    let defaultFont = "Verdana"
-    
-    let displaySizeKey = "display-size"
-    var _displaySize: String?
-    let defaultSize = "12"
+    public var bodySpecs = FontSpecs(fontsFor: .body)
+    public var headingSpecs = FontSpecs(fontsFor: .headings)
     
     let fontCSSKey = "display-css"
     var _fontCSS: String?
+    
+    let headingCenterStartKey = "heading-center-start"
+    var _headingCenterStart = 0
+    let defaultHeadingCenterStart = 0
+    
+    let headingCenterFinishKey = "heading-center-finish"
+    var _headingCenterFinish = 0
+    let defaultHeadingCenterFinish = 0
     
     var displayMaster: NoteDisplayMaster?
     
@@ -44,29 +48,30 @@ public class DisplayPrefs {
         
         _longFontList = defaults.bool(forKey: longFontListKey)
         
-        _displayFont = defaults.string(forKey: displayFontKey)
-        if _displayFont == nil || _displayFont!.count == 0 {
-            _ = setDefaultFont()
-        }
-        
-        _displaySize = defaults.string(forKey: displaySizeKey)
-        if _displaySize == nil || _displaySize!.count == 0 {
-            setDefaultSize()
-        }
+        bodySpecs.loadDefaults()
+        headingSpecs.loadDefaults()
         
         _fontCSS = defaults.string(forKey: fontCSSKey)
         if _fontCSS == nil || _fontCSS!.count == 0 {
             buildFontCSS()
         }
+        
+        _headingCenterStart = defaults.integer(forKey: headingCenterStartKey)
+        _headingCenterFinish = defaults.integer(forKey: headingCenterFinishKey)
     }
     
-    public func setDefaultFont() -> String {
-        font = defaultFont
-        return font
+    public func saveLatestFontSpecs() {
+        bodySpecs.saveLatest()
+        headingSpecs.saveLatest()
     }
     
-    func setDefaultSize() {
-        size = defaultSize
+    public func getSpecs(fontsFor: FontsFor) -> FontSpecs {
+        switch fontsFor {
+        case .body:
+            return bodySpecs
+        case .headings:
+            return headingSpecs
+        }
     }
     
     public var longFontList: Bool {
@@ -76,34 +81,6 @@ public class DisplayPrefs {
         set {
             _longFontList = newValue
             defaults.set(newValue, forKey: longFontListKey)
-        }
-    }
-    
-    public var font: String {
-        get {
-            return _displayFont!
-        }
-        set {
-            _displayFont = newValue
-            defaults.set(_displayFont, forKey: displayFontKey)
-        }
-    }
-    
-    var sizePlusUnit: String? {
-        if _displaySize == nil {
-            return nil
-        } else {
-            return _displaySize! + "pt"
-        }
-    }
-    
-    public var size: String? {
-        get {
-            return _displaySize
-        }
-        set {
-            _displaySize = newValue
-            defaults.set(_displaySize, forKey: displaySizeKey)
         }
     }
     
@@ -117,28 +94,32 @@ public class DisplayPrefs {
         }
     }
     
-    public func buildFontCSS() {
-        var tempCSS = ""
-        tempCSS += "font-family: "
-        tempCSS += "\"" + font + "\""
-        tempCSS += ", \"Helvetica Neue\", Helvetica, Arial, sans-serif;\n"
-        tempCSS += "font-size: "
-        if size == nil {
-            setDefaultSize()
+    public var headingCenterStart: Int {
+        get {
+            return _headingCenterStart
         }
-        tempCSS += sizePlusUnit!
-        fontCSS = tempCSS
+        set {
+            _headingCenterStart = newValue
+            defaults.set(_headingCenterStart, forKey: headingCenterStartKey)
+        }
+    }
+    
+    public var headingCenterFinish: Int {
+        get {
+            return _headingCenterFinish
+        }
+        set {
+            _headingCenterFinish = newValue
+            defaults.set(_headingCenterFinish, forKey: headingCenterFinishKey)
+        }
+    }
+    
+    public func buildFontCSS() {
+        fontCSS = bodySpecs.buildFontCSS(indent: 0)
     }
     
     public func buildCSS(f: String, s: String) -> String {
-        var tempCSS = ""
-        tempCSS += "font-family: "
-        tempCSS += "\"" + f + "\""
-        tempCSS += ", \"Helvetica Neue\", Helvetica, Arial, sans-serif;\n"
-        tempCSS += "font-size: "
-        tempCSS += s
-        tempCSS += "pt"
-        return tempCSS
+        return bodySpecs.buildCSS(f: f, s: s, indent: 2)
     }
     
     /// Supply the complete CSS to be used for displaying a Note.
@@ -180,12 +161,6 @@ public class DisplayPrefs {
           max-width: 100%;
           height: auto;
         }
-        h1 { font-size: 2.0em; margin-top: 0.7em; margin-bottom: 0.0em; font-weight: 600; font-style: normal;  }
-        h2 { font-size: 1.8em; margin-top: 0.7em; margin-bottom: 0.0em; font-weight: 600; font-style: normal;  }
-        h3 { font-size: 1.6em; margin-top: 0.7em; margin-bottom: 0.0em; font-weight: 600; font-style: normal;  }
-        h4 { font-size: 1.4em; margin-top: 0.7em; margin-bottom: 0.0em; font-weight: 600; font-style: normal;  }
-        h5 { font-size: 1.2em; margin-top: 0.7em; margin-bottom: 0.0em; font-weight: 600; font-style: normal;  }
-        h6 { font-size: 1.0em; margin-top: 0.7em; margin-bottom: 0.0em; font-weight: 600; font-style: normal;  }
         
         li { margin-top: 0.2em; margin-bottom: 0.2em; }
         ul.checklist { list-style-type: none; }
@@ -278,6 +253,7 @@ public class DisplayPrefs {
         }
         
         """)
+        tempCSS.append(buildHeadingsCSS())
         
         // tempCSS.append("\ncode { overflow: auto }")
         return tempCSS
@@ -291,6 +267,60 @@ public class DisplayPrefs {
         tempCSS.append(" }")
         // tempCSS.append("\ncode { overflow: auto }")
         return tempCSS
+    }
+    
+    public func buildHeadingsCSS() -> String {
+        return buildHeadingCSS(centerStart: headingCenterStart,
+                               centerFinish: headingCenterFinish,
+                               bodyFont: bodySpecs.font,
+                               headingsFont: headingSpecs.font,
+                               headingsSize: headingSpecs.size!)
+    }
+    
+    public func buildHeadingCSS(centerStart: Int,
+                                centerFinish: Int,
+                                bodyFont: String,
+                                headingsFont: String,
+                                headingsSize: String) -> String {
+        
+        var hc = ""
+        var fontWeight = "600"
+        if bodyFont != headingsFont {
+            fontWeight = "400"
+        }
+        hc.append("""
+        h1, h2, h3, h4, h5, h6 {
+            font-family: \"\(headingsFont)\", Helvetica, Arial, sans-serif;
+            font-weight: \(fontWeight);
+            margin-top: 0.7em;
+            margin-bottom: 0.0em;
+            font-style: normal;
+        }
+        
+        """
+        )
+        
+        var fontSize: Float = 2.0
+        if let fs = Float(headingsSize) {
+            fontSize = fs
+        }
+        for i in 1...6 {
+            var ta = "center"
+            if centerStart < 1 || i < centerStart || i > centerFinish {
+                ta = "left"
+            }
+            let emSize = String(format: "%.1f", fontSize)
+            hc.append("""
+            h\(i) {
+                text-align: \(ta);
+                font-size: \(emSize)em;
+            }
+            
+            """
+            )
+            fontSize -= 0.2
+        }
+        return hc
     }
     
     public func darkModeAdjustments() -> String {
