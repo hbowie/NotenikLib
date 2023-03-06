@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 6/3/19.
-//  Copyright © 2019 - 2022 Herb Bowie (https://hbowie.net)
+//  Copyright © 2019 - 2023 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -1166,6 +1166,9 @@ public class TemplateUtil {
         case NotenikConstants.childrenSlugCommon:
             return genChildrenSlug(fromNote: fromNote, position: position)
             
+        case NotenikConstants.titleDisplaySlugCommon:
+            return genTitleDisplaySlug(fromNote: fromNote)
+            
         default:
             break
         }
@@ -1212,7 +1215,7 @@ public class TemplateUtil {
         let nextHTML = Markedup()
         nextHTML.startParagraph()
         nextHTML.append(label)
-        nextHTML.link(text: title, path: parms.assembleWikiLink(title: title))
+        nextHTML.link(text: title, path: parms.assembleWikiLink(title: title), klass: Markedup.htmlClassNavLink)
         nextHTML.finishParagraph()
         return nextHTML.code
     }
@@ -1243,14 +1246,13 @@ public class TemplateUtil {
         let parentTitle = parent.title.value
         let parentSeq = parent.seq
         let parentHTML = Markedup()
-        parentHTML.horizontalRule()
         parentHTML.startParagraph()
         if parentSeq.count > 0 {
             if !parent.klass.frontOrBack {
                 parentHTML.append("\(parentSeq) ")
             }
         }
-        parentHTML.link(text: parentTitle, path: parms.assembleWikiLink(title: parentTitle))
+        parentHTML.link(text: parentTitle, path: parms.assembleWikiLink(title: parentTitle), klass: Markedup.htmlClassNavLink)
         parentHTML.append("&nbsp;")
         parentHTML.append("&#8593;")
         parentHTML.finishParagraph()
@@ -1272,9 +1274,8 @@ public class TemplateUtil {
         guard childDepth > parentDepth else { return "" }
         
         let childrenHTML = Markedup()
-        childrenHTML.horizontalRule()
         childrenHTML.heading(level: 4, text: "Contents")
-        childrenHTML.startUnorderedList(klass: nil)
+        childrenHTML.startUnorderedList(klass: "notenik-toc")
         while nextPosition < notesList.count && nextDepth > parentDepth {
             if nextDepth == childDepth {
                 let tocTitle = nextNote.title.value
@@ -1282,7 +1283,7 @@ public class TemplateUtil {
                 if !nextNote.klass.frontOrBack {
                     childrenHTML.append("\(nextNote.formattedSeq) ")
                 }
-                childrenHTML.link(text: tocTitle, path: parms.assembleWikiLink(title: tocTitle))
+                childrenHTML.link(text: tocTitle, path: parms.assembleWikiLink(title: tocTitle), klass: Markedup.htmlClassNavLink)
                 childrenHTML.finishListItem()
             }
             nextPosition += 1
@@ -1293,6 +1294,7 @@ public class TemplateUtil {
         }
         
         childrenHTML.finishUnorderedList()
+        childrenHTML.horizontalRule()
 
         return childrenHTML.code
     }
@@ -1465,6 +1467,36 @@ public class TemplateUtil {
         if useFigure {
             markedUp.finishFigure()
         }
+        return markedUp.code
+    }
+    
+    /// Generate a Title line based on the Note's title.
+    func genTitleDisplaySlug(fromNote: Note) -> String {
+        
+        let markedUp = Markedup(format: .htmlFragment)
+        
+        var lineDisplayOpt: LineDisplayOption = .pBold
+        var depth = 1
+        if let collection = workspace?.collection {
+            lineDisplayOpt = collection.titleDisplayOption
+            if collection.levelFieldDef != nil {
+                let levelValue = fromNote.level
+                depth = levelValue.level
+            }
+        }
+        
+        var titleToDisplay = fromNote.title.value
+        if fromNote.hasSeq() && !parms.included.asList {
+            if !fromNote.klass.frontOrBack && !fromNote.klass.quote {
+                titleToDisplay = fromNote.formattedSeq + " " + fromNote.title.value
+            }
+        }
+        
+        markedUp.displayLine(opt: lineDisplayOpt,
+                             text: titleToDisplay,
+                             depth: depth,
+                             addID: true,
+                             idText: fromNote.title.value)
         return markedUp.code
     }
     

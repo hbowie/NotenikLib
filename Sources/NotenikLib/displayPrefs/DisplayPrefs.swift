@@ -139,6 +139,10 @@ public class DisplayPrefs {
         }
         tempCSS.append("""
         }
+        p {
+            margin-top: 0.2em;
+            margin-bottom: 0.7em;
+        }
         blockquote {
           border-left: 0.4em solid #999;
           margin-left: 0;
@@ -153,6 +157,7 @@ public class DisplayPrefs {
         }
         table {
           border-collapse: collapse;
+          margin-bottom: 0.7em;
         }
         th, td {
           padding: 6px;
