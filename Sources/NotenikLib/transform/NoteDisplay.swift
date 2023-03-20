@@ -384,7 +384,7 @@ public class NoteDisplay {
                     let tocTitle = tocNote.title.value
                     bottomHTML.startListItem()
                     if !tocNote.klass.frontOrBack {
-                        bottomHTML.append("\(tocNote.formattedSeq) ")
+                        bottomHTML.append("\(tocNote.formattedSeqForDisplay) ")
                     }
                     bottomHTML.link(text: tocTitle, path: parms.assembleWikiLink(title: tocTitle), klass: Markedup.htmlClassNavLink)
                     /*

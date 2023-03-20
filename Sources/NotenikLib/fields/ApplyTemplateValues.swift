@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 1/20/21.
 //
-//  Copyright © 2021 Herb Bowie (https://hbowie.net)
+//  Copyright © 2021 - 2023 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -126,6 +126,10 @@ class ApplyTemplateValues {
         } else if typeStrCommon == NotenikConstants.lookupType {
             def.fieldType = collection.typeCatalog.assignType(label: def.fieldLabel, type: typeStrCommon)
             def.lookupFrom = typeValues.str
+        } else if typeStrCommon == NotenikConstants.displaySeqCommon && !typeValues.isEmpty {
+            let seqAltType = DisplaySeqType()
+            seqAltType.formatString = typeValues.str
+            def.fieldType = seqAltType
         } else {
             def.fieldType = collection.typeCatalog.assignType(label: def.fieldLabel, type: typeStrCommon)
             def.pickList = def.fieldType.genPickList()

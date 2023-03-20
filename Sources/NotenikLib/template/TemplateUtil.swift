@@ -1201,6 +1201,35 @@ public class TemplateUtil {
         }
     }
     
+    func genTitleDisplaySlug(fromNote: Note) -> String {
+        
+        let markedUp = Markedup(format: .htmlFragment)
+        
+        var lineDisplayOpt: LineDisplayOption = .pBold
+        var depth = 1
+        if let collection = workspace?.collection {
+            lineDisplayOpt = collection.titleDisplayOption
+            if collection.levelFieldDef != nil {
+                let levelValue = fromNote.level
+                depth = levelValue.level
+            }
+        }
+        
+        var titleToDisplay = fromNote.title.value
+        if !parms.included.asList {
+            if fromNote.hasSeq() || fromNote.hasDisplaySeq() {
+                titleToDisplay = fromNote.formattedSeqForDisplay + " " + fromNote.title.value
+            }
+        }
+        
+        markedUp.displayLine(opt: lineDisplayOpt,
+                             text: titleToDisplay,
+                             depth: depth,
+                             addID: true,
+                             idText: fromNote.title.value)
+        return markedUp.code
+    }
+    
     func genNextSlug(fromNote: Note, position: Int) -> String {
         
         var label = "Next: "
@@ -1281,7 +1310,7 @@ public class TemplateUtil {
                 let tocTitle = nextNote.title.value
                 childrenHTML.startListItem()
                 if !nextNote.klass.frontOrBack {
-                    childrenHTML.append("\(nextNote.formattedSeq) ")
+                    childrenHTML.append("\(nextNote.formattedSeqForDisplay) ")
                 }
                 childrenHTML.link(text: tocTitle, path: parms.assembleWikiLink(title: tocTitle), klass: Markedup.htmlClassNavLink)
                 childrenHTML.finishListItem()
@@ -1467,36 +1496,6 @@ public class TemplateUtil {
         if useFigure {
             markedUp.finishFigure()
         }
-        return markedUp.code
-    }
-    
-    /// Generate a Title line based on the Note's title.
-    func genTitleDisplaySlug(fromNote: Note) -> String {
-        
-        let markedUp = Markedup(format: .htmlFragment)
-        
-        var lineDisplayOpt: LineDisplayOption = .pBold
-        var depth = 1
-        if let collection = workspace?.collection {
-            lineDisplayOpt = collection.titleDisplayOption
-            if collection.levelFieldDef != nil {
-                let levelValue = fromNote.level
-                depth = levelValue.level
-            }
-        }
-        
-        var titleToDisplay = fromNote.title.value
-        if fromNote.hasSeq() && !parms.included.asList {
-            if !fromNote.klass.frontOrBack && !fromNote.klass.quote {
-                titleToDisplay = fromNote.formattedSeq + " " + fromNote.title.value
-            }
-        }
-        
-        markedUp.displayLine(opt: lineDisplayOpt,
-                             text: titleToDisplay,
-                             depth: depth,
-                             addID: true,
-                             idText: fromNote.title.value)
         return markedUp.code
     }
     

@@ -993,6 +993,19 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
         }
     }
     
+ 
+    //
+    // Return the appropriate seq field.
+    //
+   
+    public var formattedSeqForDisplay: String {
+        if hasDisplaySeq() {
+            return formattedDisplaySeq
+        } else {
+            return formattedSeq
+        }
+    }
+    
     //
     // Functions and variables concerning the Note's seq field.
     //
@@ -1029,6 +1042,46 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
         guard let seqValue = getFieldAsValue(def: collection.seqFieldDef!) as? SeqValue else { return "" }
 
         return collection.seqFormatter.format(seq: seqValue)
+    }
+    //
+    // Functions and variables concerning the Note's Display Seq field.
+    //
+    
+    // Does this note have a non-blank Display Sequence field?
+    public func hasDisplaySeq() -> Bool {
+        guard let def = collection.displaySeqFieldDef else { return false }
+        let val = getFieldAsValue(def: def)
+        return (val.count > 0)
+    }
+    
+    /// Set the Note's Display Sequence value
+    public func setDisplaySeq(_ displaySeq: String) -> Bool {
+        guard collection.displaySeqFieldDef != nil else { return false }
+        return setField(label: collection.displaySeqFieldDef!.fieldLabel.commonForm,
+                        value: displaySeq)
+    }
+    
+    /// Return the Note's Display Sequence Value
+    public var displaySeq: DisplaySeqValue {
+        guard collection.displaySeqFieldDef != nil else {
+            return DisplaySeqValue()
+        }
+        let val = getFieldAsValue(def: collection.displaySeqFieldDef!)
+        if val is DisplaySeqValue {
+            return val as! DisplaySeqValue
+        } else {
+            return DisplaySeqValue(val.value)
+        }
+    }
+    
+    /// Return a formatted Seq, basec on Collection prefs
+    public var formattedDisplaySeq: String {
+        
+        guard let def = collection.displaySeqFieldDef else { return "" }
+        guard let type = def.fieldType as? DisplaySeqType else { return "" }
+        let val = getFieldAsString(label: def.fieldLabel.commonForm)
+        let formatted = type.formatString.replacingOccurrences(of: "XXX", with: val).replacingOccurrences(of: "_", with: " ")
+        return formatted
     }
     
     //

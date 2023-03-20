@@ -3,7 +3,7 @@
 //  NotenikLib
 //
 //  Created by Herb Bowie on 10/25/19.
-//  Copyright © 2019 - 2022 Herb Bowie (https://hbowie.net)
+//  Copyright © 2019 - 2023 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -42,6 +42,7 @@ public class AllTypes {
     let ratingType  = RatingType()
     let recursType  = RecursType()
     let seqType     = SeqType()
+    let displaySeqType  = DisplaySeqType()
     let shortIdType = ShortIdType()
     let statusType  = StatusType()
     let stringType  = StringType()
@@ -130,6 +131,7 @@ public class AllTypes {
         fieldTypes.append(ratingType)
         fieldTypes.append(recursType)
         fieldTypes.append(seqType)
+        fieldTypes.append(displaySeqType)
         fieldTypes.append(shortIdType)
         fieldTypes.append(statusType)
         fieldTypes.append(stringType)

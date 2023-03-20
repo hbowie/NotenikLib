@@ -69,6 +69,7 @@ public class NoteCollection {
     public  var rankFieldDef:   FieldDefinition?
     public  var levelFieldDef:  FieldDefinition?
     public  var seqFieldDef:    FieldDefinition?
+    public  var displaySeqFieldDef: FieldDefinition?
     public  var klassFieldDef:  FieldDefinition?
     public  var includeChildrenDef: FieldDefinition?
     public  var attribFieldDef: FieldDefinition?
@@ -461,6 +462,11 @@ public class NoteCollection {
                 seqFieldDef = def
             }
             
+        case NotenikConstants.displaySeqCommon:
+            if displaySeqFieldDef == nil {
+                displaySeqFieldDef = def
+            }
+            
         case NotenikConstants.teaserCommon:
             if teaserFieldDef == nil {
                 teaserFieldDef = def
@@ -567,6 +573,9 @@ public class NoteCollection {
         }
         if seqFieldDef != nil {
             print("  - Seq Field: \(seqFieldDef!.fieldLabel.properForm)")
+        }
+        if displaySeqFieldDef != nil {
+            print("  - Seq Alt Field: \(displaySeqFieldDef!.fieldLabel.properForm)")
         }
         if klassFieldDef != nil {
             print("  - Class Field: \(klassFieldDef!.fieldLabel.properForm)")

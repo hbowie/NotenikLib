@@ -392,6 +392,8 @@ public class NoteFieldsToHTML {
                 break
             case NotenikConstants.seqCommon:
                 break
+            case NotenikConstants.displaySeqCommon:
+                break
             case NotenikConstants.teaserCommon:
                 displayMarkdown(field, markedup: code, mkdownContext: mkdownContext)
                 if !collection.bodyLabel && note.hasBody() {
@@ -496,9 +498,13 @@ public class NoteFieldsToHTML {
     func displayTitle(note: Note, markedup: Markedup) {
         
         var titleToDisplay = note.title.value
-        if parms.streamlined && note.hasSeq() && !parms.included.asList{
+        if parms.streamlined && (note.hasSeq() || note.hasDisplaySeq()) && !parms.included.asList {
             if !note.klass.frontOrBack && !note.klass.quote {
-                titleToDisplay = note.formattedSeq + " " + note.title.value
+                if note.hasDisplaySeq() {
+                    titleToDisplay = note.formattedDisplaySeq + note.title.value
+                } else {
+                    titleToDisplay = note.formattedSeq + " " + note.title.value
+                }
             }
         }
         
