@@ -751,7 +751,7 @@ public class NotesMkdownContext: MkdownContext {
         
         displayParms.format = startingFormat
         if displayedChildCount > 0 {
-            collection.teasers = true
+            collection.skipContentsForParent = true
         }
         
         return teasers.code
@@ -860,6 +860,143 @@ public class NotesMkdownContext: MkdownContext {
         }
         tagsCode.heading(level: 5, text: tagsConcat, addID: true, idText: "tags.\(tagsConcat)")
         tagsCode.startUnorderedList(klass: nil)
+    }
+    
+    var author = ""
+    
+    /// Generate a bibliography from Notes following this one.
+    public func mkdownBibliography() -> String {
+        guard let collection = io.collection else { return "" }
+        guard io.collectionOpen else { return "" }
+        
+        guard collection.seqFieldDef != nil else { return "" }
+        guard collection.levelFieldDef != nil else { return "" }
+        guard collection.sortParm == .seqPlusTitle else { return "" }
+        
+        guard let parent = io.getNote(knownAs: collection.titleToParse) else { return "" }
+        
+        hasLevel = (collection.levelFieldDef != nil)
+        hasSeq = (collection.seqFieldDef != nil)
+        
+        let currentPosition = io.positionOfNote(parent)
+        var (nextNote, nextPosition) = io.nextNote(currentPosition)
+        guard nextPosition.valid && nextNote != nil else { return "" }
+        
+        let biblio = Markedup(format: .htmlFragment)
+        biblio.startOrderedList(klass: "notenik-biblio-list")
+        let startingFormat = displayParms.format
+        displayParms.format = .htmlFragment
+        
+        var worksCount = 0
+        var authorKlassFound = false
+        
+        while nextNote != nil
+                && nextPosition.valid
+                && nextNote!.level > parent.level
+                && nextNote!.seq > parent.seq {
+            
+            if nextNote!.klass.value == NotenikConstants.authorKlass {
+                author = nextNote!.title.value
+                authorKlassFound = true
+            }
+            
+            if nextNote!.hasAuthor() && !authorKlassFound {
+                author = nextNote!.author.lastNameFirst
+            }
+            
+            if (nextNote!.klass.value == NotenikConstants.workKlass || nextNote!.hasWorkTitle()) && !author.isEmpty {
+                biblio.startListItem()
+                
+                // Author
+                if authorKlassFound {
+                    let link = displayParms.assembleWikiLink(title: author)
+                    let text = htmlConverter.convert(from: author)
+                    biblio.link(text: text, path: link, klass: Markedup.htmlClassNavLink)
+                    biblio.append(" ")
+                } else {
+                    biblio.append("\(author) ")
+                }
+                
+                // Date
+                if nextNote!.hasDate() {
+                    biblio.append("(\(nextNote!.date.value)) ")
+                }
+                
+                // Title of Work
+                var workTitle = ""
+                if nextNote!.klass.value == NotenikConstants.workKlass {
+                    workTitle = nextNote!.title.value
+                } else {
+                    workTitle = nextNote!.workTitle.value
+                }
+                let workType = nextNote!.workType
+                var citeKlass = ""
+                if workType.isMajor {
+                    citeKlass = "notenik-cite-major"
+                } else {
+                    citeKlass = "notenik-cite-minor"
+                }
+                
+                biblio.startCite(klass: citeKlass)
+                if !workType.isMajor {
+                    biblio.leftDoubleQuote()
+                }
+                if nextNote!.klass.value == NotenikConstants.workKlass {
+                    let link = displayParms.assembleWikiLink(title: workTitle)
+                    let text = htmlConverter.convert(from: workTitle)
+                    biblio.link(text: text, path: link, klass: Markedup.htmlClassNavLink)
+                } else {
+                    biblio.append(workTitle)
+                }
+                
+                if !workType.isMajor {
+                    biblio.rightDoubleQuote()
+                }
+                biblio.finishCite()
+                let workMajorTitle = nextNote!.getFieldAsString(label: "workmajortitle")
+                if !workMajorTitle.isEmpty {
+                    biblio.append(", ")
+                    biblio.startCite(klass: "notenik-cite-major")
+                    biblio.append(workMajorTitle)
+                    biblio.finishCite()
+                }
+                biblio.append(". ")
+                
+                let publisher = nextNote!.getFieldAsString(label: NotenikConstants.publisherCommon)
+                let pubCity = nextNote!.getFieldAsString(label: NotenikConstants.pubCityCommon)
+                if !publisher.isEmpty {
+                    if !pubCity.isEmpty {
+                        biblio.append("\(pubCity): ")
+                    }
+                    biblio.append("\(publisher). ")
+                }
+                
+                // Web Link
+                var workLink = ""
+                if nextNote!.hasLink() {
+                    workLink = nextNote!.link.value
+                }
+                if !workLink.isEmpty {
+                    biblio.startLink(path: workLink, klass: "ext-link", blankTarget: true)
+                    biblio.append("Link")
+                    biblio.finishLink()
+                }
+                biblio.finishListItem()
+                worksCount += 1
+            }
+            
+            (nextNote, nextPosition) = io.nextNote(nextPosition)
+        }
+
+        biblio.finishOrderedList()
+        
+        displayParms.format = startingFormat
+        
+        if worksCount > 0 {
+            collection.skipContentsForParent = true
+        }
+        
+        return biblio.code
     }
     
     /// Send an informational message to the log.

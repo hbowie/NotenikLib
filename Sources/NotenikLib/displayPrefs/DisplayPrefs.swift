@@ -205,6 +205,22 @@ public class DisplayPrefs {
         figure.notenik-quote-attrib figcaption {
             text-align: right;
         }
+        ol.notenik-biblio-list {
+          list-style-type: none;
+          margin-left: 0;
+          padding-left: 0;
+        }
+        ol.notenik-biblio-list li {
+          margin-left: 3em;
+          text-indent: -3em;
+          margin-bottom: 1em;
+        }
+        cite.notenik-cite-major {
+          font-style: italic;
+        }
+        cite.notenik-cite-minor {
+          font-style: normal;
+        }
         .notenik-aka {
             font-style: italic;
             text-align: center;

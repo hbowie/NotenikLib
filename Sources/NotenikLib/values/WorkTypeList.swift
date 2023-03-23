@@ -16,7 +16,7 @@ public class WorkTypeList {
     
     public static let shared = WorkTypeList()
     
-    public let originalTypes = ["unknown", "Album", "Article", "Blog Post", "Book", "CD", "Comment", "Conference", "Decision", "Editorial", "Essay", "Film", "Interview", "Lecture", "Letter", "Novel", "Obituary", "Opinion", "Paper", "Play", "Podcast", "Poem", "Preface", "Presentation", "Remarks", "Sermon", "Song", "Speech", "Story", "Television Show", "Video"]
+    public let originalTypes = ["unknown", "Album", "Article", "Blog Post", "Book", "CD", "Comment", "Conference", "Decision", "Editorial", "Essay", "Film", "Interview", "Lecture", "Letter", "Novel", "Obituary", "Opinion", "Paper", "Play", "Podcast", "Poem", "Preface", "Presentation", "Remarks", "Sermon", "Song", "Speech", "Story", "Television Show", "Video", "Web Page"]
     
     public var allTypes: [String] = []
     

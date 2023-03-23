@@ -119,15 +119,20 @@ public class AuthorValue: StringValue, MultiValues {
                 i += 1
             }
         } else {
-            lnf.append(lastName)
-            if lnf.count > 0 && firstName.count > 0 {
-                lnf.append(", ")
+            let lastNameLowered = lastName.lowercased()
+            if lastNameLowered == "association" {
+                lnf = firstNameFirst
+            } else {
+                lnf.append(lastName)
+                if lnf.count > 0 && firstName.count > 0 {
+                    lnf.append(", ")
+                }
+                lnf.append(firstName)
+                if lnf.count > 0 && suffix.count > 0 {
+                    lnf.append(" ")
+                }
+                lnf.append(suffix)
             }
-            lnf.append(firstName)
-            if lnf.count > 0 && suffix.count > 0 {
-                lnf.append(" ")
-            }
-            lnf.append(suffix)
         }
         return lnf
     }

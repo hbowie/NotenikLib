@@ -102,7 +102,7 @@ public class NoteCollection {
     
     public  var titleToParse   = ""
     public  var tocNoteID      = ""
-    public  var teasers        = false
+    public  var skipContentsForParent = false
     
     public  var windowPosStr   = ""
     public  var columnWidths   = ColumnWidths()
