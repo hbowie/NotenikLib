@@ -25,6 +25,8 @@ public class NotesMkdownContext: MkdownContext {
     //
     // -----------------------------------------------------------
     
+    
+    // Loaded at initialization. 
     var io: NotenikIO
     var displayParms = DisplayParms()
     
@@ -866,12 +868,13 @@ public class NotesMkdownContext: MkdownContext {
     
     /// Generate a bibliography from Notes following this one.
     public func mkdownBibliography() -> String {
+
         guard let collection = io.collection else { return "" }
         guard io.collectionOpen else { return "" }
-        
         guard collection.seqFieldDef != nil else { return "" }
         guard collection.levelFieldDef != nil else { return "" }
-        guard collection.sortParm == .seqPlusTitle else { return "" }
+        let sortParm = collection.sortParm
+        guard sortParm == .seqPlusTitle || sortParm == .custom else { return "" }
         
         guard let parent = io.getNote(knownAs: collection.titleToParse) else { return "" }
         

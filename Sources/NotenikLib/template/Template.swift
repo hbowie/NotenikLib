@@ -220,6 +220,9 @@ public class Template {
         for note in util.notesList {
             util.notesIndex += 1
             util.note = note
+            if workspace != nil {
+                workspace!.mkdownContext?.setTitleToParse(title: note.title.value)
+            }
             processLoopForNote(note)
         }
     }
