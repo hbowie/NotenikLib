@@ -83,4 +83,11 @@ public class BacklinkValue: StringValue {
     func remove(title: String) {
         notePointers.remove(title: title)
     }
+    
+    public func display() {
+        print("BackLinkValue")
+        for pointer in notePointers {
+            pointer.display()
+        }
+    }
 }

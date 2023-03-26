@@ -105,13 +105,13 @@ public class NoteLineMaker {
                     let field = note.getFieldAsValue(def: def!)
                     if let backlinkField = field as? BacklinkValue {
                         let notePointers = backlinkField.notePointers
-                        putWikilinks(def: def!, notePointers: notePointers)
+                        putWikilinks(note: note, def: def!, notePointers: notePointers)
                     }
                 } else if def == collection.wikilinksDef {
                     let field = note.getFieldAsValue(def: def!)
                     if let wikilinkField = field as? WikilinkValue {
                         let notePointers = wikilinkField.notePointers
-                        putWikilinks(def: def!, notePointers: notePointers)
+                        putWikilinks(note: note, def: def!, notePointers: notePointers)
                     }
                 } else {
                     let field = note.getField(def: def!)
@@ -171,8 +171,10 @@ public class NoteLineMaker {
         }
     }
     
-    func putWikilinks(def: FieldDefinition, notePointers: NotePointerList) {
-        writer.endLine()
+    func putWikilinks(note: Note, def: FieldDefinition, notePointers: NotePointerList) {
+        if !note.fileInfo.mmdOrYaml {
+            writer.endLine()
+        }
         for notePointer in notePointers {
             writer.writeLine("\(def.fieldLabel.properForm): \(notePointer.pathSlashItem)")
         }

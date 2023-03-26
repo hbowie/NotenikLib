@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 10/4/21.
 //
-//  Copyright © 2021 - 2022 Herb Bowie (https://hbowie.net)
+//  Copyright © 2021 - 2023 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -58,7 +58,6 @@ public class Transmogrifier {
             }
             if matched {
                 newLinks.remove(at: i)
-                break
             } else {
                 i += 1
             }
@@ -77,6 +76,7 @@ public class Transmogrifier {
                 _ = targetIO!.modNote(oldNote: linkedNote!, newNote: modNote)
             }
         }
+        
         for oldLink in oldLinks {
             noteUpdated = true
             let (targetIO, linkedNote) = getNote(oldLink)
@@ -135,7 +135,7 @@ public class Transmogrifier {
                     }
                     
                     // Record this link in the from dict.
-                    let fromTitles = from[link.fromTarget.item]
+                    let fromTitles = from[link.fromTarget.itemID]
                     if fromTitles == nil {
                         from[link.fromTarget.itemID] = ListOfTitles(title: toTitle.pathSlashItem)
                     } else {
