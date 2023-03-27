@@ -87,8 +87,16 @@ public class NoteFileInfo {
         // ??? Why consistently use title here? 
         if note.hasTitle() {
             base = StringUtils.toReadableFilename(note.title.value)
-            ext = collection.preferredExt
+            genFileExt()
             matchesIDSource = true
+        }
+    }
+    
+    func genFileExt() {
+        if collection.textFormatFieldDef != nil && note.textFormat.isText {
+            ext = NotenikConstants.textFormatTxt
+        } else {
+            ext = collection.preferredExt
         }
     }
     

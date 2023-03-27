@@ -81,6 +81,7 @@ public class NoteCollection {
     public  var workTitleFieldDef: FieldDefinition
     public  var workTypeFieldDef: FieldDefinition
     public  var teaserFieldDef: FieldDefinition?
+    public  var textFormatFieldDef: FieldDefinition?
     public  var bodyFieldDef:   FieldDefinition
     public  var dateAddedFieldDef: FieldDefinition?
     public  var imageNameFieldDef: FieldDefinition?
@@ -470,6 +471,11 @@ public class NoteCollection {
         case NotenikConstants.teaserCommon:
             if teaserFieldDef == nil {
                 teaserFieldDef = def
+            }
+            
+        case NotenikConstants.textFormatCommon:
+            if textFormatFieldDef == nil {
+                textFormatFieldDef = def
             }
             
         case NotenikConstants.levelCommon:

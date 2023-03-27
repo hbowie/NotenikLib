@@ -295,31 +295,11 @@ public class NoteFieldsToHTML {
         } else if field.def == collection.tagsFieldDef && parms.fullDisplay {
             displayTags(field, collection: collection, markedup: code)
         } else if field.def == collection.bodyFieldDef {
-            if collection.bodyLabel {
-                code.startParagraph()
-                code.append(field.def.fieldLabel.properForm)
-                code.append(": ")
-                code.finishParagraph()
-            }
-            if parms.formatIsHTML {
-                if note.klass.quote {
-                    code.startBlockQuote()
-                    quoted = true
-                }
-                if bodyHTML != nil {
-                    code.append(bodyHTML!)
-                } else {
-                    markdownToMarkedup(markdown: field.value.value,
-                                       context: mkdownContext,
-                                       writer: code)
-                }
-                if note.klass.quote {
-                    code.finishBlockQuote()
-                }
-            } else {
-                code.append(field.value.value)
-                code.newLine()
-            }
+            displayBody(field,
+                        note: note,
+                        collection: collection,
+                        mkdownContext: mkdownContext,
+                        markedup: code)
         } else if parms.streamlined
                     && collection.klassFieldDef != nil
                     && field.def == collection.klassFieldDef!
@@ -471,6 +451,43 @@ public class NoteFieldsToHTML {
         return String(describing: code)
     }
     
+    func displayBody(_ field: NoteField,
+                     note: Note,
+                     collection: NoteCollection,
+                     mkdownContext: MkdownContext?,
+                     markedup: Markedup) {
+        
+        if collection.bodyLabel {
+            markedup.startParagraph()
+            markedup.append(field.def.fieldLabel.properForm)
+            markedup.append(": ")
+            markedup.finishParagraph()
+        }
+        if parms.formatIsHTML {
+            if note.klass.quote {
+                markedup.startBlockQuote()
+                quoted = true
+            }
+            if collection.textFormatFieldDef != nil && note.textFormat.isText {
+                markedup.startPreformatted()
+                markedup.append(field.value.value)
+                markedup.finishPreformatted()
+            } else if bodyHTML != nil {
+                markedup.append(bodyHTML!)
+            } else {
+                markdownToMarkedup(markdown: field.value.value,
+                                   context: mkdownContext,
+                                   writer: markedup)
+            }
+            if note.klass.quote {
+                markedup.finishBlockQuote()
+            }
+        } else {
+            markedup.append(field.value.value)
+            markedup.newLine()
+        }
+    }
+    
     /// Provide special formatting for the Tags field. 
     func displayTags(_ field: NoteField, collection: NoteCollection, markedup: Markedup) {
 
@@ -555,7 +572,7 @@ public class NoteFieldsToHTML {
         markedup.startParagraph()
         markedup.append(field.def.fieldLabel.properForm)
         markedup.append(": ")
-        markedup.append(field.value.value)
+        markedup.append(field.value.valueToDisplay())
         markedup.finishParagraph()
     }
     

@@ -1162,7 +1162,7 @@ public class FileIO: NotenikIO, RowConsumer {
     public func ensureUniqueID(for newNote: Note) {
         var existingNote = bunch!.getNote(forID: newNote.noteID)
         var inc = false
-        while existingNote != nil {
+        while existingNote != nil || newNote.noteID.identifier == "template" {
             _ = newNote.incrementID()
             existingNote = bunch!.getNote(forID: newNote.noteID)
             inc = true
@@ -1745,11 +1745,15 @@ public class FileIO: NotenikIO, RowConsumer {
         var errors = 0
         while note != nil {
             let noteResource = lib.getNoteResource(note: note!)
-            let noteResourceMod = noteResource?.changeExt(to: newFileExt)
-            if noteResourceMod != nil && noteResourceMod!.isAvailable {
-                note!.fileInfo.ext = newFileExt
+            if collection!.textFormatFieldDef != nil && note!.textFormat.isText {
+                // leave text files as-is
             } else {
-                errors += 1
+                let noteResourceMod = noteResource?.changeExt(to: newFileExt)
+                if noteResourceMod != nil && noteResourceMod!.isAvailable {
+                    note!.fileInfo.ext = newFileExt
+                } else {
+                    errors += 1
+                }
             }
             
             // more to do here ???

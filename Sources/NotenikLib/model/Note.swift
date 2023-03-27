@@ -724,6 +724,42 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     }
     
     //
+    // Functions and variables concerning the Note's text format field.
+    //
+    
+    /// Return the note's text format value.
+    public var textFormat: TextFormatValue {
+        guard collection.textFormatFieldDef != nil else {
+            return TextFormatValue()
+        }
+        let val = getFieldAsValue(def: collection.textFormatFieldDef!)
+        if val is TextFormatValue {
+            return val as! TextFormatValue
+        } else {
+            return TextFormatValue(val.value)
+        }
+    }
+    
+    /// Does thos note have a non-blank text format field?
+    public func hasTextFormat() -> Bool {
+        guard collection.textFormatFieldDef != nil else { return false }
+        return textFormat.count > 0
+    }
+    
+    /// Get the text format field, if one exists.
+    public func getTextFormatAsField() -> NoteField? {
+        guard collection.textFormatFieldDef != nil else { return nil }
+        return getField(def: collection.textFormatFieldDef!)
+    }
+    
+    /// Attempt to set the Note's text format value.
+    public func setTextFormat(_ txtFormat: String) -> Bool {
+        guard collection.textFormatFieldDef != nil else { return false }
+        return setField(label: collection.textFormatFieldDef!.fieldLabel.commonForm,
+                        value: txtFormat)
+    }
+    
+    //
     // Functions and variables concerning the Note's tags.
     //
     

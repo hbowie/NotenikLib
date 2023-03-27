@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 2/26/21.
 //
-//  Copyright © 2021 - 2022 Herb Bowie (https://hbowie.net)
+//  Copyright © 2021 - 2023 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -206,6 +206,13 @@ public class ResourceFileSys: CustomStringConvertible, Comparable {
         let defaultTitle = noteURL.deletingPathExtension().lastPathComponent
         let note = parser.getNote(defaultTitle: defaultTitle)
         note.fileInfo.baseDotExt = noteURL.lastPathComponent
+        if collection.textFormatFieldDef != nil {
+            if noteURL.pathExtension == NotenikConstants.textFormatTxt {
+                _ = note.setTextFormat(NotenikConstants.textFormatTxt)
+            } else {
+                _ = note.setTextFormat(NotenikConstants.textFormatMD)
+            }
+        }
         updateEnvDates(note: note, noteURL: noteURL)
         note.setID()
         return note
@@ -219,6 +226,26 @@ public class ResourceFileSys: CustomStringConvertible, Comparable {
         guard !note.fileInfo.isEmpty else { return false }
         
         let preTimestamp = note.timestampAsString
+        
+        if collection.textFormatFieldDef != nil {
+            if note.textFormat.isText {
+                let pieces = fileName.components(separatedBy: ".")
+                if pieces.count > 1 {
+                    var newFileName = ""
+                    var i = 0
+                    while i < pieces.count {
+                        if i < pieces.count - 1 {
+                            newFileName.append(pieces[i])
+                            newFileName.append(".")
+                        } else {
+                            newFileName.append("txt")
+                        }
+                        i += 1
+                    }
+                    fileName = newFileName
+                }
+            }
+        }
         
         guard writeNoteAtomic(note) else { return false }
         

@@ -48,6 +48,7 @@ public class AllTypes {
     let stringType  = StringType()
     let tagsType    = TagsType()
     let teaserType  = TeaserType()
+    let textFormatType = TextFormatType()
     let titleType   = TitleType()
     let timestampType = TimestampType()
     let wikilinkType = WikilinkType()
@@ -124,6 +125,7 @@ public class AllTypes {
         fieldTypes.append(lookupType)
         
         fieldTypes.append(teaserType)
+        fieldTypes.append(textFormatType)
         
         fieldTypes.append(comboType)
         fieldTypes.append(minutesToReadType)

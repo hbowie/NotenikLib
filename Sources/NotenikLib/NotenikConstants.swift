@@ -100,8 +100,10 @@ public struct NotenikConstants {
     public static let tagsCommon    = "tags"
     public static let teaser        = "Teaser"
     public static let teaserCommon  = "teaser"
-    public static let timestamp     = "Timestamp"
-    public static let timestampCommon = "timestamp"
+    public static let textFormat       = "Text Format"
+    public static let textFormatCommon = "textformat"
+    public static let timestamp        = "Timestamp"
+    public static let timestampCommon  = "timestamp"
     public static let title         = "Title"
     public static let titleCommon   = "title"
     public static let type          = "Type"
@@ -160,6 +162,19 @@ public struct NotenikConstants {
     public static let lookupType        = "lookup"
     public static let stringType        = "string"
     public static let pickFromType      = "pickfrom"
+    
+    //-------------------------------------------------------------
+    //
+    // Constant field values
+    //
+    //-------------------------------------------------------------
+    
+    public static let textFormatMarkdown  = "Markdown"
+    public static let textFormatMarkdownCommon = "markdown"
+    public static let textFormatPlainText = "Plain Text"
+    public static let textFormatPlainTextCommon = "plaintext"
+    public static let textFormatMD        = "md"
+    public static let textFormatTxt       = "txt"
     
     //-------------------------------------------------------------
     //

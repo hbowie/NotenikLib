@@ -61,6 +61,7 @@ public class ModWhenChanged {
         }
         
         outcome = .noChange
+        var textFormatChange = false
         
         // Let's get a Note ready for comparison and possible modifications
         var modNote: Note
@@ -124,6 +125,7 @@ public class ModWhenChanged {
         }
         
         if modNote.hasBody() && AppPrefs.shared.parseUsingNotenik &&
+            (collection.textFormatFieldDef == nil || !modNote.textFormat.isText) &&
             (collection.minutesToReadDef != nil || collection.wikilinksDef != nil || collection.backlinksDef != nil) {
             
             // Parse the body field.
@@ -184,6 +186,9 @@ public class ModWhenChanged {
                     outcome = .modWithKeyChanges
                 } else if collection.akaFieldDef != nil && startingNote.aka != modNote.aka {
                     outcome = .modWithKeyChanges
+                } else if collection.textFormatFieldDef != nil && (startingNote.textFormat != modNote.textFormat) {
+                    outcome = .modWithKeyChanges
+                    textFormatChange = true
                 }
             }
             if modID.count == 0 {
@@ -213,6 +218,9 @@ public class ModWhenChanged {
             }
         case .modWithKeyChanges:
             modNote.fileInfo.optRegenFileName()
+            if textFormatChange {
+                modNote.fileInfo.genFileExt()
+            }
             let attachmentsOK = io.reattach(from: startingNote, to: modNote)
             if !attachmentsOK {
                 logError("Problems renaming attachments for \(modNote.title)")

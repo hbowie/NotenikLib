@@ -3,7 +3,7 @@
 //  NotenikLib
 //
 //  Created by Herb Bowie on 2/11/19.
-//  Copyright © 2019 - 2022 Herb Bowie (https://hbowie.net)
+//  Copyright © 2019 - 2023 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -100,7 +100,8 @@ public class NoteLineMaker {
             if def != nil &&
                 def! != collection.titleFieldDef &&
                 def! != collection.bodyFieldDef &&
-                def! != collection.tagsFieldDef {
+                def! != collection.tagsFieldDef &&
+                def! != collection.textFormatFieldDef {
                 if def == collection.backlinksDef {
                     let field = note.getFieldAsValue(def: def!)
                     if let backlinkField = field as? BacklinkValue {
