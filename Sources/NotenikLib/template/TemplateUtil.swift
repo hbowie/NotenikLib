@@ -1357,52 +1357,67 @@ public class TemplateUtil {
     func genAuthorWorkSlug(fromNote: Note) -> String {
         let markedUp = Markedup(format: .htmlFragment)
         
-        if let author = FieldGrabber.getField(note: fromNote, label: NotenikConstants.authorCommon) {
-            let authorLink = FieldGrabber.getField(note: fromNote, label: NotenikConstants.authorLinkCommon)
-            if authorLink != nil {
-                markedUp.startLink(path: authorLink!.value.value)
-            }
-            markedUp.append(author.value.value)
-            if authorLink != nil {
-                markedUp.finishLink()
+        if let authorField = FieldGrabber.getField(note: fromNote, label: NotenikConstants.authorCommon) {
+            if let authorValue = authorField.value as? AuthorValue {
+                let authorLink = FieldGrabber.getField(note: fromNote, label: NotenikConstants.authorLinkCommon)
+                if authorLink != nil {
+                    markedUp.startLink(path: authorLink!.value.value, klass: Markedup.htmlClassExtLink, blankTarget: true)
+                }
+                markedUp.append(authorValue.firstNameFirst)
+                if authorLink != nil {
+                    markedUp.finishLink()
+                }
             }
         }
         
-        if let workTitle = FieldGrabber.getField(note: fromNote, label: NotenikConstants.workTitleCommon) {
-            if workTitle.value.value.lowercased() != "unknown" {
-                if !markedUp.code.isEmpty {
-                    markedUp.append(", ")
-                }
-                var majorWork = true
-                if let workTypeField = FieldGrabber.getField(note: fromNote, label: NotenikConstants.workTypeCommon) {
-                    if let workType = workTypeField.value as? WorkTypeValue {
-                        majorWork = workType.isMajor
-                        let theType = workType.theType
-                        if !theType.isEmpty {
-                            markedUp.append("from\(theType) ")
-                        }
+        var workTitle = ""
+        if fromNote.klass.value == NotenikConstants.workKlass {
+            workTitle = fromNote.title.value
+        } else if let wt = FieldGrabber.getField(note: fromNote, label: NotenikConstants.workTitleCommon) {
+            workTitle = wt.value.value
+        }
+        
+        if !workTitle.isEmpty && workTitle.lowercased() != "unknown" {
+            if !markedUp.code.isEmpty {
+                markedUp.append(", ")
+            }
+            var majorWork = true
+            if let workTypeField = FieldGrabber.getField(note: fromNote, label: NotenikConstants.workTypeCommon) {
+                if let workType = workTypeField.value as? WorkTypeValue {
+                    majorWork = workType.isMajor
+                    let theType = workType.theType
+                    if !theType.isEmpty {
+                        markedUp.append("\(theType) ")
                     }
                 }
-                if majorWork {
-                    markedUp.startCite()
-                } else {
-                    markedUp.leftDoubleQuote()
-                }
-                let workLink = FieldGrabber.getField(note: fromNote, label: NotenikConstants.workLinkCommon)
-                if workLink != nil {
-                    markedUp.startLink(path: workLink!.value.value)
-                }
-                markedUp.append(workTitle.value.value)
-                if workLink != nil {
-                    markedUp.finishLink()
-                }
-                if majorWork {
-                    markedUp.finishCite()
-                } else {
-                    markedUp.rightDoubleQuote()
-                }
+            }
+            if majorWork {
+                markedUp.startCite()
+            } else {
+                markedUp.leftDoubleQuote()
+            }
+            
+            var workLink = ""
+            if let wl = FieldGrabber.getField(note: fromNote, label: NotenikConstants.workLinkCommon) {
+                workLink = wl.value.value
+            } else if fromNote.klass.value == NotenikConstants.workKlass {
+                workLink = fromNote.link.value
+            }
+            
+            if !workLink.isEmpty {
+                markedUp.startLink(path: workLink, klass: Markedup.htmlClassExtLink, blankTarget: true)
+            }
+            markedUp.append(workTitle)
+            if !workLink.isEmpty {
+                markedUp.finishLink()
+            }
+            if majorWork {
+                markedUp.finishCite()
+            } else {
+                markedUp.rightDoubleQuote()
             }
         }
+        
         if !markedUp.code.isEmpty {
             var slugDate = ""
             let workDate = FieldGrabber.getField(note: fromNote, label: NotenikConstants.workDateCommon)

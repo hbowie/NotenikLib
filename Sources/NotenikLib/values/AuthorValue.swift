@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 12/5/18.
-//  Copyright © 2018 - 2020 Herb Bowie (https://hbowie.net)
+//  Copyright © 2018 - 2023 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -244,11 +244,11 @@ public class AuthorValue: StringValue, MultiValues {
             if c == " " || c == "\t" || c == "\n" || c == "\r" || c == "~" || c == "_" {
                 if word.count > 0 {
                     word.setDelim(" ")
-                    words.append(word)
-                    word = AuthorWord()
                     if word.isAnd {
                         multipleAuthors = true
                     }
+                    words.append(word)
+                    word = AuthorWord()
                 }
             } else if c == "," {
                 if word.count > 0 {
@@ -296,6 +296,10 @@ public class AuthorValue: StringValue, MultiValues {
                 }
             }
         }
+    }
+    
+    func display() {
+        print("    - author last name: \(lastName), first name: \(firstName), suffix: \(suffix)")
     }
     
     /// A temporary inner class for building a single name
@@ -412,6 +416,9 @@ public class AuthorValue: StringValue, MultiValues {
             self.delim = String(delim)
         }
         
+        func display() {
+            print("    - author word: '\(word)', delim: '\(delim)', is and? \(isAnd)")
+        }
         
     }
 }
