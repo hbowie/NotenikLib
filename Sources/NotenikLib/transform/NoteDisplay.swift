@@ -46,10 +46,17 @@ public class NoteDisplay {
     ///            any wiki link targets that did not yet exist were automatically added.
     ///
     public func display(_ note: Note, io: NotenikIO, parms: DisplayParms) -> (code: String, wikiAdds: Bool) {
+
         self.parms = parms
         parms.setMkdownOptions(mkdownOptions)
         let mkdownContext = NotesMkdownContext(io: io, displayParms: parms)
-        mkdownContext.setTitleToParse(title: note.title.value)
+        if note.hasShortID() {
+            mkdownOptions.shortID = note.shortID.value
+        } else {
+            mkdownOptions.shortID = ""
+        }
+
+        mkdownContext.setTitleToParse(title: note.title.value, shortID: note.shortID.value)
         let collection = note.collection
         collection.skipContentsForParent = false
         minutesToRead = nil
@@ -458,7 +465,7 @@ public class NoteDisplay {
         let mkdownContext = NotesMkdownContext(io: io, displayParms: parms)
         let code = Markedup(format: parms.format)
         if field.def == collection.titleFieldDef {
-            mkdownContext.setTitleToParse(title: field.value.value)
+            mkdownContext.setTitleToParse(title: field.value.value, shortID: note.shortID.value)
             code.displayLine(opt: collection.titleDisplayOption,
                              text: field.value.value,
                              depth: note.depth,

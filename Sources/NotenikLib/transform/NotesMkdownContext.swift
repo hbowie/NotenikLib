@@ -43,9 +43,10 @@ public class NotesMkdownContext: MkdownContext {
     }
     
     /// Set the Title of the Note whose Markdown text is to be parsed.
-    public func setTitleToParse(title: String) {
+    public func setTitleToParse(title: String, shortID: String) {
         guard let collection = io.collection else { return }
         collection.titleToParse = title
+        collection.shortID = shortID
     }
     
     // -----------------------------------------------------------

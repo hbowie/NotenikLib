@@ -53,6 +53,11 @@ public class NoteFieldsToHTML {
         // Save parameters and make key variables easily accessible for later use.
         self.parms = parms
         parms.setMkdownOptions(mkdownOptions)
+        if note.hasShortID() {
+            mkdownOptions.shortID = note.shortID.value
+        } else {
+            mkdownOptions.shortID = ""
+        }
         self.bodyHTML = bodyHTML
         self.minutesToRead = minutesToRead
         let collection = note.collection
@@ -289,7 +294,7 @@ public class NoteFieldsToHTML {
         if field.def == collection.titleFieldDef {
             displayTitle(note: note, markedup: code)
             if mkdownContext != nil {
-                mkdownContext!.setTitleToParse(title: note.title.value)
+                mkdownContext!.setTitleToParse(title: note.title.value, shortID: note.shortID.value)
             }
         // Format the tags field
         } else if field.def == collection.tagsFieldDef && parms.fullDisplay {

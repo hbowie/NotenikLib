@@ -932,12 +932,16 @@ public class TemplateUtil {
                     workspace!.mkdownContext!.displayParms.wikiLinkFormat = .fileName
                     workspace!.mkdownContext!.displayParms.wikiLinkSuffix = ".html"
                 }
+                mkdownOptions.shortID = workspace!.collection.shortID
             }
             let mkdown = MkdownParser(markdown, options: mkdownOptions)
             mkdown.setWikiLinkFormatting(prefix: "", format: .fileName, suffix: ".html", context: workspace?.mkdownContext)
             mkdown.parse()
             return mkdown.html
         case "2":
+            if workspace != nil {
+                mkdownOptions.shortID = workspace!.collection.shortID
+            }
             let mkdown = MkdownParser(markdown, options: mkdownOptions)
             mkdown.setWikiLinkFormatting(prefix: "#", format: .fileName, suffix: "", context: workspace?.mkdownContext)
             mkdown.parse()

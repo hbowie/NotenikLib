@@ -221,7 +221,7 @@ public class Template {
             util.notesIndex += 1
             util.note = note
             if workspace != nil {
-                workspace!.mkdownContext?.setTitleToParse(title: note.title.value)
+                workspace!.mkdownContext?.setTitleToParse(title: note.title.value, shortID: note.shortID.value)
             }
             processLoopForNote(note)
         }

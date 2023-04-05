@@ -1309,6 +1309,7 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     
     // Does this note have a non-blank Short ID field?
     public func hasShortID() -> Bool {
+        guard collection.shortIdDef != nil else { return false }
         return shortID.count > 0
     }
     

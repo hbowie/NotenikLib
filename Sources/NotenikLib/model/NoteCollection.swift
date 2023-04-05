@@ -102,6 +102,7 @@ public class NoteCollection {
     public  var webBookAsEPUB  = true
     
     public  var titleToParse   = ""
+    public  var shortID        = ""
     public  var tocNoteID      = ""
     public  var skipContentsForParent = false
     
