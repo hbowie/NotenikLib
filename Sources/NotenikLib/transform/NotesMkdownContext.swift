@@ -30,6 +30,8 @@ public class NotesMkdownContext: MkdownContext {
     var io: NotenikIO
     var displayParms = DisplayParms()
     
+    public var pageType: MkdownPageType = .main
+    
     let htmlConverter = StringConverter()
     
     public var includedNotes: [String] = []
@@ -47,6 +49,11 @@ public class NotesMkdownContext: MkdownContext {
         guard let collection = io.collection else { return }
         collection.titleToParse = title
         collection.shortID = shortID
+    }
+    
+    /// Set by the parser when some page type other than main is encountered.
+    public func setPageType(_ pageType: MkdownPageType) {
+        self.pageType = pageType
     }
     
     // -----------------------------------------------------------
@@ -204,6 +211,7 @@ public class NotesMkdownContext: MkdownContext {
         if !hasLevel { level = 1 }
         guard level >= levelStart else { return }
         guard level <= levelEnd else { return }
+        guard note.pageType == .main else { return }
         
         // Manage nested lists.
         if level < lastLevel {

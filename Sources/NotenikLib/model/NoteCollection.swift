@@ -1,6 +1,6 @@
 //
 //  NoteCollection.swift
-//  Notenik
+//  NotenikLib
 //
 //  Created by Herb Bowie on 12/4/18.
 //  Copyright © 2019 - 2023 Herb Bowie (https://hbowie.net)
@@ -10,6 +10,8 @@
 //
 
 import Foundation
+
+import NotenikMkdown
 
 import NotenikUtils
 
@@ -105,6 +107,13 @@ public class NoteCollection {
     public  var shortID        = ""
     public  var tocNoteID      = ""
     public  var skipContentsForParent = false
+    
+    public  var headerNoteID   = ""
+    public  var headerHTML     = ""
+    public  var navNoteID      = ""
+    public  var navHTML        = ""
+    public  var footerNoteID   = ""
+    public  var footerHTML     = ""
     
     public  var windowPosStr   = ""
     public  var columnWidths   = ColumnWidths()
@@ -295,6 +304,23 @@ public class NoteCollection {
             noteFileFormat = .plainText
         default:
             noteFileFormat = .notenik
+        }
+    }
+    
+    public func setPageComponents(pageType: MkdownPageType, note: Note, html: String?) {
+        guard html != nil else { return }
+        switch pageType {
+        case .main:
+            break
+        case .header:
+            headerNoteID = note.id
+            headerHTML = html!
+        case .nav:
+            navNoteID = note.id
+            navHTML = html!
+        case .footer:
+            footerNoteID = note.id
+            footerHTML = html!
         }
     }
     

@@ -73,6 +73,19 @@ public class NoteFieldsToHTML {
         // See if we need to start a list of included children.
         startListOfChildren(code: code)
         
+        let headerContents = parms.header + collection.headerHTML
+        
+        if note.pageType == .main && note.klass.value != NotenikConstants.titleKlass {
+            if !headerContents.isEmpty {
+                code.header(headerContents)
+            }
+            if !collection.navHTML.isEmpty {
+                code.nav(collection.navHTML)
+            }
+        }
+        
+        code.startMain()
+        
         // Start with top of page code, if we have any.
         if !topOfPage.isEmpty {
             code.append(topOfPage)
@@ -172,6 +185,12 @@ public class NoteFieldsToHTML {
         // If this is the last included child, and if a list was requested, finish it off.
         if lastInList {
             finishListOfChildren(code: code)
+        }
+        
+        code.finishMain()
+        
+        if note.pageType == .main && !collection.footerHTML.isEmpty {
+            code.footer(collection.footerHTML)
         }
         
         // Finish off the entire document.
@@ -480,9 +499,12 @@ public class NoteFieldsToHTML {
             } else if bodyHTML != nil {
                 markedup.append(bodyHTML!)
             } else {
-                markdownToMarkedup(markdown: field.value.value,
-                                   context: mkdownContext,
-                                   writer: markedup)
+                let body = Markdown.parse(markdown: field.value.value, options: mkdownOptions, context: mkdownContext)
+                markedup.append(body)
+                if let context = mkdownContext {
+                    collection.setPageComponents(pageType: context.pageType, note: note, html: body)
+                    note.pageType = context.pageType
+                }
             }
             if note.klass.quote {
                 markedup.finishBlockQuote()

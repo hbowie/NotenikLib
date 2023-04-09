@@ -273,6 +273,45 @@ public class DisplayPrefs {
             border-bottom: none;
         }
         
+        header {
+            text-align: center;
+        }
+        
+        nav {
+            float: right;
+            font-style: italic;
+        }
+        
+        nav ul {
+            margin-top: 0;
+        }
+        
+        nav ul li {
+            display: inline;
+        }
+        
+        nav ul li a {
+            text-decoration: none;
+            border-bottom: none;
+        }
+        
+        nav ul li a.wiki-link {
+            text-decoration: none;
+            border-bottom: none;
+        }
+        
+        footer {
+            border-top: 1px dashed var(--text-color);
+            margin-top: 1em;
+            font-size: 0.8em;
+            font-weight: lighter;
+            text-align: right;
+        }
+        
+        footer p {
+            padding-top: 0.5em;
+        }
+        
         """)
         tempCSS.append(buildHeadingsCSS())
         

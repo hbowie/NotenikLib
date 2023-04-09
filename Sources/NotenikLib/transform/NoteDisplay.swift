@@ -1,9 +1,9 @@
 //
 //  NoteDisplay.swift
-//  Notenik
+//  NotenikLib
 //
 //  Created by Herb Bowie on 1/22/19.
-//  Copyright © 2019 - 2022 Herb Bowie (https://hbowie.net)
+//  Copyright © 2019 - 2023 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -35,6 +35,44 @@ public class NoteDisplay {
     
     public init() {
         
+    }
+    
+    public func loadHeaderFooterNav(io: NotenikIO, parms: DisplayParms) {
+        guard parms.formatIsHTML && AppPrefs.shared.parseUsingNotenik else { return }
+        mkdownOptions = MkdownOptions()
+        loadHeaderFooterNavPage(pageType: .header, io: io, mkdownOptions: mkdownOptions, parms: parms)
+        loadHeaderFooterNavPage(pageType: .footer, io: io, mkdownOptions: mkdownOptions, parms: parms)
+        loadHeaderFooterNavPage(pageType: .nav, io: io, mkdownOptions: mkdownOptions, parms: parms)
+    }
+    
+    func loadHeaderFooterNavPage(pageType: MkdownPageType, io: NotenikIO, mkdownOptions: MkdownOptions, parms: DisplayParms) {
+        guard let collection = io.collection else { return }
+        var pageNoteID = ""
+        switch pageType {
+        case .header:
+            pageNoteID = io.collection!.headerNoteID
+        case .footer:
+            pageNoteID = io.collection!.footerNoteID
+        case .nav:
+            pageNoteID = io.collection!.navNoteID
+        default:
+            break
+        }
+        guard !pageNoteID.isEmpty else { return }
+        guard let pageNote = io.getNote(knownAs: pageNoteID) else { return }
+        parms.setMkdownOptions(mkdownOptions)
+        let mkdownContext = NotesMkdownContext(io: io, displayParms: parms)
+        mkdownContext.setTitleToParse(title: pageNote.title.value, shortID: pageNote.shortID.value)
+        let body = pageNote.body.value
+        mdBodyParser = MkdownParser(body, options: mkdownOptions)
+        mdBodyParser!.setWikiLinkFormatting(prefix: parms.wikiLinkPrefix,
+                                            format: parms.wikiLinkFormat,
+                                            suffix: parms.wikiLinkSuffix,
+                                            context: mkdownContext)
+        mdBodyParser!.parse()
+        let bodyHTML = mdBodyParser!.html
+        collection.setPageComponents(pageType: mkdownContext.pageType, note: pageNote, html: bodyHTML)
+        pageNote.pageType = mkdownContext.pageType
     }
     
     /// Get the code used to display this entire note as a web page, including html tags.
@@ -79,6 +117,8 @@ public class NoteDisplay {
                 minutesToRead = MinutesToReadValue(with: counts)
             }
             bodyHTML = mdBodyParser!.html
+            collection.setPageComponents(pageType: mkdownContext.pageType, note: note, html: bodyHTML)
+            note.pageType = mkdownContext.pageType
             wikilinks = mdBodyParser!.wikiLinkList
             includedNotes = mkdownContext.includedNotes
             if collection.missingTargets {
@@ -123,11 +163,11 @@ public class NoteDisplay {
     func formatTopOfPage(_ note: Note, io: NotenikIO) -> String {
         guard parms.streamlined else { return "" }
         guard !parms.concatenated else { return ""}
-        guard note.hasLevel() else { return parms.header }
+        guard note.hasLevel() else { return "" }
         let noteLevel = note.level.level
-        guard noteLevel > 1 else { return parms.header }
+        guard noteLevel > 1 else { return "" }
         let sortParm = parms.sortParm
-        guard sortParm == .seqPlusTitle else { return parms.header }
+        guard sortParm == .seqPlusTitle else { return "" }
         var klass = KlassValue()
         if note.collection.klassFieldDef != nil {
             klass = note.klass
@@ -147,9 +187,8 @@ public class NoteDisplay {
                 break
             }
         }
-        guard !parentTitle.isEmpty else { return parms.header }
+        guard !parentTitle.isEmpty else { return "" }
         let topHTML = Markedup()
-        topHTML.append(parms.header)
         topHTML.startParagraph()
         if parentSeq.count > 0 {
             if !klass.frontOrBack {
@@ -228,7 +267,7 @@ public class NoteDisplay {
         let bottomHTML = Markedup()
         
         let currentPosition = io.positionOfNote(note)
-        var (nextNote, nextPosition) = io.nextNote(currentPosition)
+        var (nextNote, nextPosition) = nextNote(startingPosition: currentPosition, startingNote: note, passedIO: io)
         guard nextPosition.valid && nextNote != nil else {
             backToTop(io: io, bottomHTML: bottomHTML)
             return bottomHTML.code
@@ -249,6 +288,7 @@ public class NoteDisplay {
                                                    nextSeq: nextSeq,
                                                    bottomHTML: bottomHTML)
             }
+            (nextNote, nextPosition) = skipNonMainPageTypes(startingPosition: nextPosition, startingNote: nextNote, passedIO: io)
             if nextNote != nil && nextPosition.valid {
                 nextTitle = nextNote!.title.value
                 nextLevel = nextNote!.level
@@ -277,6 +317,23 @@ public class NoteDisplay {
         }
         
         return bottomHTML.code
+    }
+    
+    public func nextNote(startingPosition: NotePosition, startingNote: Note?, passedIO: NotenikIO) -> (Note?, NotePosition) {
+        guard startingPosition.valid && startingNote != nil else { return (startingNote, startingPosition) }
+        var (nextNote, nextPosition) = passedIO.nextNote(startingPosition)
+        (nextNote, nextPosition) = skipNonMainPageTypes(startingPosition: nextPosition, startingNote: nextNote, passedIO: passedIO)
+        return (nextNote, nextPosition)
+    }
+    
+    func skipNonMainPageTypes(startingPosition: NotePosition, startingNote: Note?, passedIO: NotenikIO) -> (Note?, NotePosition) {
+        guard startingPosition.valid && startingNote != nil else { return (startingNote, startingPosition) }
+        var nextNote: Note? = startingNote
+        var nextPosition: NotePosition = startingPosition
+        while nextNote != nil && nextNote!.pageType != .main {
+            (nextNote, nextPosition) = passedIO.nextNote(nextPosition)
+        }
+        return (nextNote, nextPosition)
     }
     
     func backToTop(io: NotenikIO, bottomHTML: Markedup) {
@@ -379,7 +436,7 @@ public class NoteDisplay {
             let tocLevel = nextLevel
             var (anotherNote, anotherPosition) = io.nextNote(nextPosition)
             while anotherNote != nil && anotherNote!.level >= tocLevel {
-                if anotherNote!.level == tocLevel {
+                if anotherNote!.level == tocLevel && anotherNote!.pageType == .main {
                     tocNotes.append(anotherNote!)
                 }
                 (anotherNote, anotherPosition) = io.nextNote(anotherPosition)

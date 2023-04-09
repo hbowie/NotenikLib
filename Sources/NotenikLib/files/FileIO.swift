@@ -276,6 +276,18 @@ public class FileIO: NotenikIO, RowConsumer {
         }
 
         str.append(label: NotenikConstants.columnWidths, value: "\(collection!.columnWidths)")
+        
+        if !collection!.headerNoteID.isEmpty {
+            str.append(label: NotenikConstants.headerNoteID, value: collection!.headerNoteID)
+        }
+        
+        if !collection!.footerNoteID.isEmpty {
+            str.append(label: NotenikConstants.footerNoteID, value: collection!.footerNoteID)
+        }
+        
+        if !collection!.navNoteID.isEmpty {
+            str.append(label: NotenikConstants.navNoteID, value: collection!.navNoteID)
+        }
 
         return lib.saveInfo(str: str.str)
     }
@@ -703,6 +715,21 @@ public class FileIO: NotenikIO, RowConsumer {
         let columnWidths = infoNote.getField(label: NotenikConstants.columnWidthsCommon)
         if columnWidths != nil {
             collection!.columnWidths.set(columnWidths!.value.value)
+        }
+        
+        let headerNoteID = infoNote.getField(label: NotenikConstants.headerNoteIdCommon)
+        if headerNoteID != nil && !headerNoteID!.value.value.isEmpty && collection!.headerNoteID.isEmpty {
+            collection!.headerNoteID = headerNoteID!.value.value
+        }
+        
+        let footerNoteID = infoNote.getField(label: NotenikConstants.footerNoteIdCommon)
+        if footerNoteID != nil && !footerNoteID!.value.value.isEmpty && collection!.footerNoteID.isEmpty {
+            collection!.footerNoteID = footerNoteID!.value.value
+        }
+        
+        let navNoteID = infoNote.getField(label: NotenikConstants.navNoteIdCommon)
+        if navNoteID != nil && !navNoteID!.value.value.isEmpty && collection!.navNoteID.isEmpty {
+            collection!.navNoteID = navNoteID!.value.value
         }
         
         infoFound = true
@@ -1356,7 +1383,7 @@ public class FileIO: NotenikIO, RowConsumer {
     /// - Parameter position: The position of the last note.
     /// - Returns: A tuple containing the next note, along with its index position.
     ///            If we're at the end of the list, then return a nil Note and an index of -1.
-    public func nextNote(_ position : NotePosition) -> (Note?, NotePosition) {
+    public func nextNote(_ position: NotePosition) -> (Note?, NotePosition) {
         guard collection != nil && collectionOpen else { return (nil, NotePosition(index: -1)) }
         return bunch!.nextNote(position)
     }

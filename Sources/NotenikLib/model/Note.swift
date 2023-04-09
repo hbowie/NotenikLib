@@ -27,6 +27,8 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     
     public var fileInfo: NoteFileInfo!
     
+    public var pageType: MkdownPageType = .main
+    
     /// Initialize with a Collection
     public init (collection: NoteCollection) {
         self.collection = collection

@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 7/6/21.
 //
-//  Copyright © 2021 - 2022 Herb Bowie (https://hbowie.net)
+//  Copyright © 2021 - 2023 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -210,6 +210,7 @@ public class WebBookMaker {
         deleteOldFiles()
         
         // Now generate fresh content.
+        display.loadHeaderFooterNav(io: io, parms: parms)
         filesWritten = 0
         io.sortParm = .seqPlusTitle
         bookTitle = ""
@@ -284,8 +285,6 @@ public class WebBookMaker {
     var mimetypeFile:   URL!
     
     func generateMimetype() {
-
-
         mimetypeFile = URL(fileURLWithPath: mimetypeFileName, relativeTo: pubFolder)
 
         let mimetype = "application/epub+zip"

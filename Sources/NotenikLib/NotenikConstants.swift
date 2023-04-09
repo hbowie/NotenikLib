@@ -190,6 +190,7 @@ public struct NotenikConstants {
     public static let prefaceKlass      = "preface"
     public static let quoteKlass        = "quote"
     public static let quotationKlass    = "quotation"
+    public static let titleKlass        = "title-page"
     public static let workKlass         = "work"
     public static let defaultsKlass     = "defaults"
     
@@ -215,8 +216,8 @@ public struct NotenikConstants {
     //
     //-------------------------------------------------------------
     
-    static let lastIndexSelected = "Last Index Selected"
-    static let shortcut = "Shortcut"
+    static let lastIndexSelected        = "Last Index Selected"
+    static let shortcut                 = "Shortcut"
     static let h1TitlesDisplay          = "Display H1 Titles"
     static let h1TitlesDisplayCommon    = "displayh1titles"
     static let titleDisplayOpt          = "Title Display Option"
@@ -247,6 +248,12 @@ public struct NotenikConstants {
     static let hashTagsCommon           = "hashtags"
     static let titleSetByUser           = "Title Set by User"
     static let titleSetByUserCommon     = "titlesetbyuser"
+    static let headerNoteID             = "Header Note ID"
+    static let headerNoteIdCommon       = "headernoteid"
+    static let footerNoteID             = "Footer Note ID"
+    static let footerNoteIdCommon       = "footernoteid"
+    static let navNoteID                = "Nav Note ID"
+    static let navNoteIdCommon          = "navnoteid"
     
     //-------------------------------------------------------------
     //
