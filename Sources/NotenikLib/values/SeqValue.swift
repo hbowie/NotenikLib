@@ -74,8 +74,10 @@ public class SeqValue: StringValue {
         if removingDeeperLevels {
             while level < seqStack.max {
                 seqStack.segments.removeLast()
-                if seqStack.segments[seqStack.max].endedByPunctuation {
-                    seqStack.segments[seqStack.max].removePunctuation()
+                if seqStack.max >= 0 {
+                    if seqStack.segments[seqStack.max].endedByPunctuation {
+                        seqStack.segments[seqStack.max].removePunctuation()
+                    }
                 }
             }
         }

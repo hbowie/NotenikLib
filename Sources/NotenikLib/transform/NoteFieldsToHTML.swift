@@ -30,7 +30,7 @@ public class NoteFieldsToHTML {
     
     var quoted = false
     
-    let attribBalancer = LineBalancer(maxChars: 50, sep: " <br>")
+    let attribBalancer = LineBalancer(maxChars: 50, sep: " <br />")
     
     public init() {
         
@@ -68,7 +68,8 @@ public class NoteFieldsToHTML {
         code.startDoc(withTitle: note.title.value,
                       withCSS: parms.cssString,
                       linkToFile: parms.cssLinkToFile,
-                      withJS: mkdownOptions.getHtmlScript())
+                      withJS: mkdownOptions.getHtmlScript(),
+                      epub3: parms.epub3)
         
         // See if we need to start a list of included children.
         startListOfChildren(code: code)
@@ -189,7 +190,7 @@ public class NoteFieldsToHTML {
         
         code.finishMain()
         
-        if note.pageType == .main && !collection.footerHTML.isEmpty {
+        if note.pageType.includeInBook(epub: parms.epub3) && !collection.footerHTML.isEmpty {
             code.footer(collection.footerHTML)
         }
         
@@ -719,8 +720,8 @@ public class NoteFieldsToHTML {
             markedup.startFigureCaption()
             if note.hasAttribution() {
                 markedup.newLine()
-                let balanced = attribBalancer.balance(str: note.attribution.value)
-                markdownToMarkedup(markdown: balanced,
+                // let balanced = attribBalancer.balance(str: note.attribution.value)
+                markdownToMarkedup(markdown: note.attribution.value,
                                    context: mkdownContext,
                                    writer: markedup)
             } else {
@@ -779,8 +780,8 @@ public class NoteFieldsToHTML {
                     attrib.append(note.date.value)
                 }
                 
-                let balanced = attribBalancer.balance(str: attrib, prepending: 3)
-                markedup.writeLine(balanced)
+                // let balanced = attribBalancer.balance(str: attrib, prepending: 3)
+                markedup.writeLine(attrib)
             }
             markedup.finishFigureCaption()
             markedup.finishFigure()

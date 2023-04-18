@@ -22,6 +22,7 @@ public class DisplayParms {
     public var cssLinkToFile = false
     public var displayTemplate = ""
     public var format: MarkedupFormat = .htmlDoc
+    public var epub3 = false
     public var sortParm: NoteSortParm = .seqPlusTitle
     public var streamlined = false
     public var fullDisplay: Bool { return !streamlined }
@@ -43,12 +44,13 @@ public class DisplayParms {
         
     }
     
+    /// Set various values that are taken from the Note's Collection.
     public func setFrom(note: Note) {
         setFrom(collection: note.collection)
     }
     
+    /// Set various values that are taken from metadata about the Collection.
     public func setFrom(collection: NoteCollection) {
-        cssString = collection.displayCSS
         setCSS(useFirst: collection.displayCSS, useSecond: DisplayPrefs.shared.displayCSS)
         displayTemplate = collection.displayTemplate
         format = .htmlDoc
@@ -85,6 +87,7 @@ public class DisplayParms {
         }
     }
     
+    /// Set the CSS string from one of two sources, giving preference to the first.
     public func setCSS(useFirst: String, useSecond: String?) {
         if useFirst.count > 0 {
             cssString = useFirst

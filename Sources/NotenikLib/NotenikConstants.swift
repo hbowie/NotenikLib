@@ -254,6 +254,10 @@ public struct NotenikConstants {
     static let footerNoteIdCommon       = "footernoteid"
     static let navNoteID                = "Nav Note ID"
     static let navNoteIdCommon          = "navnoteid"
+    static let metaNoteID               = "Metadata Note ID"
+    static let metaNoteIdCommon         = "metadatanoteid"
+    static let searchNoteID             = "Search Note ID"
+    static let searchNoteIdCommon       = "searchnoteid"
     
     //-------------------------------------------------------------
     //

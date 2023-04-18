@@ -114,6 +114,9 @@ public class NoteCollection {
     public  var navHTML        = ""
     public  var footerNoteID   = ""
     public  var footerHTML     = ""
+    public  var metaNoteID     = ""
+    public  var metaCode       = ""
+    public  var searchNoteID   = ""
     
     public  var windowPosStr   = ""
     public  var columnWidths   = ColumnWidths()
@@ -321,6 +324,13 @@ public class NoteCollection {
         case .footer:
             footerNoteID = note.id
             footerHTML = html!
+        case .metadata:
+            metaNoteID = note.id
+            var bodyLines = note.body.value.components(separatedBy: "\n")
+            _ = bodyLines.removeFirst()
+            metaCode = bodyLines.joined(separator: "\n")
+        case .search:
+            searchNoteID = note.id
         }
     }
     

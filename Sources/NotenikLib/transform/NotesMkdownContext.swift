@@ -211,14 +211,18 @@ public class NotesMkdownContext: MkdownContext {
         if !hasLevel { level = 1 }
         guard level >= levelStart else { return }
         guard level <= levelEnd else { return }
-        guard note.pageType == .main else { return }
+        guard note.pageType.includeInBook(epub: displayParms.epub3) else { return }
         
         // Manage nested lists.
         if level < lastLevel {
             closeTocEntries(downTo: level)
-        } else if level == lastLevel {
+        }
+        /* else */
+        if level == lastLevel {
             toc.finishListItem()
-        } else if level > lastLevel {
+        }
+        /* else */
+        if level > lastLevel {
             toc.startUnorderedList(klass: nil)
             levels.append(level)
         }
@@ -261,7 +265,7 @@ public class NotesMkdownContext: MkdownContext {
         indexCollection  = IndexCollection()
         var (note, position) = io.firstNote()
         while note != nil {
-            if note!.hasTitle() && note!.hasIndex() {
+            if note!.hasTitle() && note!.hasIndex() && note!.pageType.includeInBook(epub: displayParms.epub3) {
                 let pageType = note!.getFieldAsString(label: NotenikConstants.typeCommon)
                 indexCollection.add(page: note!.title.value, pageType: pageType, index: note!.index)
             }
@@ -291,7 +295,6 @@ public class NotesMkdownContext: MkdownContext {
         
         // Generate the index
         lastLetter = " "
-        mkdown.startDefinitionList(klass: nil)
         for term in indexCollection.list {
             termCount += 1
             let initialLetter = term.term.prefix(1).uppercased()
@@ -299,7 +302,7 @@ public class NotesMkdownContext: MkdownContext {
                 if lastLetter != " " {
                     mkdown.finishDefinitionList()
                 }
-                mkdown.heading(level: 3, text: "&mdash; \(initialLetter) &mdash;", addID: true, idText: "letter-\(initialLetter)")
+                mkdown.heading(level: 3, text: "&#8212; \(initialLetter) &#8212;", addID: true, idText: "letter-\(initialLetter)")
                 lastLetter = initialLetter
                 mkdown.startDefinitionList(klass: nil)
             }
@@ -861,7 +864,7 @@ public class NotesMkdownContext: MkdownContext {
     
     func startTagsCloudFirstPass() {
         tagsCode.startListItem()
-        tagsCode.link(text: tagsConcat, path: "#tags.\(tagsConcat)")
+        tagsCode.link(text: tagsConcat, path: "#tags.\(StringUtils.toCommonFileName(tagsConcat))")
         tagsCode.finishListItem()
     }
     

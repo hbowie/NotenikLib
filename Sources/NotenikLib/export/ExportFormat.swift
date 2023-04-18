@@ -20,6 +20,7 @@ public enum ExportFormat {
     case concatHtml
     case concatMarkdown
     case webBookEPUB
+    case webBookEPUBFolder
     case webBookSite
     case exportScript
 }

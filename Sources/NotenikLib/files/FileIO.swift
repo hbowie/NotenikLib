@@ -288,6 +288,14 @@ public class FileIO: NotenikIO, RowConsumer {
         if !collection!.navNoteID.isEmpty {
             str.append(label: NotenikConstants.navNoteID, value: collection!.navNoteID)
         }
+        
+        if !collection!.metaNoteID.isEmpty {
+            str.append(label: NotenikConstants.metaNoteID, value: collection!.metaNoteID)
+        }
+        
+        if !collection!.searchNoteID.isEmpty {
+            str.append(label: NotenikConstants.searchNoteID, value: collection!.searchNoteID)
+        }
 
         return lib.saveInfo(str: str.str)
     }
@@ -730,6 +738,16 @@ public class FileIO: NotenikIO, RowConsumer {
         let navNoteID = infoNote.getField(label: NotenikConstants.navNoteIdCommon)
         if navNoteID != nil && !navNoteID!.value.value.isEmpty && collection!.navNoteID.isEmpty {
             collection!.navNoteID = navNoteID!.value.value
+        }
+        
+        let metaNoteID = infoNote.getField(label: NotenikConstants.metaNoteIdCommon)
+        if metaNoteID != nil && !metaNoteID!.value.value.isEmpty && collection!.metaNoteID.isEmpty {
+            collection!.metaNoteID = metaNoteID!.value.value
+        }
+        
+        let searchNoteID = infoNote.getField(label: NotenikConstants.searchNoteIdCommon)
+        if searchNoteID != nil && !searchNoteID!.value.value.isEmpty && collection!.searchNoteID.isEmpty {
+            collection!.searchNoteID = searchNoteID!.value.value
         }
         
         infoFound = true

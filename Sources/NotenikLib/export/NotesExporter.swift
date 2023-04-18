@@ -157,7 +157,7 @@ public class NotesExporter {
         case .concatHtml, .concatMarkdown:
             concatOpen(exportFormat: format)
             break
-        case .webBookEPUB, .webBookSite:
+        case .webBookEPUB, .webBookSite, .webBookEPUBFolder:
             break
         case .exportScript:
             break
@@ -779,7 +779,7 @@ public class NotesExporter {
             return outlineClose()
         case .concatHtml, .concatMarkdown:
             return concatClose()
-        case .webBookEPUB, .webBookSite:
+        case .webBookEPUB, .webBookSite, .webBookEPUBFolder:
             return false
         case .exportScript:
             return false

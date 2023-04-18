@@ -43,6 +43,8 @@ public class NoteDisplay {
         loadHeaderFooterNavPage(pageType: .header, io: io, mkdownOptions: mkdownOptions, parms: parms)
         loadHeaderFooterNavPage(pageType: .footer, io: io, mkdownOptions: mkdownOptions, parms: parms)
         loadHeaderFooterNavPage(pageType: .nav, io: io, mkdownOptions: mkdownOptions, parms: parms)
+        loadHeaderFooterNavPage(pageType: .metadata, io: io, mkdownOptions: mkdownOptions, parms: parms)
+        loadHeaderFooterNavPage(pageType: .search, io: io, mkdownOptions: mkdownOptions, parms: parms)
     }
     
     func loadHeaderFooterNavPage(pageType: MkdownPageType, io: NotenikIO, mkdownOptions: MkdownOptions, parms: DisplayParms) {
@@ -55,6 +57,10 @@ public class NoteDisplay {
             pageNoteID = io.collection!.footerNoteID
         case .nav:
             pageNoteID = io.collection!.navNoteID
+        case .metadata:
+            pageNoteID = io.collection!.metaNoteID
+        case .search:
+            pageNoteID = io.collection!.searchNoteID
         default:
             break
         }
@@ -64,14 +70,15 @@ public class NoteDisplay {
         let mkdownContext = NotesMkdownContext(io: io, displayParms: parms)
         mkdownContext.setTitleToParse(title: pageNote.title.value, shortID: pageNote.shortID.value)
         let body = pageNote.body.value
+        var bodyCode = ""
         mdBodyParser = MkdownParser(body, options: mkdownOptions)
         mdBodyParser!.setWikiLinkFormatting(prefix: parms.wikiLinkPrefix,
                                             format: parms.wikiLinkFormat,
                                             suffix: parms.wikiLinkSuffix,
                                             context: mkdownContext)
         mdBodyParser!.parse()
-        let bodyHTML = mdBodyParser!.html
-        collection.setPageComponents(pageType: mkdownContext.pageType, note: pageNote, html: bodyHTML)
+        bodyCode = mdBodyParser!.html
+        collection.setPageComponents(pageType: mkdownContext.pageType, note: pageNote, html: bodyCode)
         pageNote.pageType = mkdownContext.pageType
     }
     
@@ -196,7 +203,7 @@ public class NoteDisplay {
             }
         }
         topHTML.link(text: parentTitle, path: parms.assembleWikiLink(title: parentTitle), klass: Markedup.htmlClassNavLink)
-        topHTML.append("&nbsp;")
+        topHTML.append("&#160;") // numeric code for non-breaking space
         topHTML.append("&#8593;")
         topHTML.finishParagraph()
         return topHTML.code
@@ -330,7 +337,7 @@ public class NoteDisplay {
         guard startingPosition.valid && startingNote != nil else { return (startingNote, startingPosition) }
         var nextNote: Note? = startingNote
         var nextPosition: NotePosition = startingPosition
-        while nextNote != nil && nextNote!.pageType != .main {
+        while nextNote != nil && nextNote!.pageType.excludeFromBook(epub: parms.epub3) {
             (nextNote, nextPosition) = passedIO.nextNote(nextPosition)
         }
         return (nextNote, nextPosition)
@@ -436,7 +443,7 @@ public class NoteDisplay {
             let tocLevel = nextLevel
             var (anotherNote, anotherPosition) = io.nextNote(nextPosition)
             while anotherNote != nil && anotherNote!.level >= tocLevel {
-                if anotherNote!.level == tocLevel && anotherNote!.pageType == .main {
+                if anotherNote!.level == tocLevel && anotherNote!.pageType.includeInBook(epub: parms.epub3) {
                     tocNotes.append(anotherNote!)
                 }
                 (anotherNote, anotherPosition) = io.nextNote(anotherPosition)

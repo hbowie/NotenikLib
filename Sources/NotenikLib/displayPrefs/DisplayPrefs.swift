@@ -126,6 +126,8 @@ public class DisplayPrefs {
     public var displayCSS: String? {
         var tempCSS = darkModeAdjustments()
         tempCSS.append("""
+        /* The following CSS comes from the displayCSS method of the
+           DisplayPrefs class within Notenik.                        */
         body {
           tab-size: 4;
           margin: 1em;
@@ -135,7 +137,9 @@ public class DisplayPrefs {
 
         """)
         if fontCSS != nil {
+            tempCSS.append("/* fontCSS insertion starts here */\n")
             tempCSS.append(fontCSS!)
+            tempCSS.append("/* fontCSS insertion ends here   */\n")
         }
         tempCSS.append("""
         }
@@ -349,6 +353,7 @@ public class DisplayPrefs {
             fontWeight = "400"
         }
         hc.append("""
+        /* Generated CSS for headings follows. */
         h1, h2, h3, h4, h5, h6 {
             font-family: \"\(headingsFont)\", Helvetica, Arial, sans-serif;
             font-weight: \(fontWeight);
@@ -384,7 +389,8 @@ public class DisplayPrefs {
     }
     
     public func darkModeAdjustments() -> String {
-        var tempCSS = ""
+        var tempCSS = "/* The following CSS comes from the darkModeAdjustments \n"
+        tempCSS.append("   method of the DisplayPrefs class within Notenik. */\n")
         
         if appPrefs.appAppearance == "system" || appPrefs.appAppearance == "light" {
             tempCSS.append("""
