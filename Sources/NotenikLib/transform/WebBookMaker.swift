@@ -59,6 +59,7 @@ public class WebBookMaker {
     // The META-INF folder contains the container.xml file.
     let metaInfFolderName = "META-INF"
     var metaFolder:       URL!
+    var metaNote:         Note?
     
     let containerFileName = "container"
     let containerFileExt  = "xml"
@@ -420,10 +421,12 @@ public class WebBookMaker {
         }
         logInfo(msg: "\(filesDeleted) image files deleted from \(imagesFolder!)")
         
-        do {
-            try fm.removeItem(at: epubFile)
-        } catch {
-            // No need to panic...
+        if epubFile != nil {
+            do {
+                try fm.removeItem(at: epubFile!)
+            } catch {
+                // No need to panic...
+            }
         }
     }
     
@@ -503,6 +506,9 @@ public class WebBookMaker {
     /// Generate appropriate output for the next Note.
     func generate(note: Note) {
         
+        if note.pageType == .metadata {
+            metaNote = note
+        }
         guard note.pageType.includeInBook(epub: epub) else { return }
         
         let title = note.title.value
@@ -829,13 +835,22 @@ public class WebBookMaker {
         opf.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
         opf.append("<package xmlns=\"http://www.idpf.org/2007/opf\" version=\"3.0\" unique-identifier=\"pub-identifier\">\n")
         opf.append("  <metadata xmlns:dc=\"http://purl.org/dc/elements/1.1/\">\n")
-        if collection.metaCode.isEmpty {
+        if collection.metaCode.isEmpty || metaNote == nil {
             opf.append("    <dc:identifier id=\"uid\">\(StringUtils.toCommonFileName(bookTitle))</dc:identifier>\n")
             opf.append("    <dc:title>\(bookTitle)</dc:title>\n")
             opf.append("    <dc:language>en</dc:language>\n")
         } else {
-            opf.append(collection.metaCode)
-            opf.append("\n")
+            let templateUtil = TemplateUtil()
+            templateUtil.setCommandCharsGen2()
+            let linesIn = collection.metaCode.components(separatedBy: "\n")
+            var linesOut = ""
+            for line in linesIn {
+                let lineOut = templateUtil.replaceVariables(str: line, note: metaNote!)
+                linesOut.append(lineOut.line)
+                linesOut.append("\n")
+            }
+            opf.append(linesOut)
+            // opf.append("\n")
         }
         opf.append("  </metadata>\n")
         

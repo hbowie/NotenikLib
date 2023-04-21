@@ -115,11 +115,7 @@ class TemplateLine {
     /// characters to use for this template.
     func setCommandCharsFromFirstLine() {
         if text.starts(with: "<?") {
-            util.startCommand = "<?"
-            util.endCommand   = "?>"
-            util.startVar     = "=$"
-            util.endVar       = "$="
-            util.startMods    = "&"
+            util.setCommandCharsGen2()
         }
     }
     

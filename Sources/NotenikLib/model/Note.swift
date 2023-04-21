@@ -1656,9 +1656,13 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     }
     
     /// Get the Note Field for a particular label
-    func getField (label: String) -> NoteField? {
+    public func getField(label: String) -> NoteField? {
         let fieldLabel = FieldLabel(label)
         return fields[fieldLabel.commonForm]
+    }
+    
+    public func getField(common: String) -> NoteField? {
+        return fields[common]
     }
     
     /// Get the Note Field for a particular Field Definition

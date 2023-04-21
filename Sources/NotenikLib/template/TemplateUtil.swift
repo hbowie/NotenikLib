@@ -125,6 +125,14 @@ public class TemplateUtil {
         self.typeCatalog = workspace.typeCatalog
     }
     
+    func setCommandCharsGen2() {
+        startCommand = "<?"
+        endCommand   = "?>"
+        startVar     = "=$"
+        endVar       = "$="
+        startMods    = "&"
+    }
+    
     /// Open a new template file.
     ///
     /// - Parameter templateURL: The location of the template file.
@@ -539,6 +547,12 @@ public class TemplateUtil {
         skippingData = !newList[groupNumber]
     }
     
+    // -----------------------------------------------------------
+    //
+    // MARK: Replace and Format Variables.
+    //
+    // -----------------------------------------------------------
+    
     /// Replace any variables in the passed string with their current Note values.
     ///
     /// - Parameters:
@@ -547,6 +561,10 @@ public class TemplateUtil {
     /// - Returns: A line with variables replaced, with or without an ending line break.
     func replaceVariables(str: String, note: Note, position: Int = -1) -> LineWithBreak {
         
+        //
+        // Look for variable name and any variable modifiers,
+        // appending appropriate values to out line as we go.
+        //
         let out = LineWithBreak()
         
         var lookingForStartVar = true
@@ -575,6 +593,7 @@ public class TemplateUtil {
             } else if lookingForEndVar {
                 if str.indexedEquals(index: i, str2: endVar) {
                     endPastDelim = str.index(i, offsetBy: endVar.count)
+                    // Append variable and modifiers, after replacement and formatting.
                     appendVar(toLine: out, varName: varName, mods: mods, note: note, position: position)
                     i = endPastDelim
                     lookingForEndVar = false
@@ -874,8 +893,15 @@ public class TemplateUtil {
         }
         
         if formatString.count > 0 {
-            let date = DateValue(modifiedValue)
-            modifiedValue = date.format(with: formatString)
+            if varNameCommon == "today" && (formatString.count > 10 || formatString.contains("T")) {
+                let today = Date()
+                let formatter = DateFormatter()
+                formatter.dateFormat = formatString
+                modifiedValue = formatter.string(from: today)
+            } else {
+                let date = DateValue(modifiedValue)
+                modifiedValue = date.format(with: formatString)
+            }
         }
         
         return modifiedValue

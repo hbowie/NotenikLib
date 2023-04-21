@@ -37,7 +37,7 @@ public class NoteLineMaker {
     ///
     /// - Parameter note: The note to be written.
     /// - Returns: The number of fields written.
-    public func putNote(_ note: Note) -> Int {
+    public func putNote(_ note: Note, includeAttachments: Bool = false) -> Int {
         
         if note.fileInfo.format == .toBeDetermined {
             note.fileInfo.format = note.collection.noteFileFormat
@@ -123,6 +123,24 @@ public class NoteLineMaker {
         }
         if note.fileInfo.mmdOrYaml && note.fileInfo.mmdMetaEndLine.count > 0 {
             writer.writeLine(note.fileInfo.mmdMetaEndLine)
+        }
+        if includeAttachments && !note.attachments.isEmpty {
+            let attachmentsPath = note.collection.lib.getPath(type: .attachments)
+            print("Attachments path: \(attachmentsPath)")
+            let statusConfig = note.collection.statusConfig
+            var attachmentsValue = ""
+            for attachment in note.attachments {
+                let attachmentPath = FileUtils.joinPaths(path1: attachmentsPath, path2: attachment.fullName)
+                if !attachmentsValue.isEmpty {
+                    attachmentsValue.append("; ")
+                }
+                attachmentsValue.append(attachmentPath)
+            }
+            let attachmentsField = NoteField(label: "Attachments",
+                                             value: attachmentsValue,
+                                             typeCatalog: note.collection.typeCatalog,
+                                             statusConfig: statusConfig)
+            putField(attachmentsField, format: note.fileInfo.format)
         }
         if note.hasBody() {
             putBody(note)
