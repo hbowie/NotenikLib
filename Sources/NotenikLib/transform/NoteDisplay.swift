@@ -37,49 +37,30 @@ public class NoteDisplay {
         
     }
     
-    public func loadHeaderFooterNav(io: NotenikIO, parms: DisplayParms) {
+    public func loadResourcePagesForCollection(io: NotenikIO, parms: DisplayParms) {
         guard parms.formatIsHTML && AppPrefs.shared.parseUsingNotenik else { return }
-        mkdownOptions = MkdownOptions()
-        loadHeaderFooterNavPage(pageType: .header, io: io, mkdownOptions: mkdownOptions, parms: parms)
-        loadHeaderFooterNavPage(pageType: .footer, io: io, mkdownOptions: mkdownOptions, parms: parms)
-        loadHeaderFooterNavPage(pageType: .nav, io: io, mkdownOptions: mkdownOptions, parms: parms)
-        loadHeaderFooterNavPage(pageType: .metadata, io: io, mkdownOptions: mkdownOptions, parms: parms)
-        loadHeaderFooterNavPage(pageType: .search, io: io, mkdownOptions: mkdownOptions, parms: parms)
-    }
-    
-    func loadHeaderFooterNavPage(pageType: MkdownPageType, io: NotenikIO, mkdownOptions: MkdownOptions, parms: DisplayParms) {
         guard let collection = io.collection else { return }
-        var pageNoteID = ""
-        switch pageType {
-        case .header:
-            pageNoteID = io.collection!.headerNoteID
-        case .footer:
-            pageNoteID = io.collection!.footerNoteID
-        case .nav:
-            pageNoteID = io.collection!.navNoteID
-        case .metadata:
-            pageNoteID = io.collection!.metaNoteID
-        case .search:
-            pageNoteID = io.collection!.searchNoteID
-        default:
-            break
+        mkdownOptions = MkdownOptions()
+        for usage in collection.mkdownCommandList.commands {
+            guard !usage.noteID.isEmpty else { continue }
+            guard let noteWithCommand = io.getNote(knownAs: usage.noteID) else { continue }
+            let noteTitle = noteWithCommand.title.value
+            let noteBody = noteWithCommand.body.value
+            parms.setMkdownOptions(mkdownOptions)
+            let mkdownContext = NotesMkdownContext(io: io, displayParms: parms)
+            mkdownContext.setTitleToParse(title: noteTitle,
+                                          shortID: noteWithCommand.shortID.value)
+            mdBodyParser = MkdownParser(noteBody, options: mkdownOptions)
+            mdBodyParser!.setWikiLinkFormatting(prefix: parms.wikiLinkPrefix,
+                                                format: parms.wikiLinkFormat,
+                                                suffix: parms.wikiLinkSuffix,
+                                                context: mkdownContext)
+            mdBodyParser!.parse()
+            
+            noteWithCommand.mkdownCommandList = mkdownContext.mkdownCommandList
+            noteWithCommand.mkdownCommandList.updateWith(body: noteBody, html: mdBodyParser!.html)
+            collection.mkdownCommandList.updateWith(noteList: noteWithCommand.mkdownCommandList)
         }
-        guard !pageNoteID.isEmpty else { return }
-        guard let pageNote = io.getNote(knownAs: pageNoteID) else { return }
-        parms.setMkdownOptions(mkdownOptions)
-        let mkdownContext = NotesMkdownContext(io: io, displayParms: parms)
-        mkdownContext.setTitleToParse(title: pageNote.title.value, shortID: pageNote.shortID.value)
-        let body = pageNote.body.value
-        var bodyCode = ""
-        mdBodyParser = MkdownParser(body, options: mkdownOptions)
-        mdBodyParser!.setWikiLinkFormatting(prefix: parms.wikiLinkPrefix,
-                                            format: parms.wikiLinkFormat,
-                                            suffix: parms.wikiLinkSuffix,
-                                            context: mkdownContext)
-        mdBodyParser!.parse()
-        bodyCode = mdBodyParser!.html
-        collection.setPageComponents(pageType: mkdownContext.pageType, note: pageNote, html: bodyCode)
-        pageNote.pageType = mkdownContext.pageType
     }
     
     /// Get the code used to display this entire note as a web page, including html tags.
@@ -124,8 +105,12 @@ public class NoteDisplay {
                 minutesToRead = MinutesToReadValue(with: counts)
             }
             bodyHTML = mdBodyParser!.html
-            collection.setPageComponents(pageType: mkdownContext.pageType, note: note, html: bodyHTML)
-            note.pageType = mkdownContext.pageType
+            if bodyHTML != nil {
+                note.mkdownCommandList = mkdownContext.mkdownCommandList
+                note.mkdownCommandList.updateWith(body: body.value, html: bodyHTML!)
+                collection.mkdownCommandList.updateWith(noteList: note.mkdownCommandList)
+            }
+            
             wikilinks = mdBodyParser!.wikiLinkList
             includedNotes = mkdownContext.includedNotes
             if collection.missingTargets {
@@ -337,7 +322,7 @@ public class NoteDisplay {
         guard startingPosition.valid && startingNote != nil else { return (startingNote, startingPosition) }
         var nextNote: Note? = startingNote
         var nextPosition: NotePosition = startingPosition
-        while nextNote != nil && nextNote!.pageType.excludeFromBook(epub: parms.epub3) {
+        while nextNote != nil && nextNote!.mkdownCommandList.excludeFromBook(epub: parms.epub3) {
             (nextNote, nextPosition) = passedIO.nextNote(nextPosition)
         }
         return (nextNote, nextPosition)
@@ -443,7 +428,7 @@ public class NoteDisplay {
             let tocLevel = nextLevel
             var (anotherNote, anotherPosition) = io.nextNote(nextPosition)
             while anotherNote != nil && anotherNote!.level >= tocLevel {
-                if anotherNote!.level == tocLevel && anotherNote!.pageType.includeInBook(epub: parms.epub3) {
+                if anotherNote!.level == tocLevel && anotherNote!.mkdownCommandList.includeInBook(epub: parms.epub3) {
                     tocNotes.append(anotherNote!)
                 }
                 (anotherNote, anotherPosition) = io.nextNote(anotherPosition)

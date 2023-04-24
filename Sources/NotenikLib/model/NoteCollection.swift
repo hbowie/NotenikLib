@@ -108,7 +108,9 @@ public class NoteCollection {
     public  var tocNoteID      = ""
     public  var skipContentsForParent = false
     
-    public  var headerNoteID   = ""
+    public  var mkdownCommandList = MkdownCommandList(collectionLevel: true)
+    
+    /* public  var headerNoteID   = ""
     public  var headerHTML     = ""
     public  var navNoteID      = ""
     public  var navHTML        = ""
@@ -116,7 +118,7 @@ public class NoteCollection {
     public  var footerHTML     = ""
     public  var metaNoteID     = ""
     public  var metaCode       = ""
-    public  var searchNoteID   = ""
+    public  var searchNoteID   = "" */
     
     public  var windowPosStr   = ""
     public  var columnWidths   = ColumnWidths()
@@ -307,30 +309,6 @@ public class NoteCollection {
             noteFileFormat = .plainText
         default:
             noteFileFormat = .notenik
-        }
-    }
-    
-    public func setPageComponents(pageType: MkdownPageType, note: Note, html: String?) {
-        guard html != nil else { return }
-        switch pageType {
-        case .main:
-            break
-        case .header:
-            headerNoteID = note.id
-            headerHTML = html!
-        case .nav:
-            navNoteID = note.id
-            navHTML = html!
-        case .footer:
-            footerNoteID = note.id
-            footerHTML = html!
-        case .metadata:
-            metaNoteID = note.id
-            var bodyLines = note.body.value.components(separatedBy: "\n")
-            _ = bodyLines.removeFirst()
-            metaCode = bodyLines.joined(separator: "\n")
-        case .search:
-            searchNoteID = note.id
         }
     }
     

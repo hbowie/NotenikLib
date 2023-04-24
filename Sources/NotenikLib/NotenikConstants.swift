@@ -250,16 +250,6 @@ public struct NotenikConstants {
     static let hashTagsCommon           = "hashtags"
     static let titleSetByUser           = "Title Set by User"
     static let titleSetByUserCommon     = "titlesetbyuser"
-    static let headerNoteID             = "Header Note ID"
-    static let headerNoteIdCommon       = "headernoteid"
-    static let footerNoteID             = "Footer Note ID"
-    static let footerNoteIdCommon       = "footernoteid"
-    static let navNoteID                = "Nav Note ID"
-    static let navNoteIdCommon          = "navnoteid"
-    static let metaNoteID               = "Metadata Note ID"
-    static let metaNoteIdCommon         = "metadatanoteid"
-    static let searchNoteID             = "Search Note ID"
-    static let searchNoteIdCommon       = "searchnoteid"
     
     //-------------------------------------------------------------
     //

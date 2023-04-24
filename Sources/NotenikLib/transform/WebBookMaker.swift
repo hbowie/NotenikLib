@@ -12,6 +12,7 @@
 
 import Foundation
 
+import NotenikMkdown
 import NotenikUtils
 
 import ZIPFoundation
@@ -294,7 +295,7 @@ public class WebBookMaker {
         deleteOldFiles()
         
         // Now generate fresh content.
-        display.loadHeaderFooterNav(io: io, parms: parms)
+        display.loadResourcePagesForCollection(io: io, parms: parms)
         filesWritten = 0
         io.sortParm = .seqPlusTitle
         bookTitle = ""
@@ -506,10 +507,10 @@ public class WebBookMaker {
     /// Generate appropriate output for the next Note.
     func generate(note: Note) {
         
-        if note.pageType == .metadata {
+        if note.mkdownCommandList.metadata {
             metaNote = note
         }
-        guard note.pageType.includeInBook(epub: epub) else { return }
+        guard note.mkdownCommandList.includeInBook(epub: epub) else { return }
         
         let title = note.title.value
         let level = note.level
@@ -560,10 +561,15 @@ public class WebBookMaker {
                 images.append(img)
             }
             if epub {
+                var properties = ""
+                if note.mkdownCommandList.scripted {
+                    properties = "scripted"
+                }
                 let id = generateManifest(folder: "",
                                           filename: fileName,
                                           fileExt: htmlFileExt,
-                                          finish: false)
+                                          finish: false,
+                                          properties: properties)
                 generateSpine(idref: id, finish: false)
                 if levelInt == tocLevel1 {
                     addToTableOfContents(level: 1, href: fileName + "." + htmlFileExt, title: title)
@@ -835,14 +841,15 @@ public class WebBookMaker {
         opf.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
         opf.append("<package xmlns=\"http://www.idpf.org/2007/opf\" version=\"3.0\" unique-identifier=\"pub-identifier\">\n")
         opf.append("  <metadata xmlns:dc=\"http://purl.org/dc/elements/1.1/\">\n")
-        if collection.metaCode.isEmpty || metaNote == nil {
-            opf.append("    <dc:identifier id=\"uid\">\(StringUtils.toCommonFileName(bookTitle))</dc:identifier>\n")
+        let metaCode = collection.mkdownCommandList.getCodeFor(MkdownConstants.metadataCmd)
+        if metaCode.isEmpty || metaNote == nil {
+            opf.append("    <dc:identifier id=\"pub-identifier\">\(StringUtils.toCommonFileName(bookTitle))</dc:identifier>\n")
             opf.append("    <dc:title>\(bookTitle)</dc:title>\n")
             opf.append("    <dc:language>en</dc:language>\n")
         } else {
             let templateUtil = TemplateUtil()
             templateUtil.setCommandCharsGen2()
-            let linesIn = collection.metaCode.components(separatedBy: "\n")
+            let linesIn = metaCode.components(separatedBy: "\n")
             var linesOut = ""
             for line in linesIn {
                 let lineOut = templateUtil.replaceVariables(str: line, note: metaNote!)

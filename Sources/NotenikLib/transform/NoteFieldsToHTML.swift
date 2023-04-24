@@ -74,14 +74,15 @@ public class NoteFieldsToHTML {
         // See if we need to start a list of included children.
         startListOfChildren(code: code)
         
-        let headerContents = parms.header + collection.headerHTML
+        let headerContents = parms.header + collection.mkdownCommandList.getCodeFor(MkdownConstants.headerCmd)
         
-        if note.pageType == .main && note.klass.value != NotenikConstants.titleKlass {
+        if note.mkdownCommandList.contentPage && note.klass.value != NotenikConstants.titleKlass {
             if !headerContents.isEmpty {
                 code.header(headerContents)
             }
-            if !collection.navHTML.isEmpty {
-                code.nav(collection.navHTML)
+            let navCode = collection.mkdownCommandList.getCodeFor(MkdownConstants.navCmd)
+            if !navCode.isEmpty {
+                code.nav(navCode)
             }
         }
         
@@ -190,8 +191,9 @@ public class NoteFieldsToHTML {
         
         code.finishMain()
         
-        if note.pageType.includeInBook(epub: parms.epub3) && !collection.footerHTML.isEmpty {
-            code.footer(collection.footerHTML)
+        let footerCode = collection.mkdownCommandList.getCodeFor(MkdownConstants.footerCmd)
+        if note.mkdownCommandList.includeInBook(epub: parms.epub3) && !footerCode.isEmpty {
+            code.footer(footerCode)
         }
         
         // Finish off the entire document.
@@ -502,9 +504,10 @@ public class NoteFieldsToHTML {
             } else {
                 let body = Markdown.parse(markdown: field.value.value, options: mkdownOptions, context: mkdownContext)
                 markedup.append(body)
-                if let context = mkdownContext {
-                    collection.setPageComponents(pageType: context.pageType, note: note, html: body)
-                    note.pageType = context.pageType
+                if let context = mkdownContext as? NotesMkdownContext {
+                    note.mkdownCommandList = context.mkdownCommandList
+                    note.mkdownCommandList.updateWith(body: field.value.value, html: body)
+                    collection.mkdownCommandList.updateWith(noteList: note.mkdownCommandList)
                 }
             }
             if note.klass.quote {

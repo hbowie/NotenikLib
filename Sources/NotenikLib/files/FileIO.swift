@@ -277,24 +277,12 @@ public class FileIO: NotenikIO, RowConsumer {
 
         str.append(label: NotenikConstants.columnWidths, value: "\(collection!.columnWidths)")
         
-        if !collection!.headerNoteID.isEmpty {
-            str.append(label: NotenikConstants.headerNoteID, value: collection!.headerNoteID)
-        }
-        
-        if !collection!.footerNoteID.isEmpty {
-            str.append(label: NotenikConstants.footerNoteID, value: collection!.footerNoteID)
-        }
-        
-        if !collection!.navNoteID.isEmpty {
-            str.append(label: NotenikConstants.navNoteID, value: collection!.navNoteID)
-        }
-        
-        if !collection!.metaNoteID.isEmpty {
-            str.append(label: NotenikConstants.metaNoteID, value: collection!.metaNoteID)
-        }
-        
-        if !collection!.searchNoteID.isEmpty {
-            str.append(label: NotenikConstants.searchNoteID, value: collection!.searchNoteID)
+        for usage in collection!.mkdownCommandList.commands {
+            if usage.saveForCollection && !usage.noteID.isEmpty {
+                let label = "\(usage.command) Note ID"
+                let value = usage.noteID
+                str.append(label: label, value: value)
+            }
         }
 
         return lib.saveInfo(str: str.str)
@@ -725,29 +713,12 @@ public class FileIO: NotenikIO, RowConsumer {
             collection!.columnWidths.set(columnWidths!.value.value)
         }
         
-        let headerNoteID = infoNote.getField(label: NotenikConstants.headerNoteIdCommon)
-        if headerNoteID != nil && !headerNoteID!.value.value.isEmpty && collection!.headerNoteID.isEmpty {
-            collection!.headerNoteID = headerNoteID!.value.value
-        }
-        
-        let footerNoteID = infoNote.getField(label: NotenikConstants.footerNoteIdCommon)
-        if footerNoteID != nil && !footerNoteID!.value.value.isEmpty && collection!.footerNoteID.isEmpty {
-            collection!.footerNoteID = footerNoteID!.value.value
-        }
-        
-        let navNoteID = infoNote.getField(label: NotenikConstants.navNoteIdCommon)
-        if navNoteID != nil && !navNoteID!.value.value.isEmpty && collection!.navNoteID.isEmpty {
-            collection!.navNoteID = navNoteID!.value.value
-        }
-        
-        let metaNoteID = infoNote.getField(label: NotenikConstants.metaNoteIdCommon)
-        if metaNoteID != nil && !metaNoteID!.value.value.isEmpty && collection!.metaNoteID.isEmpty {
-            collection!.metaNoteID = metaNoteID!.value.value
-        }
-        
-        let searchNoteID = infoNote.getField(label: NotenikConstants.searchNoteIdCommon)
-        if searchNoteID != nil && !searchNoteID!.value.value.isEmpty && collection!.searchNoteID.isEmpty {
-            collection!.searchNoteID = searchNoteID!.value.value
+        for (key, field) in infoNote.fields {
+            if key.hasSuffix("noteid") {
+                let command = String(key.dropLast(6))
+                let noteID = field.value.value
+                collection!.mkdownCommandList.updateWith(command: command, noteTitle: noteID, code: nil)
+            }
         }
         
         infoFound = true

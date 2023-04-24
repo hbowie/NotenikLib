@@ -18,7 +18,7 @@ import NotenikUtils
 /// A class that can provide the Markdown parser with contextual information about
 /// the environment from which the Markdown text was provided. 
 public class NotesMkdownContext: MkdownContext {
-
+    
     // -----------------------------------------------------------
     //
     // MARK: Initial setup.
@@ -30,7 +30,7 @@ public class NotesMkdownContext: MkdownContext {
     var io: NotenikIO
     var displayParms = DisplayParms()
     
-    public var pageType: MkdownPageType = .main
+    var mkdownCommandList = MkdownCommandList(collectionLevel: false)
     
     let htmlConverter = StringConverter()
     
@@ -44,16 +44,31 @@ public class NotesMkdownContext: MkdownContext {
         htmlConverter.addHTML()
     }
     
+    // -----------------------------------------------------------
+    //
+    // MARK: Set the title of the Note to be parsed.
+    //
+    // -----------------------------------------------------------
+    
     /// Set the Title of the Note whose Markdown text is to be parsed.
     public func setTitleToParse(title: String, shortID: String) {
         guard let collection = io.collection else { return }
         collection.titleToParse = title
         collection.shortID = shortID
+        mkdownCommandList = MkdownCommandList(collectionLevel: false)
     }
     
-    /// Set by the parser when some page type other than main is encountered.
-    public func setPageType(_ pageType: MkdownPageType) {
-        self.pageType = pageType
+    // -----------------------------------------------------------
+    //
+    // MARK: Expose the usage of a Markdown command. 
+    //
+    // -----------------------------------------------------------
+    
+    /// Expose the usage of a Markdown command found within the page.
+    public func exposeMarkdownCommand(_ command: String) {
+        guard let collection = io.collection else { return }
+        guard !collection.titleToParse.isEmpty else { return }
+        mkdownCommandList.updateWith(command: command, noteTitle: collection.titleToParse, code: nil)
     }
     
     // -----------------------------------------------------------
@@ -211,7 +226,7 @@ public class NotesMkdownContext: MkdownContext {
         if !hasLevel { level = 1 }
         guard level >= levelStart else { return }
         guard level <= levelEnd else { return }
-        guard note.pageType.includeInBook(epub: displayParms.epub3) else { return }
+        guard note.mkdownCommandList.includeInBook(epub: displayParms.epub3) else { return }
         
         // Manage nested lists.
         if level < lastLevel {
@@ -265,7 +280,7 @@ public class NotesMkdownContext: MkdownContext {
         indexCollection  = IndexCollection()
         var (note, position) = io.firstNote()
         while note != nil {
-            if note!.hasTitle() && note!.hasIndex() && note!.pageType.includeInBook(epub: displayParms.epub3) {
+            if note!.hasTitle() && note!.hasIndex() && note!.mkdownCommandList.includeInBook(epub: displayParms.epub3) {
                 let pageType = note!.getFieldAsString(label: NotenikConstants.typeCommon)
                 indexCollection.add(page: note!.title.value, pageType: pageType, index: note!.index)
             }
