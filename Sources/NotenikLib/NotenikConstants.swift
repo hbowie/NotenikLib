@@ -187,6 +187,7 @@ public struct NotenikConstants {
     public static let authorKlass       = "author"
     public static let backKlass         = "back"
     public static let biblioKlass       = "biblio"
+    public static let excludeKlass      = "exclude"
     public static let frontKlass        = "front"
     public static let introKlass        = "intro"
     public static let prefaceKlass      = "preface"

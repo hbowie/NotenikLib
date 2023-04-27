@@ -54,24 +54,6 @@ public class MkdownCommandList {
         return commands.count
     }
     
-    /// Should this Note be excluded from a web book being generated?
-    /// - Parameter epub: Is this an EPUB web book?
-    /// - Returns: True if the Note should be excluded.
-    public func excludeFromBook(epub: Bool) -> Bool {
-        if contentPage { return false }
-        if search && epub { return true }
-        return true
-    }
-    
-    /// Should this Note be included in a web book being generated?
-    /// - Parameter epub: Is this an EPUB web book?
-    /// - Returns: True if the Note should be included.
-    public func includeInBook(epub: Bool) -> Bool {
-        if contentPage { return true }
-        if search && !epub { return true }
-        return false
-    }
-    
     /// Return the code associated with a particular command.
     public func getCodeFor(_ command: String) -> String {
         for usage in commands {

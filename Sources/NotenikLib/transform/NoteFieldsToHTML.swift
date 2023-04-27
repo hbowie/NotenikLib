@@ -192,7 +192,7 @@ public class NoteFieldsToHTML {
         code.finishMain()
         
         let footerCode = collection.mkdownCommandList.getCodeFor(MkdownConstants.footerCmd)
-        if note.mkdownCommandList.includeInBook(epub: parms.epub3) && !footerCode.isEmpty {
+        if note.includeInBook(epub: parms.epub3) && !footerCode.isEmpty {
             code.footer(footerCode)
         }
         
@@ -545,16 +545,7 @@ public class NoteFieldsToHTML {
     // Display the Title of the Note in one of several possible formats.
     func displayTitle(note: Note, markedup: Markedup) {
         
-        var titleToDisplay = note.title.value
-        if parms.streamlined && (note.hasSeq() || note.hasDisplaySeq()) && !parms.included.asList {
-            if !note.klass.frontOrBack && !note.klass.quote {
-                if note.hasDisplaySeq() {
-                    titleToDisplay = note.formattedDisplaySeq + note.title.value
-                } else {
-                    titleToDisplay = note.formattedSeq + " " + note.title.value
-                }
-            }
-        }
+        var titleToDisplay = parms.streamlinedTitle(note: note)
         
         if parms.streamlined && parms.included.on && note.klass.quote && note.hasAuthor() {
             let titleMarkup = Markedup(format: parms.format)

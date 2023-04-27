@@ -308,7 +308,7 @@ public class WebBookMaker {
         }
         
         if epub {
-            addToTableOfContents(level: 0, href: "", title: "", finish: true)
+            addToTableOfContents(level: 0, href: "", note: nil, finish: true)
         }
         
         copyImages()
@@ -510,7 +510,7 @@ public class WebBookMaker {
         if note.mkdownCommandList.metadata {
             metaNote = note
         }
-        guard note.mkdownCommandList.includeInBook(epub: epub) else { return }
+        guard note.includeInBook(epub: epub) else { return }
         
         let title = note.title.value
         let level = note.level
@@ -572,9 +572,9 @@ public class WebBookMaker {
                                           properties: properties)
                 generateSpine(idref: id, finish: false)
                 if levelInt == tocLevel1 {
-                    addToTableOfContents(level: 1, href: fileName + "." + htmlFileExt, title: title)
+                    addToTableOfContents(level: 1, href: fileName + "." + htmlFileExt, note: note)
                 } else if levelInt == tocLevel2 {
-                    addToTableOfContents(level: 2, href: fileName + "." + htmlFileExt, title: title)
+                    addToTableOfContents(level: 2, href: fileName + "." + htmlFileExt, note: note)
                 }
             }
         } 
@@ -610,7 +610,7 @@ public class WebBookMaker {
     var tocStarted = false
     var lastLevel = 0
     
-    func addToTableOfContents(level: Int, href: String, title: String, finish: Bool = false) {
+    func addToTableOfContents(level: Int, href: String, note: Note?, finish: Bool = false) {
         if !tocStarted {
             toc = Markedup(format: .xhtmlDoc)
             toc.startDoc(withTitle: "Table of Contents", withCSS: nil, epub3: true)
@@ -639,9 +639,9 @@ public class WebBookMaker {
             workLevel += 1
         }
         
-        if level > 0 && !href.isEmpty && !title.isEmpty {
+        if level > 0 && !href.isEmpty && note != nil {
             toc.startListItem()
-            toc.link(text: title, path: href)
+            parms.streamlinedTitleWithLink(markedup: toc, note: note!, klass: Markedup.htmlClassNavLink)
         }
         
         lastLevel = level

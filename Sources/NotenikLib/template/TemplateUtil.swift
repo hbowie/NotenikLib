@@ -1266,6 +1266,9 @@ public class TemplateUtil {
         
         var label = "Next: "
         var index = position + 1
+        while index < notesList.count && notesList[index].excludeFromBook(epub: false) {
+            index += 1
+        }
         if index >= notesList.count {
             label = "Back to Top: "
             index = 0

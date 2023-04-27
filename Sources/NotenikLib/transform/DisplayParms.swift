@@ -117,6 +117,39 @@ public class DisplayParms {
         }
     }
     
+    public func streamlinedTitleWithLink(markedup: Markedup, note: Note, klass: String?) {
+        let simpleTitle = note.title.value
+        if note.klass.frontOrBack || note.klass.quote {
+            // no need for a preceding number
+        } else if note.hasDisplaySeq() {
+            markedup.append(note.formattedDisplaySeq + " ")
+        } else {
+            markedup.append(note.formattedSeq + " ")
+        }
+        markedup.link(text: simpleTitle, path: assembleWikiLink(title: simpleTitle), klass: klass)
+    }
+    
+    
+    /// Format the title with a possible preceding sequence number, when
+    /// engaged in Streamlined Reading.
+    /// - Parameter note: The Note whose title is to be formatted.
+    /// - Returns: The title of the Note, possibly preceded by a
+    ///   Sequence number of one kind or another. 
+    public func streamlinedTitle(note: Note) -> String {
+        let simpleTitle = note.title.value
+        guard streamlined else { return simpleTitle }
+        guard !included.asList else { return simpleTitle }
+        guard !note.klass.frontOrBack else { return simpleTitle }
+        guard !note.klass.quote else { return simpleTitle }
+        if note.hasDisplaySeq() {
+            return note.formattedDisplaySeq + simpleTitle
+        } else if note.hasSeq() {
+            return note.formattedSeq + " " + simpleTitle
+        } else {
+            return simpleTitle
+        }
+    }
+    
     public func display(by: String) {
         print ("DisplayParms.display requested by \(by)")
         print("  - css string = \(cssString)")

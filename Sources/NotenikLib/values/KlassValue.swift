@@ -32,6 +32,8 @@ public class KlassValue: StringValue {
             return true
         case NotenikConstants.prefaceKlass:
             return true
+        case NotenikConstants.titleKlass:
+            return true
         case NotenikConstants.workKlass:
             return true
         default:
@@ -39,9 +41,27 @@ public class KlassValue: StringValue {
         }
     }
     
+    public var exclude: Bool {
+        switch value {
+        case NotenikConstants.excludeKlass:
+            return true
+        default:
+            return false
+        }
+    }
+    
+    public var include: Bool {
+        switch value {
+        case NotenikConstants.excludeKlass:
+            return false
+        default:
+            return true
+        }
+    }
+    
     public var frontMatter: Bool {
         switch value {
-        case NotenikConstants.frontKlass, NotenikConstants.introKlass, NotenikConstants.prefaceKlass:
+        case NotenikConstants.frontKlass, NotenikConstants.introKlass, NotenikConstants.prefaceKlass, NotenikConstants.titleKlass:
             return true
         default:
             return false

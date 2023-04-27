@@ -60,6 +60,26 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
         }
     }
     
+    /// Should this Note be excluded from a web book being generated?
+    /// - Parameter epub: Is this an EPUB web book?
+    /// - Returns: True if the Note should be excluded.
+    public func excludeFromBook(epub: Bool) -> Bool {
+        if klass.exclude { return true }
+        if mkdownCommandList.contentPage { return false }
+        if mkdownCommandList.search && epub { return true }
+        return true
+    }
+    
+    /// Should this Note be included in a web book being generated?
+    /// - Parameter epub: Is this an EPUB web book?
+    /// - Returns: True if the Note should be included.
+    public func includeInBook(epub: Bool) -> Bool {
+        if klass.exclude { return false }
+        if mkdownCommandList.contentPage { return true }
+        if mkdownCommandList.search && !epub { return true }
+        return false
+    }
+    
     public var dateAddedValue: String {
         if collection.dateAddedFieldDef == nil {
             return envCreateDate

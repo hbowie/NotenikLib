@@ -223,20 +223,19 @@ public class NotesMkdownContext: MkdownContext {
         var level = note.level.getInt()
         let seq = note.seq.value
         if hasLevelAndSeq && level <= 1 && seq.count == 0 { return }
+        if note.klass.value == NotenikConstants.titleKlass { return }
         if !hasLevel { level = 1 }
         guard level >= levelStart else { return }
         guard level <= levelEnd else { return }
-        guard note.mkdownCommandList.includeInBook(epub: displayParms.epub3) else { return }
+        guard note.includeInBook(epub: displayParms.epub3) else { return }
         
         // Manage nested lists.
         if level < lastLevel {
             closeTocEntries(downTo: level)
         }
-        /* else */
         if level == lastLevel {
             toc.finishListItem()
         }
-        /* else */
         if level > lastLevel {
             toc.startUnorderedList(klass: nil)
             levels.append(level)
@@ -244,13 +243,7 @@ public class NotesMkdownContext: MkdownContext {
         
         // Display the next TOC entry
         toc.startListItem()
-        if seq.count > 0 && !note.klass.frontOrBack {
-            toc.write("\(seq) ")
-        }
-        let title = note.title.value
-        let link = displayParms.assembleWikiLink(title: title)
-        let text = htmlConverter.convert(from: title)
-        toc.link(text: text, path: link, klass: Markedup.htmlClassNavLink)
+        displayParms.streamlinedTitleWithLink(markedup: toc, note: note, klass: Markedup.htmlClassNavLink)
     }
     
     func closeTocEntries(downTo: Int) {
@@ -280,7 +273,7 @@ public class NotesMkdownContext: MkdownContext {
         indexCollection  = IndexCollection()
         var (note, position) = io.firstNote()
         while note != nil {
-            if note!.hasTitle() && note!.hasIndex() && note!.mkdownCommandList.includeInBook(epub: displayParms.epub3) {
+            if note!.hasTitle() && note!.hasIndex() && note!.includeInBook(epub: displayParms.epub3) {
                 let pageType = note!.getFieldAsString(label: NotenikConstants.typeCommon)
                 indexCollection.add(page: note!.title.value, pageType: pageType, index: note!.index)
             }
@@ -335,6 +328,145 @@ public class NotesMkdownContext: MkdownContext {
         }
         mkdown.finishDefinitionList()
         return mkdown.code
+    }
+    
+    // -----------------------------------------------------------
+    //
+    // MARK: Generate HTML to take user to a random note.
+    //
+    // -----------------------------------------------------------
+    
+    /// Generate a page that will randomly navigate to another page.
+    public func mkdownRandomNote(klassNames: String) -> String {
+        
+        // See if we're limiting this to certain class names.
+        var typeOfThing = "note"
+        var klassList: [String] = []
+        var nextName = SolidString()
+        for c in klassNames {
+            switch c {
+            case ",", ";":
+                if !nextName.isEmpty {
+                    klassList.append(nextName.common)
+                    nextName = SolidString()
+                }
+            default:
+                nextName.append(c)
+            }
+        }
+        if !nextName.isEmpty {
+            klassList.append(nextName.common)
+        }
+        if klassList.count == 1 {
+            typeOfThing = klassList[0]
+        }
+        
+        if displayParms.wikiLinkFormat == .common {
+            return randomWithinNotenik(typeOfThing: typeOfThing, klassList: klassList)
+        } else {
+            return randomInBrowser(typeOfThing: typeOfThing, klassList: klassList)
+        }
+    }
+    
+    func randomWithinNotenik(typeOfThing: String, klassList: [String]) -> String {
+        let markup = Markedup(format: .htmlFragment)
+        var ok = false
+        var attempts = 0
+        var note: Note?
+        while !ok && attempts <= 1000 {
+            attempts += 1
+            let i = Int.random(in: 0..<io.count)
+            note = io.getNote(at: i)
+            if note != nil {
+                ok = isEligibleRandomNote(note: note!, klassList: klassList)
+            }
+        }
+        markup.startParagraph()
+        if ok {
+            markup.append("Click to go to ")
+            let title = note!.title.value
+            let link = displayParms.assembleWikiLink(title: title)
+            let text = htmlConverter.convert(from: title)
+            markup.link(text: text, path: link, klass: Markedup.htmlClassNavLink)
+            markup.append(".")
+        } else {
+            markup.append("A target \(typeOfThing) could not be found!")
+        }
+        markup.finishParagraph()
+        return markup.code
+    }
+    
+    func randomInBrowser(typeOfThing: String, klassList: [String]) -> String {
+        let markup = Markedup(format: .htmlFragment)
+        markup.startDiv(klass: nil, id: "random-note")
+        markup.finishDiv()
+        markup.startScript()
+        markup.ensureNewLine()
+        markup.writeLine("var fileNames = new Array();")
+        markup.writeLine("var ix = 0;")
+        
+        // Now fill the candidate array.
+        var (note, position) = io.firstNote()
+        while note != nil {
+            if isEligibleRandomNote(note: note!, klassList: klassList) {
+                let fileName = StringUtils.toCommonFileName(note!.title.value)
+                markup.writeLine("fileNames[ix] = \"\(fileName).html\";")
+                markup.writeLine("ix++;")
+            }
+            (note, position) = io.nextNote(position)
+        }
+        let randomScript = """
+        var max = ix;
+
+        var now = new Date();
+        var seed = now.getTime() % 0xffffffff;
+        let results = document.querySelector('#random-note');
+
+        randomNote();
+
+        function rand(n) {
+          seed = (0x015a4e35 * seed) % 0x7fffffff;
+          return (seed >> 16) % n;
+        }
+
+        function randomNote() {
+          var rq = rand(max);
+          if (rq < 0) {
+            rq = 0;
+          }
+          if (rq >= max) {
+            rq = max - 1;
+          }
+          var fileName = fileNames[rq];
+          let html = '<p>Click to go to <a href="' + fileName + '">random page</a>.</p>';
+          results.innerHTML = html;
+        }
+
+        """
+        markup.append(randomScript)
+        markup.finishScript()
+        markup.ensureBlankLine()
+        return markup.code
+    }
+    
+    /// Is this class included in the list of desired classes?
+    func isEligibleRandomNote(note: Note, klassList: [String]) -> Bool {
+        
+        if let collection = io.collection {
+            if collection.titleToParse == note.title.value {
+                return false
+            }
+        }
+        
+        guard !klassList.isEmpty else { return true }
+        let klass = note.klass.value
+        guard !klass.isEmpty else { return false }
+        for targetKlass in klassList {
+            if klass == targetKlass {
+                return true
+            }
+        }
+        return false
     }
     
     // -----------------------------------------------------------

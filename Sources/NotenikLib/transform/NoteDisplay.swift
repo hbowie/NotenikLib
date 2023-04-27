@@ -160,13 +160,8 @@ public class NoteDisplay {
         guard noteLevel > 1 else { return "" }
         let sortParm = parms.sortParm
         guard sortParm == .seqPlusTitle else { return "" }
-        var klass = KlassValue()
-        if note.collection.klassFieldDef != nil {
-            klass = note.klass
-        }
         var currentPosition = io.positionOfNote(note)
-        var parentTitle = ""
-        var parentSeq = ""
+        var parentNote: Note?
         
         while currentPosition.valid {
             let (priorNote, priorPosition) = io.priorNote(currentPosition)
@@ -174,22 +169,17 @@ public class NoteDisplay {
             guard priorPosition.valid && priorNote != nil else { break }
             guard priorNote!.hasLevel() else { continue }
             if priorNote!.level.level < noteLevel {
-                parentTitle = priorNote!.title.value
-                parentSeq = priorNote!.seq.value
+                parentNote = priorNote!
                 break
             }
         }
-        guard !parentTitle.isEmpty else { return "" }
+        guard parentNote != nil else { return "" }
+        
         let topHTML = Markedup()
         topHTML.startParagraph()
-        if parentSeq.count > 0 {
-            if !klass.frontOrBack {
-                topHTML.append("\(parentSeq) ")
-            }
-        }
-        topHTML.link(text: parentTitle, path: parms.assembleWikiLink(title: parentTitle), klass: Markedup.htmlClassNavLink)
+        parms.streamlinedTitleWithLink(markedup: topHTML, note: parentNote!, klass: Markedup.htmlClassNavLink)
         topHTML.append("&#160;") // numeric code for non-breaking space
-        topHTML.append("&#8593;")
+        topHTML.append("&#8593;") // Up arrow
         topHTML.finishParagraph()
         return topHTML.code
     }
@@ -322,7 +312,7 @@ public class NoteDisplay {
         guard startingPosition.valid && startingNote != nil else { return (startingNote, startingPosition) }
         var nextNote: Note? = startingNote
         var nextPosition: NotePosition = startingPosition
-        while nextNote != nil && nextNote!.mkdownCommandList.excludeFromBook(epub: parms.epub3) {
+        while nextNote != nil && nextNote!.excludeFromBook(epub: parms.epub3) {
             (nextNote, nextPosition) = passedIO.nextNote(nextPosition)
         }
         return (nextNote, nextPosition)
@@ -428,7 +418,7 @@ public class NoteDisplay {
             let tocLevel = nextLevel
             var (anotherNote, anotherPosition) = io.nextNote(nextPosition)
             while anotherNote != nil && anotherNote!.level >= tocLevel {
-                if anotherNote!.level == tocLevel && anotherNote!.mkdownCommandList.includeInBook(epub: parms.epub3) {
+                if anotherNote!.level == tocLevel && anotherNote!.includeInBook(epub: parms.epub3) {
                     tocNotes.append(anotherNote!)
                 }
                 (anotherNote, anotherPosition) = io.nextNote(anotherPosition)
@@ -437,27 +427,8 @@ public class NoteDisplay {
                 bottomHTML.heading(level: 4, text: "Contents")
                 bottomHTML.startUnorderedList(klass: "notenik-toc")
                 for tocNote in tocNotes {
-                    let tocTitle = tocNote.title.value
                     bottomHTML.startListItem()
-                    if !tocNote.klass.frontOrBack {
-                        bottomHTML.append("\(tocNote.formattedSeqForDisplay) ")
-                    }
-                    bottomHTML.link(text: tocTitle, path: parms.assembleWikiLink(title: tocTitle), klass: Markedup.htmlClassNavLink)
-                    /*
-                    let aka = tocNote.aka.value
-                    if !aka.isEmpty && (tocTitle.count + aka.count) < 60 {
-                        let (matched, unmatched) = StringUtils.matchCounts(str1: tocTitle, str2: aka)
-                        var shorter = tocTitle.count
-                        if aka.count < shorter {
-                            shorter = aka.count
-                        }
-                        let matching: Double = Double(Double(matched) / Double(shorter))
-                        if !(matching > 0.60 || matched > unmatched) {
-                            bottomHTML.startEmphasis()
-                            bottomHTML.append(" (aka: \(aka))")
-                            bottomHTML.finishEmphasis()
-                        }
-                    } */
+                    parms.streamlinedTitleWithLink(markedup: bottomHTML, note: tocNote, klass: Markedup.htmlClassNavLink)
                     bottomHTML.finishListItem()
                 }
                 bottomHTML.finishUnorderedList()
