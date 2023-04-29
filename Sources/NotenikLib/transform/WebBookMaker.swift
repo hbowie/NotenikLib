@@ -88,6 +88,12 @@ public class WebBookMaker {
     var imagesRelPath = ""
     var images: [ImageFile] = []
     
+    // JavaScript folder.
+    let jsFolderName = "js"
+    let jsFileExt    = "js"
+    var jsFolder:       URL!
+    var jsRelPath    = ""
+    
     let opfFileName = "content"
     let opfFileExt = "opf"
     var opfFile:        URL!
@@ -150,6 +156,8 @@ public class WebBookMaker {
             guard FileUtils.ensureFolder(forURL: imagesFolder) else { return nil }
             imagesRelPath = "\(imagesFolderName)"
             
+            jsFolder = pubFolder.appendingPathComponent(jsFolderName, isDirectory: true)
+            
         case .epubsite:
             
             htmlFileExt = "html"
@@ -175,6 +183,8 @@ public class WebBookMaker {
             imagesFolder = pubFolder.appendingPathComponent(imagesFolderName, isDirectory: true)
             guard FileUtils.ensureFolder(forURL: imagesFolder) else { return nil }
             imagesRelPath = "../\(imagesFolderName)"
+            
+            jsFolder = pubFolder.appendingPathComponent(jsFolderName, isDirectory: true)
 
             opfFile = URL(fileURLWithPath: opfFileName, relativeTo: pubFolder).appendingPathExtension(opfFileExt)
             
@@ -205,6 +215,10 @@ public class WebBookMaker {
             imagesFolder = contentFolder.appendingPathComponent(imagesFolderName, isDirectory: true)
             guard FileUtils.ensureFolder(forURL: imagesFolder) else { return nil }
             imagesRelPath = "\(imagesFolderName)"
+            
+            jsFolder = contentFolder.appendingPathComponent(jsFolderName, isDirectory: true)
+            guard FileUtils.ensureFolder(forURL: jsFolder) else { return nil }
+            jsRelPath = "\(jsFolderName)"
             
             opfFile = URL(fileURLWithPath: opfFileName, relativeTo: contentFolder).appendingPathExtension(opfFileExt)
             
@@ -422,6 +436,24 @@ public class WebBookMaker {
         }
         logInfo(msg: "\(filesDeleted) image files deleted from \(imagesFolder!)")
         
+        // Delete any javascript files already present in the output folder.
+        if epubFile != nil {
+            filesDeleted = 0
+            do {
+                let contents = try fm.contentsOfDirectory(at: jsFolder,
+                                                          includingPropertiesForKeys: nil,
+                                                          options: .skipsHiddenFiles)
+                for entry in contents {
+                    try fm.removeItem(at: entry)
+                    filesDeleted += 1
+                }
+            } catch {
+                communicateError("Could not delete contents of directory at \(jsFolder!)")
+            }
+            logInfo(msg: "\(filesDeleted) javascript files deleted from \(jsFolder!)")
+        }
+        
+        // Delete the epub file, if we are going to create a new one.
         if epubFile != nil {
             do {
                 try fm.removeItem(at: epubFile!)
@@ -575,6 +607,22 @@ public class WebBookMaker {
                     addToTableOfContents(level: 1, href: fileName + "." + htmlFileExt, note: note)
                 } else if levelInt == tocLevel2 {
                     addToTableOfContents(level: 2, href: fileName + "." + htmlFileExt, note: note)
+                }
+                if !display.mkdownContext.javaScript.isEmpty {
+                    let jsURL = URL(fileURLWithPath: fileName, relativeTo: jsFolder).appendingPathExtension(jsFileExt)
+                    let jsWritten = FileUtils.saveToDisk(strToWrite: display.mkdownContext.javaScript,
+                                                         outputURL: jsURL,
+                                                         createDirectories: true,
+                                                         checkForChanges: false)
+                    if jsWritten {
+                        _ = generateManifest(folder: jsFolderName,
+                                                    filename: fileName,
+                                                    fileExt: jsFileExt,
+                                                    finish: false,
+                                                    properties: "")
+                    } else {
+                        print("Problems writing javascript to disk!")
+                    }
                 }
             }
         } 
@@ -737,6 +785,8 @@ public class WebBookMaker {
                 mediaType = "image/gif"
             case "jpg", "jpeg":
                 mediaType = "image/jpeg"
+            case "js":
+                mediaType = "application/javascript"
             case "png":
                 mediaType = "image/png"
             case "svg":

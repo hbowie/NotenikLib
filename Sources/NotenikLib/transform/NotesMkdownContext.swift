@@ -30,12 +30,16 @@ public class NotesMkdownContext: MkdownContext {
     var io: NotenikIO
     var displayParms = DisplayParms()
     
-    var mkdownCommandList = MkdownCommandList(collectionLevel: false)
+    // Data provided by one or more methods, for potential use
+    // outside of the Markdown parser.
+    public var mkdownCommandList = MkdownCommandList(collectionLevel: false)
+    public var includedNotes: [String] = []
+    public var javaScript = ""
     
+    // Utility.
     let htmlConverter = StringConverter()
     
-    public var includedNotes: [String] = []
-    
+    /// Initialization.
     public init(io: NotenikIO, displayParms: DisplayParms? = nil) {
         self.io = io
         if displayParms != nil {
@@ -56,6 +60,7 @@ public class NotesMkdownContext: MkdownContext {
         collection.titleToParse = title
         collection.shortID = shortID
         mkdownCommandList = MkdownCommandList(collectionLevel: false)
+        javaScript = ""
     }
     
     // -----------------------------------------------------------
@@ -397,21 +402,20 @@ public class NotesMkdownContext: MkdownContext {
     }
     
     func randomInBrowser(typeOfThing: String, klassList: [String]) -> String {
-        let markup = Markedup(format: .htmlFragment)
-        markup.startDiv(klass: nil, id: "random-note")
-        markup.finishDiv()
-        markup.startScript()
-        markup.ensureNewLine()
-        markup.writeLine("var fileNames = new Array();")
-        markup.writeLine("var ix = 0;")
+        
+        // Generate the JavaScript
+        let js = BigStringWriter()
+        js.open()
+        js.writeLine("var fileNames = new Array();")
+        js.writeLine("var ix = 0;")
         
         // Now fill the candidate array.
         var (note, position) = io.firstNote()
         while note != nil {
             if isEligibleRandomNote(note: note!, klassList: klassList) {
                 let fileName = StringUtils.toCommonFileName(note!.title.value)
-                markup.writeLine("fileNames[ix] = \"\(fileName).html\";")
-                markup.writeLine("ix++;")
+                js.writeLine("fileNames[ix] = \"\(fileName).html\";")
+                js.writeLine("ix++;")
             }
             (note, position) = io.nextNote(position)
         }
@@ -443,9 +447,27 @@ public class NotesMkdownContext: MkdownContext {
         }
 
         """
-        markup.append(randomScript)
-        markup.finishScript()
-        markup.ensureBlankLine()
+        js.write(randomScript)
+        js.close()
+        
+        // Generate the HTML
+        let markup = Markedup(format: .htmlFragment)
+        markup.startDiv(klass: nil, id: "random-note")
+        markup.finishDiv()
+        if displayParms.epub3 {
+            javaScript = js.bigString
+            if let collection = io.collection {
+                let jsFileName = StringUtils.toCommonFileName(collection.titleToParse)
+                markup.script(src: "js/\(jsFileName).js")
+            }
+        } else {
+            markup.startScript()
+            markup.ensureNewLine()
+            markup.append(js.bigString)
+            markup.finishScript()
+            markup.ensureBlankLine()
+        }
+
         return markup.code
     }
     
@@ -457,6 +479,8 @@ public class NotesMkdownContext: MkdownContext {
                 return false
             }
         }
+        
+        if !note.includeInBook(epub: displayParms.epub3) { return false }
         
         guard !klassList.isEmpty else { return true }
         let klass = note.klass.value
@@ -659,11 +683,10 @@ public class NotesMkdownContext: MkdownContext {
     /// Generate javascript to sort the following table.
     public func mkdownTableSort(tableID: String) -> String {
         
-        let markup = Markedup(format: .htmlFragment)
-        
-        markup.startScript()
-        markup.newLine()
-        let searchScript = """
+        // Generate the JavaScript
+        let js = BigStringWriter()
+        js.open()
+        let sortScript = """
         function sortTable(n) {
           var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
           var firstElement = "";
@@ -739,8 +762,24 @@ public class NotesMkdownContext: MkdownContext {
           }
         }
         """
-        markup.append(searchScript)
-        markup.finishScript()
+        js.writeLine(sortScript)
+        js.close()
+        
+        // Generate the HTML
+        let markup = Markedup(format: .htmlFragment)
+        if displayParms.epub3 {
+            javaScript = js.bigString
+            if let collection = io.collection {
+                let jsFileName = StringUtils.toCommonFileName(collection.titleToParse)
+                markup.script(src: "js/\(jsFileName).js")
+            }
+        } else {
+            markup.startScript()
+            markup.ensureNewLine()
+            markup.append(js.bigString)
+            markup.finishScript()
+            markup.ensureBlankLine()
+        }
 
         return markup.code
     }

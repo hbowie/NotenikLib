@@ -76,13 +76,15 @@ public class NoteFieldsToHTML {
         
         let headerContents = parms.header + collection.mkdownCommandList.getCodeFor(MkdownConstants.headerCmd)
         
-        if note.mkdownCommandList.contentPage && note.klass.value != NotenikConstants.titleKlass {
-            if !headerContents.isEmpty {
-                code.header(headerContents)
-            }
-            let navCode = collection.mkdownCommandList.getCodeFor(MkdownConstants.navCmd)
-            if !navCode.isEmpty {
-                code.nav(navCode)
+        if !parms.epub3 {
+            if note.mkdownCommandList.contentPage && note.klass.value != NotenikConstants.titleKlass {
+                if !headerContents.isEmpty {
+                    code.header(headerContents)
+                }
+                let navCode = collection.mkdownCommandList.getCodeFor(MkdownConstants.navCmd)
+                if !navCode.isEmpty {
+                    code.nav(navCode)
+                }
             }
         }
         
@@ -191,9 +193,11 @@ public class NoteFieldsToHTML {
         
         code.finishMain()
         
-        let footerCode = collection.mkdownCommandList.getCodeFor(MkdownConstants.footerCmd)
-        if note.includeInBook(epub: parms.epub3) && !footerCode.isEmpty {
-            code.footer(footerCode)
+        if !parms.epub3 {
+            let footerCode = collection.mkdownCommandList.getCodeFor(MkdownConstants.footerCmd)
+            if note.includeInBook(epub: parms.epub3) && !footerCode.isEmpty {
+                code.footer(footerCode)
+            }
         }
         
         // Finish off the entire document.

@@ -22,6 +22,7 @@ public class NoteDisplay {
     
     public var parms = DisplayParms()
     public var mkdownOptions = MkdownOptions()
+    public var mkdownContext: NotesMkdownContext!
     
     var includedNotes: [String] = []
     var mdBodyParser: MkdownParser?
@@ -47,7 +48,7 @@ public class NoteDisplay {
             let noteTitle = noteWithCommand.title.value
             let noteBody = noteWithCommand.body.value
             parms.setMkdownOptions(mkdownOptions)
-            let mkdownContext = NotesMkdownContext(io: io, displayParms: parms)
+            mkdownContext = NotesMkdownContext(io: io, displayParms: parms)
             mkdownContext.setTitleToParse(title: noteTitle,
                                           shortID: noteWithCommand.shortID.value)
             mdBodyParser = MkdownParser(noteBody, options: mkdownOptions)
@@ -75,7 +76,7 @@ public class NoteDisplay {
 
         self.parms = parms
         parms.setMkdownOptions(mkdownOptions)
-        let mkdownContext = NotesMkdownContext(io: io, displayParms: parms)
+        mkdownContext = NotesMkdownContext(io: io, displayParms: parms)
         if note.hasShortID() {
             mkdownOptions.shortID = note.shortID.value
         } else {
@@ -154,7 +155,8 @@ public class NoteDisplay {
     /// the implied hierarchy.
     func formatTopOfPage(_ note: Note, io: NotenikIO) -> String {
         guard parms.streamlined else { return "" }
-        guard !parms.concatenated else { return ""}
+        guard !parms.concatenated else { return "" }
+        guard !parms.epub3 else { return "" }
         guard note.hasLevel() else { return "" }
         let noteLevel = note.level.level
         guard noteLevel > 1 else { return "" }
@@ -288,14 +290,15 @@ public class NoteDisplay {
                 nextTitle = ""
             }
         }
-        
-        if nextTitle.isEmpty {
-            backToTop(io: io, bottomHTML: bottomHTML)
-        } else {
-            bottomHTML.startParagraph()
-            bottomHTML.append("Next: ")
-            bottomHTML.link(text: nextTitle, path: parms.assembleWikiLink(title: nextTitle), klass: Markedup.htmlClassNavLink)
-            bottomHTML.finishParagraph()
+        if !parms.epub3 {
+            if nextTitle.isEmpty {
+                backToTop(io: io, bottomHTML: bottomHTML)
+            } else {
+                bottomHTML.startParagraph()
+                bottomHTML.append("Next: ")
+                bottomHTML.link(text: nextTitle, path: parms.assembleWikiLink(title: nextTitle), klass: Markedup.htmlClassNavLink)
+                bottomHTML.finishParagraph()
+            }
         }
         
         return bottomHTML.code
@@ -482,7 +485,7 @@ public class NoteDisplay {
     /// - Returns: A String containing the code that can be used to display this field.
     func display(_ field: NoteField, note: Note, collection: NoteCollection, io: NotenikIO) -> String {
         
-        let mkdownContext = NotesMkdownContext(io: io, displayParms: parms)
+        mkdownContext = NotesMkdownContext(io: io, displayParms: parms)
         let code = Markedup(format: parms.format)
         if field.def == collection.titleFieldDef {
             mkdownContext.setTitleToParse(title: field.value.value, shortID: note.shortID.value)

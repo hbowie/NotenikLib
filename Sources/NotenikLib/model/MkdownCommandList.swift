@@ -170,6 +170,8 @@ public class MkdownCommandList {
         case MkdownConstants.navCmd:
             nav = true
             contentPage = false
+        case MkdownConstants.randomCmd:
+            scripted = true
         case MkdownConstants.searchCmd:
             search = true
             scripted = true
