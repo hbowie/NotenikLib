@@ -252,6 +252,8 @@ public class TemplateUtil {
     
     func allFieldsToHTML(note: Note) {
         
+        var originalFormat = parms.format
+        parms.format = .htmlFragment
         let fields = noteFieldsToHTML.fieldsToHTML(note,
                                              io: io,
                                              parms: parms,
@@ -259,6 +261,7 @@ public class TemplateUtil {
                                              imageWithinPage: "",
                                              bodyHTML: bodyHTML,
                                              minutesToRead: minutesToRead)
+        parms.format = originalFormat
         outputLines.append(fields)
     }
     

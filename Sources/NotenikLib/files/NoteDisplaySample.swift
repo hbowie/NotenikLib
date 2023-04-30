@@ -203,7 +203,7 @@ public class NoteDisplaySample {
             code.append(def.fieldLabel.properForm)
             code.append(": ")
             code.finishParagraph()
-            code.writeLine("=$\(common)\(longMods)$=")
+            code.writeLine("=$\(common)&\(longMods)$=")
         } else if common == collection.bodyFieldDef.fieldLabel.commonForm {
             if collection.bodyLabel {
                 code.startParagraph()
@@ -211,7 +211,7 @@ public class NoteDisplaySample {
                 code.append(": ")
                 code.finishParagraph()
             }
-            code.writeLine("=$\(common)w1o$=")
+            code.writeLine("=$\(common)&w1o$=")
         } else {
             code.startParagraph()
             code.append(def.fieldLabel.properForm)
