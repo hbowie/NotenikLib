@@ -43,14 +43,7 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
                 if let defaults = klassDef.defaultValues {
                     for (_, field) in defaults.fields {
                         if !field.value.value.isEmpty {
-                            switch field.def.fieldType.typeString {
-                            case NotenikConstants.titleCommon:
-                                break
-                            case NotenikConstants.dateModifiedCommon:
-                                break
-                            case NotenikConstants.dateAddedCommon:
-                                break
-                            default:
+                            if field.def.shouldInitFromKlassTemplate {
                                 _ = setField(label: field.def.fieldLabel.properForm, value: field.value.value)
                             }
                         }

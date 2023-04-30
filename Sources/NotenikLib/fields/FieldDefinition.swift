@@ -77,6 +77,14 @@ public class FieldDefinition: Comparable, CustomStringConvertible {
         return("Proper: \(fieldLabel.properForm), Common: \(fieldLabel.commonForm), type: \(fieldType.typeString)")
     }
     
+    /// Should a field of this type be initialized from an optional class template, when
+    /// one is available?
+    /// - Parameter typeString: The field type.
+    /// - Returns: True if copying from the class template is ok, false otherwise.
+    public var shouldInitFromKlassTemplate: Bool {
+        return typeCatalog.shouldInitFromKlassTemplate(typeString: fieldType.typeString)
+    }
+    
     public func display() {
         print("FieldDefinition")
         fieldLabel.display()

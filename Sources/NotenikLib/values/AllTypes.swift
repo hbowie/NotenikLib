@@ -168,4 +168,23 @@ public class AllTypes {
         }
     }
     
+    /// Should a field of this type be initialized from an optional class template, when
+    /// one is available?
+    /// - Parameter typeString: The field type.
+    /// - Returns: True if copying from the class template is ok, false otherwise.
+    public func shouldInitFromKlassTemplate(typeString: String) -> Bool {
+        switch typeString {
+        case NotenikConstants.titleCommon:
+            return false
+        case NotenikConstants.dateModifiedCommon:
+            return false
+        case NotenikConstants.dateAddedCommon:
+            return false
+        case NotenikConstants.timestampCommon:
+            return false
+        default:
+            return true
+        }
+    }
+    
 }
