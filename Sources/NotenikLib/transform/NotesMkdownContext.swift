@@ -325,7 +325,7 @@ public class NotesMkdownContext: MkdownContext {
             for ref in term.refs {
                 pageCount += 1
                 mkdown.startDefDef()
-                let link = displayParms.assembleWikiLink(title: ref.page)
+                let link = displayParms.wikiLinks.assembleWikiLink(title: ref.page)
                 let text = htmlConverter.convert(from: ref.page)
                 mkdown.link(text: text, path: link, klass: Markedup.htmlClassNavLink)
                 mkdown.finishDefDef()
@@ -366,7 +366,7 @@ public class NotesMkdownContext: MkdownContext {
             typeOfThing = klassList[0]
         }
         
-        if displayParms.wikiLinkFormat == .common {
+        if displayParms.wikiLinks.format == .common {
             return randomWithinNotenik(typeOfThing: typeOfThing, klassList: klassList)
         } else {
             return randomInBrowser(typeOfThing: typeOfThing, klassList: klassList)
@@ -390,7 +390,7 @@ public class NotesMkdownContext: MkdownContext {
         if ok {
             markup.append("Click to go to ")
             let title = note!.title.value
-            let link = displayParms.assembleWikiLink(title: title)
+            let link = displayParms.wikiLinks.assembleWikiLink(title: title)
             let text = htmlConverter.convert(from: title)
             markup.link(text: text, path: link, klass: Markedup.htmlClassNavLink)
             markup.append(".")
@@ -543,7 +543,7 @@ public class NotesMkdownContext: MkdownContext {
             let resolution = NoteLinkResolution(io: io, linkText: note!.title.value)
             NoteLinkResolver.resolve(resolution: resolution)
             if let target = resolution.genWikiLinkTarget() {
-                let url = displayParms.assembleWikiLink(target: target)
+                let url = displayParms.wikiLinks.assembleWikiLink(target: target)
                 markup.writeLine("        url: \"\(url)\", ")
             } else {
                 markup.writeLine("        url: \"\", ")
@@ -828,7 +828,7 @@ public class NotesMkdownContext: MkdownContext {
             if includeUntagged || note.hasTags() {
                 let seq = note.seq.value
                 let title = note.title.value
-                let link = displayParms.assembleWikiLink(title: title)
+                let link = displayParms.wikiLinks.assembleWikiLink(title: title)
                 tagsCode.startListItem()
                 if seq.count > 0 {
                     tagsCode.write("\(seq) ")
@@ -938,9 +938,9 @@ public class NotesMkdownContext: MkdownContext {
             let mkdown = MkdownParser(child.teaser.value, options: mkdownOptions)
             // mkdown.setWikiLinkFormatting(prefix: "", format: .fileName, suffix: ".html", context: workspace?.mkdownContext)
             // mkdown.setWikiLinkFormatting(prefix: "#", format: .fileName, suffix: "", context: workspace?.mkdownContext)
-            mkdown.setWikiLinkFormatting(prefix: mkdownOptions.wikiLinkPrefix,
-                                         format: mkdownOptions.wikiLinkFormatting,
-                                         suffix: mkdownOptions.wikiLinkSuffix,
+            mkdown.setWikiLinkFormatting(prefix: mkdownOptions.wikiLinks.prefix,
+                                         format: mkdownOptions.wikiLinks.format,
+                                         suffix: mkdownOptions.wikiLinks.suffix,
                                          context: self)
             mkdown.parse()
             let stripped = StringUtils.removeParagraphTags(mkdown.html)
@@ -1039,7 +1039,7 @@ public class NotesMkdownContext: MkdownContext {
             guard pass == 2 else { break }
             
             let title = note.title.value
-            let link = displayParms.assembleWikiLink(title: title)
+            let link = displayParms.wikiLinks.assembleWikiLink(title: title)
             let text = htmlConverter.convert(from: title)
             tagsCode.startListItem()
             tagsCode.link(text: text, path: link, klass: Markedup.htmlClassNavLink)
@@ -1110,7 +1110,7 @@ public class NotesMkdownContext: MkdownContext {
                 
                 // Author
                 if authorKlassFound {
-                    let link = displayParms.assembleWikiLink(title: author)
+                    let link = displayParms.wikiLinks.assembleWikiLink(title: author)
                     let text = htmlConverter.convert(from: author)
                     biblio.link(text: text, path: link, klass: Markedup.htmlClassNavLink)
                     biblio.append(" ")
@@ -1143,7 +1143,7 @@ public class NotesMkdownContext: MkdownContext {
                     biblio.leftDoubleQuote()
                 }
                 if nextNote!.klass.value == NotenikConstants.workKlass {
-                    let link = displayParms.assembleWikiLink(title: workTitle)
+                    let link = displayParms.wikiLinks.assembleWikiLink(title: workTitle)
                     let text = htmlConverter.convert(from: workTitle)
                     biblio.link(text: text, path: link, klass: Markedup.htmlClassNavLink)
                 } else {

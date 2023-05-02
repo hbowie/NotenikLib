@@ -206,14 +206,14 @@ public class Template {
     func processLoop() {
         if util.outputOpen {
             util.wikiStyle = "2"
-            util.parms.wikiLinkFormat = .fileName
-            util.parms.wikiLinkPrefix = "#"
-            util.parms.wikiLinkSuffix = ""
+            util.parms.wikiLinks.format = .fileName
+            util.parms.wikiLinks.prefix = "#"
+            util.parms.wikiLinks.suffix = ""
         } else {
             util.wikiStyle = "1"
-            util.parms.wikiLinkFormat = .fileName
-            util.parms.wikiLinkPrefix = ""
-            util.parms.wikiLinkSuffix = ".html"
+            util.parms.wikiLinks.format = .fileName
+            util.parms.wikiLinks.prefix = ""
+            util.parms.wikiLinks.suffix = ".html"
         }
         
         util.notesIndex = -1

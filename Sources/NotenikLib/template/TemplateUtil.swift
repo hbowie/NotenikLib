@@ -254,7 +254,7 @@ public class TemplateUtil {
         
         let originalFormat = parms.format
         parms.format = .htmlFragment
-        parms.initWikiLinkFormatting()
+        parms.wikiLinks.resetToDefaults()
         let fields = noteFieldsToHTML.fieldsToHTML(note,
                                              io: io,
                                              parms: parms,
@@ -964,9 +964,9 @@ public class TemplateUtil {
         case "1":
             if workspace != nil {
                 if workspace!.mkdownContext != nil {
-                    workspace!.mkdownContext!.displayParms.wikiLinkPrefix = ""
-                    workspace!.mkdownContext!.displayParms.wikiLinkFormat = .fileName
-                    workspace!.mkdownContext!.displayParms.wikiLinkSuffix = ".html"
+                    workspace!.mkdownContext!.displayParms.wikiLinks.prefix = ""
+                    workspace!.mkdownContext!.displayParms.wikiLinks.format = .fileName
+                    workspace!.mkdownContext!.displayParms.wikiLinks.suffix = ".html"
                 }
                 mkdownOptions.shortID = workspace!.collection.shortID
                 mkdownOptions.extLinksOpenInNewWindows = workspace!.collection.extLinksOpenInNewWindows
@@ -1009,17 +1009,17 @@ public class TemplateUtil {
         
         switch wikiStyle {
         case "1":
-            parms.wikiLinkPrefix = ""
-            parms.wikiLinkFormat = .fileName
-            parms.wikiLinkSuffix = ".html"
+            parms.wikiLinks.prefix = ""
+            parms.wikiLinks.format = .fileName
+            parms.wikiLinks.suffix = ".html"
         case "2":
-            parms.wikiLinkPrefix = "#"
-            parms.wikiLinkFormat = .fileName
-            parms.wikiLinkSuffix = ""
+            parms.wikiLinks.prefix = "#"
+            parms.wikiLinks.format = .fileName
+            parms.wikiLinks.suffix = ""
         default:
-            parms.wikiLinkFormat = .common
-            parms.wikiLinkPrefix = "https://ntnk.app/"
-            parms.wikiLinkSuffix = ""
+            parms.wikiLinks.format = .common
+            parms.wikiLinks.prefix = "https://ntnk.app/"
+            parms.wikiLinks.suffix = ""
         }
         
         let linksHTML = Markedup(format: .htmlFragment)
@@ -1027,7 +1027,7 @@ public class TemplateUtil {
         linksHTML.startUnorderedList(klass: nil)
         for pointer in pointers {
             linksHTML.startListItem()
-            linksHTML.link(text: pointer.pathSlashItem, path: parms.assembleWikiLink(target: pointer))
+            linksHTML.link(text: pointer.pathSlashItem, path: parms.wikiLinks.assembleWikiLink(target: pointer))
             linksHTML.finishListItem()
         }
         linksHTML.finishUnorderedList()
@@ -1291,7 +1291,7 @@ public class TemplateUtil {
         let nextHTML = Markedup()
         nextHTML.startParagraph()
         nextHTML.append(label)
-        nextHTML.link(text: title, path: parms.assembleWikiLink(title: title), klass: Markedup.htmlClassNavLink)
+        nextHTML.link(text: title, path: parms.wikiLinks.assembleWikiLink(title: title), klass: Markedup.htmlClassNavLink)
         nextHTML.finishParagraph()
         return nextHTML.code
     }
@@ -1328,7 +1328,7 @@ public class TemplateUtil {
                 parentHTML.append("\(parentSeq) ")
             }
         }
-        parentHTML.link(text: parentTitle, path: parms.assembleWikiLink(title: parentTitle), klass: Markedup.htmlClassNavLink)
+        parentHTML.link(text: parentTitle, path: parms.wikiLinks.assembleWikiLink(title: parentTitle), klass: Markedup.htmlClassNavLink)
         parentHTML.append("&nbsp;")
         parentHTML.append("&#8593;")
         parentHTML.finishParagraph()
@@ -1359,7 +1359,7 @@ public class TemplateUtil {
                 if !nextNote.klass.frontOrBack {
                     childrenHTML.append("\(nextNote.formattedSeqForDisplay) ")
                 }
-                childrenHTML.link(text: tocTitle, path: parms.assembleWikiLink(title: tocTitle), klass: Markedup.htmlClassNavLink)
+                childrenHTML.link(text: tocTitle, path: parms.wikiLinks.assembleWikiLink(title: tocTitle), klass: Markedup.htmlClassNavLink)
                 childrenHTML.finishListItem()
             }
             nextPosition += 1

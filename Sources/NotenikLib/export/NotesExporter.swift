@@ -184,9 +184,9 @@ public class NotesExporter {
         }
         displayParms.sortParm = collection.sortParm
         displayParms.streamlined = collection.streamlined
-        displayParms.wikiLinkPrefix = "#"
-        displayParms.wikiLinkFormat = .fileName
-        displayParms.wikiLinkSuffix = ""
+        displayParms.wikiLinks.prefix = "#"
+        displayParms.wikiLinks.format = .fileName
+        displayParms.wikiLinks.suffix = ""
         displayParms.mathJax = collection.mathJax
         displayParms.localMj = false
         displayParms.curlyApostrophes = collection.curlyApostrophes

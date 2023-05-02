@@ -131,9 +131,9 @@ public class ModWhenChanged {
             // Parse the body field.
             let body = modNote.body
             let mdBodyParser = MkdownParser(body.value, options: mkdownOptions)
-            mdBodyParser.setWikiLinkFormatting(prefix: parms.wikiLinkPrefix,
-                                               format: parms.wikiLinkFormat,
-                                               suffix: parms.wikiLinkSuffix,
+            mdBodyParser.setWikiLinkFormatting(prefix: parms.wikiLinks.prefix,
+                                               format: parms.wikiLinks.format,
+                                               suffix: parms.wikiLinks.suffix,
                                                context: mkdownContext)
             mdBodyParser.parse()
             

@@ -52,9 +52,9 @@ public class NoteDisplay {
             mkdownContext.setTitleToParse(title: noteTitle,
                                           shortID: noteWithCommand.shortID.value)
             mdBodyParser = MkdownParser(noteBody, options: mkdownOptions)
-            mdBodyParser!.setWikiLinkFormatting(prefix: parms.wikiLinkPrefix,
-                                                format: parms.wikiLinkFormat,
-                                                suffix: parms.wikiLinkSuffix,
+            mdBodyParser!.setWikiLinkFormatting(prefix: parms.wikiLinks.prefix,
+                                                format: parms.wikiLinks.format,
+                                                suffix: parms.wikiLinks.suffix,
                                                 context: mkdownContext)
             mdBodyParser!.parse()
             
@@ -96,9 +96,9 @@ public class NoteDisplay {
         if parms.formatIsHTML && AppPrefs.shared.parseUsingNotenik {
             let body = note.body
             mdBodyParser = MkdownParser(body.value, options: mkdownOptions)
-            mdBodyParser!.setWikiLinkFormatting(prefix: parms.wikiLinkPrefix,
-                                                format: parms.wikiLinkFormat,
-                                                suffix: parms.wikiLinkSuffix,
+            mdBodyParser!.setWikiLinkFormatting(prefix: parms.wikiLinks.prefix,
+                                                format: parms.wikiLinks.format,
+                                                suffix: parms.wikiLinks.suffix,
                                                 context: mkdownContext)
             mdBodyParser!.parse()
             counts = mdBodyParser!.counts
@@ -296,7 +296,7 @@ public class NoteDisplay {
             } else {
                 bottomHTML.startParagraph()
                 bottomHTML.append("Next: ")
-                bottomHTML.link(text: nextTitle, path: parms.assembleWikiLink(title: nextTitle), klass: Markedup.htmlClassNavLink)
+                bottomHTML.link(text: nextTitle, path: parms.wikiLinks.assembleWikiLink(title: nextTitle), klass: Markedup.htmlClassNavLink)
                 bottomHTML.finishParagraph()
             }
         }
@@ -327,7 +327,7 @@ public class NoteDisplay {
         let firstTitle = firstNote!.title.value
         bottomHTML.startParagraph()
         bottomHTML.append("Back to Top: ")
-        bottomHTML.link(text: firstTitle, path: parms.assembleWikiLink(title: firstTitle), klass: Markedup.htmlClassNavLink)
+        bottomHTML.link(text: firstTitle, path: parms.wikiLinks.assembleWikiLink(title: firstTitle), klass: Markedup.htmlClassNavLink)
         bottomHTML.finishParagraph()
     }
     

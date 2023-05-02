@@ -27,9 +27,7 @@ public class DisplayParms {
     public var streamlined = false
     public var fullDisplay: Bool { return !streamlined }
     public var concatenated = false
-    public var wikiLinkFormat: WikiLinkFormat = .common
-    public var wikiLinkPrefix = "https://ntnk.app/"
-    public var wikiLinkSuffix = ""
+    public var wikiLinks = WikiLinkDisplay()
     public var mathJax = false
     public var localMj = true
     public var localMjUrl: URL?
@@ -42,12 +40,6 @@ public class DisplayParms {
     
     public init() {
         
-    }
-    
-    public func initWikiLinkFormatting() {
-        wikiLinkFormat = .common
-        wikiLinkPrefix = "https://ntnk.app/"
-        wikiLinkSuffix = ""
     }
     
     /// Set various values that are taken from the Note's Collection.
@@ -74,9 +66,7 @@ public class DisplayParms {
     }
     
     public func setMkdownOptions(_ options: MkdownOptions) {
-        options.wikiLinkPrefix = wikiLinkPrefix
-        options.wikiLinkSuffix = wikiLinkSuffix
-        options.wikiLinkFormatting = wikiLinkFormat
+        self.wikiLinks.copyTo(another: options.wikiLinks)
         options.mathJax = mathJax
         options.localMj = localMj
         options.localMjUrl = localMjUrl
@@ -104,25 +94,6 @@ public class DisplayParms {
         }
     }
     
-    func assembleWikiLink(target: WikiLinkTarget) -> String {
-        return wikiLinkPrefix + target.formatWikiLink(format: wikiLinkFormat) + wikiLinkSuffix
-    }
-    
-    /// Create a wiki link, based on the wiki parms.
-    func assembleWikiLink(title: String) -> String {
-        return wikiLinkPrefix + formatWikiLink(title) + wikiLinkSuffix
-    }
-    
-    /// Convert a title to something that can be used in a link.
-    func formatWikiLink(_ title: String) -> String {
-        switch wikiLinkFormat {
-        case .common:
-            return StringUtils.toCommon(title)
-        case .fileName:
-            return StringUtils.toCommonFileName(title)
-        }
-    }
-    
     public func streamlinedTitleWithLink(markedup: Markedup, note: Note, klass: String?) {
         let simpleTitle = note.title.value
         if note.klass.frontOrBack || note.klass.quote {
@@ -132,7 +103,9 @@ public class DisplayParms {
         } else {
             markedup.append(note.formattedSeq + " ")
         }
-        markedup.link(text: simpleTitle, path: assembleWikiLink(title: simpleTitle), klass: klass)
+        markedup.link(text: simpleTitle,
+                      path: wikiLinks.assembleWikiLink(title: simpleTitle),
+                      klass: klass)
     }
     
     
@@ -156,10 +129,6 @@ public class DisplayParms {
         }
     }
     
-    public func displayWikiLinkFields() {
-        print("DisplayParms wiki link format: \(wikiLinkPrefix) + \(wikiLinkFormat) + \(wikiLinkSuffix)")
-    }
-    
     public func display(by: String) {
         print ("DisplayParms.display requested by \(by)")
         print("  - css string = \(cssString)")
@@ -167,8 +136,8 @@ public class DisplayParms {
         print("  - marked up format = \(format)")
         print("  - sort parm = \(sortParm)")
         print("  - streamlined? \(streamlined)")
-        print("  - wiki link format = \(wikiLinkFormat)")
-        print("  - wiki link prefix = \(wikiLinkPrefix)")
-        print("  - wiki link suffix = \(wikiLinkSuffix)")
+        print("  - wiki link format = \(wikiLinks.format)")
+        print("  - wiki link prefix = \(wikiLinks.prefix)")
+        print("  - wiki link suffix = \(wikiLinks.suffix)")
     }
 }

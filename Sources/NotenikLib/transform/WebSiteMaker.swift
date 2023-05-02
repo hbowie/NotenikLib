@@ -95,9 +95,7 @@ public class WebSiteMaker {
         parms.format = .htmlDoc
         parms.sortParm = .seqPlusTitle
         parms.streamlined = true
-        parms.wikiLinkPrefix = ""
-        parms.wikiLinkFormat = .fileName
-        parms.wikiLinkSuffix = "." + htmlFileExt
+        parms.wikiLinks.set(format: .fileName, prefix: "", suffix: "." + htmlFileExt)
         parms.mathJax = collection.mathJax
         parms.localMj = false
         parms.curlyApostrophes = collection.curlyApostrophes

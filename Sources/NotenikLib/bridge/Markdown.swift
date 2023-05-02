@@ -107,9 +107,9 @@ public class Markdown {
             html = ink.html(from: md)
         case "notenik", "mkdown":
             mkdown = MkdownParser(md, options: mkdownOptions)
-            mkdown.setWikiLinkFormatting(prefix: mkdownOptions.wikiLinkPrefix,
-                                         format: mkdownOptions.wikiLinkFormatting,
-                                         suffix: mkdownOptions.wikiLinkSuffix,
+            mkdown.setWikiLinkFormatting(prefix: mkdownOptions.wikiLinks.prefix,
+                                         format: mkdownOptions.wikiLinks.format,
+                                         suffix: mkdownOptions.wikiLinks.suffix,
                                          context: context)
             mkdown.parse()
             html = mkdown.html
