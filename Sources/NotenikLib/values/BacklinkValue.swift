@@ -12,10 +12,13 @@
 
 import Foundation
 
+import NotenikMkdown
+import NotenikUtils
+
 /// Back links to other Notes with Wiki Links to this Note. 
 public class BacklinkValue: StringValue {
     
-    public var notePointers = NotePointerList()
+    public var notePointers = WikiLinkTargetList()
     
     /// Default initializer
     override init() {

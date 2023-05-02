@@ -44,6 +44,12 @@ public class DisplayParms {
         
     }
     
+    public func initWikiLinkFormatting() {
+        wikiLinkFormat = .common
+        wikiLinkPrefix = "https://ntnk.app/"
+        wikiLinkSuffix = ""
+    }
+    
     /// Set various values that are taken from the Note's Collection.
     public func setFrom(note: Note) {
         setFrom(collection: note.collection)
@@ -148,6 +154,10 @@ public class DisplayParms {
         } else {
             return simpleTitle
         }
+    }
+    
+    public func displayWikiLinkFields() {
+        print("DisplayParms wiki link format: \(wikiLinkPrefix) + \(wikiLinkFormat) + \(wikiLinkSuffix)")
     }
     
     public func display(by: String) {

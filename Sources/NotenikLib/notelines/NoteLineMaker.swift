@@ -11,6 +11,7 @@
 
 import Foundation
 
+import NotenikMkdown
 import NotenikUtils
 
 /// Format a note as a series of text lines. 
@@ -190,7 +191,7 @@ public class NoteLineMaker {
         }
     }
     
-    func putWikilinks(note: Note, def: FieldDefinition, notePointers: NotePointerList) {
+    func putWikilinks(note: Note, def: FieldDefinition, notePointers: WikiLinkTargetList) {
         if !note.fileInfo.mmdOrYaml {
             writer.endLine()
         }

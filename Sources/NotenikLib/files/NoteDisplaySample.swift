@@ -203,8 +203,12 @@ public class NoteDisplaySample {
             code.append(def.fieldLabel.properForm)
             code.append(": ")
             code.finishParagraph()
-            code.writeLine("=$\(common)&\(longMods)$=")
-        } else if common == collection.bodyFieldDef.fieldLabel.commonForm {
+            code.writeLine("=$\(common)\(longMods)$=")
+        } else if def.fieldType.typeString == NotenikConstants.backlinksCommon {
+            code.writeLine("=$\(common)\(longMods)$=")
+        } else if def.fieldType.typeString == NotenikConstants.wikilinksCommon {
+            code.writeLine("=$\(common)\(longMods)$=")
+        }else if common == collection.bodyFieldDef.fieldLabel.commonForm {
             if collection.bodyLabel {
                 code.startParagraph()
                 code.append(def.fieldLabel.properForm)

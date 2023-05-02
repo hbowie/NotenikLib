@@ -252,8 +252,9 @@ public class TemplateUtil {
     
     func allFieldsToHTML(note: Note) {
         
-        var originalFormat = parms.format
+        let originalFormat = parms.format
         parms.format = .htmlFragment
+        parms.initWikiLinkFormatting()
         let fields = noteFieldsToHTML.fieldsToHTML(note,
                                              io: io,
                                              parms: parms,
@@ -633,6 +634,7 @@ public class TemplateUtil {
         
         if replacementValue != nil {
             replacementValue = applyModifiers(varNameCommon: varNameCommon,
+                                              note: note,
                                               replacementValue: replacementValue!,
                                               mods: mods)
             toLine.line.append(replacementValue!)
@@ -646,7 +648,10 @@ public class TemplateUtil {
     ///   - replacementValue: The value to be modified.
     ///   - mods: A string containing zero or more modifiers.
     /// - Returns: The modified value.
-    func applyModifiers(varNameCommon: String, replacementValue: String, mods: String) -> String {
+    func applyModifiers(varNameCommon: String,
+                        note: Note,
+                        replacementValue: String,
+                        mods: String) -> String {
         
         var modifiedValue = replacementValue
         
@@ -679,6 +684,8 @@ public class TemplateUtil {
         var summarizePending = false
         
         var formatString = ""
+        
+        wikiStyle = "0"
         
         // See what modifiers we have
         var i = mods.startIndex
@@ -987,7 +994,7 @@ public class TemplateUtil {
     
     func convertWikilinksToHTML(_ linkStr: String, backLinks: Bool = false) -> String {
         
-        var pointers = NotePointerList()
+        var pointers = WikiLinkTargetList()
         var title = ""
         if backLinks {
             let links = BacklinkValue(linkStr)
@@ -1010,7 +1017,9 @@ public class TemplateUtil {
             parms.wikiLinkFormat = .fileName
             parms.wikiLinkSuffix = ""
         default:
-            break
+            parms.wikiLinkFormat = .common
+            parms.wikiLinkPrefix = "https://ntnk.app/"
+            parms.wikiLinkSuffix = ""
         }
         
         let linksHTML = Markedup(format: .htmlFragment)

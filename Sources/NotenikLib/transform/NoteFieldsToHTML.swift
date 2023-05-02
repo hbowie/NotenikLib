@@ -177,8 +177,8 @@ public class NoteFieldsToHTML {
         finishIncludedItem(code: code)
         
         // Add wiki links and backlinks, when present.
-        formatWikilinks(note, linksHTML: code)
-        formatBacklinks(note, linksHTML: code)
+        formatWikilinks(note, linksHTML: code, io: io)
+        formatBacklinks(note, linksHTML: code, io: io)
         
         // Now add the bottom of the page, if any.
         if !bottomOfPage.isEmpty {
@@ -267,40 +267,28 @@ public class NoteFieldsToHTML {
 
     }
     
-    func formatWikilinks(_ note: Note, linksHTML: Markedup) {
-        
-        guard note.collection.wikilinksDef != nil else { return }
+    func formatWikilinks(_ note: Note, linksHTML: Markedup, io: NotenikIO?) {
+        guard let def = note.collection.wikilinksDef else { return }
         let links = note.wikilinks
-        let pointers = links.notePointers
-        guard pointers.count > 0 else { return }
-        
-        linksHTML.startDetails(summary: "Wiki Links")
-        linksHTML.startUnorderedList(klass: nil)
-        for pointer in pointers {
-            linksHTML.startListItem()
-            linksHTML.link(text: pointer.pathSlashItem, path: parms.assembleWikiLink(target: pointer))
-            linksHTML.finishListItem()
+        guard links.hasData else { return }
+        var mkdownContext: MkdownContext?
+        if io != nil {
+            mkdownContext = NotesMkdownContext(io: io!, displayParms: parms)
         }
-        linksHTML.finishUnorderedList()
-        linksHTML.finishDetails()
+        let wrangler = WikiLinkWrangler(options: mkdownOptions, context: mkdownContext)
+        wrangler.targetsToHTML(properLabel: def.fieldLabel.properForm, targets: links.notePointers, markedup: linksHTML)
     }
     
-    func formatBacklinks(_ note: Note, linksHTML: Markedup) {
-        
-        guard note.collection.backlinksDef != nil else { return }
+    func formatBacklinks(_ note: Note, linksHTML: Markedup, io: NotenikIO?) {
+        guard let def = note.collection.backlinksDef else { return }
         let links = note.backlinks
-        let pointers = links.notePointers
-        guard pointers.count > 0 else { return }
-        
-        linksHTML.startDetails(summary: "Back Links")
-        linksHTML.startUnorderedList(klass: nil)
-        for pointer in pointers {
-            linksHTML.startListItem()
-            linksHTML.link(text: pointer.pathSlashItem, path: parms.assembleWikiLink(target: pointer))
-            linksHTML.finishListItem()
+        guard links.hasData else { return }
+        var mkdownContext: MkdownContext?
+        if io != nil {
+            mkdownContext = NotesMkdownContext(io: io!, displayParms: parms)
         }
-        linksHTML.finishUnorderedList()
-        linksHTML.finishDetails()
+        let wrangler = WikiLinkWrangler(options: mkdownOptions, context: mkdownContext)
+        wrangler.targetsToHTML(properLabel: def.fieldLabel.properForm, targets: links.notePointers, markedup: linksHTML)
     }
     
     

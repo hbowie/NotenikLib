@@ -18,7 +18,7 @@ import NotenikUtils
 /// Wiki links to other Notes. 
 public class WikilinkValue: StringValue {
     
-    public var notePointers = NotePointerList()
+    public var notePointers = WikiLinkTargetList()
     
     /// Default initializer
     override init() {
