@@ -985,10 +985,12 @@ public class TemplateUtil {
             mkdown.parse()
             return mkdown.html
         default:
+            if workspace != nil {
+                mkdownOptions.shortID = workspace!.collection.shortID
+                mkdownOptions.extLinksOpenInNewWindows = workspace!.collection.extLinksOpenInNewWindows
+            }
             let mkdown = Markdown()
-            mkdown.md = markdown
-            mkdown.parse()
-            return mkdown.html
+            return mkdown.parse(markdown: markdown, options: mkdownOptions, context: workspace?.mkdownContext)
         }
     }
     
