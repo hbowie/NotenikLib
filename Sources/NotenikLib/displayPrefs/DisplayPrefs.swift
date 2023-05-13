@@ -316,6 +316,50 @@ public class DisplayPrefs {
             padding-top: 0.5em;
         }
         
+        .heading-1-details {
+            margin-left: 2.2em;
+        }
+        .heading-2-details {
+            margin-left: 2.2em;
+        }
+        .heading-3-details {
+            margin-left: 2.2em;
+        }
+        .heading-4-details {
+            margin-left: 2.2em;
+        }
+        .heading-5-details {
+            margin-left: 2.2em;
+        }
+        .heading-6-details {
+            margin-left: 2.2em;
+        }
+        
+        .heading-1-summary {
+            margin-left: -2.2em;
+            margin-bottom: 0.5em;
+        }
+        .heading-2-summary {
+            margin-left: -2.2em;
+            margin-bottom: 0.5em;
+        }
+        .heading-3-summary {
+            margin-left: -2.2em;
+            margin-bottom: 0.5em;
+        }
+        .heading-4-summary {
+            margin-left: -2.2em;
+            margin-bottom: 0.5em;
+        }
+        .heading-5-summary {
+            margin-left: -2.2em;
+            margin-bottom: 0.5em;
+        }
+        .heading-6-summary {
+            margin-left: -2.2em;
+            margin-bottom: 0.5em;
+        }
+        
         """)
         tempCSS.append(buildHeadingsCSS())
         
