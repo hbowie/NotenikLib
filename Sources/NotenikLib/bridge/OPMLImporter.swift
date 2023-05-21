@@ -79,6 +79,16 @@ public class OPMLImporter: NSObject, XMLParserDelegate {
         for (label, value) in attributeDict {
             let decoded = decoder.convert(from: value)
             switch label {
+            case "category":
+                _ = note.setTags(decoded)
+            case "created":
+                _ = note.setDateAdded(decoded)
+            case "description":
+                _ = note.setBody(decoded)
+            case "htmlUrl":
+                _ = note.setLink(decoded)
+            case "url":
+                _ = note.setLink(decoded)
             case "text":
                 _ = note.setTitle(decoded)
             case "_note":

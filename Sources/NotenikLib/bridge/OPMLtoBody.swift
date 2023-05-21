@@ -21,7 +21,9 @@ public class OPMLtoBody: NSObject, XMLParserDelegate {
     let decoder = StringConverter()
     
     var markedUp = Markedup(format: .markdown)
+    var elementChars = SolidString()
     var title = ""
+    var headTitle = ""
     var firstH1 = ""
     var h1Count = 0
     
@@ -48,7 +50,9 @@ public class OPMLtoBody: NSObject, XMLParserDelegate {
         if !success {
             logError("XML Parser ran into problems")
         }
-        if h1Count == 1 {
+        if !headTitle.isEmpty {
+            title = headTitle
+        } else if h1Count == 1 {
             title = firstH1
         }
         return (markedUp.code, title)
@@ -61,27 +65,50 @@ public class OPMLtoBody: NSObject, XMLParserDelegate {
                 qualifiedName qName: String?,
                 attributes attributeDict: [String : String] = [:]) {
         
-        guard elementName == "outline" else { return }
+        elementChars = SolidString()
+        switch elementName {
+        case "outline":
+            handleOutlineElement(attributes: attributeDict)
+        case "title":
+            headTitle = ""
+        default:
+            break
+        }
+    }
+    
+    func handleOutlineElement(attributes attributeDict: [String : String] = [:]) {
         
         level += 1
+        
+        guard let rawText = attributeDict["text"] else { return }
+        let text = decoder.convert(from: rawText)
+        markedUp.heading(level: level, text: text)
+        if level == 1 {
+            h1Count += 1
+            if h1Count == 1 {
+                firstH1 = text
+            }
+        }
         
         for (label, value) in attributeDict {
             let decoded = decoder.convert(from: value)
             switch label {
             case "text":
-                markedUp.heading(level: level, text: decoded)
-                if level == 1 {
-                    h1Count += 1
-                    if h1Count == 1 {
-                        firstH1 = decoded
-                    }
-                }
+                break
             case "_note", "note":
+                markedUp.ensureBlankLine()
                 markedUp.writeLine(decoded)
+                markedUp.ensureBlankLine()
             default:
+                markedUp.ensureBlankLine()
                 markedUp.writeLine("\(label): \(decoded)")
+                markedUp.ensureBlankLine()
             }
         }
+    }
+    
+    public func parser(_ parser: XMLParser, foundCharacters: String) {
+        elementChars.append(foundCharacters)
     }
     
     /// End an element.
@@ -90,8 +117,16 @@ public class OPMLtoBody: NSObject, XMLParserDelegate {
                 namespaceURI: String?,
                 qualifiedName qName: String?) {
         
-        guard elementName == "outline" else { return }
-        level -= 1
+        switch elementName {
+        case "outline":
+            level -= 1
+        case "title":
+            if !elementChars.isEmpty {
+                headTitle = elementChars.str
+            }
+        default:
+            break
+        }
     }
     
     /// Send an error message to the log.
