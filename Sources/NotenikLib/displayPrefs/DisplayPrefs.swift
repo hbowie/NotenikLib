@@ -360,6 +360,10 @@ public class DisplayPrefs {
             margin-bottom: 0.5em;
         }
         
+        ul.outline-list {
+            list-style-type: none;
+        }
+        
         """)
         tempCSS.append(buildHeadingsCSS())
         

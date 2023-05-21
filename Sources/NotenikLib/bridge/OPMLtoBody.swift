@@ -27,6 +27,8 @@ public class OPMLtoBody: NSObject, XMLParserDelegate {
     var firstH1 = ""
     var h1Count = 0
     
+    var usingHeadings = true
+    
     public override init() {
         super.init()
         decoder.addXMLDecode()
@@ -36,13 +38,20 @@ public class OPMLtoBody: NSObject, XMLParserDelegate {
     /// - Parameters:
     ///   - fileURL: The URL pointing to the outline file.
     ///   - defaultTitle: The default title for the Note.
+    ///   - usingHeadings: Generate headings? If not, generate list items.
     /// - Returns: The body for the Note, plus the title for the Note.
-    public func importFrom(_ fileURL: URL, defaultTitle: String) -> (String, String) {
+    public func importFrom(_ fileURL: URL, defaultTitle: String, usingHeadings: Bool = true) -> (String, String) {
         markedUp = Markedup(format: .markdown)
         title = defaultTitle
+        self.usingHeadings = usingHeadings
         h1Count = 0
         firstH1 = ""
-        markedUp.writeLine("{:outline}")
+        if usingHeadings {
+            markedUp.writeLine("{:outline-headings}")
+        } else {
+            markedUp.writeLine("{:outline-bullets}")
+            markedUp.startUnorderedList(klass: nil)
+        }
         let parser = XMLParser(contentsOf: fileURL)!
         parser.delegate = self
         level = 0
@@ -79,17 +88,29 @@ public class OPMLtoBody: NSObject, XMLParserDelegate {
     func handleOutlineElement(attributes attributeDict: [String : String] = [:]) {
         
         level += 1
+        var indent = ""
         
         guard let rawText = attributeDict["text"] else { return }
         let text = decoder.convert(from: rawText)
-        markedUp.heading(level: level, text: text)
-        if level == 1 {
-            h1Count += 1
-            if h1Count == 1 {
-                firstH1 = text
+        if usingHeadings {
+            markedUp.heading(level: level, text: text)
+            if level == 1 {
+                h1Count += 1
+                if h1Count == 1 {
+                    firstH1 = text
+                }
+            }
+        } else {
+            markedUp.ensureBlankLine()
+            markedUp.startListItem(level: level)
+            markedUp.append(text)
+            markedUp.finishListItem()
+            markedUp.ensureNewLine()
+            if level > 0 {
+                indent = String(repeating: " ", count: ((level) * 4))
             }
         }
-        
+
         for (label, value) in attributeDict {
             let decoded = decoder.convert(from: value)
             switch label {
@@ -97,10 +118,12 @@ public class OPMLtoBody: NSObject, XMLParserDelegate {
                 break
             case "_note", "note":
                 markedUp.ensureBlankLine()
+                markedUp.append(indent)
                 markedUp.writeLine(decoded)
                 markedUp.ensureBlankLine()
             default:
                 markedUp.ensureBlankLine()
+                markedUp.append(indent)
                 markedUp.writeLine("\(label): \(decoded)")
                 markedUp.ensureBlankLine()
             }
