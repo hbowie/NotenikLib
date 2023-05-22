@@ -188,6 +188,7 @@ public class NotesMkdownContext: MkdownContext {
     
     var levelStart = 0
     var levelEnd = 999
+    var tocDetails = false
     var hasLevel = false
     var hasSeq = false
     var hasLevelAndSeq: Bool {
@@ -203,9 +204,10 @@ public class NotesMkdownContext: MkdownContext {
         }
     }
     
-    public func mkdownCollectionTOC(levelStart: Int, levelEnd: Int) -> String {
+    public func mkdownCollectionTOC(levelStart: Int, levelEnd: Int, details: Bool) -> String {
         self.levelStart = levelStart
         self.levelEnd = levelEnd
+        self.tocDetails = details
         guard io.collectionOpen else { return "" }
         guard let collection = io.collection else { return "" }
         collection.tocNoteID = StringUtils.toCommon(collection.titleToParse)
@@ -239,25 +241,51 @@ public class NotesMkdownContext: MkdownContext {
             closeTocEntries(downTo: level)
         }
         if level == lastLevel {
-            toc.finishListItem()
+            finishTocListItem(level: level)
         }
         if level > lastLevel {
-            toc.startUnorderedList(klass: nil)
+            startTocUnorderedList(level: level)
             levels.append(level)
         }
         
         // Display the next TOC entry
+        startTocListItem(note: note, level: level)
+    }
+    
+    func startTocUnorderedList(level: Int) {
+        var ulKlass: String? = nil
+        if tocDetails && level < levelEnd {
+            ulKlass = "outline-list"
+        }
+        toc.startUnorderedList(klass: ulKlass)
+    }
+    
+    func startTocListItem(note: Note, level: Int) {
         toc.startListItem()
+        if tocDetails && level < levelEnd {
+            toc.startDetails(klass: "list-item-\(level)-details")
+            toc.startSummary()
+        }
         displayParms.streamlinedTitleWithLink(markedup: toc, note: note, klass: Markedup.htmlClassNavLink)
+        if tocDetails && level < levelEnd {
+            toc.finishSummary()
+        }
     }
     
     func closeTocEntries(downTo: Int) {
         while lastLevel > downTo {
-            toc.finishListItem()
+            finishTocListItem(level: lastLevel)
             toc.finishUnorderedList()
             let top = levels.count - 1
             levels.remove(at: top)
         }
+    }
+    
+    func finishTocListItem(level: Int) {
+        if tocDetails && level < levelEnd {
+            toc.finishDetails()
+        }
+        toc.finishListItem()
     }
     
     // -----------------------------------------------------------
