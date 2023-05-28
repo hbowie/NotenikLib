@@ -31,13 +31,13 @@ public class AnyType {
     }
     
     /// A factory method to create a new value of this type with no initial value.
-    func createValue() -> StringValue {
+    public func createValue() -> StringValue {
         return StringValue()
     }
     
     /// A factory method to create a new value of this type with the given value.
     /// - Parameter str: The value to be used to populate the field with a value.
-    func createValue(_ str: String) -> StringValue {
+    public func createValue(_ str: String) -> StringValue {
         return StringValue(str)
     }
     

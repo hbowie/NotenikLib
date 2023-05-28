@@ -11,7 +11,9 @@
 
 import Foundation
 
-class SeqType: AnyType {
+public class SeqType: AnyType {
+    
+    var seqParms = SeqParms()
     
     override init() {
         
@@ -28,14 +30,14 @@ class SeqType: AnyType {
     }
     
     /// A factory method to create a new value of this type with no initial value.
-    override func createValue() -> StringValue {
-        return SeqValue()
+    public override func createValue() -> StringValue {
+        return SeqValue(seqParms: seqParms)
     }
     
     /// A factory method to create a new value of this type with the given value.
     /// - Parameter str: The value to be used to populate the field with a value.
-    override func createValue(_ str: String) -> StringValue {
-        let seq = SeqValue(str)
+    public override func createValue(_ str: String) -> StringValue {
+        let seq = SeqValue(str, seqParms: seqParms)
         return seq
     }
     

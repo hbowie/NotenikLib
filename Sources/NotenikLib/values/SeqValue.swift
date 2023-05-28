@@ -18,21 +18,32 @@ import NotenikUtils
 /// Such a value may contain letters and digits and one or more periods or hyphens or dollar signs.
 public class SeqValue: StringValue {
     
-    var seqStack = SeqStack()
+    var seqStack: SeqStack!
+    
+    var seqParms: SeqParms!
     
     var originalValue = ""
     
     public override init() {
         super.init()
+        print("SeqValue.init without SeqParms!")
     }
     
-    public convenience init (_ value: String) {
-        self.init()
+    public init(seqParms: SeqParms) {
+        super.init()
+        self.seqParms = seqParms
+        seqStack = SeqStack(seqParms: seqParms)
+    }
+    
+    public init (_ value: String, seqParms: SeqParms) {
+        super.init()
+        self.seqParms = seqParms
+        seqStack = SeqStack(seqParms: seqParms)
         set(value)
     }
     
     public func dupe() -> SeqValue {
-        let newSeq = SeqValue()
+        let newSeq = SeqValue(seqParms: seqParms)
         newSeq.value = self.value
         newSeq.seqStack = self.seqStack.dupe()
         return newSeq
@@ -92,7 +103,7 @@ public class SeqValue: StringValue {
     override func set (_ value : String) {
         super.set(value)
         originalValue = value
-        seqStack = SeqStack()
+        seqStack = SeqStack(seqParms: seqParms)
         var nextSegment = SeqSegment()
         var lastPunctuation = ""
         

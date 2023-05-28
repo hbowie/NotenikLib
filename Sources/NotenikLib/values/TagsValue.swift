@@ -60,7 +60,7 @@ public class TagsValue: StringValue, MultiValues {
                 if level.count > 0 {
                   level.append(c)
                 }
-            } else if StringUtils.isAlpha(c) || StringUtils.isDigit(c) || c == "-" || c == "_" {
+            } else if c.isLetter || c.isNumber || c == "-" || c == "_" {
                 level.append(c)
             }
         }

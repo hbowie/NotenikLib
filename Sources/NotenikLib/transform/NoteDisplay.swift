@@ -221,13 +221,22 @@ public class NoteDisplay {
         let imageHTML = Markedup()
         if imageCaption.isEmpty && imageCaptionText.isEmpty {
             imageHTML.image(alt: imageAlt, path: imagePath, title: imageAlt)
-        } else if imageCaption.isEmpty {
-            imageHTML.image(path: imagePath,
-                            alt: imageAlt,
-                            title: imageAlt,
-                            captionPrefix: imageCaptionPrefix,
-                            captionText: imageCaptionText,
-                            captionLink: imageCaptionLink)
+        } else if imageCaption.isEmpty {            
+            imageHTML.startFigure()
+            let pathFixed = imagePath.replacingOccurrences(of: "?", with: "%3F")
+            imageHTML.image(alt: imageAlt, path: pathFixed, title: imageAlt)
+            imageHTML.startFigureCaption()
+            imageHTML.append(imageCaptionPrefix)
+            if !imageCaptionLink.isEmpty {
+                let blankTarget = parms.extLinksOpenInNewWindows
+                imageHTML.startLink(path: imageCaptionLink, klass: "ext-link", blankTarget: blankTarget)
+            }
+            imageHTML.append(imageCaptionText)
+            if !imageCaptionLink.isEmpty {
+                imageHTML.finishLink()
+            }
+            imageHTML.finishFigureCaption()
+            imageHTML.finishFigure()
         } else {
             imageHTML.image(path: imagePath,
                             alt: imageAlt,

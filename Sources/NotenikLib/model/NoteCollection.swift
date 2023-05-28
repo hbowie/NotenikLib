@@ -457,6 +457,11 @@ public class NoteCollection {
                 indexFieldDef = def
             }
             
+        case NotenikConstants.klassCommon:
+            if klassFieldDef == nil {
+                klassFieldDef = def
+            }
+            
         case NotenikConstants.linkCommon:
             linkCount += 1
             if linkCount == 1 {

@@ -101,6 +101,9 @@ public class AppPrefs {
     let queryOutKey = "query-output-window-numbers"
     var _queryOut = ""
     
+    let horizontalListScrolBarKey = "horiz-list-scroll"
+    var _horizListScrollBar = "on"
+    
     var _appLaunching = false
     
     var _qd: Bool = false
@@ -297,6 +300,11 @@ public class AppPrefs {
             _appearance = aa!
         }
         
+        let hls = defaults.string(forKey: horizontalListScrolBarKey)
+        if hls != nil && !hls!.isEmpty {
+            _horizListScrollBar = hls!
+        }
+        
         let mh = defaults.string(forKey: mastHandleKey)
         if mh != nil {
             _mastHandle = purifyHandle(handle: mh!)
@@ -446,6 +454,16 @@ public class AppPrefs {
         set {
             _appearance = newValue
             defaults.set(_appearance, forKey: appAppearanceKey)
+        }
+    }
+    
+    public var horizontalListScrollBar: String {
+        get {
+            return _horizListScrollBar
+        }
+        set {
+            _horizListScrollBar = newValue
+            defaults.set(_horizListScrollBar, forKey: horizontalListScrolBarKey)
         }
     }
     

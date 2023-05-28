@@ -959,10 +959,10 @@ public class NotesMkdownContext: MkdownContext {
             teasers.startParagraph()
             
             let seq = child.seq
-            let seqStack = seq.seqStack
-            let finalSegment = seqStack.segments[seqStack.max]
-            teasers.append("\(finalSegment.value). ")
-            
+            if let seqStack = seq.seqStack {
+                let finalSegment = seqStack.segments[seqStack.max]
+                teasers.append("\(finalSegment.value). ")
+            }
             let mkdown = MkdownParser(child.teaser.value, options: mkdownOptions)
             // mkdown.setWikiLinkFormatting(prefix: "", format: .fileName, suffix: ".html", context: workspace?.mkdownContext)
             // mkdown.setWikiLinkFormatting(prefix: "#", format: .fileName, suffix: "", context: workspace?.mkdownContext)

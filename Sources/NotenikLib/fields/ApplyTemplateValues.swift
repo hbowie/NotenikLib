@@ -116,6 +116,7 @@ class ApplyTemplateValues {
                 def.fieldType = collection.typeCatalog.assignType(label: def.fieldLabel, type: typeStrCommon)
             }
         } else if typeStrCommon == NotenikConstants.klassCommon {
+            def.fieldType = collection.typeCatalog.klassType
             let pickList = KlassPickList(values: typeValues.str)
             pickList.setDefaults()
             def.pickList = pickList

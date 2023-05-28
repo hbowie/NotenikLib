@@ -1081,7 +1081,7 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
         if val is SeqValue {
             return val as! SeqValue
         } else {
-            return SeqValue(val.value)
+            return collection.seqFieldDef!.fieldType.createValue(val.value) as! SeqValue
         }
     }
     
@@ -1094,6 +1094,7 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
 
         return collection.seqFormatter.format(seq: seqValue)
     }
+    
     //
     // Functions and variables concerning the Note's Display Seq field.
     //

@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 3/10/20.
-//  Copyright © 2021 Herb Bowie (https://hbowie.net)
+//  Copyright © 2021 - 2023 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -16,9 +16,15 @@ class SeqStack {
     
     var segments: [SeqSegment] = []
     
+    var seqParms: SeqParms!
+    
+    public init(seqParms: SeqParms) {
+        self.seqParms = seqParms
+    }
+    
     /// Perform a deep copy of this object to create a new one.
     public func dupe() -> SeqStack {
-        let newStack = SeqStack()
+        let newStack = SeqStack(seqParms: seqParms)
         for segment in segments {
             let newSegment = segment.dupe()
             newStack.segments.append(newSegment)
@@ -29,6 +35,13 @@ class SeqStack {
     /// Add another segment to the stack.
     func append(_ segment: SeqSegment) {
         segments.append(segment)
+        checkLargestNumberOfSegments()
+    }
+    
+    func checkLargestNumberOfSegments() {
+        if segments.count > seqParms.largestNumberOfSegments {
+            seqParms.largestNumberOfSegments = segments.count
+        }
     }
     
     /// Return the number of segments in the stack.
@@ -105,7 +118,7 @@ class SeqStack {
             // }
             segIndex += 1
         }
-        while segIndex < 6 {
+        while segIndex < seqParms.largestNumberOfSegments {
             if segIndex == 0 {
                 key.append("00000000.")
             } else {

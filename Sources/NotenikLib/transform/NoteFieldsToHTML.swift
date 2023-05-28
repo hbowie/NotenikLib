@@ -298,6 +298,7 @@ public class NoteFieldsToHTML {
     /// - Returns: A String containing the code that can be used to display this field.
     func display(_ field: NoteField, note: Note, collection: NoteCollection, io: NotenikIO?) -> String {
         
+        // Prepare for processing.
         var mkdownContext: MkdownContext?
         if io != nil {
             mkdownContext = NotesMkdownContext(io: io!, displayParms: parms)
@@ -329,24 +330,7 @@ public class NoteFieldsToHTML {
             // code.finishEmphasis()
             // code.finishParagraph()
         } else if field.def.fieldType is LinkType {
-            code.startParagraph()
-            code.append(field.def.fieldLabel.properForm)
-            code.append(": ")
-            let path = field.value.value
-            var pathDisplay = path.removingPercentEncoding
-            if pathDisplay == nil {
-                pathDisplay = path
-            }
-            var blankTarget = collection.extLinksOpenInNewWindows
-            if blankTarget {
-                if !(path.starts(with: "https://") || path.starts(with: "http://") || path.starts(with: "www.")) {
-                    blankTarget = false
-                }
-            }
-            code.link(text: pathDisplay!,
-                      path: path,
-                      blankTarget: blankTarget)
-            code.finishParagraph()
+            displayLink(field, markedup: code)
         } else if field.def.fieldType is AttribType {
             markdownToMarkedup(markdown: field.value.value,
                                context: mkdownContext,
@@ -378,6 +362,10 @@ public class NoteFieldsToHTML {
                     displayStraight(field, markedup: code)
                 }
             case NotenikConstants.imageNameCommon:
+                break
+            case NotenikConstants.imageCreditCommon:
+                break
+            case NotenikConstants.imageCreditLinkCommon:
                 break
             case NotenikConstants.includeChildrenCommon:
                 break
@@ -413,15 +401,20 @@ public class NoteFieldsToHTML {
                 code.finishEmphasis()
                 code.finishParagraph() */
             default:
-                if field.def.fieldLabel.commonForm == NotenikConstants.teaserCommon {
+                switch field.def.fieldLabel.commonForm {
+                case NotenikConstants.teaserCommon:
                     break
-                } else if field.def.fieldLabel.commonForm == NotenikConstants.imageCaptionCommon {
+                case NotenikConstants.imageCaptionCommon:
                     break
-                } else if field.def.fieldLabel.commonForm == NotenikConstants.imageAltCommon {
+                case NotenikConstants.imageAltCommon:
                     break
-                } else if field.def.fieldLabel.commonForm == NotenikConstants.workLargerTitleCommon {
+                case NotenikConstants.workLargerTitleCommon:
                     break
-                } else {
+                case NotenikConstants.imageCreditCommon:
+                    break
+                case NotenikConstants.imageCreditLinkCommon:
+                    break
+                default:
                     displayStraight(field, markedup: code)
                 }
             }
@@ -579,6 +572,32 @@ public class NoteFieldsToHTML {
                                  addID: true,
                                  idText: note.title.value)
         }
+    }
+    
+    func displayLink(_ field: NoteField, markedup: Markedup) {
+        if parms.streamlined {
+            if field.def.fieldLabel.commonForm == NotenikConstants.imageCreditLinkCommon {
+                return
+            }
+        }
+        markedup.startParagraph()
+        markedup.append(field.def.fieldLabel.properForm)
+        markedup.append(": ")
+        let path = field.value.value
+        var pathDisplay = path.removingPercentEncoding
+        if pathDisplay == nil {
+            pathDisplay = path
+        }
+        var blankTarget = parms.extLinksOpenInNewWindows
+        if blankTarget {
+            if !(path.starts(with: "https://") || path.starts(with: "http://") || path.starts(with: "www.")) {
+                blankTarget = false
+            }
+        }
+        markedup.link(text: pathDisplay!,
+                  path: path,
+                  blankTarget: blankTarget)
+        markedup.finishParagraph()
     }
     
     /// Display a field without any special formatting.
