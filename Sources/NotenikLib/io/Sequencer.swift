@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 9/20/19.
-//  Copyright © 2019 - 2022 Herb Bowie (https://hbowie.net)
+//  Copyright © 2019 - 2023 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -18,9 +18,10 @@ public class Sequencer {
     
     let levelsHead = "levels-outline"
     
-    var io: NotenikIO!
-    var collection: NoteCollection!
+    var io:          NotenikIO!
+    var collection:  NoteCollection!
     var seqFieldDef: FieldDefinition!
+    var seqType:     SeqType!
     
     var notesToUpdate: [Note] = []
     var updatedSeqs:   [SeqValue] = []
@@ -35,6 +36,10 @@ public class Sequencer {
             self.io = io
             collection = io.collection!
         }
+        guard let seqDef = collection.seqFieldDef else { return nil }
+        self.seqFieldDef = seqDef
+        guard let sqTyp = seqFieldDef.fieldType as? SeqType else { return nil }
+        seqType = sqTyp
         guard io.sortParm == .seqPlusTitle || io.sortParm == .tasksBySeq else { return nil }
     }
     
@@ -109,7 +114,7 @@ public class Sequencer {
         
         guard let firstNote = io.getNote(at: startingRow) else { return nil }
         var priorOldSeq = firstNote.seq.dupe()
-        var priorNewSeq = SeqValue(newSeqValue)
+        var priorNewSeq = seqType.createValue(newSeqValue) as! SeqValue
         let levelAdd = priorNewSeq.numberOfLevels - priorOldSeq.numberOfLevels
         var newLevel: LevelValue?
         if levelAdd != 0 {
@@ -267,7 +272,8 @@ public class Sequencer {
             if updateNote {
                 notesToUpdate.append(note!)
                 if updateSeq {
-                    updatedSeqs.append(SeqValue(newSeq))
+                    let newSeqValue = seqType.createValue(newSeq) as! SeqValue
+                    updatedSeqs.append(newSeqValue)
                 }
                 if tagsAction == .update || tagsAction == .remove {
                     updatedTags.append(newTags)
