@@ -98,8 +98,8 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
             _envCreateDate = newValue
             let dateAddedDef = collection.dict.getDef(NotenikConstants.dateAdded)
             if dateAddedDef != nil {
-                let dateAddedValue = dateAdded
-                if dateAddedValue.value.count == 0 {
+                let dateAddedField = fields[dateAddedDef!.fieldLabel.commonForm]
+                if dateAddedField == nil {
                     _ = setDateAdded(newValue)
                 }
             }
@@ -123,11 +123,17 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
             _envModDate = newValue
             let dateModifiedDef = collection.dict.getDef(NotenikConstants.dateModified)
             if dateModifiedDef != nil {
-                let dateModifiedValue = dateModified
-                let dateModNewValue = DateValue(newValue)
-                if dateModifiedValue.value.count == 0
-                        || dateModNewValue > dateModifiedValue {
+                let dateModifiedField = fields[dateModifiedDef!.fieldLabel.commonForm]
+                if dateModifiedField == nil {
                     _ = setDateModified(newValue)
+                } else {
+                    if let dateModifiedValue = dateModifiedField!.value as? DateTimeValue {
+                        let dateModNewValue = DateTimeValue(newValue)
+                        if dateModifiedValue.value.count == 0
+                            || dateModNewValue > dateModifiedValue {
+                            _ = setDateModified(newValue)
+                        }
+                    }
                 }
             }
         }

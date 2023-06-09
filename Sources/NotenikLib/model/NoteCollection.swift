@@ -183,6 +183,7 @@ public class NoteCollection {
     }
     
     public func userFacingLabel(below: URL? = nil) -> String {
+
         if titleSetByUser {
             return title
         } else if let url = lib.notesFolder.url {
