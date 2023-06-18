@@ -104,6 +104,9 @@ public class AppPrefs {
     let horizontalListScrolBarKey = "horiz-list-scroll"
     var _horizListScrollBar = "on"
     
+    let auxLongTextKey = "aux-long-text"
+    var _auxLongText = false
+    
     var _appLaunching = false
     
     var _qd: Bool = false
@@ -305,6 +308,8 @@ public class AppPrefs {
             _horizListScrollBar = hls!
         }
         
+        _auxLongText = defaults.bool(forKey: auxLongTextKey)
+        
         let mh = defaults.string(forKey: mastHandleKey)
         if mh != nil {
             _mastHandle = purifyHandle(handle: mh!)
@@ -464,6 +469,16 @@ public class AppPrefs {
         set {
             _horizListScrollBar = newValue
             defaults.set(_horizListScrollBar, forKey: horizontalListScrolBarKey)
+        }
+    }
+    
+    public var auxLongText: Bool {
+        get {
+            return _auxLongText
+        }
+        set {
+            _auxLongText = newValue
+            defaults.set(_auxLongText, forKey: auxLongTextKey)
         }
     }
     
