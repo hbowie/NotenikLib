@@ -72,7 +72,7 @@ public class AuthorValue: StringValue, MultiValues {
     }
     
     /// Use a last name first arrangement for the sort key
-    override var sortKey: String {
+    public override var sortKey: String {
         return firstNameFirst
     }
     
@@ -228,7 +228,7 @@ public class AuthorValue: StringValue, MultiValues {
     /// authors, then it is expected to be in the form "John Doe, Jane Smith and
     /// Joe Riley": in other words, with an "and" (or an ampersand) before the last
     /// name and with other names separated by commas.
-    override func set (_ value : String) {
+    public override func set (_ value : String) {
         self.value = value
         self.lastName  = ""
         self.firstName = ""

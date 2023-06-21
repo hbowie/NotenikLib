@@ -36,17 +36,17 @@ public class TitleValue: StringValue {
     }
     
     /// Does this value have any data stored in it?
-    override var hasData: Bool {
+    public override var hasData: Bool {
         return (value.count > 0 && common.count > 0)
     }
     
     /// Return a value that can be used as a key for comparison purposes
-    override var sortKey: String {
+    public override var sortKey: String {
         return common
     }
     
     /// Set a new title value, converting to a lowest common denominator form while we're at it
-    override func set(_ value: String) {
+    public override func set(_ value: String) {
         super.set(StringUtils.cleanAndTrim(value))
         common = StringUtils.toCommon(value)
     }

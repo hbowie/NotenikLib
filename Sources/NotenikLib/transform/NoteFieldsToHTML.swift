@@ -331,6 +331,10 @@ public class NoteFieldsToHTML {
             // code.finishParagraph()
         } else if field.def.fieldType is LinkType {
             displayLink(field, markedup: code)
+        } else if field.def.fieldType is AddressType {
+            displayAddress(field, markedup: code)
+        } else if field.def.fieldType is DirectionsType {
+            displayDirections(field, markedup: code)
         } else if field.def.fieldType is AttribType {
             markdownToMarkedup(markdown: field.value.value,
                                context: mkdownContext,
@@ -597,6 +601,30 @@ public class NoteFieldsToHTML {
         markedup.link(text: pathDisplay!,
                   path: path,
                   blankTarget: blankTarget)
+        markedup.finishParagraph()
+    }
+    
+    func displayAddress(_ field: NoteField, markedup: Markedup) {
+        markedup.startParagraph()
+        markedup.append(field.def.fieldLabel.properForm)
+        markedup.append(": ")
+        if let av = field.value as? AddressValue {
+            markedup.link(text: field.value.value, path: av.link, blankTarget: true)
+        } else {
+            markedup.append(field.value.value)
+        }
+        markedup.finishParagraph()
+    }
+    
+    func displayDirections(_ field: NoteField, markedup: Markedup) {
+        markedup.startParagraph()
+        markedup.append(field.def.fieldLabel.properForm)
+        markedup.append(": ")
+        if let dv = field.value as? DirectionsValue {
+            markedup.link(text: dv.valueToDisplay(), path: dv.link, blankTarget: true)
+        } else {
+            markedup.append(field.value.value)
+        }
         markedup.finishParagraph()
     }
     

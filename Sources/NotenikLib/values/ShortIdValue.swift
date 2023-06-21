@@ -22,7 +22,7 @@ public class ShortIdValue: StringValue {
     }
     
     /// Set a new value for the object
-    override func set(_ value: String) {
+    public override func set(_ value: String) {
         let valueLower = value.lowercased()
         var setValue = value
         for value in pickList.values {

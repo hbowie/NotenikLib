@@ -33,7 +33,7 @@ public class IndexValue: StringValue, MultiValues {
     ///
     /// - Parameter value: The new value for the tags, with commas or semi-colons separating tags,
     ///                    and periods or slashes separating levels within a tag.
-    override func set(_ value: String) {
+    public override func set(_ value: String) {
         self.value = ""
         indexList = []
         append(value)

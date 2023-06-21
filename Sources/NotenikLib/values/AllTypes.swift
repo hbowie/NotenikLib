@@ -14,6 +14,7 @@ import Foundation
 /// A catalog of all available field types. One of these should be created for each Collection.
 public class AllTypes {
     
+    let addressType = AddressType()
     let akaType     = AKAType()
     let artistType  = ArtistType()
     let attribType  = AttribType()
@@ -26,6 +27,7 @@ public class AllTypes {
     let dateAddedType = DateAddedType()
     let dateModifiedType = DateModifiedType()
     let dateType    = DateType()
+    let directionsType = DirectionsType()
     let imageNameType = ImageNameType()
     let includeChildrenType = IncludeChildrenType()
     let indexType   = IndexType()
@@ -88,6 +90,8 @@ public class AllTypes {
     /// Initialize with all of the standard types. 
     init() {
         
+        fieldTypes.append(addressType)
+        fieldTypes.append(directionsType)
         fieldTypes.append(akaType)
         fieldTypes.append(artistType)
         fieldTypes.append(attribType)

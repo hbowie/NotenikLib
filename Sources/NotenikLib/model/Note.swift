@@ -673,6 +673,60 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     }
     
     //
+    // Functions and variables concerning the Note's Address field
+    //
+    
+    public func hasAddress() -> Bool {
+        guard let def = collection.addressFieldDef else { return false }
+        let field = getField(def: def)
+        if field == nil {
+            return false
+        } else if field!.value.isEmpty {
+            return false
+        }
+        return true
+    }
+    
+    public var address: AddressValue {
+        guard let def = collection.addressFieldDef else { return AddressValue() }
+        let field = getField(def: def)
+        if field == nil {
+            return AddressValue()
+        } else if let value = field!.value as? AddressValue {
+            return value
+        } else {
+            return AddressValue(field!.value.value)
+        }
+    }
+    
+    //
+    // Functions and variables concering the Note's Directions field
+    //
+    
+    public func hasDirections() -> Bool {
+        guard let def = collection.directionsFieldDef else { return false }
+        let field = getField(def: def)
+        if field == nil {
+            return false
+        } else if field!.value.isEmpty {
+            return false
+        }
+        return true
+    }
+    
+    public var directions: DirectionsValue {
+        guard let def = collection.directionsFieldDef else { return DirectionsValue() }
+        let field = getField(def: def)
+        if field == nil {
+            return DirectionsValue()
+        } else if let value = field!.value as? DirectionsValue {
+            return value
+        } else {
+            return DirectionsValue(field!.value.value)
+        }
+    }
+    
+    //
     // Functions and variables concerning the Note's AKA field.
     //
      
@@ -849,13 +903,31 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
         let defs = dict.list
         for definition in defs {
             let fieldType = definition.fieldType
-            let linkType = fieldType as? LinkType
-            if linkType != nil {
+        
+            if fieldType is LinkType {
                 let linkField = getField(def: definition)
                 if linkField != nil {
                     if let linkVal = linkField!.value as? LinkValue {
                         if let linkURL = linkVal.url {
                             return linkURL
+                        }
+                    }
+                }
+            } else if fieldType is AddressType {
+                let addressField = getField(def: definition)
+                if addressField != nil {
+                    if let address = addressField?.value as? AddressValue {
+                        if let url = URL(string: address.link) {
+                            return url
+                        }
+                    }
+                }
+            } else if fieldType is DirectionsType {
+                let directionsField = getField(def: definition)
+                if directionsField != nil {
+                    if let directions = directionsField?.value as? DirectionsValue {
+                        if let url = URL(string: directions.link) {
+                            return url
                         }
                     }
                 }

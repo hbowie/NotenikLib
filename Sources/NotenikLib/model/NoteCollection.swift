@@ -60,24 +60,26 @@ public class NoteCollection {
     public  var seqFormatter = SeqFormatter()
     
     // Store some key and singular field definitions for easy access.
-    public  var idFieldDef:     FieldDefinition
-    public  var titleFieldDef:  FieldDefinition
-    public  var akaFieldDef:    FieldDefinition?
-    public  var tagsFieldDef:   FieldDefinition
-    public  var linkFieldDef:   FieldDefinition
-    public  var dateFieldDef:   FieldDefinition
-    public  var recursFieldDef: FieldDefinition
-    public  var statusFieldDef: FieldDefinition
-    public  var rankFieldDef:   FieldDefinition?
-    public  var levelFieldDef:  FieldDefinition?
-    public  var seqFieldDef:    FieldDefinition?
+    public  var addressFieldDef: FieldDefinition?
+    public  var directionsFieldDef: FieldDefinition?
+    public  var idFieldDef:      FieldDefinition
+    public  var titleFieldDef:   FieldDefinition
+    public  var akaFieldDef:     FieldDefinition?
+    public  var tagsFieldDef:    FieldDefinition
+    public  var linkFieldDef:    FieldDefinition
+    public  var dateFieldDef:    FieldDefinition
+    public  var recursFieldDef:  FieldDefinition
+    public  var statusFieldDef:  FieldDefinition
+    public  var rankFieldDef:    FieldDefinition?
+    public  var levelFieldDef:   FieldDefinition?
+    public  var seqFieldDef:     FieldDefinition?
     public  var displaySeqFieldDef: FieldDefinition?
-    public  var klassFieldDef:  FieldDefinition?
+    public  var klassFieldDef:   FieldDefinition?
     public  var includeChildrenDef: FieldDefinition?
-    public  var attribFieldDef: FieldDefinition?
-    public  var indexFieldDef:  FieldDefinition
-    public  var backlinksDef:   FieldDefinition?
-    public  var wikilinksDef:   FieldDefinition?
+    public  var attribFieldDef:  FieldDefinition?
+    public  var indexFieldDef:   FieldDefinition
+    public  var backlinksDef:    FieldDefinition?
+    public  var wikilinksDef:    FieldDefinition?
     public  var creatorFieldDef: FieldDefinition
     public  var workLinkFieldDef: FieldDefinition
     public  var workTitleFieldDef: FieldDefinition
@@ -109,16 +111,6 @@ public class NoteCollection {
     public  var skipContentsForParent = false
     
     public  var mkdownCommandList = MkdownCommandList(collectionLevel: true)
-    
-    /* public  var headerNoteID   = ""
-    public  var headerHTML     = ""
-    public  var navNoteID      = ""
-    public  var navHTML        = ""
-    public  var footerNoteID   = ""
-    public  var footerHTML     = ""
-    public  var metaNoteID     = ""
-    public  var metaCode       = ""
-    public  var searchNoteID   = "" */
     
     public  var windowPosStr   = ""
     public  var columnWidths   = ColumnWidths()
@@ -412,6 +404,11 @@ public class NoteCollection {
         
         switch def.fieldType.typeString {
             
+        case NotenikConstants.addressCommon:
+            if addressFieldDef == nil {
+                addressFieldDef = def
+            }
+            
         case NotenikConstants.akaCommon:
             akaFieldDef = def
         
@@ -443,6 +440,11 @@ public class NoteCollection {
             dateCount += 1
             if dateCount == 1 {
                 dateFieldDef = def
+            }
+            
+        case NotenikConstants.directionsCommon:
+            if directionsFieldDef == nil {
+                directionsFieldDef = def
             }
             
         case NotenikConstants.imageNameCommon:

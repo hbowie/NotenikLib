@@ -36,7 +36,7 @@ public class LinkValue: StringValue {
     }
     
     /// Return a value that can be used as a key for comparison purposes
-    override var sortKey: String {
+    public override var sortKey: String {
         return link.sortKey
     }
     
@@ -52,7 +52,7 @@ public class LinkValue: StringValue {
     }
     
     /// Parse the input string and break it down into its various components
-    override func set(_ value: String) {
+    public override func set(_ value: String) {
         super.set(value)
         link.set(with: value, assume: .assumeWeb)
     }

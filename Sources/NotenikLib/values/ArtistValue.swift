@@ -17,7 +17,7 @@ public class ArtistValue: StringValue {
     var compKey = ""
     
     /// Set a new value for the object
-    override func set(_ value: String) {
+    public override func set(_ value: String) {
         self.value = value
         let valueLower = value.lowercased()
         if valueLower.starts(with: "the ") {
@@ -30,7 +30,7 @@ public class ArtistValue: StringValue {
     }
     
     /// Return a value that can be used as a key for comparison purposes
-    override var sortKey: String {
+    public override var sortKey: String {
         return compKey
     }
 }

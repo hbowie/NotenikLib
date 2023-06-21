@@ -16,7 +16,7 @@ public class WorkTypeValue: StringValue {
     
     let types = WorkTypeList.shared
     
-    override func set(_ value: String) {
+    public override func set(_ value: String) {
         let index = types.matchesOriginal(value: value)
         if index == NSNotFound {
             self.value = value

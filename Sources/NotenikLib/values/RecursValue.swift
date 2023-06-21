@@ -148,7 +148,7 @@ public class RecursValue: StringValue {
      Set the date's value to a new string, parsing the input and attempting to
      identify the year, month and date
      */
-    override func set(_ value: String) {
+    public override func set(_ value: String) {
         
         super.set(value)
         

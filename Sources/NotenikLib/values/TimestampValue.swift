@@ -36,7 +36,7 @@ public class TimestampValue: StringValue {
         value = DateUtils.shared.timestampFormatter.string(from: rightNow)
     }
     
-    override func set(_ value: String) {
+    public override func set(_ value: String) {
         self.value = ""
         for char in value {
             if char == "+" { break }

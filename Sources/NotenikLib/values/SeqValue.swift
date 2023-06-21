@@ -100,7 +100,7 @@ public class SeqValue: StringValue {
     }
     
     /// Set this sequence value to the provided string
-    override func set (_ value : String) {
+    public override func set (_ value : String) {
         super.set(value)
         originalValue = value
         seqStack = SeqStack(seqParms: seqParms)
@@ -122,7 +122,7 @@ public class SeqValue: StringValue {
     } // end set function
     
     /// Return a value that can be used as a key for comparison purposes
-    override var sortKey: String {
+    public override var sortKey: String {
         return seqStack.sortKey
     }
     

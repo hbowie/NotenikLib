@@ -14,7 +14,7 @@ import Foundation
 
 public class KlassValue: StringValue {
     
-    override func set(_ value: String) {
+    public override func set(_ value: String) {
         super.set(value.lowercased())
     }
     

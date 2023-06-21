@@ -78,14 +78,14 @@ public class AKAValue: StringValue, MultiValues, Collection, Sequence {
     }
     
     /// Set a new value for the object
-    override func set(_ value: String) {
+    public override func set(_ value: String) {
         self.value = value
         list = []
         append(value)
         setValueFromList()
     }
     
-    public func clear() {
+    public override func clear() {
         list = []
         value = ""
     }

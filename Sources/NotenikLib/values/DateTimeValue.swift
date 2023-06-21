@@ -44,7 +44,7 @@ public class DateTimeValue: StringValue {
     }
     
     /// Set to String value.
-    override func set(_ value: String) {
+    public override func set(_ value: String) {
         
         if value.isEmpty {
             dateAndTime = Date()
@@ -245,7 +245,7 @@ public class DateTimeValue: StringValue {
     }
     
     /// Return a value that can be used as a key for comparison purposes
-    override var sortKey: String {
+    public override var sortKey: String {
         return ymdhmszFormatter.string(from: dateAndTime)
     }
     

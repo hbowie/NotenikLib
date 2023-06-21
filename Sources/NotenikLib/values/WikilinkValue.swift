@@ -56,12 +56,12 @@ public class WikilinkValue: StringValue {
     }
     
     /// Does this value have any data stored in it?
-    override var hasData: Bool {
+    public override var hasData: Bool {
         return (notePointers.count > 0)
     }
     
     /// Return a value that can be used as a key for comparison purposes
-    override var sortKey: String {
+    public override var sortKey: String {
         return notePointers.value
     }
     
@@ -69,7 +69,7 @@ public class WikilinkValue: StringValue {
     ///
     /// - Parameter value: The new value for the links, with 
     ///   paired semi-colons separating titles.
-    override func set(_ value: String) {
+    public override func set(_ value: String) {
         notePointers.clear()
         append(value)
     }

@@ -19,6 +19,8 @@ public struct NotenikConstants {
     // Field Labels
     //
     //-------------------------------------------------------------
+    public static let address           = "Address"
+    public static let addressCommon     = "address"
     public static let aka               = "AKA"
     public static let akaCommon         = "aka"
     public static let artist            = "Artist"
@@ -44,6 +46,9 @@ public struct NotenikConstants {
     public static let dateAddedCommon   = "dateadded"
     public static let dateModified      = "Date Modified"
     public static let dateModifiedCommon = "datemodified"
+    public static let directions        = "Directions"
+    public static let directionsCommon  = "directions"
+    public static let directionsRequested = "directions-requested"
     static let doubleBracketParsing     = "Double Bracket Parsing"
     static let doubleBracketParsingCommon = "doublebracketparsing"
     public static let imageAlt          = "Image Alt"

@@ -19,7 +19,7 @@ public class StringValue: CustomStringConvertible, Equatable, Comparable {
     public var value = ""
     
     /// Initialize with no initial value
-    init() {
+    public init() {
         
     }
     
@@ -29,8 +29,13 @@ public class StringValue: CustomStringConvertible, Equatable, Comparable {
         set(value)
     }
     
+    /// Clear out the contents of the value, leaving it blank.
+    public func clear() {
+        self.value = ""
+    }
+    
     /// Set a new value for the object
-    func set(_ value: String) {
+    public func set(_ value: String) {
         self.value = value
     }
     
@@ -39,7 +44,7 @@ public class StringValue: CustomStringConvertible, Equatable, Comparable {
     /// - Omit extra spaces.
     /// - If requested, convert uppercase to lowercase.
     /// - Parameter forceLowercase: True if lowercase is to be forced; false otherwise. 
-    func cleanup(forceLowercase: Bool = false) {
+    public func cleanup(forceLowercase: Bool = false) {
         var val = ""
         var spacesPending = false
         for char in value {
@@ -81,16 +86,16 @@ public class StringValue: CustomStringConvertible, Equatable, Comparable {
     
     /// Is this value empty?
     public var isEmpty: Bool {
-        return (value.count == 0)
+        return (value.isEmpty)
     }
     
     /// Does this value have any data stored in it?
-    var hasData: Bool {
-        return (value.count > 0)
+    public var hasData: Bool {
+        return (!value.isEmpty)
     }
     
     /// Return a value that can be used as a key for comparison purposes
-    var sortKey: String {
+    public var sortKey: String {
         return value
     }
     
@@ -105,7 +110,7 @@ public class StringValue: CustomStringConvertible, Equatable, Comparable {
     }
     
     /// Perform the requested operation with a possible value.
-    func operate(opcode: String, operand1: String) {
+    public func operate(opcode: String, operand1: String) {
         switch opcode {
         case "=":
             set(operand1)
