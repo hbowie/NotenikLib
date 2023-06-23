@@ -68,6 +68,23 @@ class BunchOfNotes {
         }
     }
     
+    var sortBlankDatesLast: Bool {
+        get {
+            return collection.sortBlankDatesLast
+        }
+        set {
+            var selectedNote: Note?
+            (selectedNote, _) = getSelectedNote()
+            collection.sortBlankDatesLast = newValue
+            notesList.sort()
+            if notesList.count == 0 {
+                listIndex = -1
+            } else if listIndex > 0 && selectedNote != nil {
+                (listIndex, _) = searchList(selectedNote!)
+            }
+        }
+    }
+    
     /// Initialize with a Note Collection
     init(collection: NoteCollection) {
         self.collection = collection

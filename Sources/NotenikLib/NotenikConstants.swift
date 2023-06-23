@@ -93,6 +93,8 @@ public struct NotenikConstants {
     public static let displaySeqCommon = "displayseq"
     public static let shortId       = "Short ID"
     public static let shortIdCommon = "shortid"
+    public static let sortBlankDatesLast = "Sort Blank Dates Last"
+    public static let sortBlankDatesLastCommon = "sortblankdateslast"
     static let sortParm             = "Sort Parm"
     static let sortParmCommon       = "sortparm"
     static let sortDescending       = "Sort Descending"

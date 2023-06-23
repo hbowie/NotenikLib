@@ -28,6 +28,7 @@ public class NoteCollection {
     public  var hasLookupFields = false
     public  var sortParm    : NoteSortParm
     public  var sortDescending: Bool
+    public  var sortBlankDatesLast = true
     public  var typeCatalog  = AllTypes()
     public  var statusConfig: StatusValueConfig
     public  var rankConfig:   RankValueConfig

@@ -52,6 +52,9 @@ public protocol NotenikIO {
     /// Should the list be in descending sequence?
     var sortDescending: Bool { get set }
     
+    /// Should blank dates be sorted last, or first?
+    var sortBlankDatesLast: Bool { get set }
+    
     var aliasList: AliasList { get }
     
     // -----------------------------------------------------------

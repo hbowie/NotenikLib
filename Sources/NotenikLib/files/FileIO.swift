@@ -90,6 +90,20 @@ public class FileIO: NotenikIO, RowConsumer {
         }
     }
     
+    /// Should blank dates be sorted last, or first?
+    public var sortBlankDatesLast: Bool {
+        get {
+            return collection!.sortBlankDatesLast
+        }
+        set {
+            if newValue != collection!.sortBlankDatesLast {
+                collection!.sortBlankDatesLast = newValue
+                bunch!.sortBlankDatesLast = newValue
+            }
+        }
+        
+    }
+    
     // -----------------------------------------------------------
     //
     // MARK: Constants and other Variables
@@ -208,6 +222,7 @@ public class FileIO: NotenikIO, RowConsumer {
         
         bunch!.sortParm = collection.sortParm
         bunch!.sortDescending = collection.sortDescending
+        bunch!.sortBlankDatesLast = collection.sortBlankDatesLast
         
         return ok
     }
@@ -239,6 +254,7 @@ public class FileIO: NotenikIO, RowConsumer {
         str.appendLink(lib.getPath(type: .collection))
         str.append(label: "Sort Parm", value: collection!.sortParm.str)
         str.append(label: "Sort Descending", value: "\(collection!.sortDescending)")
+        str.append(label: NotenikConstants.sortBlankDatesLast, value: "\(collection!.sortBlankDatesLast)")
         str.append(label: "Other Fields Allowed", value: String(collection!.otherFields))
         if bunch != nil {
             str.append(label: NotenikConstants.lastIndexSelected, value: "\(bunch!.listIndex)")
@@ -473,6 +489,7 @@ public class FileIO: NotenikIO, RowConsumer {
             collectionOpen = true
             bunch!.sortParm = collection!.sortParm
             bunch!.sortDescending = collection!.sortDescending
+            bunch!.sortBlankDatesLast = collection!.sortBlankDatesLast
             if pickLists.tagsPickList.values.count > 0 {
                 AppPrefs.shared.pickLists = pickLists
             }
@@ -597,6 +614,12 @@ public class FileIO: NotenikIO, RowConsumer {
         if sortDescField != nil {
             let sortDescending = BooleanValue(sortDescField!.value.value)
             collection!.sortDescending = sortDescending.isTrue
+        }
+        
+        let sortBlankDatesLastField = infoNote.getField(label: NotenikConstants.sortBlankDatesLastCommon)
+        if sortBlankDatesLastField != nil && !sortBlankDatesLastField!.value.value.isEmpty {
+            let sortBDL = BooleanValue(sortBlankDatesLastField!.value.value)
+            collection!.sortBlankDatesLast = sortBDL.isTrue
         }
         
         let mirrorAutoIndexField = infoNote.getField(label: NotenikConstants.mirrorAutoIndexCommon)
@@ -823,6 +846,7 @@ public class FileIO: NotenikIO, RowConsumer {
         archiveCollection = collection
         archiveCollection!.sortParm = primeCollection.sortParm
         archiveCollection!.sortDescending = primeCollection.sortDescending
+        archiveCollection!.sortBlankDatesLast = primeCollection.sortBlankDatesLast
         archiveCollection!.dict = primeCollection.dict
         archiveCollection!.preferredExt = primeCollection.preferredExt
         newOK = newCollection(collection: archiveCollection!)

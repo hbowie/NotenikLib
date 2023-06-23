@@ -525,13 +525,13 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
             return seq.sortKey + title.sortKey + level.sortKey
         case .tasksByDate:
             return (status.doneX(config: collection.statusConfig)
-                + date.sortKey
+                + date.getSortKey(sortBlankDatesLast: collection.sortBlankDatesLast)
                 + seq.sortKey
                 + title.sortKey)
         case .tasksBySeq:
             return (status.doneX(config: collection.statusConfig)
                 + seq.sortKey
-                + date.sortKey
+                + date.getSortKey(sortBlankDatesLast: collection.sortBlankDatesLast)
                 + title.sortKey)
         case .tagsPlusTitle:
             return (tags.sortKey
@@ -539,7 +539,7 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
                 + status.sortKey)
         case .author:
             return (creatorSortKey
-                + date.sortKey
+                + date.getSortKey(sortBlankDatesLast: collection.sortBlankDatesLast)
                 + title.sortKey)
         case .tagsPlusSeq:
             return (tags.sortKey + " "
@@ -550,7 +550,7 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
         case .dateModified:
             return dateModifiedSortKey
         case .datePlusSeq:
-            return date.sortKey
+            return date.getSortKey(sortBlankDatesLast: collection.sortBlankDatesLast)
                 + seq.sortKey
                 + title.sortKey
         case .rankSeqTitle:
@@ -562,7 +562,7 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
                 + title.sortKey
         case .klassDateTitle:
             return klass.sortKey
-                + date.sortKey
+                + date.getSortKey(sortBlankDatesLast: collection.sortBlankDatesLast)
                 + title.sortKey
         case .custom:
             var key = ""
