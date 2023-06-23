@@ -14,6 +14,7 @@ import Foundation
 
 import NotenikUtils
 
+/// Format Notes into a traditional Calendar layout, expressed in HTML. 
 public class CalendarMaker {
     
     var writer: Markedup
@@ -28,12 +29,15 @@ public class CalendarMaker {
     var monthStarted = false
     
     public init(lowYM: String, highYM: String) {
+        print("    - CalendarMaker.init with lowYM = \(lowYM), highYM = \(highYM)")
         self.lowYM = lowYM
         self.highYM = highYM
         writer = Markedup(format: .htmlDoc)
     }
     
     public func startCalendar(title: String, prefs: DisplayPrefs) {
+        
+        print("      - start calendar")
         
         writer.startDoc(withTitle: title,
                           withCSS: prefs.displayCSS,
@@ -43,6 +47,8 @@ public class CalendarMaker {
     }
     
     public func finishCalendar() -> String {
+        
+        print("      - finish calendar")
         if currDate != nil {
             finishMonth()
         }
@@ -55,11 +61,12 @@ public class CalendarMaker {
     /// - Returns: True when we've passed the last month to be included.
     public func nextNote(_ note: Note) -> Bool {
         
+        print("        - next Note with sort key of '\(note.sortKey)', title of '\(note.title)'")
         guard let date = note.date.simpleDate else { return false }
         let ym = date.yearAndMonth
         
-        guard ym >= lowYM else { return false }
-        guard ym <= highYM else { return true }
+        guard ym >= lowYM || lowYM.isEmpty else { return false }
+        guard ym <= highYM || highYM.isEmpty else { return true }
         
         positionToDate(date)
         

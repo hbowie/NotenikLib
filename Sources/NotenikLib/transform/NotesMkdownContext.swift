@@ -182,6 +182,50 @@ public class NotesMkdownContext: MkdownContext {
     
     // -----------------------------------------------------------
     //
+    // MARK: Generate HTML for a Calendar.
+    //
+    // -----------------------------------------------------------
+    public func mkdownCalendar(mods: String) -> String {
+        
+        print("  - NotesMkdownContext.mkdownCalendar mods: \(mods)")
+        
+        guard io.collectionOpen else { return "" }
+        guard let collection = io.collection else { return "" }
+        
+        guard collection.sortParm == .tasksByDate || collection.sortParm == .datePlusSeq else {
+            communicateError("Collection must be sorted by Date in order to generate a calendar")
+            return ""
+        }
+        
+        var lowYM = ""
+        var highYM = ""
+        
+        if !mods.isEmpty {
+            let ymStack = mods.components(separatedBy: CharacterSet(charactersIn: ",;|"))
+            if ymStack.count > 0 {
+                lowYM = ymStack[0]
+                if ymStack.count > 1 {
+                    highYM = ymStack[1]
+                }
+            }
+        }
+        
+        let calendar = CalendarMaker(lowYM: lowYM, highYM: highYM)
+        calendar.startCalendar(title: collection.title, prefs: DisplayPrefs.shared)
+        
+        var (note, position) = io.firstNote()
+        var done = false
+        while note != nil && !done {
+            done = calendar.nextNote(note!)
+            (note, position) = io.nextNote(position)
+        }
+        
+        let html = calendar.finishCalendar()
+        return html
+    }
+    
+    // -----------------------------------------------------------
+    //
     // MARK: Generate HTML for a Collection Table of Contents.
     //
     // -----------------------------------------------------------
