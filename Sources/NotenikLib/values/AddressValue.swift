@@ -17,6 +17,8 @@ import NotenikUtils
 /// A value for an address thta can be found on a map.
 public class AddressValue: StringValue {
     
+    let pop = PopConverter.shared
+    
     /// Default initialization
     override init() {
         super.init()
@@ -30,11 +32,7 @@ public class AddressValue: StringValue {
     
     /// Parse the input string and break it down into its various components
     public override func set(_ value: String) {
-        super.set(value)
-    }
-    
-    public var encoded: String {
-        return value.replacingOccurrences(of: " ", with: "%20")
+        super.set(pop.removePercentTwenty(value))
     }
     
     public func parameterString(parm: String, first: Bool = true) -> String {
@@ -42,11 +40,18 @@ public class AddressValue: StringValue {
         if first {
             sep = "?"
         }
-        return("\(sep)\(parm)=\(encoded)")
+        return("\(sep)\(parm)=\(value)")
     }
     
     public var link: String {
-        return "https://maps.apple.com/\(parameterString(parm: "address"))"
+        let parmString = parameterString(parm: "address")
+        let urlStr = "https://maps.apple.com/\(parmString)"
+        let encoded = pop.toURL(urlStr)
+        return encoded
+    }
+    
+    public override func valueToDisplay() -> String {
+        return pop.toXML(value)
     }
     
 }

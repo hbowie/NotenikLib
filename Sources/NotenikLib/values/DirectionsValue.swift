@@ -17,6 +17,8 @@ import NotenikUtils
 /// A value for an address thta can be found on a map.
 public class DirectionsValue: StringValue {
     
+    let pop = PopConverter.shared
+    
     /// Default initialization
     override init() {
         super.init()
@@ -36,7 +38,9 @@ public class DirectionsValue: StringValue {
     public var link: String {
         guard !value.isEmpty else { return "" }
         guard !directionsRequested else { return "" }
-        return "https://maps.apple.com/\(value)"
+        let urlStr = "https://maps.apple.com/\(value)"
+        let encoded = pop.toURL(urlStr)
+        return encoded
     }
     
     public override func valueToDisplay() -> String {
@@ -63,7 +67,8 @@ public class DirectionsValue: StringValue {
                         display.append("\(parm) = ")
                     }
                 case 1:
-                    display.append(parm.replacingOccurrences(of: "%20", with: " "))
+                    let unencoded = parm.replacingOccurrences(of: "%20", with: " ")
+                    display.append(pop.toXML(unencoded))
                 default:
                     break
                 }

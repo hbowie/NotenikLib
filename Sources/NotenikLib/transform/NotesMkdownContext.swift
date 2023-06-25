@@ -185,9 +185,8 @@ public class NotesMkdownContext: MkdownContext {
     // MARK: Generate HTML for a Calendar.
     //
     // -----------------------------------------------------------
+    
     public func mkdownCalendar(mods: String) -> String {
-        
-        print("  - NotesMkdownContext.mkdownCalendar mods: \(mods)")
         
         guard io.collectionOpen else { return "" }
         guard let collection = io.collection else { return "" }
@@ -210,13 +209,14 @@ public class NotesMkdownContext: MkdownContext {
             }
         }
         
-        let calendar = CalendarMaker(lowYM: lowYM, highYM: highYM)
+        let calendar = CalendarMaker(format: .htmlFragment, lowYM: lowYM, highYM: highYM)
         calendar.startCalendar(title: collection.title, prefs: DisplayPrefs.shared)
         
         var (note, position) = io.firstNote()
         var done = false
         while note != nil && !done {
-            done = calendar.nextNote(note!)
+            let link = displayParms.wikiLinks.assembleWikiLink(title: note!.title.value)
+            done = calendar.nextNote(note!, link: link)
             (note, position) = io.nextNote(position)
         }
         

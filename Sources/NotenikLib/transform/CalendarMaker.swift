@@ -28,16 +28,13 @@ public class CalendarMaker {
     var weekStarted = false
     var monthStarted = false
     
-    public init(lowYM: String, highYM: String) {
-        print("    - CalendarMaker.init with lowYM = \(lowYM), highYM = \(highYM)")
+    public init(format: MarkedupFormat, lowYM: String, highYM: String) {
         self.lowYM = lowYM
         self.highYM = highYM
-        writer = Markedup(format: .htmlDoc)
+        writer = Markedup(format: format)
     }
     
     public func startCalendar(title: String, prefs: DisplayPrefs) {
-        
-        print("      - start calendar")
         
         writer.startDoc(withTitle: title,
                           withCSS: prefs.displayCSS,
@@ -48,7 +45,6 @@ public class CalendarMaker {
     
     public func finishCalendar() -> String {
         
-        print("      - finish calendar")
         if currDate != nil {
             finishMonth()
         }
@@ -59,9 +55,8 @@ public class CalendarMaker {
     /// Process the next Note.
     /// - Parameter note: The note to be processed.
     /// - Returns: True when we've passed the last month to be included.
-    public func nextNote(_ note: Note) -> Bool {
+    public func nextNote(_ note: Note, link: String? = nil) -> Bool {
         
-        print("        - next Note with sort key of '\(note.sortKey)', title of '\(note.title)'")
         guard let date = note.date.simpleDate else { return false }
         let ym = date.yearAndMonth
         
@@ -73,12 +68,18 @@ public class CalendarMaker {
         if note.hasSeq() {
             writer.append("\(note.seq) ")
         }
-        var notenikLink = "notenik://open?"
-        let folderURL = URL(fileURLWithPath: note.collection.fullPath)
-        let encodedPath = String(folderURL.absoluteString.dropFirst(7))
-        notenikLink.append("path=\(encodedPath)")
-        notenikLink.append("&id=\(note.id)")
-        writer.link(text: note.title.value, path: notenikLink)
+        var noteLink = ""
+        if link != nil {
+            noteLink = link!
+        } else {
+            var notenikLink = "notenik://open?"
+            let folderURL = URL(fileURLWithPath: note.collection.fullPath)
+            let encodedPath = String(folderURL.absoluteString.dropFirst(7))
+            notenikLink.append("path=\(encodedPath)")
+            notenikLink.append("&id=\(note.id)")
+            noteLink = notenikLink
+        }
+        writer.link(text: note.title.value, path: noteLink)
         writer.lineBreak()
         
         return false

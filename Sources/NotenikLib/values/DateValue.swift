@@ -110,7 +110,18 @@ public class DateValue: StringValue {
         if yyyy.count > 0 {
             return ymdDate
         } else {
+            // return "9999-12-31"
+            return "0000-00-00"
+        }
+    }
+    
+    public func getSortKey(sortBlankDatesLast: Bool) -> String {
+        if yyyy.count > 0 {
+            return ymdDate
+        } else if sortBlankDatesLast {
             return "9999-12-31"
+        } else {
+            return "0000-00-00"
         }
     }
 

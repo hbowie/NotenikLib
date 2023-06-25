@@ -18,6 +18,8 @@ import NotenikMkdown
 /// Generate the coding necessary to display a Note in a readable format.
 public class NoteFieldsToHTML {
     
+    let pop = PopConverter.shared
+    
     public var parms = DisplayParms()
     
     var mkdownOptions = MkdownOptions()
@@ -33,7 +35,7 @@ public class NoteFieldsToHTML {
     let attribBalancer = LineBalancer(maxChars: 50, sep: " <br />")
     
     public init() {
-        
+
     }
 
     /// Get the code used to display this entire note as a web page, including html tags.
@@ -65,7 +67,8 @@ public class NoteFieldsToHTML {
         
         // Start the Markedup code generator.
         let code = Markedup(format: parms.format)
-        code.startDoc(withTitle: note.title.value,
+        let noteTitle = pop.toXML(note.title.value)
+        code.startDoc(withTitle: noteTitle,
                       withCSS: parms.cssString,
                       linkToFile: parms.cssLinkToFile,
                       withJS: mkdownOptions.getHtmlScript(),
@@ -101,7 +104,7 @@ public class NoteFieldsToHTML {
         // Let's put the tags at the top, if it's a normal display.
         if note.hasTags() && topOfPage.isEmpty && parms.fullDisplay {
             let tagsField = note.getTagsAsField()
-            code.append(display(tagsField!, note: note, collection: collection, io: io))
+            code.append(display(tagsField!, noteTitle: noteTitle, note: note, collection: collection, io: io))
         }
         
         // Now let's display each of the fields, in dictionary order.
@@ -113,13 +116,13 @@ public class NoteFieldsToHTML {
             if def != nil {
                 if def == collection.minutesToReadDef && minutesToRead != nil {
                     let minutesToReadField = NoteField(def: def!, value: minutesToRead!)
-                    code.append(display(minutesToReadField, note: note, collection: collection, io: io))
+                    code.append(display(minutesToReadField, noteTitle: noteTitle, note: note, collection: collection, io: io))
                 } else {
                     let field = note.getField(def: def!)
                     if field != nil && field!.value.hasData {
                         if field!.def == collection.tagsFieldDef {
                             if !topOfPage.isEmpty {
-                                code.append(display(field!, note: note, collection: collection, io: io))
+                                code.append(display(field!, noteTitle: noteTitle, note: note, collection: collection, io: io))
                             }
                         } else if field!.def.fieldLabel.commonForm == NotenikConstants.dateAddedCommon {
                             // ignore for now
@@ -134,7 +137,7 @@ public class NoteFieldsToHTML {
                         } else if field!.def == collection.attribFieldDef {
                             attribution = field
                         } else {
-                            code.append(display(field!, note: note, collection: collection, io: io))
+                            code.append(display(field!, noteTitle: noteTitle, note: note, collection: collection, io: io))
                             if field!.def == collection.titleFieldDef {
                                 if !imageWithinPage.isEmpty {
                                     code.append(imageWithinPage)
@@ -150,7 +153,7 @@ public class NoteFieldsToHTML {
         // Put quote attribution after the quote itself.
         // if quoted && attribution != nil {
         if attribution != nil {
-            code.append(display(attribution!, note: note, collection: collection, io: io))
+            code.append(display(attribution!, noteTitle: noteTitle, note: note, collection: collection, io: io))
         }
         
         // Put system-maintained dates at the bottom, for reference.
@@ -159,17 +162,17 @@ public class NoteFieldsToHTML {
             
             let stamp = note.getField(label: NotenikConstants.timestamp)
             if stamp != nil {
-                code.append(display(stamp!, note: note, collection: collection, io: io))
+                code.append(display(stamp!, noteTitle: noteTitle, note: note, collection: collection, io: io))
             }
             
             let dateAdded = note.getField(label: NotenikConstants.dateAdded)
             if dateAdded != nil {
-                code.append(display(dateAdded!, note: note, collection: collection, io: io))
+                code.append(display(dateAdded!, noteTitle: noteTitle, note: note, collection: collection, io: io))
             }
             
             let dateModified = note.getField(label: NotenikConstants.dateModified)
             if dateModified != nil {
-                code.append(display(dateModified!, note: note, collection: collection, io: io))
+                code.append(display(dateModified!, noteTitle: noteTitle, note: note, collection: collection, io: io))
             }
         }
         
@@ -296,7 +299,7 @@ public class NoteFieldsToHTML {
     ///
     /// - Parameter field: The field to be displayed.
     /// - Returns: A String containing the code that can be used to display this field.
-    func display(_ field: NoteField, note: Note, collection: NoteCollection, io: NotenikIO?) -> String {
+    func display(_ field: NoteField, noteTitle: String, note: Note, collection: NoteCollection, io: NotenikIO?) -> String {
         
         // Prepare for processing.
         var mkdownContext: MkdownContext?
@@ -307,7 +310,9 @@ public class NoteFieldsToHTML {
         
         // Format the Note's Title Line
         if field.def == collection.titleFieldDef {
-            displayTitle(note: note, markedup: code)
+            displayTitle(note: note,
+                         noteTitle: noteTitle,
+                         markedup: code)
             if mkdownContext != nil {
                 mkdownContext!.setTitleToParse(title: note.title.value, shortID: note.shortID.value)
             }
@@ -532,16 +537,16 @@ public class NoteFieldsToHTML {
     }
     
     // Display the Title of the Note in one of several possible formats.
-    func displayTitle(note: Note, markedup: Markedup) {
+    func displayTitle(note: Note, noteTitle: String, markedup: Markedup) {
         
-        var titleToDisplay = parms.streamlinedTitle(note: note)
+        var titleToDisplay = pop.toXML(parms.streamlinedTitle(note: note))
         
         if parms.streamlined && parms.included.on && note.klass.quote && note.hasAuthor() {
             let titleMarkup = Markedup(format: parms.format)
             titleMarkup.noDoc()
             titleMarkup.append("\(note.author.firstNameFirst): ")
             titleMarkup.leftDoubleQuote()
-            titleMarkup.append(note.title.value)
+            titleMarkup.append(noteTitle)
             titleMarkup.ellipsis()
             titleMarkup.rightDoubleQuote()
             titleToDisplay = titleMarkup.code
@@ -589,17 +594,25 @@ public class NoteFieldsToHTML {
         markedup.append(": ")
         let path = field.value.value
         var pathDisplay = path.removingPercentEncoding
+        var pathForLink = ""
+        if pathDisplay == path {
+            pathForLink = pop.toURL(path)
+        } else {
+            pathForLink = path
+        }
         if pathDisplay == nil {
             pathDisplay = path
         }
+        pathDisplay = pop.toXML(pathDisplay!)
         var blankTarget = parms.extLinksOpenInNewWindows
         if blankTarget {
             if !(path.starts(with: "https://") || path.starts(with: "http://") || path.starts(with: "www.")) {
                 blankTarget = false
             }
         }
+        
         markedup.link(text: pathDisplay!,
-                  path: path,
+                  path: pathForLink,
                   blankTarget: blankTarget)
         markedup.finishParagraph()
     }
