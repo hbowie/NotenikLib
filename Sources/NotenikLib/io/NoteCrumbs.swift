@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 12/12/19.
-//  Copyright © 2019-2020 Herb Bowie (https://hbowie.net)
+//  Copyright © 2019 - 2023 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -20,6 +20,8 @@ public class NoteCrumbs {
     var crumbs: [NoteID] = []
     var lastIndex: Int { return crumbs.count - 1 }
     
+    var nextOrPriorID: NoteID?
+    
     public init(io: NotenikIO) {
         self.io = io
     }
@@ -30,12 +32,14 @@ public class NoteCrumbs {
         /// If this note is just the last one returned from this list, then
         /// leave well enough alone.
         guard crumbs.count == 0 || selected.noteID != crumbs[lastIndex] else { return }
+        guard selected.noteID != nextOrPriorID else { return }
         
         let index = locate(selected.noteID)
         if index >= 0 {
             crumbs.remove(at: index)
         }
         crumbs.append(selected.noteID)
+        nextOrPriorID = nil
     }
     
     /// Go back to the prior note in the breadcrumbs.
@@ -47,6 +51,7 @@ public class NoteCrumbs {
         if index > 0 {
             index -= 1
             if let priorNote = io.getNote(forID: crumbs[index]) {
+                nextOrPriorID = crumbs[index]
                 return priorNote
             }
         }
@@ -70,6 +75,7 @@ public class NoteCrumbs {
         if index >= 0 && index < lastIndex {
             index += 1
             if let nextNote = io.getNote(forID: crumbs[index]) {
+                nextOrPriorID = crumbs[index]
                 return nextNote
             }
         }
@@ -87,6 +93,7 @@ public class NoteCrumbs {
     /// Refresh breadcrumbs with an initial entry.
     func refresh(with id: NoteID) {
         crumbs = []
+        nextOrPriorID = nil
         crumbs.append(id)
     }
     
@@ -95,9 +102,16 @@ public class NoteCrumbs {
         crumbs = []
     }
     
+    func display() {
+        print("-- NoteCrumbs stack")
+        for crumb in crumbs {
+            print("    - \(crumb)")
+        }
+    }
+    
     
     /// Locate the given Note ID within the list of breadcrumbs, returning -1 if not found.
-    func locate(_ id: NoteID) -> Int {
+    private func locate(_ id: NoteID) -> Int {
         for index in stride(from: lastIndex, through: 0, by: -1) {
             if id == crumbs[index] { return index }
         }
