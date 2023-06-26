@@ -1153,7 +1153,7 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     /// Return the Note's Sequence Value
     public var seq: SeqValue {
         guard collection.seqFieldDef != nil else {
-            return SeqValue()
+            return SeqValue(seqParms: SeqParms())
         }
         let val = getFieldAsValue(def: collection.seqFieldDef!)
         if val is SeqValue {
