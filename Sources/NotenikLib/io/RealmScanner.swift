@@ -83,6 +83,8 @@ public class RealmScanner {
                     scriptFileFound(folderPath: folderPath, realm: realm, itemFullPath: itemFullPath)
                 } else if itemPath.hasSuffix(".bbprojectd") {
                     bbEditProjectFileFound(folderPath: folderPath, realm: realm, itemFullPath: itemFullPath)
+                } else if itemPath.hasSuffix(".webloc") {
+                    webLocationFileFound(folderPath: folderPath, realm: realm, itemFullPath: itemFullPath)
                 } else if FileUtils.isDir(itemFullPath) {
                     if !foldersToSkip.contains(itemPath) {
                         scanFolder(folderPath: itemFullPath, realm: realm)
@@ -212,12 +214,6 @@ public class RealmScanner {
         }
         // var title = ""
         let title = AppPrefs.shared.idFolderFrom(url: bbURL, below: realmURL)
-        /* while folderIndex < bbFileName.folders.count {
-            title.append(String(bbFileName.folders[folderIndex]))
-            title.append(" / ")
-            folderIndex += 1
-        } */
-        // title.append(bbFileName.fileName)
         let titleOK = bbNote.setTitle(title)
         if !titleOK {
             print("BBEdit Note Title could not be set to \(title)")
@@ -245,6 +241,45 @@ public class RealmScanner {
         }
         if titleOK && linkOK && tagsOK && (addedNote != nil) { return }
         logError("Couldn't record BBEdit Project file at \(itemFullPath)")
+    }
+    
+    /// Add the Web Location  file to the Realm Collection.
+    func webLocationFileFound(folderPath: String, realm: Realm, itemFullPath: String) {
+        let fileURL = URL(fileURLWithPath: itemFullPath)
+        let fileNote = Note(collection: realmCollection!)
+        let fileName = FileName(itemFullPath)
+        var folderIndex = fileName.folders.count - 1
+        if fileName.folders[folderIndex] == "reports" || fileName.folders[folderIndex] == "scripts" {
+            folderIndex -= 1
+        }
+        let title = AppPrefs.shared.idFolderFrom(url: fileURL, below: realmURL)
+        let titleOK = fileNote.setTitle(title)
+        if !titleOK {
+            print("Special File Note Title could not be set to \(title)")
+        }
+        let linkOK = fileNote.setLink(fileURL.absoluteString)
+        if !linkOK {
+            print("Special File Link could not be set to \(fileURL.absoluteString)")
+        }
+        var tags = "Web Locations"
+        if itemFullPath.hasPrefix(collectionPath) {
+            tags.append(", ")
+            tags.append(collectionTag)
+            tags.append(".scripts")
+        } else {
+            tags.append(", ")
+            tags.append(TagsValue.tagify(fileName.folder))
+        }
+        let tagsOK = fileNote.setTags(tags)
+        if !tagsOK {
+            print("Special File Note Tags could not be set to \(tags)")
+        }
+        let (addedNote, _) = realmIO.addNote(newNote: fileNote)
+        if addedNote == nil {
+            print("Special File Note titled \(fileNote.title.value) could not be added")
+        }
+        if titleOK && linkOK && tagsOK && (addedNote != nil) { return }
+        logError("Couldn't record Special File Project file at \(itemFullPath)")
     }
     
     /// Send an error message to the log.
