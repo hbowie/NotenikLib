@@ -248,6 +248,8 @@ public struct NotenikConstants {
     static let curlyApostsCommon        = "curlyapostrophes"
     static let extLinksNewWindows       = "Ext Links Open in New Windows"
     static let extLinksNewWindowsCommon = "extlinksopeninnewwindows"
+    static let scrollingSync            = "Scrolling Sync"
+    static let scrollingSyncCommon      = "scrollingsync"
     static let windowNumbers            = "Window Numbers"
     static let windowNumbersCommon      = "windownumbers"
     static let columnWidths             = "Column Widths"

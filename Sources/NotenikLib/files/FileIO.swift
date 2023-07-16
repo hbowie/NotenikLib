@@ -268,6 +268,7 @@ public class FileIO: NotenikIO, RowConsumer {
         str.append(label: NotenikConstants.missingTargets, value: "\(collection!.missingTargets)")
         str.append(label: NotenikConstants.curlyAposts, value: "\(collection!.curlyApostrophes)")
         str.append(label: NotenikConstants.extLinksNewWindows, value: "\(collection!.extLinksOpenInNewWindows)")
+        str.append(label: NotenikConstants.scrollingSync, value: "\(collection!.scrollingSync)")
         if collection!.lastStartupDate.count > 0 {
             str.append(label: NotenikConstants.lastStartupDate, value: collection!.lastStartupDate)
         }
@@ -684,6 +685,12 @@ public class FileIO: NotenikIO, RowConsumer {
         if extLinksField != nil {
             let extLinks = BooleanValue(extLinksField!.value.value)
             collection!.extLinksOpenInNewWindows = extLinks.isTrue
+        }
+        
+        let scrollingSyncField = infoNote.getField(label: NotenikConstants.scrollingSync)
+        if scrollingSyncField != nil {
+            let scrollingSync = BooleanValue(scrollingSyncField!.value.value)
+            collection!.scrollingSync = scrollingSync.isTrue
         }
         
         let noteFileFormatField = infoNote.getField(label: NotenikConstants.noteFileFormat)

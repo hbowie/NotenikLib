@@ -52,6 +52,7 @@ public class NoteCollection {
     public  var missingTargets = false
     public  var curlyApostrophes = true
     public  var extLinksOpenInNewWindows = false
+    public  var scrollingSync = false
     public  var lastStartupDate = ""
             var todaysDate = ""
     
