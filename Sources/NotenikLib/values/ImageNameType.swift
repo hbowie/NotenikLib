@@ -26,6 +26,10 @@ class ImageNameType: AnyType {
         
         /// The common label typically assigned to fields of this type.
         commonLabel = NotenikConstants.imageNameCommon
+        
+        displayLines = 20
+        
+        streamlinedDisplay = true
     }
     
     /// A factory method to create a new value of this type with no initial value.

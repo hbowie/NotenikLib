@@ -26,6 +26,10 @@ public class AnyType {
     /// Can the user edit this type of field?
     public var userEditable = true
     
+    public var displayLines = 2
+    
+    public var streamlinedDisplay = true
+    
     init() {
         
     }

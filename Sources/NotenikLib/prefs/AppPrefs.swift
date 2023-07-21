@@ -107,6 +107,9 @@ public class AppPrefs {
     let auxLongTextKey = "aux-long-text"
     var _auxLongText = false
     
+    let scriptFolderKey = "script-folder"
+    var _scriptFolder = ""
+    
     var _appLaunching = false
     
     var _qd: Bool = false
@@ -310,6 +313,13 @@ public class AppPrefs {
         
         _auxLongText = defaults.bool(forKey: auxLongTextKey)
         
+        let sf = defaults.string(forKey: scriptFolderKey)
+        if sf != nil && !sf!.isEmpty {
+            _scriptFolder = sf!
+        } else {
+            _scriptFolder = FileManager.default.homeDirectoryForCurrentUser.path
+        }
+        
         let mh = defaults.string(forKey: mastHandleKey)
         if mh != nil {
             _mastHandle = purifyHandle(handle: mh!)
@@ -479,6 +489,28 @@ public class AppPrefs {
         set {
             _auxLongText = newValue
             defaults.set(_auxLongText, forKey: auxLongTextKey)
+        }
+    }
+    
+    public var scriptFolderURL: URL? {
+        get {
+            return URL(string: scriptFolder)
+        }
+        set {
+            if newValue != nil {
+                scriptFolder = newValue!.absoluteString
+            }
+            
+        }
+    }
+    
+    public var scriptFolder: String {
+        get {
+            return _scriptFolder
+        }
+        set {
+            _scriptFolder = newValue
+            defaults.set(_scriptFolder, forKey: scriptFolderKey)
         }
     }
     
