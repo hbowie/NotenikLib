@@ -336,6 +336,8 @@ public class NoteFieldsToHTML {
             // code.finishParagraph()
         } else if field.def.fieldType is LinkType {
             displayLink(field, markedup: code)
+        } else if field.def.fieldType is EmailType {
+            displayEmail(field, markedup: code)
         } else if field.def.fieldType is AddressType {
             displayAddress(field, markedup: code)
         } else if field.def.fieldType is DirectionsType {
@@ -614,6 +616,22 @@ public class NoteFieldsToHTML {
         markedup.link(text: pathDisplay!,
                   path: pathForLink,
                   blankTarget: blankTarget)
+        markedup.finishParagraph()
+    }
+    
+    func displayEmail(_ field: NoteField, markedup: Markedup) {
+        markedup.startParagraph()
+        markedup.append(field.def.fieldLabel.properForm)
+        markedup.append(": ")
+        let email = field.value.value
+        var pathForLink = "mailto:\(email)"
+        if email.starts(with: "mailto:") {
+            pathForLink = email
+        }
+        
+        markedup.link(text: email,
+                  path: pathForLink,
+                  blankTarget: true)
         markedup.finishParagraph()
     }
     

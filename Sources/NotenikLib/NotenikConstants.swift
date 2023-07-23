@@ -51,6 +51,8 @@ public struct NotenikConstants {
     public static let directionsRequested = "directions-requested"
     static let doubleBracketParsing     = "Double Bracket Parsing"
     static let doubleBracketParsingCommon = "doublebracketparsing"
+    public static let email             = "Email"
+    public static let emailCommon       = "email"
     public static let imageAlt          = "Image Alt"
     public static let imageAltCommon    = "imagealt"
     public static let imageCaption      = "Image Caption"

@@ -28,6 +28,7 @@ public class AllTypes {
     let dateModifiedType = DateModifiedType()
     let dateType    = DateType()
     let directionsType = DirectionsType()
+    let emailType   = EmailType()
     let imageNameType = ImageNameType()
     let includeChildrenType = IncludeChildrenType()
     let indexType   = IndexType()
@@ -89,6 +90,8 @@ public class AllTypes {
     
     /// Initialize with all of the standard types. 
     init() {
+        fieldTypes.append(titleType)
+        fieldTypes.append(bodyType)
         
         fieldTypes.append(addressType)
         fieldTypes.append(directionsType)
@@ -102,7 +105,7 @@ public class AllTypes {
         fieldTypes.append(artistType)
         fieldTypes.append(authorType)
         
-        fieldTypes.append(bodyType)
+        
         fieldTypes.append(booleanType)
         fieldTypes.append(rankType)
         fieldTypes.append(codeType)
@@ -143,7 +146,8 @@ public class AllTypes {
         fieldTypes.append(stringType)
         fieldTypes.append(tagsType)
         fieldTypes.append(timestampType)
-        fieldTypes.append(titleType)
+        
+        fieldTypes.append(emailType)
         
     }
     

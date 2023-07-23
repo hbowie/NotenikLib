@@ -141,7 +141,7 @@ public class NoteDisplay {
             _ = io.selectNote(at: position.index)
         }
         
-        if parms.displayTemplate.count > 0 {
+        if parms.displayTemplate.count > 0 && parms.formatIsHTML {
             return (displayWithTemplate(note, io: io), wikiAdds)
         } else {
             return (displayWithoutTemplate(note, io: io,

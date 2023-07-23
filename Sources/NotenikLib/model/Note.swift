@@ -913,6 +913,15 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
                         }
                     }
                 }
+            } else if fieldType is EmailType {
+                let emailField = getField(def: definition)
+                if emailField != nil {
+                    if let emailVal = emailField!.value as? EmailValue {
+                        if let emailURL = emailVal.url {
+                            return emailURL
+                        }
+                    }
+                }
             } else if fieldType is AddressType {
                 let addressField = getField(def: definition)
                 if addressField != nil {
