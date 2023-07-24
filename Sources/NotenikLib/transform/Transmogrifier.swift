@@ -71,7 +71,12 @@ public class Transmogrifier {
             if linkedNote != nil {
                 let modNote = linkedNote!.copy() as! Note
                 let backLinks = modNote.backlinks
-                backLinks.add(title: note.title.value)
+                let path = note.collection.collectionID
+                if path.isEmpty {
+                    backLinks.add(title: note.title.value)
+                } else {
+                    backLinks.add(title: path + "/" + note.title.value)
+                }
                 _ = modNote.setBacklinks(backLinks)
                 _ = targetIO!.modNote(oldNote: linkedNote!, newNote: modNote)
             }

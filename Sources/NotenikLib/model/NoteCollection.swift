@@ -21,6 +21,7 @@ public class NoteCollection {
     public  var title       = ""
     public  var titleSetByUser = false
     public  var shortcut    = ""
+    public  var folder      = ""
     public  var lib:          ResourceLibrary!
     public  var duplicates  = 0
             var noteType    : NoteType = .general
@@ -208,6 +209,12 @@ public class NoteCollection {
         }
         set {
             lib.pathWithinRealm = newValue
+            folder = ""
+            let url = lib.getURL(type: .collection)
+            if url != nil {
+                let nLink = NotenikLink(url: url!)
+                folder = nLink.folder
+            }
         }
     }
     
@@ -578,6 +585,14 @@ public class NoteCollection {
         let dict2 = collection2.dict
         for (_, def) in dict.dict {
             _ = dict2.addDef(def)
+        }
+    }
+    
+    public var collectionID: String {
+        if !shortcut.isEmpty {
+            return shortcut
+        } else {
+            return folder
         }
     }
     
