@@ -20,6 +20,13 @@ public class DateValue: StringValue {
     public var mm = ""
     public var dd = ""
     
+    var timeValuesIncluded = false
+    
+    public var hours = ""
+    public var minutes = ""
+    public var seconds = ""
+    public var ampm = ""
+    
     var start = ""
     var end = ""
     
@@ -27,6 +34,11 @@ public class DateValue: StringValue {
     var year2 = ""
     
     var alphaMonth = false
+    var funkyDate = false
+    
+    public var normalizedDate = ""
+    
+    public var time = ""
     
     /// Default initialization
     public override init() {
@@ -73,7 +85,7 @@ public class DateValue: StringValue {
     }
     
     /// Return an optional Date object based on the user's text input
-    var date : Date? {
+    var date: Date? {
         return DateUtils.shared.dateFromYMD(ymdDate)
     }
     
@@ -108,16 +120,36 @@ public class DateValue: StringValue {
     /// Return a value that can be used as a key for comparison purposes
     public override var sortKey: String {
         if yyyy.count > 0 {
-            return ymdDate
+            return normalizedDate
         } else {
             // return "9999-12-31"
             return "0000-00-00"
         }
     }
     
+    public override func valueToWrite(mods: String = " ") -> String {
+        if funkyDate {
+            return value
+        } else {
+            return normalizedDate
+        }
+    }
+    
+    public override func valueToDisplay() -> String {
+        if funkyDate {
+            return value
+        } else {
+            var dval = dMyWDate
+            if !time.isEmpty {
+                dval.append(" " + time)
+            }
+            return dval
+        }
+    }
+    
     public func getSortKey(sortBlankDatesLast: Bool) -> String {
         if yyyy.count > 0 {
-            return ymdDate
+            return normalizedDate
         } else if sortBlankDatesLast {
             return "9999-12-31"
         } else {
@@ -189,6 +221,37 @@ public class DateValue: StringValue {
         }
     }
     
+    /// Generate a normalized date representation, if possible.
+    func normalizeDate() {
+        time = ""
+        normalizedDate = yyyy
+        guard mm.count == 2 else { return }
+        normalizedDate.append("-" + mm)
+        guard dd.count == 2 else { return }
+        normalizedDate.append("-" + dd)
+        guard hours.count == 2 else { return }
+        var normalizedHours = hours
+        time = hours
+        if ampm.count == 2 {
+            if let hoursInt = Int(hours) {
+                if ampm == "pm" {
+                    if hoursInt < 12 {
+                        normalizedHours = String(format: "%02d", hoursInt + 12)
+                    }
+                } else if ampm == "am" && hoursInt == 12 {
+                    normalizedHours = "00"
+                }
+            }
+        }
+        normalizedDate.append(" " + normalizedHours)
+        guard minutes.count == 2 else { return }
+        normalizedDate.append(":" + minutes)
+        time.append(":" + minutes)
+        guard seconds.count == 2 else { return }
+        normalizedDate.append(":" + seconds)
+        time.append(":" + seconds)
+    }
+    
     /**
      Set the date's value to a new string, parsing the input and attempting to
      identify the year, month and date
@@ -202,16 +265,25 @@ public class DateValue: StringValue {
         dd = ""
         alphaMonth = false
         
+        timeValuesIncluded = false
+        hours = ""
+        minutes = ""
+        seconds = ""
+        ampm = ""
+        
+        funkyDate = false
+        
         let parseContext = ParseContext()
         
         var word = DateWord()
-        var lastChar : Character = " "
+        var lastChar: Character = " "
         
         for c in value {
             if word.numbers && c == ":" {
                 parseContext.lookingForTime = true
-                word.colon = true
-                word.append(c)
+                timeValuesIncluded = true
+                processWord(context: parseContext, word: word)
+                word = DateWord()
             } else if StringUtils.isDigit(c) {
                 if word.letters {
                     processWord(context: parseContext, word: word)
@@ -269,15 +341,10 @@ public class DateValue: StringValue {
             }
             var year:Int? = Int(yyyy)
             if year == nil {
-                year = 2012
+                year = 2023
             }
-            // while (nextYear
-            //     && ((year < CURRENT_YEAR)
-            //         || (year == CURRENT_YEAR && month <= CURRENT_MONTH))) {
-            //             year++;
-            //            yyyy = zeroPad(year, 4);
-            // }
         }
+        normalizeDate()
     } // end func set
     
     /**
@@ -303,11 +370,17 @@ public class DateValue: StringValue {
             self.yyyy  = DateUtils.shared.yyyyToday
             self.mm    = DateUtils.shared.mmToday
             self.dd    = DateUtils.shared.ddToday
+        } else if word.lowercased() == "now" {
+            self.value = DateUtils.shared.ymdhmsNow
+            self.yyyy  = DateUtils.shared.yyyyToday
+            self.mm    = DateUtils.shared.mmToday
+            self.dd    = DateUtils.shared.ddToday
         } else if word.lowercased() == "at"
             || word.lowercased() == "from" {
             context.lookingForTime = true
         } else if word.lowercased() == "am"
             || word.lowercased() == "pm" {
+            ampm = word.word.lowercased()
             if end.count > 0 {
                 end.append(" ")
                 end.append(word.word)
@@ -325,6 +398,8 @@ public class DateValue: StringValue {
                 }
                 mm = String(format: "%02d", monthIndex)
                 alphaMonth = true
+            } else {
+                funkyDate = true
             }
         }
     }
@@ -333,10 +408,7 @@ public class DateValue: StringValue {
      Process a word containing digits.
      */
     func processWhenNumbers(context: ParseContext, word: DateWord) {
-        var number : Int?
-        if !(word.colon) {
-            number = Int(word.word)
-        }
+        let number: Int? = Int(word.word)
         if number != nil && number! > 1000 {
             yyyy = String(number!)
         } else if context.lookingForTime {
@@ -344,6 +416,15 @@ public class DateValue: StringValue {
                 start.append(word.word)
             } else {
                 end.append(word.word)
+            }
+            if hours.isEmpty && number != nil && number! >= 0 && number! <= 24 {
+                hours = String(format: "%02d", number!)
+            } else if minutes.isEmpty && number != nil && number! >= 0 && number! <= 60 {
+                minutes = String(format: "%02d", number!)
+            } else if seconds.isEmpty && number != nil && number! >= 0 && number! <= 60 {
+                seconds = String(format: "%02d", number!)
+            } else {
+                funkyDate = true
             }
         } else if context.startOfDateRangeCompleted {
             // Let's not overwrite the start of the range with an ending date
@@ -360,10 +441,22 @@ public class DateValue: StringValue {
                     yyyy = "20" + String(number!)
                 } else if number != nil {
                     yyyy = "2000" + String(number!)
+                } else {
+                    funkyDate = true
                 }
-            } // end if this might be our year
+            } else {
+                funkyDate = true
+            }
         } // end if we're just examining a normal number that is part of a date
     } // end of func processWhenNumbers
+    
+    public func display() {
+        print("DateValue.display")
+        print("  - value = \(value)")
+        print("  - component values = \(yyyy)-\(mm)-\(dd) \(hours):\(minutes):\(seconds) \(ampm)")
+        print("  - funky date? \(funkyDate)")
+        print("  - normalized date = \(normalizedDate)")
+    }
     
     /// See if two of these objects have equal keys
     static func == (lhs: DateValue, rhs: DateValue) -> Bool {
@@ -387,7 +480,6 @@ public class DateValue: StringValue {
         var lower = ""
         var numbers = false
         var letters = false
-        var colon = false
         
         init() {
             

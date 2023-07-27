@@ -28,6 +28,8 @@ public class CalendarMaker {
     var weekStarted = false
     var monthStarted = false
     
+    let firstWeekday = Calendar.current.firstWeekday
+    
     public init(format: MarkedupFormat, lowYM: String, highYM: String) {
         self.lowYM = lowYM
         self.highYM = highYM
@@ -110,12 +112,12 @@ public class CalendarMaker {
             startMonth(for: date)
         }
         
-        if currDate != nil && date.dayOfWeek < currDate!.dayOfWeek {
+        if currDate != nil && date.calendarColumn < currDate!.calendarColumn {
             finishWeekCode()
         }
         
         if !weekStarted {
-            startWeekCode(for: date)
+            startWeekCode()
         }
         
         if currDate != nil && currDate! < date {
@@ -136,22 +138,22 @@ public class CalendarMaker {
         writer.finishTableRow()
         
         writer.startTableRow()
-        for dayOfWeek in 1...7 {
+        for columnIndex in 0...6 {
             writer.startTableHeader(klass: "notenik-calendar-name-of-day")
-            writer.writeLine(DateUtils.dayOfWeekNames[dayOfWeek])
+            writer.writeLine(DateUtils.shared.dayOfWeekName(for: columnIndex))
             writer.finishTableHeader()
         }
         writer.finishTableRow()
         
         monthStarted = true
         
-        startWeekCode(for: date)
+        startWeekCode()
         
         let firstDayOfMonth = date.copy()
         firstDayOfMonth.setDayOfMonth(01)
-        let firstDayOfWeek = firstDayOfMonth.dayOfWeek
-        if firstDayOfWeek > 1 {
-            writer.startTableData(klass: "notenik-calendar-filler", colspan: firstDayOfWeek - 1)
+        let firstDayOfMonthCalendarColumn = firstDayOfMonth.calendarColumn
+        if firstDayOfMonthCalendarColumn > 0 {
+            writer.startTableData(klass: "notenik-calendar-filler", colspan: firstDayOfMonthCalendarColumn)
             writer.writeNonBreakingSpace()
             writer.finishTableData()
         }
@@ -171,8 +173,8 @@ public class CalendarMaker {
         }
         finishDayCode()
         
-        if currDate!.dayOfWeek < 7 {
-            writer.startTableData(klass: "notenik-calendar-filler", colspan: 7 - currDate!.dayOfWeek)
+        if currDate!.calendarColumn < 6 {
+            writer.startTableData(klass: "notenik-calendar-filler", colspan: 6 - currDate!.calendarColumn)
             writer.writeNonBreakingSpace()
             writer.finishTableData()
         }
@@ -181,7 +183,7 @@ public class CalendarMaker {
         monthStarted = false
     }
     
-    func startWeekCode(for date: SimpleDate) {
+    func startWeekCode() {
         writer.startTableRow()
         weekStarted = true
     }

@@ -444,7 +444,7 @@ public class NoteFieldsToHTML {
             code.append(field.def.fieldLabel.properForm)
             code.append(": ")
             if let dateValue = field.value as? DateValue {
-                code.append(dateValue.dMyWDate)
+                code.append(dateValue.valueToDisplay())
             } else {
                 code.append(field.value.value)
             }
