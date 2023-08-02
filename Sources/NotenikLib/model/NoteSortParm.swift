@@ -33,6 +33,7 @@ public enum NoteSortParm: Int {
             return String(self.rawValue)
         }
         set {
+            self = .title
             if newValue.count > 0 {
                 let sortParmInt = Int(newValue)
                 if sortParmInt != nil {
