@@ -1164,6 +1164,10 @@ public class TemplateUtil {
             let slug = genImageSlug(fromNote: fromNote)
             if !slug.isEmpty { return slug }
             
+        case NotenikConstants.imageNameShortCommon:
+            let name = genImageNameShort(fromNote: fromNote)
+            if !name.isEmpty { return name }
+            
         case NotenikConstants.workRightsSlugCommon:
             let slug = genWorkRightsSlug(fromNote: fromNote)
             if !slug.isEmpty { return slug }
@@ -1237,12 +1241,18 @@ public class TemplateUtil {
             return nil
         } else {
             if varName == NotenikConstants.imageNameCommon {
+                print("Trying to replace image name with file name")
+                print("  - Note titled \(fromNote.title.value)")
+                print("  - Note has \(fromNote.attachments.count) attachments")
+                print("  - Image Name value is '\(field!.value.value)'")
                 for attachment in fromNote.attachments {
+                    attachment.display()
                     if attachment.suffix.lowercased() == field!.value.value.lowercased() {
                         return attachment.fullName
                     }
                 }
             }
+            print("  - Image Name Not Found!!")
             return field!.value.value
         }
     }
@@ -1561,6 +1571,11 @@ public class TemplateUtil {
             markedUp.finishFigure()
         }
         return markedUp.code
+    }
+    
+    func genImageNameShort(fromNote: Note) -> String {
+        guard let attachment = fromNote.getImageAttachment() else { return "" }
+        return attachment.suffix
     }
     
     /// Send an informative message to the log.

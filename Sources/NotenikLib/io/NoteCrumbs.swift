@@ -19,6 +19,7 @@ public class NoteCrumbs {
     
     var crumbs: [NoteID] = []
     var lastIndex: Int { return crumbs.count - 1 }
+    var searchCrumbs: [NoteID] = []
     
     var nextOrPriorID: NoteID?
     
