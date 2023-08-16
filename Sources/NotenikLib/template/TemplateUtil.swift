@@ -745,6 +745,9 @@ public class TemplateUtil {
             } else if char == ">" {
                 let (_, label) = StringUtils.splitNumberAndLabel(str: modifiedValue)
                 modifiedValue = label
+            } else if char == "/" {
+                let website = StringUtils.websiteFromLink(str: modifiedValue)
+                modifiedValue = website
             } else if char == "a" && (nextChar == "1" || nextChar == "2" || nextChar == "3") {
                 let authorValue = AuthorValue(modifiedValue)
                 switch nextChar {
@@ -1251,8 +1254,8 @@ public class TemplateUtil {
                         return attachment.fullName
                     }
                 }
+                print("  - Image Name Not Found!!")
             }
-            print("  - Image Name Not Found!!")
             return field!.value.value
         }
     }

@@ -19,7 +19,7 @@ public class NavHistory {
     
     var previousNotes: [NoteID] = []
     
-    var lastHistoryID: String? = nil
+    var lastHistoryID: NoteID? = nil
     
     public init(io: NotenikIO) {
         self.io = io
@@ -62,7 +62,7 @@ public class NavHistory {
         }
         
         if priorNote != nil {
-            lastHistoryID = priorNote!.noteID.identifier
+            lastHistoryID = priorNote!.noteID.copy()
         }
         
         return priorNote
@@ -71,9 +71,6 @@ public class NavHistory {
     /// Try to move forwards from the given Note.
     public func forwards(from startingNote: Note) -> Note? {
         
-        print("Moving forwards from Note titled \(startingNote.title.value)")
-        
-        print("  - previous notes count = \(previousNotes.count)")
         lastHistoryID = nil
         
         var i = previousNotes.count - 1
@@ -84,11 +81,6 @@ public class NavHistory {
             } else {
                 i -= 1
             }
-        }
-        
-        print("  - match found? \(found)")
-        if found {
-            print("  - match found at index # \(i)")
         }
         
         guard found && i < (previousNotes.count - 1) else { return nil }
@@ -107,10 +99,8 @@ public class NavHistory {
             }
         }
         
-        print("  - verified? \(verified)")
-        
         if nextNote != nil {
-            lastHistoryID = nextNote!.noteID.identifier
+            lastHistoryID = nextNote!.noteID.copy()
         }
         
         return nextNote
@@ -120,16 +110,29 @@ public class NavHistory {
     public func addToHistory(another: Note) {
         
         /// If we're trying to add something that's already part of the history trail, then skip it.
-        if lastHistoryID != nil && another.noteID.identifier == lastHistoryID! {
+        if lastHistoryID != nil && another.noteID == lastHistoryID! {
             return
         }
-        
-        lastHistoryID = nil
         
         /// If we're trying to add something already recorded at the top of the list, then skip it.
         if previousNotes.count > 0 {
             if another.noteID == previousNotes[previousNotes.count - 1] {
                 return
+            }
+        }
+        
+        if lastHistoryID != nil {
+            var i = 0
+            var previousID: NoteID? = nil
+            while i < previousNotes.count && previousID == nil {
+                if lastHistoryID == previousNotes[i] {
+                    previousID = previousNotes.remove(at: i)
+                } else {
+                    i += 1
+                }
+            }
+            if previousID != nil {
+                previousNotes.append(previousID!)
             }
         }
         
@@ -148,5 +151,7 @@ public class NavHistory {
         }
         
         previousNotes.append(another.noteID)
+        
+        lastHistoryID = nil
     }
 }

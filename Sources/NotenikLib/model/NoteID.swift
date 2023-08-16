@@ -15,7 +15,7 @@ import NotenikUtils
 
 /// The unique identifier for a Note.
 public class NoteID: CustomStringConvertible, Equatable, Comparable {
-    
+
     var source = ""
     var identifier = ""
     var fieldType: AnyType = StringType()
@@ -36,6 +36,14 @@ public class NoteID: CustomStringConvertible, Equatable, Comparable {
     /// Return the ID. 
     public var description: String {
         return identifier
+    }
+    
+    public func copy() -> NoteID {
+        let id2 = NoteID()
+        id2.source = self.source
+        id2.identifier = self.identifier
+        id2.fieldType = self.fieldType
+        return id2
     }
     
     /// Set the ID using information from the Note.
