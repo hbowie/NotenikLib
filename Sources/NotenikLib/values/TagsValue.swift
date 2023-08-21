@@ -180,7 +180,7 @@ public class TagsValue: StringValue, MultiValues {
     func getLinkedTags(parent: String, htmlClass: String, ext: String = "html") -> String {
         var html = ""
         for tag in tags {
-            if html.count > 0 && htmlClass.count == 0 {
+            if html.count > 0 {
                 html.append(", ")
             }
             html.append(tag.getLinkedTag(parent: parent, htmlClass: htmlClass, ext: ext))
