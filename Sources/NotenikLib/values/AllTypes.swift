@@ -40,6 +40,7 @@ public class AllTypes {
     let longTextType = LongTextType()
     let lookupType  = LookupType()
     let minutesToReadType = MinutesToReadType()
+    let phoneType   = PhoneType()
     let pickListType = PickListType()
     let rankType    = RankType()
     let ratingType  = RatingType()
@@ -148,6 +149,7 @@ public class AllTypes {
         fieldTypes.append(timestampType)
         
         fieldTypes.append(emailType)
+        fieldTypes.append(phoneType)
         
     }
     
