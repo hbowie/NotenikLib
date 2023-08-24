@@ -53,8 +53,25 @@ public class LinkValue: StringValue {
     
     /// Parse the input string and break it down into its various components
     public override func set(_ value: String) {
-        super.set(value)
-        link.set(with: value, assume: .assumeWeb)
+        var linkValue = value
+        if linkValue.hasPrefix("<") && linkValue.hasSuffix(">") {
+            linkValue.removeFirst()
+            linkValue.removeLast()
+        }
+        super.set(linkValue)
+        link.set(with: linkValue, assume: .assumeWeb)
+    }
+    
+    public override func valueToWrite(mods: String = " ") -> String {
+        if value.hasPrefix("http:") || value.hasPrefix("https:") || value.hasPrefix("mailto:") {
+            return value
+        } else if value.contains("@") {
+            return value
+        } else if value.contains("://") {
+            return "<\(value)>"
+        } else {
+            return value
+        }
     }
     
     public func display() {
