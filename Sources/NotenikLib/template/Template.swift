@@ -59,6 +59,10 @@ public class Template {
         util.openTemplate(templateContents: templateContents)
     }
     
+    public func closeTemplate() {
+        util.closeTemplate()
+    }
+    
     public func supplyData(_ note: Note,
                              dataSource: String,
                              io: NotenikIO?,
@@ -99,8 +103,12 @@ public class Template {
             } else {
                 util.workspace!.templateOutputConsumer = templateOutputConsumer
             }
-        } 
-        guard util.templateOK else { return false }
+        }
+        util.outputFilesWritten = 0
+        guard util.templateOK else {
+            util.logError("Template not ready for output generation!")
+            return false
+        }
         if util.notesList.count > 0 {
             collection = util.notesList[0].collection
         } else {
@@ -140,6 +148,7 @@ public class Template {
             line = util.nextTemplateLine()
         }
         util.closeOutput()
+        util.logInfo("\(util.outputFilesWritten) output files written")
         return true
     }
     

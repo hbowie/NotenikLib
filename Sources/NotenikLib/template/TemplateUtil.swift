@@ -43,6 +43,7 @@ public class TemplateUtil {
     var outputOpen = false
     var outputLineCount = 0
     var outputOnlyIfNew = false
+    var outputFilesWritten = 0
     
     /// A relative path from the location of the output file to the
     /// root of the enclosing website.
@@ -189,6 +190,7 @@ public class TemplateUtil {
     /// Close the template. 
     func closeTemplate() {
         lineReader.close()
+        logInfo("\(lineCount) lines read from template file")
     }
     
     /// Open an output file, as requested from an open command.
@@ -409,10 +411,13 @@ public class TemplateUtil {
                 }
             }
             if !skipWrite {
-                _ = FileUtils.saveToDisk(strToWrite: outputLines,
+                let written = FileUtils.saveToDisk(strToWrite: outputLines,
                                      outputURL: textOutURL!,
                                      createDirectories: true,
                                      checkForChanges: true)
+                if written {
+                    outputFilesWritten += 1
+                }
             }
         } else {
             linesToOutput = outputLines
@@ -1091,6 +1096,10 @@ public class TemplateUtil {
         
         if value == nil {
             value = replaceExtendedVarWithValue(varName: varName, fromNote: note, position: position)
+        }
+        
+        if value == nil && varName != "relative" {
+            logError("Template Variable named \(varName) could not be found")
         }
         
         return value

@@ -48,6 +48,7 @@ class TemplateModule {
     func generate() {
         workspace.template.supplyData(notesList: workspace.list, dataSource: workspace.inputURL!.path)
         _ = workspace.template.generateOutput()
+        workspace.template.closeTemplate()
     }
     
     func webroot() {

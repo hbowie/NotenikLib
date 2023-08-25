@@ -65,8 +65,6 @@ public class LinkValue: StringValue {
     public override func valueToWrite(mods: String = " ") -> String {
         if value.hasPrefix("http:") || value.hasPrefix("https:") || value.hasPrefix("mailto:") {
             return value
-        } else if value.contains("@") {
-            return value
         } else if value.contains("://") {
             return "<\(value)>"
         } else {
