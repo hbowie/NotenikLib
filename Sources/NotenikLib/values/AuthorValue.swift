@@ -20,6 +20,11 @@ public class AuthorValue: StringValue, MultiValues {
     
     public let multiDelimiter = ", "
     
+    var lastName = ""
+    var firstName = ""
+    var suffix = ""
+    var authors: [AuthorValue] = []
+    
     public var multiCount: Int {
         if authors.count > 1 {
             return authors.count
@@ -42,11 +47,6 @@ public class AuthorValue: StringValue, MultiValues {
             return getCompleteName()
         }
     }
-    
-    var lastName = ""
-    var firstName = ""
-    var suffix = ""
-    var authors: [AuthorValue] = []
     
     /// Default initialization
     override init() {
@@ -102,6 +102,21 @@ public class AuthorValue: StringValue, MultiValues {
             fnf.append(suffix)
         }
         return fnf
+    }
+    
+    var lastNameOrNames: String {
+        if authors.count > 0 {
+            var lastNames = ""
+            for author in authors {
+                if lastNames.count > 0 {
+                    lastNames.append(", ")
+                }
+                lastNames.append(author.lastName)
+            }
+            return lastNames
+        } else {
+            return lastName
+        }
     }
     
     /// Return the last name followed by a comma, then the first name and suffix
@@ -228,7 +243,7 @@ public class AuthorValue: StringValue, MultiValues {
     /// authors, then it is expected to be in the form "John Doe, Jane Smith and
     /// Joe Riley": in other words, with an "and" (or an ampersand) before the last
     /// name and with other names separated by commas.
-    public override func set (_ value : String) {
+    public override func set (_ value: String) {
         self.value = value
         self.lastName  = ""
         self.firstName = ""

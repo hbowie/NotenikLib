@@ -757,7 +757,7 @@ public class TemplateUtil {
                 let authorValue = AuthorValue(modifiedValue)
                 switch nextChar {
                 case "1":
-                    modifiedValue = authorValue.lastName
+                    modifiedValue = authorValue.lastNameOrNames
                 case "2":
                     modifiedValue = authorValue.lastNameFirst
                 case "3":
