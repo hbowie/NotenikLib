@@ -18,6 +18,7 @@ public enum ExportFormat {
     case opml
     case tabDelimited
     case concatHtml
+    case outlineHtml
     case concatMarkdown
     case webBookEPUB
     case webBookEPUBFolder

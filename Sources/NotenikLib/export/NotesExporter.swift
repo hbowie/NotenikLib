@@ -154,7 +154,7 @@ public class NotesExporter {
         case .opml:
             markup = Markedup(format: .opml)
             markup.startDoc(withTitle: noteIO.collection!.title, withCSS: nil)
-        case .concatHtml, .concatMarkdown:
+        case .concatHtml, .outlineHtml,.concatMarkdown:
             concatOpen(exportFormat: format)
             break
         case .webBookEPUB, .webBookSite, .webBookEPUBFolder:
@@ -380,6 +380,8 @@ public class NotesExporter {
             writeOutline(splitTag: splitTag, cleanTags: cleanTags, note: note)
         case .concatHtml, .concatMarkdown:
             writeConcat(splitTag: splitTag, cleanTags: cleanTags, note: note)
+        case .outlineHtml:
+            writeOutlineHtml(note: note)
         default:
             writeLine(splitTag: splitTag, cleanTags: cleanTags, note: note)
         }
@@ -721,8 +723,8 @@ public class NotesExporter {
             return yamlClose()
         case .opml:
             return outlineClose()
-        case .concatHtml, .concatMarkdown:
-            return concatClose()
+        case .concatHtml, .outlineHtml, .concatMarkdown:
+            return concatClose(exportFormat: format)
         case .webBookEPUB, .webBookSite, .webBookEPUBFolder:
             return false
         case .exportScript:
@@ -824,7 +826,7 @@ public class NotesExporter {
     
     func concatOpen(exportFormat: ExportFormat) {
         var markupFormat: MarkedupFormat = .markdown
-        if exportFormat == .concatHtml {
+        if exportFormat == .concatHtml || exportFormat == .outlineHtml {
             markupFormat = .htmlDoc
         }
         
@@ -833,7 +835,7 @@ public class NotesExporter {
         displayParms = DisplayParms()
         displayParms.setCSS(useFirst: collection.displayCSS, useSecond: DisplayPrefs.shared.displayCSS)
         switch exportFormat {
-        case .concatHtml:
+        case .concatHtml, .outlineHtml:
             displayParms.format = .htmlFragment
         case .concatMarkdown:
             displayParms.format = .markdown
@@ -878,9 +880,113 @@ public class NotesExporter {
         notesExported += 1
     }
     
+    var mkdownOptions = MkdownOptions()
+    var mdBodyParser: MkdownParser?
+    var openParm: String? = "true"
+    
+    func writeOutlineHtml(note: Note) {
+        
+        if docTitle.isEmpty {
+            if note.seq.isEmpty && note.level.getInt() == 1 {
+                docTitle = note.title.value
+            } else {
+                docTitle = collection.title
+            }
+            markup.startDoc(withTitle: docTitle, withCSS: displayParms.cssString)
+            openParm = "true"
+        } else {
+            openParm = nil
+        }
+
+        displayParms.format = .htmlFragment
+        
+        // Close any open Details elements that are at a lower or equal level.
+        let level = note.level.getInt()
+        while lastLevel >= level && outlineLevels.count > 0 {
+            markup.finishDetails()
+            outlineLevels.removeLast()
+        }
+        
+        // Now let's open a Details element and write a summary for this Note.
+        markup.startDetails(openParm: openParm)
+        markup.startSummary()
+        if note.hasSeq() {
+            markup.append("\(note.formattedSeq) ")
+        }
+        markup.append(note.title.value)
+        
+        if note.hasTags() {
+            markup.append(" ")
+            markup.startEmphasis()
+            markup.append("(")
+            markup.append(note.tags.value)
+            markup.append(")")
+            markup.finishEmphasis()
+        }
+        
+        markup.finishSummary()
+        
+        displayParms.setMkdownOptions(mkdownOptions)
+        mkdownContext = NotesMkdownContext(io: noteIO, displayParms: displayParms)
+        if note.hasShortID() {
+            mkdownOptions.shortID = note.shortID.value
+        } else {
+            mkdownOptions.shortID = ""
+        }
+
+        mkdownContext.setTitleToParse(title: note.title.value, shortID: note.shortID.value)
+        let collection = note.collection
+        collection.skipContentsForParent = false
+        mdBodyParser = nil
+        
+        for def in dict.list {
+            switch def.fieldType.typeString {
+            case NotenikConstants.titleCommon:
+                break
+            case NotenikConstants.seqCommon:
+                break
+            case NotenikConstants.tagsCommon:
+                break
+            case NotenikConstants.levelCommon:
+                break
+            case NotenikConstants.bodyCommon:
+                break
+            default:
+                let field = note.getField(def: def)
+                if field != nil && field!.value.hasData {
+                    markup.startParagraph()
+                    markup.append("\(def.fieldLabel.properForm): ")
+                    markup.append(field!.value.value)
+                    markup.finishParagraph()
+                }
+            }
+        }
+        
+        // Format the body field.
+        if note.hasBody() {
+            mdBodyParser = MkdownParser(note.body.value, options: mkdownOptions)
+            mdBodyParser!.setWikiLinkFormatting(prefix: displayParms.wikiLinks.prefix,
+                                                format: displayParms.wikiLinks.format,
+                                                suffix: displayParms.wikiLinks.suffix,
+                                                context: mkdownContext)
+            mdBodyParser!.parse()
+            markup.append(mdBodyParser!.html)
+        }
+        
+        notesExported += 1
+        outlineLevels.append(level)
+    }
+    
     // Close the markup writer.
-    func concatClose() -> Bool {
-        markup.finishDoc()
+    func concatClose(exportFormat: ExportFormat) -> Bool {
+        
+        if exportFormat == .outlineHtml {
+            while outlineLevels.count > 0 {
+                markup.finishDetails()
+                outlineLevels.removeLast()
+            }
+            markup.finishDoc()
+        }
         do {
             try markup.code.write(to: destination, atomically: true, encoding: .utf8)
         } catch {

@@ -364,6 +364,14 @@ public class DisplayPrefs {
             list-style-type: none;
         }
         
+        details {
+            margin-left: 2.2em;
+        }
+        summary {
+            margin-left: -2.2em;
+            margin-bottom: 0.5em;
+        }
+        
         """)
         tempCSS.append(buildHeadingsCSS())
         
