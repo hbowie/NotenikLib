@@ -352,7 +352,7 @@ public class ResourceLibrary {
             return getNote(type: type)
         case .template:
             guard templateFile.isAvailable else { return nil }
-            return templateFile.readNote(collection: collection)
+            return templateFile.readNote(collection: collection, template: true)
         default:
             return nil
         }

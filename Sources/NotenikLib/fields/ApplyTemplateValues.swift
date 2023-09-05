@@ -48,9 +48,14 @@ class ApplyTemplateValues {
             // Attempt to parse the value field, if there is one.
             let val = templateNote.getFieldAsValue(label: def.fieldLabel.commonForm)
             if val.count > 0 {
-                if let seqValue = val as? SeqValue {
-                    parseValue(def: def, value: seqValue.originalValue)
-                } else {
+                var parsed = false
+                if def.fieldType.typeString == NotenikConstants.seqCommon {
+                    if let seqValue = val as? SeqValue {
+                        parseValue(def: def, value: seqValue.originalValue)
+                        parsed = true
+                    }
+                }
+                if !parsed {
                     parseValue(def: def, value: val.value)
                 }
             }

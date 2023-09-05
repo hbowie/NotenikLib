@@ -57,7 +57,9 @@ public class NoteLineParser {
     }
     
     /// Get the Note from the input lines
-    public func getNote(defaultTitle: String, allowDictAdds: Bool = true) -> Note {
+    public func getNote(defaultTitle: String,
+                        template: Bool = false,
+                        allowDictAdds: Bool = true) -> Note {
         
         self.allowDictAdds = allowDictAdds
         note = Note(collection: collection)
@@ -109,7 +111,7 @@ public class NoteLineParser {
             if noteLine.lastLine
                 || noteLine.validLabel
                 || valueComplete {
-                captureLastField()
+                captureLastField(template: template)
             }
             
             // Reset the value complete flag.
@@ -166,7 +168,7 @@ public class NoteLineParser {
                 }
                 if def.isBody {
                     value.append(reader.remaining)
-                    captureLastField()
+                    captureLastField(template: template)
                     noteComplete = true
                 }
             } else {
@@ -209,16 +211,20 @@ public class NoteLineParser {
     }
     
     /// Add the last field found to the note.
-    func captureLastField() {
+    func captureLastField(template: Bool) {
         
         pendingBlankLines = 0
         guard label.validLabel && value.count > 0 else { return }
         let fieldInDict = collection.dict.contains(def)
         if fieldInDict || allowDictAdds {
             let field = NoteField(def: def,
-                                  value: value,
                                   statusConfig: collection.statusConfig,
                                   levelConfig: collection.levelConfig)
+            if template {
+                field.value = StringValue(value)
+            } else {
+                field.value = def.fieldType.createValue(value)
+            }
             if field.def.fieldType.typeString == NotenikConstants.indexCommon {
                 if indexStarted {
                     note.appendToIndex(value)

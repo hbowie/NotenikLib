@@ -192,7 +192,7 @@ public class ResourceFileSys: CustomStringConvertible, Comparable {
     var _fName = ""
     
     /// Attempt to read text from this resource and format it as a Note.
-    func readNote(collection: NoteCollection, reportErrors: Bool = true) -> Note? {
+    func readNote(collection: NoteCollection, template: Bool = false, reportErrors: Bool = true) -> Note? {
         
         guard let noteURL = url else { return nil }
         let reader = BigStringReader(fileURL: noteURL)
@@ -204,7 +204,7 @@ public class ResourceFileSys: CustomStringConvertible, Comparable {
         }
         let parser = NoteLineParser(collection: collection, reader: reader!)
         let defaultTitle = noteURL.deletingPathExtension().lastPathComponent
-        let note = parser.getNote(defaultTitle: defaultTitle)
+        let note = parser.getNote(defaultTitle: defaultTitle, template: template)
         note.fileInfo.baseDotExt = noteURL.lastPathComponent
         if collection.textFormatFieldDef != nil {
             if noteURL.pathExtension == NotenikConstants.textFormatTxt {
