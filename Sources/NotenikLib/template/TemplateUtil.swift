@@ -39,7 +39,7 @@ public class TemplateUtil {
     public var textOutURL: URL?
     var textOutFileName = FileName()
     var outputLines = ""
-    var linesToOutput = ""
+    public var linesToOutput = ""
     var outputOpen = false
     var outputLineCount = 0
     var outputOnlyIfNew = false
