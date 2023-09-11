@@ -874,7 +874,8 @@ public class NotesExporter {
         default:
             break
         }
-        let (code, _) = display.display(note, io: noteIO, parms: displayParms)
+        let mdResults = TransformMdResults()
+        let code = display.display(note, io: noteIO, parms: displayParms, mdResults: mdResults)
         markup.append(code)
         markup.writeLine(" ")
         notesExported += 1

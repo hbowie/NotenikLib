@@ -568,8 +568,8 @@ public class WebBookMaker {
         }
 
         let fileURL = URL(fileURLWithPath: fileName, relativeTo: htmlFolder).appendingPathExtension(htmlFileExt)
-        
-        let (code, _) = display.display(note, io: io, parms: parms)
+        let mdResults = TransformMdResults()
+        let code = display.display(note, io: io, parms: parms, mdResults: mdResults)
         
         let written = FileUtils.saveToDisk(strToWrite: code,
                                            outputURL: fileURL,

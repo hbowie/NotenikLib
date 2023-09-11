@@ -73,7 +73,7 @@ public class Template {
         util.dataFileName = FileName(dataSource)
         util.io = io
         util.bodyHTML = bodyHTML
-        util.minutesToRead = minutesToRead
+        util.mdResults.minutesToRead = minutesToRead
     }
     
     /// Supply the Notenik data to be used with the template.
@@ -85,7 +85,7 @@ public class Template {
         util.notesList = notesList
         util.dataFileName = FileName(dataSource)
         util.bodyHTML = nil
-        util.minutesToRead = nil
+        util.mdResults.minutesToRead = nil
     }
     
     /// Merge the supplied data with the template to generate output.

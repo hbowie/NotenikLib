@@ -90,7 +90,7 @@ public class TemplateUtil {
     var io: NotenikIO?
     
     var bodyHTML: String?
-    var minutesToRead: MinutesToReadValue?
+    var mdResults = TransformMdResults()
     
     var wikiStyle: Character = "0"
     
@@ -257,13 +257,13 @@ public class TemplateUtil {
         let originalFormat = parms.format
         parms.format = .htmlFragment
         parms.wikiLinks.resetToDefaults()
+        let mdResults = TransformMdResults()
         let fields = noteFieldsToHTML.fieldsToHTML(note,
-                                             io: io,
-                                             parms: parms,
-                                             topOfPage: "",
-                                             imageWithinPage: "",
-                                             bodyHTML: bodyHTML,
-                                             minutesToRead: minutesToRead)
+                                                   io: io,
+                                                   parms: parms,
+                                                   topOfPage: "",
+                                                   imageWithinPage: "",
+                                                   results: mdResults)
         parms.format = originalFormat
         outputLines.append(fields)
     }
@@ -1131,8 +1131,8 @@ public class TemplateUtil {
         case "today":
             return DateUtils.shared.ymdToday
         case NotenikConstants.minutesToReadCommon:
-            if minutesToRead != nil {
-                return String(describing: minutesToRead)
+            if mdResults.minutesToRead != nil {
+                return String(describing: mdResults.minutesToRead)
             } else {
                 return nil
             }

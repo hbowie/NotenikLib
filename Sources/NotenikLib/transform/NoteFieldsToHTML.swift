@@ -28,6 +28,10 @@ public class NoteFieldsToHTML {
     
     var minutesToRead: MinutesToReadValue?
     
+    var io: NotenikIO?
+    
+    var results = TransformMdResults()
+    
     var attribution: NoteField?
     
     var quoted = false
@@ -47,12 +51,13 @@ public class NoteFieldsToHTML {
                              parms: DisplayParms,
                              topOfPage: String,
                              imageWithinPage: String,
-                             bodyHTML: String? = nil,
-                             minutesToRead: MinutesToReadValue? = nil,
+                             results: TransformMdResults,
                              bottomOfPage: String = "",
                              lastInList: Bool = false) -> String {
         
         // Save parameters and make key variables easily accessible for later use.
+        self.io = io
+        self.results = results
         self.parms = parms
         parms.setMkdownOptions(mkdownOptions)
         if note.hasShortID() {
@@ -60,8 +65,8 @@ public class NoteFieldsToHTML {
         } else {
             mkdownOptions.shortID = ""
         }
-        self.bodyHTML = bodyHTML
-        self.minutesToRead = minutesToRead
+        self.bodyHTML = results.bodyHTML
+        self.minutesToRead = results.minutesToRead
         let collection = note.collection
         let dict = collection.dict
         
@@ -345,9 +350,11 @@ public class NoteFieldsToHTML {
         } else if field.def.fieldType is DirectionsType {
             displayDirections(field, markedup: code)
         } else if field.def.fieldType is AttribType {
-            markdownToMarkedup(markdown: field.value.value,
-                               context: mkdownContext,
-                               writer: code)
+            transformMarkdown(markdown: field.value.value,
+                              fieldType: field.def.fieldType.typeString,
+                              writer: code,
+                              noteTitle: noteTitle,
+                              shortID: note.shortID.value)
         } else if parms.streamlined {
             switch field.def.fieldType.typeString {
             case NotenikConstants.authorCommon:
@@ -395,7 +402,7 @@ public class NoteFieldsToHTML {
             case NotenikConstants.displaySeqCommon:
                 break
             case NotenikConstants.teaserCommon:
-                displayMarkdown(field, markedup: code, mkdownContext: mkdownContext)
+                displayMarkdown(field, markedup: code, noteTitle: noteTitle, note: note, mkdownContext: mkdownContext)
                 if !collection.bodyLabel && note.hasBody() {
                     code.horizontalRule()
                 }
@@ -440,7 +447,7 @@ public class NoteFieldsToHTML {
         } else if field.def.fieldType.typeString == NotenikConstants.longTextType ||
                     field.def.fieldType.typeString == NotenikConstants.teaserCommon ||
                     field.def.fieldType.typeString == NotenikConstants.bodyCommon {
-            displayMarkdown(field, markedup: code, mkdownContext: mkdownContext)
+            displayMarkdown(field, markedup: code, noteTitle: noteTitle, note: note, mkdownContext: mkdownContext)
         } else if field.def.fieldType.typeString == NotenikConstants.dateType {
             code.startParagraph()
             code.append(field.def.fieldLabel.properForm)
@@ -500,12 +507,19 @@ public class NoteFieldsToHTML {
             } else if bodyHTML != nil {
                 markedup.append(bodyHTML!)
             } else {
-                let body = Markdown.parse(markdown: field.value.value, options: mkdownOptions, context: mkdownContext)
-                markedup.append(body)
-                if let context = mkdownContext as? NotesMkdownContext {
-                    note.mkdownCommandList = context.mkdownCommandList
-                    note.mkdownCommandList.updateWith(body: field.value.value, html: body)
-                    collection.mkdownCommandList.updateWith(noteList: note.mkdownCommandList)
+                
+                transformMarkdown(markdown: field.value.value,
+                                  fieldType: NotenikConstants.bodyCommon,
+                                  writer: markedup,
+                                  noteTitle: note.title.value,
+                                  shortID: note.shortID.value)
+                    
+                if let context = results.mkdownContext {
+                    if let bodyHTML = results.bodyHTML {
+                        note.mkdownCommandList = context.mkdownCommandList
+                        note.mkdownCommandList.updateWith(body: field.value.value, html: bodyHTML)
+                        collection.mkdownCommandList.updateWith(noteList: note.mkdownCommandList)
+                    }
                 }
             }
             if note.klass.quote {
@@ -688,15 +702,19 @@ public class NoteFieldsToHTML {
     
     func displayMarkdown(_ field: NoteField,
                          markedup: Markedup,
+                         noteTitle: String,
+                         note: Note,
                          mkdownContext: MkdownContext?) {
         markedup.startParagraph()
         markedup.append(field.def.fieldLabel.properForm)
         markedup.append(": ")
         markedup.finishParagraph()
         if parms.formatIsHTML {
-            markdownToMarkedup(markdown: field.value.value,
-                               context: mkdownContext,
-                               writer: markedup)
+            transformMarkdown(markdown: field.value.value,
+                              fieldType: field.def.fieldType.typeString,
+                              writer: markedup,
+                              noteTitle: noteTitle,
+                              shortID: note.shortID.value)
         } else {
             markedup.append(field.value.value)
             markedup.newLine()
@@ -777,10 +795,10 @@ public class NoteFieldsToHTML {
                                            bodyHTML: String? = nil,
                                            withAttrib: Bool = true) {
         
-        var mkdownContext: MkdownContext?
+        /* var mkdownContext: MkdownContext?
         if io != nil {
             mkdownContext = NotesMkdownContext(io: io!, displayParms: parms)
-        }
+        } */
         
         if withAttrib && (note.hasAttribution() || note.hasAuthor() || note.hasWorkTitle()) {
             markedup.startFigure(klass: "notenik-quote-attrib")
@@ -791,9 +809,14 @@ public class NoteFieldsToHTML {
         if bodyHTML != nil {
             markedup.append(bodyHTML!)
         } else {
-            markdownToMarkedup(markdown: note.body.value,
+            transformMarkdown(markdown: note.body.value,
+                              fieldType: NotenikConstants.bodyCommon,
+                              writer: markedup,
+                              noteTitle: note.title.value,
+                              shortID: note.shortID.value)
+            /* markdownToMarkedup(markdown: note.body.value,
                                context: nil,
-                               writer: markedup)
+                               writer: markedup) */
         }
         
         markedup.finishBlockQuote()
@@ -803,9 +826,14 @@ public class NoteFieldsToHTML {
             if note.hasAttribution() {
                 markedup.newLine()
                 // let balanced = attribBalancer.balance(str: note.attribution.value)
-                markdownToMarkedup(markdown: note.attribution.value,
+                transformMarkdown(markdown: note.attribution.value,
+                                  fieldType: NotenikConstants.attribCommon,
+                                  writer: markedup,
+                                  noteTitle: note.title.value,
+                                  shortID: note.shortID.value)
+                /* markdownToMarkedup(markdown: note.attribution.value,
                                    context: mkdownContext,
-                                   writer: markedup)
+                                   writer: markedup) */
             } else {
                 markedup.newLine()
                 markedup.writeEmDash()
@@ -871,11 +899,20 @@ public class NoteFieldsToHTML {
     }
     
     /// Convert Markdown to HTML.
-    func markdownToMarkedup(markdown: String,
+    /* func markdownToMarkedup(markdown: String,
                             context: MkdownContext?,
                             writer: Markedup) {
         
         writer.append(Markdown.parse(markdown: markdown, options: mkdownOptions, context: context))
+    } */
+    
+    func transformMarkdown(markdown: String, fieldType: String, writer: Markedup, noteTitle: String, shortID: String) {
+        let parserID = AppPrefs.shared.markdownParser
+        guard io != nil else {
+            return
+        }
+        TransformMarkdown.mdToHtml(parserID: parserID, fieldType: fieldType, markdown: markdown, io: io!, parms: parms, results: results, noteTitle: noteTitle, shortID: shortID)
+        writer.append(results.html)
     }
     
 }

@@ -371,7 +371,7 @@ public class NoteTransformer {
             markedup.append(": ")
             markedup.finishParagraph()
             markedup.codeBlock("=$\(def.fieldLabel.commonForm)$=")
-        } else if def.fieldType.typeString == "longtext" {
+        } else if def.fieldType.typeString == NotenikConstants.longTextType {
             markedup.startParagraph()
             markedup.append(def.fieldLabel.properForm)
             markedup.append(": ")

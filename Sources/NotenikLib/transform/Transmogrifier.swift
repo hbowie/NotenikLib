@@ -118,11 +118,12 @@ public class Transmogrifier {
         // First pass through the Notes in the Collection, storing linkages in memory.
         var (note, position) = io.firstNote()
         while note != nil {
+            let mdResults = TransformMdResults()
             parms.setFrom(note: note!)
-            let (_, _) = noteDisplay.display(note!, io: io, parms: parms)
-            let noteLinkList = noteDisplay.wikilinks
-            if noteLinkList != nil {
-                for link in noteLinkList!.links {
+            let _ = noteDisplay.display(note!, io: io, parms: parms, mdResults: mdResults)
+            let noteLinkList = mdResults.wikiLinks
+            if !noteLinkList.isEmpty {
+                for link in noteLinkList.links {
                     link.setFrom(path: "", item: note!.title.value)
                     
                     // Add a Note if a target is missing

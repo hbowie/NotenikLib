@@ -26,13 +26,11 @@ public class NoteDisplay {
     
     var includedNotes: [String] = []
     var mdBodyParser: MkdownParser?
-    var bodyHTML:     String?
+    var mdResults = TransformMdResults()
     
-    public var counts = MkdownCounts()
-    
-    public var wikilinks: WikiLinkList?
-    
-    var minutesToRead: MinutesToReadValue?
+    public var results: TransformMdResults {
+        return mdResults
+    }
     
     public init() {
         
@@ -69,67 +67,46 @@ public class NoteDisplay {
     /// - Parameter note: The note to be displayed.
     /// - Parameter io: The active I/O module for this Collection.
     /// - Parameter parms: Parms used to control the formatting of the display.
+    /// - Parameter mdResults: The results of the Markdown transformation(s) performed.
     /// - Returns: A string containing the encoded note, and a flag indicating whether
     ///            any wiki link targets that did not yet exist were automatically added.
     ///
-    public func display(_ note: Note, io: NotenikIO, parms: DisplayParms) -> (code: String, wikiAdds: Bool) {
+    public func display(_ note: Note, io: NotenikIO, parms: DisplayParms, mdResults: TransformMdResults) -> String {
 
         self.parms = parms
-        parms.setMkdownOptions(mkdownOptions)
-        mkdownContext = NotesMkdownContext(io: io, displayParms: parms)
+
         if note.hasShortID() {
             mkdownOptions.shortID = note.shortID.value
         } else {
             mkdownOptions.shortID = ""
         }
 
-        mkdownContext.setTitleToParse(title: note.title.value, shortID: note.shortID.value)
+        // mkdownContext.setTitleToParse(title: note.title.value, shortID: note.shortID.value)
         let collection = note.collection
         collection.skipContentsForParent = false
-        minutesToRead = nil
-        mdBodyParser = nil
-        bodyHTML = nil
-        wikilinks = nil
-        var wikiAdds = false
         
         // Pre-parse the body field if we're generating HTML.
         if parms.formatIsHTML && AppPrefs.shared.parseUsingNotenik {
-            let body = note.body
-            mdBodyParser = MkdownParser(body.value, options: mkdownOptions)
-            mdBodyParser!.setWikiLinkFormatting(prefix: parms.wikiLinks.prefix,
-                                                format: parms.wikiLinks.format,
-                                                suffix: parms.wikiLinks.suffix,
-                                                context: mkdownContext)
-            mdBodyParser!.parse()
-            counts = mdBodyParser!.counts
-            if collection.minutesToReadDef != nil {
-                minutesToRead = MinutesToReadValue(with: counts)
-            }
-            bodyHTML = mdBodyParser!.html
-            if bodyHTML != nil {
-                note.mkdownCommandList = mkdownContext.mkdownCommandList
-                note.mkdownCommandList.updateWith(body: body.value, html: bodyHTML!)
-                collection.mkdownCommandList.updateWith(noteList: note.mkdownCommandList)
+            
+            var shortID = ""
+            if note.hasShortID() {
+                shortID = note.shortID.value
             }
             
-            wikilinks = mdBodyParser!.wikiLinkList
-            includedNotes = mkdownContext.includedNotes
-            if collection.missingTargets {
-                for link in mdBodyParser!.wikiLinkList.links {
-                    if !link.targetFound {
-                        let newNote = Note(collection: note.collection)
-                        _ = newNote.setTitle(link.originalTarget.item)
-                        newNote.setID()
-                        if collection.backlinksDef == nil {
-                            _ = newNote.setBody("Created by Wiki-style Link found in the body of the Note titled [[\(note.title.value)]].")
-                        } else {
-                            _ = newNote.setBacklinks(note.title.value)
-                            _ = newNote.setBody("Created by Wiki-style Link found in the body of the Note titled \(note.title.value).")
-                        }
-                        _ = io.addNote(newNote: newNote)
-                        wikiAdds = true
-                    }
-                }
+            TransformMarkdown.mdToHtml(parserID: NotenikConstants.notenikParser,
+                                       fieldType: NotenikConstants.bodyCommon,
+                                       markdown: note.body.value,
+                                       io: io,
+                                       parms: parms,
+                                       results: mdResults,
+                                       noteTitle: note.title.value,
+                                       shortID: shortID)
+            
+            if mdResults.mkdownContext != nil {
+                note.mkdownCommandList = mdResults.mkdownContext!.mkdownCommandList
+                note.mkdownCommandList.updateWith(body: note.body.value, html: mdResults.html)
+                collection.mkdownCommandList.updateWith(noteList: note.mkdownCommandList)
+                includedNotes = mdResults.mkdownContext!.includedNotes
             }
         }
         
@@ -142,12 +119,13 @@ public class NoteDisplay {
         }
         
         if parms.displayTemplate.count > 0 && parms.formatIsHTML {
-            return (displayWithTemplate(note, io: io), wikiAdds)
+            return displayWithTemplate(note, io: io)
         } else {
-            return (displayWithoutTemplate(note, io: io,
-                                           topOfPage: topHTML,
-                                           imageWithinPage: imageHTML,
-                                           bottomOfPage: bottomHTML), wikiAdds)
+            return displayWithoutTemplate(note, io: io,
+                                          results: mdResults,
+                                          topOfPage: topHTML,
+                                          imageWithinPage: imageHTML,
+                                          bottomOfPage: bottomHTML)
         }
     }
     
@@ -382,13 +360,13 @@ public class NoteDisplay {
             }
             
             if !alreadyIncluded {
+                let childResults = TransformMdResults()
                 let childDisplay = fieldsToHTML.fieldsToHTML(followingNote!,
                                                              io: io,
                                                              parms: parms,
                                                              topOfPage: "",
                                                              imageWithinPage: "",
-                                                             bodyHTML: nil,
-                                                             minutesToRead: nil,
+                                                             results: childResults,
                                                              bottomOfPage: "",
                                                              lastInList: lastInList)
                 bottomHTML.append(childDisplay)
@@ -457,8 +435,8 @@ public class NoteDisplay {
         template.supplyData(note,
                             dataSource: note.collection.title,
                             io: io,
-                            bodyHTML: bodyHTML,
-                            minutesToRead: minutesToRead)
+                            bodyHTML: mdResults.html,
+                            minutesToRead: mdResults.minutesToRead)
         let ok = template.generateOutput()
         if !ok {
             Logger.shared.log(subsystem: "NotenikLib",
@@ -472,6 +450,7 @@ public class NoteDisplay {
     /// Display the Note without use of a template.
     func displayWithoutTemplate(_ note: Note,
                                 io: NotenikIO,
+                                results: TransformMdResults,
                                 topOfPage: String,
                                 imageWithinPage: String,
                                 bottomOfPage: String) -> String {
@@ -483,8 +462,7 @@ public class NoteDisplay {
                                          parms: parms,
                                          topOfPage: topOfPage,
                                          imageWithinPage: imageWithinPage,
-                                         bodyHTML: bodyHTML,
-                                         minutesToRead: minutesToRead,
+                                         results: results,
                                          bottomOfPage: bottomOfPage)
     }
 
@@ -575,8 +553,8 @@ public class NoteDisplay {
             code.startParagraph()
             code.append(field.def.fieldLabel.properForm)
             code.append(": ")
-            if minutesToRead != nil {
-                code.append(minutesToRead!.value)
+            if mdResults.minutesToRead != nil {
+                code.append(mdResults.minutesToRead!.value)
             } else {
                 code.append(field.value.value)
             }

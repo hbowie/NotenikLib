@@ -211,6 +211,16 @@ public struct NotenikConstants {
     
     //-------------------------------------------------------------
     //
+    // Parser Identifiers
+    //
+    //-------------------------------------------------------------
+    
+    public static let downParser    = "down"
+    public static let inkParser     = "ink"
+    public static let notenikParser = "notenik"
+    
+    //-------------------------------------------------------------
+    //
     // Other constants
     //
     //-------------------------------------------------------------
