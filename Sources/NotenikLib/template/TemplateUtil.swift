@@ -44,6 +44,7 @@ public class TemplateUtil {
     var outputLineCount = 0
     var outputOnlyIfNew = false
     var outputFilesWritten = 0
+    var outputFilesSkipped = 0
     
     /// A relative path from the location of the output file to the
     /// root of the enclosing website.
@@ -403,6 +404,7 @@ public class TemplateUtil {
     func closeOutput() {
         if let consumer = workspace?.templateOutputConsumer {
             consumer.consumeTemplateOutput(outputLines)
+            outputFilesWritten += 1
         } else if outputOpen && textOutURL != nil {
             var skipWrite = false
             if outputOnlyIfNew {
@@ -417,6 +419,8 @@ public class TemplateUtil {
                                      checkForChanges: true)
                 if written {
                     outputFilesWritten += 1
+                } else {
+                    outputFilesSkipped += 1
                 }
             }
         } else {
@@ -1253,17 +1257,11 @@ public class TemplateUtil {
             return nil
         } else {
             if varName == NotenikConstants.imageNameCommon {
-                print("Trying to replace image name with file name")
-                print("  - Note titled \(fromNote.title.value)")
-                print("  - Note has \(fromNote.attachments.count) attachments")
-                print("  - Image Name value is '\(field!.value.value)'")
                 for attachment in fromNote.attachments {
-                    attachment.display()
                     if attachment.suffix.lowercased() == field!.value.value.lowercased() {
                         return attachment.fullName
                     }
                 }
-                print("  - Image Name Not Found!!")
             }
             return field!.value.value
         }

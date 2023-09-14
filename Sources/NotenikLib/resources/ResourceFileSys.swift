@@ -424,12 +424,18 @@ public class ResourceFileSys: CustomStringConvertible, Comparable {
     }
     
     func remove() -> Bool {
-        guard exists else { return false }
+        guard exists else {
+            return false
+        }
         guard let urlToRemove = url else { return false }
+        var trashOK = false
         do {
             try fm.trashItem(at: urlToRemove, resultingItemURL: nil)
-            return true
-        } catch { }
+            trashOK = true
+        } catch {
+            trashOK = false
+        }
+        if trashOK { return true }
         do {
             try fm.removeItem(at: urlToRemove)
         } catch {

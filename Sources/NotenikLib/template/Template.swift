@@ -33,7 +33,7 @@ public class Template {
     var emptyNote: Note!
     
     public init() {
-        
+
     }
     
     func setWebRoot(filePath: String) {
@@ -105,6 +105,7 @@ public class Template {
             }
         }
         util.outputFilesWritten = 0
+        util.outputFilesSkipped = 0
         guard util.templateOK else {
             util.logError("Template not ready for output generation!")
             return false
@@ -149,6 +150,7 @@ public class Template {
         }
         util.closeOutput()
         util.logInfo("\(util.outputFilesWritten) output files written")
+        util.logInfo("\(util.outputFilesSkipped) output files with no changes")
         return true
     }
     

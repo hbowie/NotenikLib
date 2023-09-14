@@ -1230,7 +1230,9 @@ public class FileIO: NotenikIO, RowConsumer {
         
         // Make sure we have a selected note
         let (noteToDelete, oldPosition) = bunch!.getSelectedNote()
-        guard noteToDelete != nil && oldPosition.index >= 0 else { return (nil, NotePosition(index: -1)) }
+        guard noteToDelete != nil && oldPosition.index >= 0 else {
+            return (nil, NotePosition(index: -1))
+        }
         
         let (priorNote, priorPosition) = bunch!.priorNote(oldPosition)
         var returnNote = priorNote
@@ -1249,7 +1251,9 @@ public class FileIO: NotenikIO, RowConsumer {
         }
         
         let noteResource = lib.getNoteResource(note: noteToDelete!)
-        guard noteResource != nil && noteResource!.isAvailable else { return (nil, NotePosition(index: -1)) }
+        guard noteResource != nil && noteResource!.isAvailable else {
+            return (nil, NotePosition(index: -1))
+        }
         
         if !preserveAttachments {
             for attachment in noteToDelete!.attachments {
