@@ -821,7 +821,12 @@ public class TemplateUtil {
                     inc = 2
                 }
             } else if charLower == "p" {
-                modifiedValue = StringUtils.purifyPunctuation(modifiedValue)
+                if nextChar == "!" {
+                    modifiedValue = StringUtils.purifyPunctuation(modifiedValue, squeeze: true)
+                    inc = 2
+                } else {
+                    modifiedValue = StringUtils.purifyPunctuation(modifiedValue)
+                }
             } else if charLower == "q" {
                 modifiedValue = StringUtils.encaseInQuotesAsNeeded(modifiedValue)
             } else if charLower == "r" {

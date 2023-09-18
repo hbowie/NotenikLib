@@ -26,6 +26,9 @@ public class SeqFormatter {
     }
     
     public func format(seq: SeqValue) -> String {
+        guard !formatStack.isEmpty else {
+            return seq.value
+        }
         var formatted = ""
         var ix = 0
         for segment in seq.seqStack.segments {
