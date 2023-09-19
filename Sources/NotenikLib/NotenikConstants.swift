@@ -275,6 +275,8 @@ public struct NotenikConstants {
     static let hashTagsCommon           = "hashtags"
     static let titleSetByUser           = "Title Set by User"
     static let titleSetByUserCommon     = "titlesetbyuser"
+    static let highestTitleNumber       = "Highest Title Number"
+    static let highestTitleNumberCommon = "highesttitlenumber"
     
     //-------------------------------------------------------------
     //

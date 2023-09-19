@@ -596,6 +596,14 @@ public class NoteCollection {
         }
     }
     
+    
+    var highestTitleNumber = 0
+    
+    public func nextTitleNumber() -> Int {
+        highestTitleNumber += 1
+        return highestTitleNumber
+    }
+    
     /// Useful for debugging. 
     public func display() {
         print(" ")

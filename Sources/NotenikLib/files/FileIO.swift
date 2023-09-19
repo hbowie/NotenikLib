@@ -301,6 +301,10 @@ public class FileIO: NotenikIO, RowConsumer {
                 str.append(label: label, value: value)
             }
         }
+        
+        if collection!.highestTitleNumber > 0 {
+            str.append(label: NotenikConstants.highestTitleNumber, value: "\(collection!.highestTitleNumber)")
+        }
 
         return lib.saveInfo(str: str.str)
     }
@@ -748,6 +752,13 @@ public class FileIO: NotenikIO, RowConsumer {
                 let command = String(key.dropLast(6))
                 let noteID = field.value.value
                 collection!.mkdownCommandList.updateWith(command: command, noteTitle: noteID, code: nil)
+            }
+        }
+        
+        let highestTitleNumberField = infoNote.getField(label: NotenikConstants.highestTitleNumberCommon)
+        if highestTitleNumberField != nil {
+            if let highestTitleNumber = Int(highestTitleNumberField!.value.value) {
+                collection!.highestTitleNumber = highestTitleNumber
             }
         }
         

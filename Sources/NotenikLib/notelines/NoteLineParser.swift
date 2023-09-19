@@ -35,6 +35,7 @@ public class NoteLineParser {
     var valueLines   = 0
     var pendingBlankLines = 0
     
+    var mmdMetaStartEndLineCount = 0
     var bodyStarted  = false
     var indexStarted = false
     var wikilinkStarted = false
@@ -71,6 +72,7 @@ public class NoteLineParser {
         fieldNumber = 0
         blankLines = 0
         fileSize   = 0
+        mmdMetaStartEndLineCount = 0
         bodyStarted = false
         indexStarted = false
         wikilinkStarted = false
@@ -87,7 +89,6 @@ public class NoteLineParser {
                                   collection: collection,
                                   bodyStarted: bodyStarted,
                                   allowDictAdds: allowDictAdds)
-            
             lineNumber += 1
             fileSize += noteLine.line.count + 1
             if noteLine.blankLine {
@@ -96,12 +97,15 @@ public class NoteLineParser {
             
             // See if we should declare the value to be complete at this point.
             if label.validLabel && value.count > 0 && !bodyStarted {
-                if noteLine.blankLine && blankLines == 1 && fieldNumber > 1 {
+                if noteLine.blankLine 
+                    && blankLines == 1
+                    && mmdMetaStartEndLineCount == 0
+                    && fieldNumber > 1 {
                     valueComplete = true
                 } else if fieldNumber == 1 && !noteLine.yamlDashLine {
                     valueComplete = true
                 } else if noteLine.mmdMetaStartEndLine
-                            && (note.fileInfo.format == .multiMarkdown || note.fileInfo.format == .yaml) {
+                            && (note.fileInfo.mmdOrYaml) {
                     valueComplete = true
                 }
             }
@@ -121,8 +125,16 @@ public class NoteLineParser {
             if noteLine.mmdMetaStartEndLine && lineNumber == 1 {
                 note.fileInfo.format = .multiMarkdown
                 note.fileInfo.mmdMetaStartLine = noteLine.line
-            } else if noteLine.mmdMetaStartEndLine && note.fileInfo.mmdOrYaml && !bodyStarted {
+                mmdMetaStartEndLineCount = 1
+            } else if noteLine.mmdMetaStartEndLine 
+                        && note.fileInfo.mmdOrYaml
+                        && fieldNumber > 1
+                        && !bodyStarted
+                        && mmdMetaStartEndLineCount > 0 {
                 note.fileInfo.mmdMetaEndLine = noteLine.line
+                def = note.collection.bodyFieldDef
+                clearValue()
+                bodyStarted = true
             } else if noteLine.mmdMetaStartEndLine && note.fileInfo.format == .toBeDetermined && !bodyStarted && blankLines == 0 {
                 note.fileInfo.mmdMetaEndLine = noteLine.line
                 note.fileInfo.format = .multiMarkdown
@@ -142,7 +154,10 @@ public class NoteLineParser {
                     bodyStarted = true
                 }
             } else if noteLine.blankLine {
-                if fieldNumber > 1 && blankLines == 1 && !bodyStarted {
+                if fieldNumber > 1 
+                    && blankLines == 1
+                    && mmdMetaStartEndLineCount == 0
+                    && !bodyStarted {
                     if note.fileInfo.format != .yaml && fieldNumber > 2 {
                         note.fileInfo.format = .multiMarkdown
                     }

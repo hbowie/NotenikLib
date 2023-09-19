@@ -222,7 +222,7 @@ class NoteLineIn {
             line = reader.lastLine
         }
     }
-    
+    /*
     init(line: String?,
          collection: NoteCollection,
          bodyStarted: Bool,
@@ -312,13 +312,15 @@ class NoteLineIn {
             index = nextIndex
             offset += 1
         } // end for each character in line
-    } // end scanLine method
+    } // end scanLine method */
     
     func display() {
         print(" ")
         print("NoteLineIn")
         print("  - line: \(line)")
-        print("  - mmd meta start/end line \(mmdMetaStartEndLine)")
+        print("  - mmd meta start/end line? \(mmdMetaStartEndLine)")
+        print("  - YAML dash line? \(yamlDashLine)")
+        print("  - blank line? \(blankLine)")
         print("  - label: \(label.properForm)")
         print("  - valid label? \(validLabel)")
         print("  - value: \(value)")
