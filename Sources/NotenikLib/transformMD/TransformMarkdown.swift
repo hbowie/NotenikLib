@@ -67,6 +67,9 @@ public class TransformMarkdown {
 
         let mkdownOptions = MkdownOptions()
         parms.setMkdownOptions(mkdownOptions)
+        if fieldType != NotenikConstants.bodyCommon {
+            mkdownOptions.checkBoxMessageHandlerName = ""
+        }
         results.mkdownContext = NotesMkdownContext(io: io, displayParms: parms)
         mkdownOptions.shortID = shortID
         results.mkdownContext!.setTitleToParse(title: noteTitle, shortID: shortID)

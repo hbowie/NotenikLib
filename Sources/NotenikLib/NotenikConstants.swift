@@ -226,6 +226,7 @@ public struct NotenikConstants {
     //-------------------------------------------------------------
     
     public static let idFieldIdentifier = "id"
+    public static let checkBoxMessageHandlerName = "ckBoxHandler"
     
     //-------------------------------------------------------------
     //

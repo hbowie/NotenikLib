@@ -37,6 +37,7 @@ public class DisplayParms {
     public var header = ""
     public var included = IncludeChildrenValue()
     public var includedList = ""
+    public var checkBoxMessageHandlerName = ""
     
     public init() {
         
@@ -72,6 +73,7 @@ public class DisplayParms {
         options.localMjUrl = localMjUrl
         options.curlyApostrophes = curlyApostrophes
         options.extLinksOpenInNewWindows = extLinksOpenInNewWindows
+        options.checkBoxMessageHandlerName = checkBoxMessageHandlerName
     }
     
     public var formatIsHTML: Bool {

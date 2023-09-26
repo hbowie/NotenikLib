@@ -289,6 +289,11 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
             newNote.fileInfo.ext  = fileInfo.ext
             newNote.fileInfo.baseDotExt = fileInfo.baseDotExt
         }
+        if hasCheckBoxUpdates {
+            for (ckBoxName, checked) in checkBoxUpdates {
+                newNote.checkBoxUpdates[ckBoxName] = checked
+            }
+        }
         return newNote
     }
     
@@ -1711,6 +1716,90 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     /// Get the body field, if one exists
     public func getBodyAsField() -> NoteField? {
         return getField(label: collection.bodyFieldDef.fieldLabel.commonForm)
+    }
+    
+    //
+    // Functions and variables for Body Check Box Updates.
+    //
+    
+    public var checkBoxUpdates: [String: Bool] = [:]
+    
+    public var hasCheckBoxUpdates: Bool {
+        return !checkBoxUpdates.isEmpty
+    }
+    
+    public func clearCheckBoxUpdates() {
+        checkBoxUpdates = [:]
+    }
+    
+    public func checkBoxCountStr(count: Int) -> String {
+        return String(format: "%03d", count)
+    }
+    
+    public func checkBoxName(count: Int) -> String {
+        return "checkbox-\(checkBoxCountStr(count: count))"
+    }
+    
+    public func applyCheckBoxUpdates() -> Bool {
+        guard !checkBoxUpdates.isEmpty else { return false }
+        var work = body.value
+        guard !work.isEmpty else { return false }
+        var replacements = 0
+        var ckBoxCount = 0
+        var i = work.startIndex
+        var ckBox = CkBoxInMarkdown()
+        while i < work.endIndex {
+            let c = work[i]
+            var inc = 1
+            switch c {
+            case "*", "+", "-":
+                ckBox = CkBoxInMarkdown()
+                ckBox.dashPosition = i
+            case " ":
+                if ckBox.leftBracketPosition != nil {
+                    ckBox.length += 1
+                }
+            case "[":
+                if ckBox.dashPosition != nil {
+                    ckBox.leftBracketPosition = i
+                    ckBox.length = 1
+                }
+            case "x", "X":
+                if ckBox.leftBracketPosition != nil {
+                    ckBox.length += 1
+                }
+            case "]":
+                if ckBox.leftBracketPosition != nil {
+                    ckBox.rightBracketPosition = i
+                    ckBox.length += 1
+                    ckBoxCount += 1
+                    let ckBoxName = checkBoxName(count: ckBoxCount)
+                    var repStr = "[ ]"
+                    if let checked = checkBoxUpdates[ckBoxName] {
+                        if checked {
+                            repStr = "[X]"
+                        }
+                        work.replaceSubrange(ckBox.leftBracketPosition!...ckBox.rightBracketPosition!, with: repStr)
+                        inc = 3 - ckBox.length + 1
+                        replacements += 1
+                    }
+                }
+            default:
+                if ckBox.dashPosition != nil {
+                    ckBox = CkBoxInMarkdown()
+                }
+            }
+            i = work.index(i, offsetBy: inc)
+        }
+        
+        checkBoxUpdates = [:]
+        
+        if replacements > 0 {
+            _ = setBody(work)
+            return true
+        } else {
+            return false
+        }
     }
     
     func contains(def: FieldDefinition) -> Bool {
