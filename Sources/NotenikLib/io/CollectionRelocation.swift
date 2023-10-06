@@ -116,7 +116,7 @@ public class CollectionRelocation {
         toCollection!.mirrorAutoIndex = fromCollection!.mirrorAutoIndex
         toCollection!.bodyLabel = fromCollection!.bodyLabel
         toCollection!.titleDisplayOption = fromCollection!.titleDisplayOption
-        toCollection!.streamlined = fromCollection!.streamlined
+        toCollection!.displayMode = fromCollection!.displayMode
         toCollection!.mathJax = fromCollection!.mathJax
         toCollection!.shortcut = fromCollection!.shortcut
         

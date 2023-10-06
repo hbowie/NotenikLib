@@ -248,8 +248,6 @@ public struct NotenikConstants {
     static let h1TitlesDisplayCommon    = "displayh1titles"
     static let titleDisplayOpt          = "Title Display Option"
     static let titleDisplayOptCommon    = "titledisplayoption"
-    static let streamlinedReading       = "Streamlined Reading"
-    static let streamlinedReadingCommon = "streamlinedreading"
     static let webBookFolder            = "Web Book Folder"
     static let webBookFolderCommon      = "webbookfolder"
     static let webBookEPUB              = "Web Book EPUB"
@@ -278,6 +276,8 @@ public struct NotenikConstants {
     static let titleSetByUserCommon     = "titlesetbyuser"
     static let highestTitleNumber       = "Highest Title Number"
     static let highestTitleNumberCommon = "highesttitlenumber"
+    static let displayMode              = "Display Mode"
+    static let displayModeCommon        = "displaymode"
     
     //-------------------------------------------------------------
     //

@@ -24,8 +24,7 @@ public class DisplayParms {
     public var format: MarkedupFormat = .htmlDoc
     public var epub3 = false
     public var sortParm: NoteSortParm = .seqPlusTitle
-    public var streamlined = false
-    public var fullDisplay: Bool { return !streamlined }
+    public var displayMode: DisplayMode = .normal
     public var concatenated = false
     public var wikiLinks = WikiLinkDisplay()
     public var mathJax = false
@@ -54,7 +53,7 @@ public class DisplayParms {
         displayTemplate = collection.displayTemplate
         format = .htmlDoc
         sortParm = collection.sortParm
-        streamlined = collection.streamlined
+        displayMode = collection.displayMode
         mathJax = collection.mathJax
         curlyApostrophes = collection.curlyApostrophes
         extLinksOpenInNewWindows = collection.extLinksOpenInNewWindows
@@ -82,6 +81,28 @@ public class DisplayParms {
             return true
         default:
             return false
+        }
+    }
+    
+    public var fullDisplay: Bool {
+        switch displayMode {
+        case .normal:
+            return true
+        case .presentation:
+            return false
+        case .streamlinedReading:
+            return false
+        }
+    }
+    
+    public var reducedDisplay: Bool {
+        switch displayMode {
+        case .normal:
+            return false
+        case .presentation:
+            return true
+        case .streamlinedReading:
+            return true
         }
     }
     
@@ -116,9 +137,9 @@ public class DisplayParms {
     /// - Parameter note: The Note whose title is to be formatted.
     /// - Returns: The title of the Note, possibly preceded by a
     ///   Sequence number of one kind or another. 
-    public func streamlinedTitle(note: Note) -> String {
+    public func compoundTitle(note: Note) -> String {
         let simpleTitle = note.title.value
-        guard streamlined else { return simpleTitle }
+        guard displayMode != .normal else { return simpleTitle }
         guard !included.asList else { return simpleTitle }
         guard !note.klass.frontOrBack else { return simpleTitle }
         guard !note.klass.quote else { return simpleTitle }
@@ -137,7 +158,7 @@ public class DisplayParms {
         print("  - display template = \(displayTemplate)")
         print("  - marked up format = \(format)")
         print("  - sort parm = \(sortParm)")
-        print("  - streamlined? \(streamlined)")
+        print("  - display mode = \(displayMode)")
         print("  - wiki link format = \(wikiLinks.format)")
         print("  - wiki link prefix = \(wikiLinks.prefix)")
         print("  - wiki link suffix = \(wikiLinks.suffix)")

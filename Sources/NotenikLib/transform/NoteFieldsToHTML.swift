@@ -217,7 +217,7 @@ public class NoteFieldsToHTML {
     
     func startListOfChildren(code: Markedup) {
 
-        guard parms.streamlined else { return }
+        guard parms.reducedDisplay else { return }
         guard parms.included.asList else { return }
         guard parms.includedList.isEmpty else { return }
 
@@ -236,7 +236,7 @@ public class NoteFieldsToHTML {
     }
     
     func startIncludedItem(code: Markedup) {
-        guard parms.streamlined else { return }
+        guard parms.reducedDisplay else { return }
         guard parms.included.on else { return }
         if parms.included.value == IncludeChildrenList.orderedList
             || parms.included.value == IncludeChildrenList.unorderedList {
@@ -245,7 +245,7 @@ public class NoteFieldsToHTML {
     }
     
     func finishIncludedItem(code: Markedup) {
-        guard parms.streamlined else { return }
+        guard parms.reducedDisplay else { return }
         guard parms.included.on else { return }
         if parms.included.value == IncludeChildrenList.orderedList
             || parms.included.value == IncludeChildrenList.unorderedList {
@@ -256,7 +256,7 @@ public class NoteFieldsToHTML {
     }
     
     func finishListOfChildren(code: Markedup) {
-        guard parms.streamlined else { return }
+        guard parms.reducedDisplay else { return }
         guard parms.included.asList else { return }
         guard !parms.includedList.isEmpty else { return }
 
@@ -330,7 +330,7 @@ public class NoteFieldsToHTML {
                         collection: collection,
                         mkdownContext: mkdownContext,
                         markedup: code)
-        } else if parms.streamlined
+        } else if parms.displayMode == .streamlinedReading
                     && collection.klassFieldDef != nil
                     && field.def == collection.klassFieldDef!
                     && note.klass.quote {
@@ -355,7 +355,7 @@ public class NoteFieldsToHTML {
                               writer: code,
                               noteTitle: noteTitle,
                               shortID: note.shortID.value)
-        } else if parms.streamlined {
+        } else if parms.reducedDisplay {
             switch field.def.fieldType.typeString {
             case NotenikConstants.authorCommon:
                 if note.hasAttribution() {
@@ -557,9 +557,9 @@ public class NoteFieldsToHTML {
     // Display the Title of the Note in one of several possible formats.
     func displayTitle(note: Note, noteTitle: String, markedup: Markedup) {
         
-        var titleToDisplay = pop.toXML(parms.streamlinedTitle(note: note))
+        var titleToDisplay = pop.toXML(parms.compoundTitle(note: note))
         
-        if parms.streamlined && parms.included.on && note.klass.quote && note.hasAuthor() {
+        if parms.displayMode == .streamlinedReading && parms.included.on && note.klass.quote && note.hasAuthor() {
             let titleMarkup = Markedup(format: parms.format)
             titleMarkup.noDoc()
             titleMarkup.append("\(note.author.firstNameFirst): ")
@@ -602,7 +602,7 @@ public class NoteFieldsToHTML {
     }
     
     func displayLink(_ field: NoteField, markedup: Markedup) {
-        if parms.streamlined {
+        if parms.reducedDisplay {
             if field.def.fieldLabel.commonForm == NotenikConstants.imageCreditLinkCommon {
                 return
             }

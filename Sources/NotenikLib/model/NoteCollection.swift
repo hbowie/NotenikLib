@@ -47,7 +47,7 @@ public class NoteCollection {
 
     public  var bodyLabel = true
     public  var titleDisplayOption: LineDisplayOption = .pBold
-    public  var streamlined = false
+    public  var displayMode: DisplayMode = .normal
     public  var mathJax = false
     public  var imgLocal = false
     public  var missingTargets = false

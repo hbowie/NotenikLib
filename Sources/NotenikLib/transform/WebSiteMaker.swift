@@ -94,7 +94,7 @@ public class WebSiteMaker {
         parms.setCSS(useFirst: collection.displayCSS, useSecond: displayPrefs.displayCSS)
         parms.format = .htmlDoc
         parms.sortParm = .seqPlusTitle
-        parms.streamlined = true
+        parms.displayMode = .streamlinedReading
         parms.wikiLinks.set(format: .fileName, prefix: "", suffix: "." + htmlFileExt)
         parms.mathJax = collection.mathJax
         parms.localMj = false

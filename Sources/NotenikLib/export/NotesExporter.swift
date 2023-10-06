@@ -843,7 +843,7 @@ public class NotesExporter {
             break
         }
         displayParms.sortParm = collection.sortParm
-        displayParms.streamlined = collection.streamlined
+        displayParms.displayMode = collection.displayMode
         displayParms.wikiLinks.prefix = "#"
         displayParms.wikiLinks.format = .fileName
         displayParms.wikiLinks.suffix = ""

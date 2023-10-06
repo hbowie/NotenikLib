@@ -262,7 +262,7 @@ public class FileIO: NotenikIO, RowConsumer {
         str.append(label: NotenikConstants.mirrorAutoIndex,   value: "\(collection!.mirrorAutoIndex)")
         str.append(label: NotenikConstants.bodyLabelDisplay,  value: "\(collection!.bodyLabel)")
         str.append(label: NotenikConstants.titleDisplayOpt,   value: "\(collection!.titleDisplayOption.rawValue)")
-        str.append(label: NotenikConstants.streamlinedReading, value: "\(collection!.streamlined)")
+        str.append(label: NotenikConstants.displayMode,       value: collection!.displayMode.rawValue)
         str.append(label: NotenikConstants.mathJax, value: "\(collection!.mathJax)")
         str.append(label: NotenikConstants.imgLocal, value: "\(collection!.imgLocal)")
         str.append(label: NotenikConstants.missingTargets, value: "\(collection!.missingTargets)")
@@ -655,10 +655,12 @@ public class FileIO: NotenikIO, RowConsumer {
             }
         }
         
-        let streamlinedField = infoNote.getField(label: NotenikConstants.streamlinedReadingCommon)
-        if streamlinedField != nil {
-            let streamlined = BooleanValue(streamlinedField!.value.value)
-            collection!.streamlined = streamlined.isTrue
+        let displayModeField = infoNote.getField(label: NotenikConstants.displayModeCommon)
+        if displayModeField != nil {
+            let displayMode = DisplayMode(rawValue: displayModeField!.value.value)
+            if displayMode != nil {
+                collection!.displayMode = displayMode!
+            }
         }
         
         let mathJaxField = infoNote.getField(label: NotenikConstants.mathJax)

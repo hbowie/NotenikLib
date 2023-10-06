@@ -264,7 +264,7 @@ public class WebBookMaker {
             parms.format = .htmlDoc
         }
         parms.sortParm = .seqPlusTitle
-        parms.streamlined = true
+        parms.displayMode = .streamlinedReading
         parms.wikiLinks.set(format: .fileName, prefix: "", suffix: "." + htmlFileExt)
         parms.mathJax = collection.mathJax
         parms.localMj = false
@@ -606,9 +606,11 @@ public class WebBookMaker {
                 } else if levelInt == tocLevel2 {
                     addToTableOfContents(level: 2, href: fileName + "." + htmlFileExt, note: note)
                 }
-                if !display.mkdownContext.javaScript.isEmpty {
+                if display.mkdownContext == nil {
+                    communicateError("Attempt to generate for Note titled \(note.title.value) witn nil MkdownContext")
+                } else if !display.mkdownContext!.javaScript.isEmpty {
                     let jsURL = URL(fileURLWithPath: fileName, relativeTo: jsFolder).appendingPathExtension(jsFileExt)
-                    let jsWritten = FileUtils.saveToDisk(strToWrite: display.mkdownContext.javaScript,
+                    let jsWritten = FileUtils.saveToDisk(strToWrite: display.mkdownContext!.javaScript,
                                                          outputURL: jsURL,
                                                          createDirectories: true,
                                                          checkForChanges: false)

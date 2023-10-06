@@ -22,7 +22,7 @@ public class NoteDisplay {
     
     public var parms = DisplayParms()
     public var mkdownOptions = MkdownOptions()
-    public var mkdownContext: NotesMkdownContext!
+    public var mkdownContext: NotesMkdownContext?
     
     var includedNotes: [String] = []
     var mdBodyParser: MkdownParser?
@@ -47,7 +47,7 @@ public class NoteDisplay {
             let noteBody = noteWithCommand.body.value
             parms.setMkdownOptions(mkdownOptions)
             mkdownContext = NotesMkdownContext(io: io, displayParms: parms)
-            mkdownContext.setTitleToParse(title: noteTitle,
+            mkdownContext!.setTitleToParse(title: noteTitle,
                                           shortID: noteWithCommand.shortID.value)
             mdBodyParser = MkdownParser(noteBody, options: mkdownOptions)
             mdBodyParser!.setWikiLinkFormatting(prefix: parms.wikiLinks.prefix,
@@ -56,7 +56,7 @@ public class NoteDisplay {
                                                 context: mkdownContext)
             mdBodyParser!.parse()
             
-            noteWithCommand.mkdownCommandList = mkdownContext.mkdownCommandList
+            noteWithCommand.mkdownCommandList = mkdownContext!.mkdownCommandList
             noteWithCommand.mkdownCommandList.updateWith(body: noteBody, html: mdBodyParser!.html)
             collection.mkdownCommandList.updateWith(noteList: noteWithCommand.mkdownCommandList)
         }
@@ -132,7 +132,7 @@ public class NoteDisplay {
     /// If we have a note level greater than 1, then try to display the preceding Note just higher in
     /// the implied hierarchy.
     func formatTopOfPage(_ note: Note, io: NotenikIO) -> String {
-        guard parms.streamlined else { return "" }
+        guard parms.displayMode == .streamlinedReading else { return "" }
         guard !parms.concatenated else { return "" }
         guard !parms.epub3 else { return "" }
         guard note.hasLevel() else { return "" }
@@ -229,7 +229,7 @@ public class NoteDisplay {
     func formatBottomOfPage(_ note: Note, io: NotenikIO) -> String {
         
         // See if we meet necessary conditions.
-        guard parms.streamlined else { return "" }
+        guard parms.displayMode != .normal else { return "" }
         guard !parms.concatenated else { return ""}
         guard note.collection.seqFieldDef != nil else { return "" }
         let sortParm = parms.sortParm
@@ -280,10 +280,14 @@ public class NoteDisplay {
         if !parms.epub3 {
             if nextTitle.isEmpty {
                 backToTop(io: io, bottomHTML: bottomHTML)
-            } else {
+            } else if parms.displayMode == .streamlinedReading {
                 bottomHTML.startParagraph()
                 bottomHTML.append("Next: ")
                 bottomHTML.link(text: nextTitle, path: parms.wikiLinks.assembleWikiLink(title: nextTitle), klass: Markedup.htmlClassNavLink)
+                bottomHTML.finishParagraph()
+            } else if parms.displayMode == .presentation {
+                bottomHTML.startParagraph()
+                bottomHTML.link(text: "Next", path: parms.wikiLinks.assembleWikiLink(title: nextTitle), klass: Markedup.htmlClassNavLink)
                 bottomHTML.finishParagraph()
             }
         }
@@ -475,7 +479,7 @@ public class NoteDisplay {
         mkdownContext = NotesMkdownContext(io: io, displayParms: parms)
         let code = Markedup(format: parms.format)
         if field.def == collection.titleFieldDef {
-            mkdownContext.setTitleToParse(title: field.value.value, shortID: note.shortID.value)
+            mkdownContext!.setTitleToParse(title: field.value.value, shortID: note.shortID.value)
             code.displayLine(opt: collection.titleDisplayOption,
                              text: field.value.value,
                              depth: note.depth,
@@ -498,7 +502,7 @@ public class NoteDisplay {
                 if AppPrefs.shared.parseUsingNotenik {
                     code.append(mdBodyParser!.html)
                 } else {
-                    code.append(parseMarkdown(field.value.value, context: mkdownContext))
+                    code.append(parseMarkdown(field.value.value, context: mkdownContext!))
                 }
             } else {
                 code.append(field.value.value)
@@ -528,7 +532,7 @@ public class NoteDisplay {
             code.append(": ")
             code.finishParagraph()
             if parms.formatIsHTML {
-                code.append(parseMarkdown(field.value.value, context: mkdownContext))
+                code.append(parseMarkdown(field.value.value, context: mkdownContext!))
             } else {
                 code.append(field.value.value)
                 code.newLine()
