@@ -238,6 +238,7 @@ public class NoteDisplay {
         let bottomHTML = Markedup()
         
         let currentPosition = io.positionOfNote(note)
+        let currDepth = note.depth
         var (nextNote, nextPosition) = nextNote(startingPosition: currentPosition, startingNote: note, passedIO: io)
         guard nextPosition.valid && nextNote != nil else {
             backToTop(io: io, bottomHTML: bottomHTML)
@@ -247,6 +248,10 @@ public class NoteDisplay {
         var nextTitle = nextNote!.title.value
         var nextLevel = nextNote!.level
         var nextSeq = nextNote!.seq
+        var nextDepth = nextNote!.depth
+        
+        var skipTitleWithSeq = ""
+        var skipTitle = ""
         
         if note.collection.levelFieldDef != nil {
             let includeChildren = note.includeChildren
@@ -264,6 +269,7 @@ public class NoteDisplay {
                 nextTitle = nextNote!.title.value
                 nextLevel = nextNote!.level
                 nextSeq = nextNote!.seq
+                nextDepth = nextNote!.depth
                 if !note.collection.skipContentsForParent {
                     formatToCforBottom(note,
                                        io: io,
@@ -277,14 +283,33 @@ public class NoteDisplay {
                 nextTitle = ""
             }
         }
+        
+        if parms.displayMode == .streamlinedReading && nextNote != nil && !nextTitle.isEmpty && nextDepth > currDepth {
+            (skipTitleWithSeq, skipTitle) = skipDetails(note, io: io, nextNote: nextNote!, nextPosition: nextPosition)
+        }
+        
         if !parms.epub3 {
             if nextTitle.isEmpty {
                 backToTop(io: io, bottomHTML: bottomHTML)
             } else if parms.displayMode == .streamlinedReading {
-                bottomHTML.startParagraph()
+                bottomHTML.startDiv(klass: nil)
+                if !skipTitle.isEmpty {
+                    bottomHTML.startParagraph(klass: "float-left")
+                } else {
+                    bottomHTML.startParagraph()
+                }
                 bottomHTML.append("Next: ")
                 bottomHTML.link(text: nextTitle, path: parms.wikiLinks.assembleWikiLink(title: nextTitle), klass: Markedup.htmlClassNavLink)
                 bottomHTML.finishParagraph()
+                if !skipTitle.isEmpty {
+                    bottomHTML.startParagraph(klass: "float-right")
+                    bottomHTML.append("Skip to: ")
+                    bottomHTML.link(text: skipTitleWithSeq,
+                                    path: parms.wikiLinks.assembleWikiLink(title: skipTitle),
+                                    klass: Markedup.htmlClassNavLink)
+                    bottomHTML.finishParagraph()
+                }
+                bottomHTML.finishDiv()
             } else if parms.displayMode == .presentation {
                 bottomHTML.startParagraph()
                 bottomHTML.link(text: "Next", path: parms.wikiLinks.assembleWikiLink(title: nextTitle), klass: Markedup.htmlClassNavLink)
@@ -320,6 +345,32 @@ public class NoteDisplay {
         bottomHTML.append("Back to Top: ")
         bottomHTML.link(text: firstTitle, path: parms.wikiLinks.assembleWikiLink(title: firstTitle), klass: Markedup.htmlClassNavLink)
         bottomHTML.finishParagraph()
+    }
+    
+    func skipDetails(_ note: Note,
+                     io: NotenikIO,
+                     nextNote: Note,
+                     nextPosition: NotePosition) -> (String, String) {
+        
+        let startingDepth = note.depth
+        var followingNote: Note?
+        followingNote = nextNote
+        var followingPosition = nextPosition
+        var followingDepth = nextNote.depth
+        
+        while followingNote != nil && followingPosition.valid && followingDepth > startingDepth {
+            let (nextUpNote, nextUpPosition) = io.nextNote(followingPosition)
+            followingNote = nextUpNote
+            followingPosition = nextUpPosition
+            if followingNote != nil {
+                followingDepth = followingNote!.depth
+            }
+        }
+        if followingNote != nil {
+            return (followingNote!.getTitle(withSeq: true, formattedSeq: true), followingNote!.title.value)
+        } else {
+            return ("", "")
+        }
     }
     
     func formatIncludedChildren(_ note: Note,

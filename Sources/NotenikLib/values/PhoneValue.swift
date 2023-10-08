@@ -38,7 +38,7 @@ public class PhoneValue: StringValue {
                     parsingStage = .transition
                 } else {
                     self.value.append(c)
-                    if c == "+" || c.isNumber {
+                    if c == "+" || c == "," || c.isNumber {
                         calcTelValue.append(c)
                     }
                 }
@@ -47,7 +47,7 @@ public class PhoneValue: StringValue {
                     parsingStage = .link
                 }
             case .link:
-                if c == "+" || c.isNumber {
+                if c == "+" || c == "," || c.isNumber {
                     telValue.append(c)
                 }
             }

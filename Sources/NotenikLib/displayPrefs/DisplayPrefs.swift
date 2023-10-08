@@ -305,6 +305,7 @@ public class DisplayPrefs {
         }
         
         footer {
+            clear: both;
             border-top: 1px dashed var(--text-color);
             margin-top: 1em;
             font-size: 0.8em;
@@ -314,6 +315,14 @@ public class DisplayPrefs {
         
         footer p {
             padding-top: 0.5em;
+        }
+        
+        .float-left {
+            float: left;
+        }
+        
+        .float-right {
+            float: right;
         }
         
         .heading-1-details {

@@ -401,7 +401,7 @@ public class NoteFieldsToHTML {
                 break
             case NotenikConstants.displaySeqCommon:
                 break
-            case NotenikConstants.teaserCommon:
+            case NotenikConstants.teaserCommon, NotenikConstants.longTextType:
                 displayMarkdown(field, markedup: code, noteTitle: noteTitle, note: note, mkdownContext: mkdownContext)
                 if !collection.bodyLabel && note.hasBody() {
                     code.horizontalRule()

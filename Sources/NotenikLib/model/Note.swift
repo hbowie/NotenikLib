@@ -637,9 +637,13 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     ///   will have no effect.
     ///   - sep: The separator to place between the Seq and the Title. Defaults to a single space.
     /// - Returns: The title of the Note, optionally preceded by a Seq value.
-    public func getTitle(withSeq: Bool = false, sep: String = " ") -> String {
+    public func getTitle(withSeq: Bool = false, formattedSeq: Bool = false, sep: String = " ") -> String {
         if withSeq && hasSeq() && !klass.frontOrBack {
-            return seq.value + sep + title.value
+            if formattedSeq {
+                return formattedSeqForDisplay + sep + title.value
+            } else {
+                return seq.value + sep + title.value
+            }
         } else {
             return title.value
         }
