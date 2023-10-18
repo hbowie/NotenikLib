@@ -807,7 +807,7 @@ public class TemplateUtil {
             } else if charLower == "n" {
                 modifiedValue = noBreakConverter.convert(from: modifiedValue)
             } else if charLower == "o" {
-                if varNameCommon == NotenikConstants.bodyCommon && bodyHTML != nil {
+                if varNameCommon == NotenikConstants.bodyCommon && bodyHTML != nil && !bodyHTML!.isEmpty {
                     modifiedValue = bodyHTML!
                 } else if varNameCommon == NotenikConstants.wikilinksCommon {
                     modifiedValue = convertWikilinksToHTML(modifiedValue, backLinks: false)

@@ -301,7 +301,7 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     /// matching definitions and values.
     ///
     /// - Parameter note2: The Note to be updated with this Note's field values.
-    public func copyFields(to note2: Note) {
+    public func copyFields(to note2: Note, copyBlanks: Bool = true) {
 
         let dict = collection.dict
         let defs = dict.list
@@ -311,7 +311,9 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
             if field == nil && field2 == nil {
                 // Nothing to do here -- just move on
             } else if field == nil && field2 != nil {
-                field2!.value.set("")
+                if copyBlanks {
+                    field2!.value.set("")
+                }
             } else if field != nil && field2 == nil {
                 _ = note2.addField(def: definition, strValue: field!.value.value)
             } else {

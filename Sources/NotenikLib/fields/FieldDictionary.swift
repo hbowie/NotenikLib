@@ -50,6 +50,22 @@ public class FieldDictionary {
         locked = false
     }
     
+    public func checkTitle() {
+        var i = 0
+        var titleIx = -1
+        for def in list {
+            if def.fieldType.typeString == NotenikConstants.titleCommon  && i > 0 {
+                titleIx = i
+            }
+            i += 1
+        }
+        if titleIx > 0 {
+            let titleDef = list[titleIx]
+            list.remove(at: titleIx)
+            list.insert(titleDef, at: 0)
+        }
+    }
+    
     /// Does the dictionary contain a definition for this field label?
     public func contains (_ def: FieldDefinition) -> Bool {
         let def = dict[def.fieldLabel.commonForm]
