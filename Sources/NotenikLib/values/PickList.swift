@@ -145,6 +145,34 @@ public class PickList {
         return value
     }
     
+    public func getTypeWithValues(type: String = "pick-from") -> String {
+        var str = "<\(type): "
+        var valueIndex = 0
+        for value in values {
+            if valueIndex > 0 {
+                str.append(", ")
+            }
+            str.append(String(describing: value))
+            valueIndex += 1
+        }
+        str.append(" >")
+        return str
+    }
+    
+    public func getValueString() -> String {
+        var str = ""
+        var valueIndex = 0
+        for value in values {
+            if valueIndex > 0 {
+                str.append(", ")
+            }
+            str.append(String(describing: value))
+            valueIndex += 1
+        }
+        return str
+    }
+    
+    /*
     public var valueString: String {
         var str = "pick-from: "
         var valueIndex = 0
@@ -156,7 +184,7 @@ public class PickList {
             valueIndex += 1
         }
         return str
-    }
+    } */
     
     public func itemAt(index: Int) -> StringValue? {
         if index < 0 || index >= values.count {

@@ -32,18 +32,15 @@ class ApplyTemplateValues {
     /// to the Collection's dictionary, using default types based on the labels. 
     func applyValuesToDict(collection: NoteCollection) {
         
-        // print(" ")
-        // print("ApplyValue start")
-        
         self.collection = collection
         self.dict = collection.dict
-        // dict.display()
         
         collection.dateCount = 0
         collection.linkCount = 0
         
         collection.creatorFound = false
         collection.authorDef = nil
+        collection.personDef = nil
         
         collection.resetFieldInfo()
         
@@ -73,10 +70,6 @@ class ApplyTemplateValues {
         }
         
         // dict.checkTitle()
-        
-        // print(" ")
-        // print("ApplyValues finish")
-        // dict.display()
         
     } // end of func applyValuesToDict
     

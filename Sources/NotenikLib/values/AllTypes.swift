@@ -40,6 +40,7 @@ public class AllTypes {
     let longTextType = LongTextType()
     let lookupType  = LookupType()
     let minutesToReadType = MinutesToReadType()
+    let personType  = PersonType()
     let phoneType   = PhoneType()
     let pickListType = PickListType()
     let rankType    = RankType()
@@ -93,7 +94,8 @@ public class AllTypes {
     init() {
         fieldTypes.append(titleType)
         fieldTypes.append(bodyType)
-        
+        fieldTypes.append(authorType)
+        fieldTypes.append(personType)
         fieldTypes.append(addressType)
         fieldTypes.append(directionsType)
         fieldTypes.append(akaType)
@@ -104,7 +106,6 @@ public class AllTypes {
         fieldTypes.append(workTitleType)
         fieldTypes.append(workTypeType)
         fieldTypes.append(artistType)
-        fieldTypes.append(authorType)
         
         
         fieldTypes.append(booleanType)

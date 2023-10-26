@@ -132,6 +132,9 @@ public class CollectionRelocation {
             toDef.typeCatalog = def.typeCatalog
             toDef.fieldType = def.fieldType
             toDef.lookupFrom = def.lookupFrom
+            if let picks = def.pickList {
+                toDef.pickList = PickList(values: picks.getValueString(), forceLowercase: picks.forceLowercase)
+            }
             if let addedDef = toDict.addDef(toDef) {
                 toCollection?.registerDef(addedDef)
             }
@@ -141,6 +144,7 @@ public class CollectionRelocation {
             return false
         }
         logInfo("New Collection successfully initialized at \(toPath)")
+        toDict.display()
         
         // Copy/move the notes between Collections.
         var (nextNote, position) = fromIO.firstNote()

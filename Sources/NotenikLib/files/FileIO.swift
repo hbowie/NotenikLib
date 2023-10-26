@@ -336,7 +336,9 @@ public class FileIO: NotenikIO, RowConsumer {
                 } else if def.fieldType.typeString == NotenikConstants.lookupType {
                     value = "<lookup: \(def.lookupFrom)>"
                 } else if def.pickList != nil && def.fieldType.typeString != NotenikConstants.authorCommon {
-                    value = def.pickList!.valueString
+                    value = def.pickList!.getTypeWithValues(type: def.fieldType.typeString)
+                } else if def.pickList != nil && def.fieldType.typeString == NotenikConstants.pickFromType {
+                    value = def.pickList!.getTypeWithValues()
                 } else if def.fieldType.typeString == NotenikConstants.seqCommon
                             && collection!.seqFormatter.formatStack.count > 0 {
                     value = "<seq: \(collection!.seqFormatter.toCodes())>"

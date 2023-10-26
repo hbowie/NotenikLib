@@ -571,6 +571,15 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
             return klass.sortKey
                 + date.getSortKey(sortBlankDatesLast: collection.sortBlankDatesLast)
                 + title.sortKey
+        case .lastNameFirst:
+            if collection.authorDef != nil {
+                return author.lastNameFirst
+            } else if collection.personDef != nil && hasPerson() {
+                return person.lastNameFirst
+            } else {
+                let person = PersonValue(title.value)
+                return person.lastNameFirst
+            }
         case .custom:
             var key = ""
             for sortField in collection.customFields {
@@ -1597,6 +1606,52 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     }
     
     //
+    // Return last name first.
+    //
+    
+    public var lastNameFirst: String {
+        var val = StringValue()
+        var lnf = ""
+        switch collection.lastNameFirstConfig {
+        case .author:
+            lnf = author.lastNameFirst
+        case .person:
+            lnf = person.lastNameFirst
+        case .title:
+            let pv = PersonValue(title.value)
+            val = pv
+            lnf = pv.lastNameFirst
+        case .kindPlusPerson:
+            let kind = getFieldAsString(label: "kind")
+            if kind == "org" {
+                val = person
+                if person.isEmpty {
+                    val = title
+                }
+                lnf = val.value
+            } else {
+                val = person
+                if val.isEmpty {
+                    let pv = PersonValue(title.value)
+                    val = pv
+                    lnf = pv.lastNameFirst
+                }
+            }
+        case .kindPlusTitle:
+            let kind = getFieldAsString(label: "kind")
+            if kind == "org" {
+                val = title
+                lnf = val.value
+            } else {
+                let pv = PersonValue(title.value)
+                val = pv
+                lnf = pv.lastNameFirst
+            }
+        }
+        return lnf
+    }
+    
+    //
     // Functions and variables concerning the Note's author, artist or creator.
     //
     
@@ -1645,16 +1700,64 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     
     /// Set the note's author value.
     public func setAuthor(_ author: String) -> Bool {
-        return setField(label: NotenikConstants.author, value: author)
+        if collection.authorDef != nil {
+            return setField(label: collection.authorDef!.fieldLabel.properForm, value: author)
+        } else {
+            return setField(label: NotenikConstants.author, value: author)
+        }
     }
     
-    /// Return the Note's Author Value
+    /// Return the Note's Person Value
     public var author: AuthorValue {
-        let val = getFieldAsValue(label: NotenikConstants.author)
-        if val is AuthorValue {
+        var val: StringValue?
+        if collection.authorDef != nil {
+            val = getFieldAsValue(def: collection.authorDef!)
+        } else {
+            val = getFieldAsValue(label: NotenikConstants.author)
+        }
+        if val == nil {
+            return AuthorValue()
+        } else if val is AuthorValue {
             return val as! AuthorValue
         } else {
-            return AuthorValue(val.value)
+            return AuthorValue(val!.value)
+        }
+    }
+    
+    //
+    // Functions and variables concerning the Note's person field.
+    //
+    
+    /// Return the appropriate sort key for a person
+    public var personSortKey: String {
+        return person.sortKey
+    }
+    
+    /// Does this note have a non-blank Person field?
+    func hasPerson() -> Bool {
+        return person.count > 0
+    }
+    
+    /// Set the note's person value.
+    public func setPerson(_ person: String) -> Bool {
+        return setField(label: NotenikConstants.person, value: person)
+    }
+    
+    /// Return the Note's Person Value
+    public var person: PersonValue {
+        var val: StringValue?
+        if collection.personDef != nil {
+            val = getFieldAsValue(def: collection.personDef!)
+        }
+        if val == nil {
+            val = getFieldAsValue(label: NotenikConstants.person)
+        }
+        if val == nil {
+            return PersonValue()
+        } else if val is PersonValue {
+            return val as! PersonValue
+        } else {
+            return PersonValue(val!.value)
         }
     }
     

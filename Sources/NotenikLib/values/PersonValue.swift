@@ -1,5 +1,5 @@
 //
-//  AuthorValue.swift
+//  PersonValue.swift
 //  NotenikLib
 //
 //  Created by Herb Bowie on 12/5/18.
@@ -12,7 +12,7 @@
 import Foundation
 
 /// The names associated with one or more individuals.
-public class AuthorValue: StringValue, MultiValues {
+public class PersonValue: StringValue, MultiValues {
     
     //
     // The following constants, variables and functions provide conformance to the MultiValues protocol.
@@ -25,11 +25,11 @@ public class AuthorValue: StringValue, MultiValues {
     var middleName = ""
     var prefix = ""
     var suffix = ""
-    var authors: [AuthorValue] = []
+    var people: [PersonValue] = []
     
     public var multiCount: Int {
-        if authors.count > 1 {
-            return authors.count
+        if people.count > 1 {
+            return people.count
         } else if self.value.isEmpty {
             return 0
         } else {
@@ -43,8 +43,8 @@ public class AuthorValue: StringValue, MultiValues {
         
         guard index >= 0 else { return nil }
         guard index < multiCount else { return nil }
-        if index > 0 || authors.count > 1 {
-            return authors[index].firstNameFirst
+        if index > 0 || people.count > 1 {
+            return people[index].firstNameFirst
         } else {
             return getCompleteName()
         }
@@ -82,12 +82,12 @@ public class AuthorValue: StringValue, MultiValues {
     var firstNameFirst: String {
         var fnf = ""
         var i = 0
-        if authors.count > 0 {
-            for person in authors {
+        if people.count > 0 {
+            for person in people {
                 fnf.append(person.firstNameFirst)
-                if i < (authors.count - 2) {
+                if i < (people.count - 2) {
                     fnf.append(", ")
-                } else if i == (authors.count - 2) {
+                } else if i == (people.count - 2) {
                     fnf.append(" and ")
                 }
                 i += 1
@@ -107,9 +107,9 @@ public class AuthorValue: StringValue, MultiValues {
     }
     
     var lastNameOrNames: String {
-        if authors.count > 0 {
+        if people.count > 0 {
             var lastNames = ""
-            for person in authors {
+            for person in people {
                 if lastNames.count > 0 {
                     lastNames.append(", ")
                 }
@@ -125,12 +125,12 @@ public class AuthorValue: StringValue, MultiValues {
     var lastNameFirst: String {
         var lnf = ""
         var i = 0
-        if authors.count > 0 {
-            for person in authors {
+        if people.count > 0 {
+            for person in people {
                 lnf.append(person.lastNameFirst)
-                if i < (authors.count - 2) {
+                if i < (people.count - 2) {
                     lnf.append(", ")
-                } else if i == (authors.count - 2) {
+                } else if i == (people.count - 2) {
                     lnf.append(" and ")
                 }
                 i += 1
@@ -156,8 +156,8 @@ public class AuthorValue: StringValue, MultiValues {
     
     /// Return the number of people.
     var peopleCount: Int {
-        if authors.count > 1 {
-            return authors.count
+        if people.count > 1 {
+            return people.count
         } else if count > 0 {
             return 1
         } else {
@@ -172,8 +172,8 @@ public class AuthorValue: StringValue, MultiValues {
     
     /// Get the first name of the first or only person.
     func getFirstName() -> String {
-        if authors.count > 0 {
-            return authors[0].firstName
+        if people.count > 0 {
+            return people[0].firstName
         } else {
             return self.firstName
         }
@@ -181,8 +181,8 @@ public class AuthorValue: StringValue, MultiValues {
     
     /// Get the last name of the first or only person.
     func getLastName() -> String {
-        if authors.count > 0 {
-            return authors[0].lastName
+        if people.count > 0 {
+            return people[0].lastName
         } else {
             return self.lastName
         }
@@ -190,21 +190,21 @@ public class AuthorValue: StringValue, MultiValues {
     
     /// Get the suffix of the first or only person.
     func getSuffix() -> String {
-        if authors.count > 0 {
-            return authors[0].suffix
+        if people.count > 0 {
+            return people[0].suffix
         } else {
             return self.suffix
         }
     }
     
     /// Get person number i from a list of people, where the first is numbered zero
-    func getSubPerson(_ i: Int) -> AuthorValue? {
-        if i == 0 && authors.count == 0 {
+    func getSubPerson(_ i: Int) -> PersonValue? {
+        if i == 0 && people.count == 0 {
             return self
-        } else if i < 0 || i >= authors.count {
+        } else if i < 0 || i >= people.count {
             return nil
         } else {
-            return authors[i]
+            return people[i]
         }
     }
     
@@ -214,29 +214,41 @@ public class AuthorValue: StringValue, MultiValues {
         for component in nameComponents {
             switch i {
             case 0:
-                self.lastName = String(component)
+                lastName = String(component)
             case 1:
-                self.firstName = String(component)
+                firstName = String(component)
             case 2:
-                self.middleName = String(component)
+                middleName = String(component)
             case 3:
-                self.prefix = String(component)
+                prefix = String(component)
             case 4:
-                self.suffix = String(component)
+                suffix = String(component)
             default:
                 break
             }
             i += 1
         }
-        self.value = name
-        while self.value.hasSuffix(";") {
-            self.value.removeLast()
+        value = removeTrailingSeparators(from: name)
+    }
+    
+    func removeTrailingSeparators(from: String) -> String {
+        var to = from
+        var i = to.endIndex
+        var c: Character = " "
+        while i > to.startIndex && (c == " " || c == ";" || c == ",") {
+            let j = to.index(before: i)
+            if i < to.endIndex {
+                to.remove(at: i)
+            }
+            c = to[j]
+            i = j
         }
+        return to
     }
     
     /// Set the person's name from a first name and last name
     func set (lastName : String, firstName : String) {
-        authors = []
+        people = []
         self.lastName  = lastName
         self.firstName = firstName
         self.suffix    = ""
@@ -249,7 +261,7 @@ public class AuthorValue: StringValue, MultiValues {
     
     /// Set the Person's name from a first name and last name and suffix
     func set (lastName : String, firstName : String, suffix : String) {
-        authors = []
+        people = []
         self.lastName  = lastName
         self.firstName = firstName
         self.suffix    = suffix
@@ -276,7 +288,7 @@ public class AuthorValue: StringValue, MultiValues {
         self.lastName  = ""
         self.firstName = ""
         self.suffix    = ""
-        authors = []
+        people = []
         var multiplePersons = false
         
         // Scan the input string and break it down into words
@@ -330,7 +342,7 @@ public class AuthorValue: StringValue, MultiValues {
             }
             if endName && temp.count > 0 {
                 if multiplePersons {
-                    authors.append(temp.buildAuthorValue())
+                    people.append(temp.buildPersonValue())
                     temp = TempName()
                 } else {
                     self.lastName = temp.lastName
@@ -342,7 +354,7 @@ public class AuthorValue: StringValue, MultiValues {
     }
     
     func display() {
-        print("    - Author last name: \(lastName), first name: \(firstName), suffix: \(suffix)")
+        print("    - Person last name: \(lastName), first name: \(firstName), suffix: \(suffix)")
     }
     
     /// A temporary inner class for building a single name
@@ -362,11 +374,11 @@ public class AuthorValue: StringValue, MultiValues {
         }
         
         /// Generate a valid Person Value from this temporary object
-        func buildAuthorValue() -> AuthorValue {
+        func buildPersonValue() -> PersonValue {
             if lastName.count > 0 {
-                return AuthorValue(lastName: lastName, firstName: firstName, suffix: suffix)
+                return PersonValue(lastName: lastName, firstName: firstName, suffix: suffix)
             } else {
-                return AuthorValue(completeName)
+                return PersonValue(completeName)
             }
         }
         

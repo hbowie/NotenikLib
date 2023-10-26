@@ -28,6 +28,7 @@ public class NoteCollection {
     public  var dict        : FieldDictionary
     public  var hasLookupFields = false
     public  var sortParm    : NoteSortParm
+    public  var lastNameFirstConfig : LastNameFirstConfig = .title
     public  var sortDescending: Bool
     public  var sortBlankDatesLast = true
     public  var typeCatalog  = AllTypes()
@@ -95,7 +96,8 @@ public class NoteCollection {
     public  var minutesToReadDef: FieldDefinition?
     public  var shortIdDef:     FieldDefinition?
     
-            var authorDef:     FieldDefinition?
+    public  var personDef:      FieldDefinition?
+    public  var authorDef:      FieldDefinition?
             var creatorFound = false
     
             var dateCount = 0
@@ -164,6 +166,7 @@ public class NoteCollection {
         creatorFieldDef = FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.artist)
         bodyFieldDef =   FieldDefinition(typeCatalog: typeCatalog, label: NotenikConstants.body)
         
+        personDef = nil
         authorDef = nil
         creatorFound = false
 
@@ -375,6 +378,7 @@ public class NoteCollection {
                 || label.isDate
                 || label.isIndex
                 || label.isLevel
+                || label.isPerson
                 || label.isRating
                 || label.isRecurs
                 || label.isSeq
@@ -429,6 +433,7 @@ public class NoteCollection {
             attribFieldDef = def
             
         case NotenikConstants.authorCommon:
+            authorDef = def
             creatorFieldDef = def
             creatorFound = true
             
@@ -483,6 +488,11 @@ public class NoteCollection {
         case NotenikConstants.minutesToReadCommon:
             if minutesToReadDef == nil {
                 minutesToReadDef = def
+            }
+            
+        case NotenikConstants.personCommon:
+            if personDef == nil {
+                personDef = def
             }
             
         case NotenikConstants.recursCommon:
@@ -576,6 +586,20 @@ public class NoteCollection {
             if def.pickList != nil {
                 pickLists.append(def)
             }
+        }
+        
+        if dict.dict["kind"] != nil {
+            if personDef == nil {
+                lastNameFirstConfig = .kindPlusTitle
+            } else {
+                lastNameFirstConfig = .kindPlusPerson
+            }
+        } else if personDef != nil {
+            lastNameFirstConfig = .person
+        } else if authorDef != nil && authorDef != titleFieldDef {
+            lastNameFirstConfig = .author
+        } else {
+            lastNameFirstConfig = .title
         }
     }
     

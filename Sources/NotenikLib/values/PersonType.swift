@@ -10,32 +10,32 @@
 
 import Foundation
 
-class AuthorType: AnyType {
+class PersonType: AnyType {
     
     override init() {
         
         super.init()
         
         /// A string identifying this particular field type.
-        typeString  = NotenikConstants.authorCommon
+        typeString  = NotenikConstants.personCommon
         
         /// The proper label typically assigned to fields of this type.
-        properLabel = NotenikConstants.author
+        properLabel = NotenikConstants.person
         
         /// The common label typically assigned to fields of this type.
-        commonLabel = NotenikConstants.authorCommon
+        commonLabel = NotenikConstants.personCommon
     }
     
     /// A factory method to create a new value of this type with no initial value.
     override func createValue() -> StringValue {
-        return AuthorValue()
+        return PersonValue()
     }
     
     /// A factory method to create a new value of this type with the given value.
     /// - Parameter str: The value to be used to populate the field with a value.
     override func createValue(_ str: String) -> StringValue {
-        let author = AuthorValue(str)
-        return author
+        let person = PersonValue(str)
+        return person
     }
     
     /// Is this type suitable for a particular field, given its label and type (if any)?
@@ -43,23 +43,14 @@ class AuthorType: AnyType {
     /// - Parameter type: The type string (if one is available)
     override func appliesTo(label: FieldLabel, type: String?) -> Bool {
         if type == nil || type!.count == 0 {
-            switch label.commonForm {
-            case commonLabel: return true
-            case "authors": return true
-            case "by": return true
-            case "creator": return true
-            case "creators": return true
-            default: return false
+            if label.commonForm == commonLabel {
+                return true
+            } else {
+                return false
             }
         } else {
             return (type! == typeString)
         }
-    }
-    
-    /// Return an appropriate pick list (if any) for this field type.
-    /// - Returns: An instance of PickList, or nil.
-    override func genPickList() -> PickList? {
-        return AuthorPickList()
     }
     
 }

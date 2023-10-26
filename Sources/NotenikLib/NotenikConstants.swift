@@ -79,6 +79,8 @@ public struct NotenikConstants {
     static let mirrorAutoIndexCommon = "mirrorautoindex"
     static let otherFields      = "Other Fields Allowed"
     static let otherFieldsCommon = "otherfieldsallowed"
+    public static let person    = "Person"
+    public static let personCommon = "person"
     public static let phone     = "Phone"
     public static let phoneCommon = "phone"
     static let publisher        = "Publisher"

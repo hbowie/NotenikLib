@@ -34,16 +34,15 @@ public class KlassPickList: PickList {
         registerValue("title")
     }
     
-    public override var valueString: String {
-        var str = "<class:  "
-        let initialStrCount = str.count
+    public override func getTypeWithValues(type: String = "class") -> String {
+        var str = "<\(type): "
+        var valueIndex = 0
         for value in values {
-            if !value.isEmpty && value.value != " " {
-                if str.count > initialStrCount {
-                    str.append(", ")
-                }
-                str.append(String(describing: value))
+            if valueIndex > 0 {
+                str.append(", ")
             }
+            str.append(String(describing: value))
+            valueIndex += 1
         }
         str.append(" >")
         return str

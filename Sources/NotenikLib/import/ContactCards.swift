@@ -30,14 +30,15 @@ public class ContactCards {
     var vCardBegun = false
     var version = ""
     var fullName = ""
+    var name = ""
     var kind = "individual"
     var nickname = ""
     var org = ""
     var jobTitle = ""
     var birthday = ""
-    var emails: [qualifiedValue] = []
-    var phones: [qualifiedValue] = []
-    var adrs:   [qualifiedValue] = []
+    var emails: [QualifiedValue] = []
+    var phones: [QualifiedValue] = []
+    var adrs:   [QualifiedValue] = []
     var url = ""
     var body = ""
     
@@ -46,6 +47,7 @@ public class ContactCards {
 
     }
     
+    /// Parse the vCard file at the given URL, returning a stack of Notes.
     public func parse(vCards: URL, collection: NoteCollection) -> [Note] {
         self.collection = collection
         dict = collection.dict
@@ -55,6 +57,7 @@ public class ContactCards {
         return createdNotes
     }
     
+    /// Parse the passed text, and return a stack of Notes.
     public func parse(_ text: String, collection: NoteCollection) -> [Note] {
         reader = BigStringReader(text)
         self.collection = collection
@@ -63,6 +66,8 @@ public class ContactCards {
         return createdNotes
     }
     
+    /// Import the vCard file at the tiven URL, adding or updating the contacts found, and return the number of
+    /// vCards found.
     public func importCards(vCards: URL, noteIO: NotenikIO) -> Int {
         
         self.noteIO = noteIO
@@ -82,6 +87,7 @@ public class ContactCards {
         return createdNotes.count
     }
     
+    /// Parse the vCard text, creating Notes and stacking them up.
     func parse() {
         
         lockedValue = dict.locked
@@ -107,6 +113,7 @@ public class ContactCards {
         dict.locked = lockedValue
     }
             
+    /// Process what appears to be a normal vCard line.
     func normalLine(line: String) {
         let lineSplits = line.split(separator: ":")
         guard lineSplits.count >= 2 else { return }
@@ -123,9 +130,11 @@ public class ContactCards {
         labelWithData(label: label, data: data)
     }
     
+    /// Clear out the fields to be extracted.
     func clearCardData() {
         version = ""
         fullName = ""
+        name = ""
         kind = "individual"
         nickname = ""
         org = ""
@@ -138,6 +147,7 @@ public class ContactCards {
         body = ""
     }
     
+    /// Process a normal line, containing both a label and some data.
     func labelWithData(label: String, data: String) {
         let labelSplits = label.split(separator: ";")
         guard !labelSplits.isEmpty else { return }
@@ -149,7 +159,7 @@ public class ContactCards {
         }
         switch mainLabel {
         case "ADR":
-            let anotherAddress = qualifiedValue()
+            let anotherAddress = QualifiedValue()
             var i = 1
             while i < labelSplits.count {
                 anotherAddress.qualifiers.append(String(labelSplits[i]))
@@ -165,7 +175,12 @@ public class ContactCards {
         case "BDAY":
             birthday = data
         case "EMAIL":
-            let anotherEmail = qualifiedValue()
+            for email in emails {
+                if data.lowercased() == email.data.lowercased() {
+                    return
+                }
+            }
+            let anotherEmail = QualifiedValue()
             var i = 1
             while i < labelSplits.count {
                 anotherEmail.qualifiers.append(String(labelSplits[i]))
@@ -180,6 +195,11 @@ public class ContactCards {
             }
         case "FN":
             fullName = data
+            if fullName.contains(" family") || fullName.contains(" and ") || fullName.contains(" & ") {
+                kind = "family"
+            }
+        case "N":
+            name = data
         case "NICKNAME":
             nickname = data
         case "NOTE":
@@ -187,7 +207,7 @@ public class ContactCards {
         case "ORG":
             org = data
         case "TEL":
-            let anotherPhone = qualifiedValue()
+            let anotherPhone = QualifiedValue()
             var i = 1
             while i < labelSplits.count {
                 anotherPhone.qualifiers.append(String(labelSplits[i]))
@@ -210,10 +230,12 @@ public class ContactCards {
         }
     }
     
+    /// Process (or ignore) extra data.
     func extraData(line: String) {
         
     }
     
+    /// Once we hit the end of a card, process the fields we've saved.
     func finishCard() {
         guard vCardBegun else { return }
         guard !fullName.isEmpty else { return }
@@ -229,19 +251,29 @@ public class ContactCards {
         createdNotes.append(noteToUpdate!)
     }
     
+    /// Update the given note using the saved fields from one vCard.
     func updateNote(note: Note) {
-        _ =  note.setTitle(fullName)
+        _ =  note.setTitle(unescape(fullName))
+        if name != ";;;;" {
+            updateNoteField(note: note, label: "Name", value: name)
+        }
         updateNoteField(note: note, label: "Nickname", value: nickname)
-        updateNoteField(note: note, label: "Organization", value: org)
+        updateNoteField(note: note, label: "Organization", value: unescape(org))
         updateNoteField(note: note, label: "Kind", value: kind)
-        updateNoteField(note: note, label: "Job Title", value: jobTitle)
+        updateNoteField(note: note, label: "Job Title", value: unescape(jobTitle))
         updateNoteField(note: note, label: "Birthday", value: birthday)
         updateNoteField(note: note, label: NotenikConstants.link, value: url)
-        if !emails.isEmpty {
-            if emails.count == 1 {
-                updateNoteField(note: note, label: NotenikConstants.email, value: emails[0].data)
+        
+        var emailCount = 0
+        for email in emails {
+            emailCount += 1
+            var label = "Email"
+            if emailCount > 1 {
+                label = "Email-\(emailCount)"
             }
+            updateNoteField(note: note, label: label, value: email.data)
         }
+
         if !phones.isEmpty {
             if phones.count == 1 {
                 updateNoteField(note: note, label: NotenikConstants.phone, value: phones[0].data)
@@ -253,52 +285,67 @@ public class ContactCards {
             }
         }
         if !body.isEmpty {
-            var i = body.startIndex
-            var lastChar: Character = " "
-            var lastCharIndex = body.startIndex
-            var backSlashes: [String.Index] = []
-            for char in body {
-                if lastChar == "\\" {
-                    if char == ";" || char == "," {
-                        backSlashes.append(lastCharIndex)
-                    }
-                }
-                lastChar = char
-                lastCharIndex = i
-                i = body.index(after: i)
-            }
-            var j = backSlashes.count
-            while j > 0 {
-                j -= 1
-                body.remove(at: backSlashes[j])
-            }
-            let bodyLines = body.components(separatedBy: "\\n")
-            var bodyWithNewlines = ""
-            for line in bodyLines {
-                bodyWithNewlines.append(String(line))
-                bodyWithNewlines.append("\n")
-            }
-            _ = note.setBody(bodyWithNewlines)
+            _ = note.setBody(unescape(body))
         }
     }
     
+    func unescape(_ input: String) -> String {
+        var str = input
+        var i = str.startIndex
+        var lastChar: Character = " "
+        var lastCharIndex = str.startIndex
+        var backSlashes: [String.Index] = []
+        for char in str {
+            if lastChar == "\\" {
+                if char == ";" || char == "," {
+                    backSlashes.append(lastCharIndex)
+                }
+            }
+            lastChar = char
+            lastCharIndex = i
+            i = str.index(after: i)
+        }
+        var j = backSlashes.count
+        while j > 0 {
+            j -= 1
+            str.remove(at: backSlashes[j])
+        }
+        let lines = str.components(separatedBy: "\\n")
+        var output = ""
+        for line in lines {
+            if !output.isEmpty {
+                output.append("\n")
+            }
+            output.append(String(line))
+        }
+        return output
+    }
+    
+    /// Update a single note field, using the passed label and data.
     func updateNoteField(note: Note, label: String, value: String) {
+        
         guard !value.isEmpty else { return }
+        
         var def: FieldDefinition? = collection.dict.getDef(label)
+        var family: String? = nil
         if def == nil {
-            def = genFieldDef(label: label)
+            (def, family) = genFieldDef(label: label)
             if def != nil {
-                _ = dict.addDef(def!)
+                _ = dict.addDef(def!, family: family)
             }
         }
         guard def != nil else { return }
         var val = StringValue()
         if (def!.fieldType.typeString == NotenikConstants.pickFromType
-                && def!.pickList != nil) {
+            && def!.pickList != nil) {
             let pickListValue = def!.fieldType.createValue() as! PickListValue
             pickListValue.pickList = def!.pickList!
             pickListValue.set(value)
             val = pickListValue
+        } else if def!.fieldType.typeString == NotenikConstants.personCommon {
+            let pv = PersonValue()
+            pv.setFromVcardName(name: value)
+            val = pv
         } else {
             val = def!.fieldType.createValue(value)
         }
@@ -306,8 +353,10 @@ public class ContactCards {
         _ = note.setField(field)
     }
     
-    func genFieldDef(label: String) -> FieldDefinition {
+    /// If the field dictionary doesn't yet contain a definition for this field label, then let's generate one.
+    func genFieldDef(label: String) -> (FieldDefinition, String?) {
         let def = FieldDefinition(typeCatalog: collection.typeCatalog, label: label)
+        var family: String? = nil
         switch label {
         case "Birthday":
             def.fieldType = DateType()
@@ -316,12 +365,18 @@ public class ContactCards {
             def.pickList = PickList(values: "family, individual, group, org",
                                     forceLowercase: true,
                                     allowBlanks: false)
+        case "Name":
+            def.fieldType = PersonType()
         default:
-            break
+            if def.fieldLabel.commonForm.starts(with: "email") && def.fieldLabel.commonForm.count > 5 {
+                def.fieldType = EmailType()
+                family = "email"
+            }
         }
-        return def
+        return (def, family)
     }
     
+    /// Go through the created Notes, and update the Collection with them.
     func applyUpdates() {
         for vNote in createdNotes {
             let existingNote = noteIO.getNote(knownAs: vNote.title.value)
@@ -333,10 +388,12 @@ public class ContactCards {
         }
     }
     
+    /// Add a new note to the collection.
     func addNew(_ newNote: Note) {
         (_, _) = noteIO.addNote(newNote: newNote)
     }
         
+    /// Update an existing Note from the Collection.
     func updateExisting(existingNote: Note, createdNote: Note) {
         var updatedNote: Note? = Note(collection: collection)
         updatedNote = existingNote.copy() as? Note
@@ -345,7 +402,8 @@ public class ContactCards {
         _ = noteIO.modNote(oldNote: existingNote, newNote: updatedNote!)
     }
     
-    class qualifiedValue {
+    /// Contains some data with associated qualifiers.
+    class QualifiedValue {
         var qualifiers: [String] = []
         var data = ""
     }

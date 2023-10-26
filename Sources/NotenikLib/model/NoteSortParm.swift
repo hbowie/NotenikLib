@@ -26,6 +26,7 @@ public enum NoteSortParm: Int {
     case rankSeqTitle   = 11
     case klassTitle     = 12
     case klassDateTitle = 13
+    case lastNameFirst  = 14
     
     // Get or set with a String containing the raw value
     var str: String {

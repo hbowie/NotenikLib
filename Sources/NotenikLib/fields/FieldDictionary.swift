@@ -133,7 +133,7 @@ public class FieldDictionary {
     /// - Returns: The new definition just added, or the existing definition,
     ///            if the field was already in the dictionary.
     ///
-    func addDef(_ def : FieldDefinition) -> FieldDefinition? {
+    func addDef(_ def : FieldDefinition, family: String? = nil) -> FieldDefinition? {
         let common = def.fieldLabel.commonForm
         let existingDef = dict[common]
         if existingDef != nil {
@@ -142,15 +142,23 @@ public class FieldDictionary {
             return nil
         } else {
             dict [common] = def
-            if common == NotenikConstants.titleCommon {
+            if common == NotenikConstants.titleCommon
+                || def.fieldType.typeString == NotenikConstants.titleCommon {
                 if list.isEmpty {
                     list.append(def)
                 } else {
                     list.insert(def, at: 0)
                 }
-            } else if common == NotenikConstants.bodyCommon {
+            } else if common == NotenikConstants.bodyCommon
+                        || def.fieldType.typeString == NotenikConstants.bodyCommon {
                 list.append(def)
                 insertPositionFromEnd += 1
+            } else if family != nil && !family!.isEmpty {
+                var i = list.count - 1
+                while i > 1 && !list[i].fieldLabel.commonForm.starts(with: family!) {
+                    i -= 1
+                }
+                list.insert(def, at: i + 1)
             } else if insertPositionFromEnd <= 0 {
                 list.append(def)
             } else {
@@ -183,7 +191,11 @@ public class FieldDictionary {
     public func display() {
         print("FieldDictionary.display")
         for def in list {
-            print("- \(def.fieldLabel.properForm) \(def.fieldLabel.commonForm) \(def.fieldType.typeString) ")
+            var values = ""
+            if let picks = def.pickList {
+                values = picks.getValueString()
+            }
+            print("- \(def.fieldLabel.properForm) \(def.fieldLabel.commonForm) \(def.fieldType.typeString) \(values)")
         }
     }
     
