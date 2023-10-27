@@ -572,14 +572,7 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
                 + date.getSortKey(sortBlankDatesLast: collection.sortBlankDatesLast)
                 + title.sortKey
         case .lastNameFirst:
-            if collection.authorDef != nil {
-                return author.lastNameFirst
-            } else if collection.personDef != nil && hasPerson() {
-                return person.lastNameFirst
-            } else {
-                let person = PersonValue(title.value)
-                return person.lastNameFirst
-            }
+            return lastNameFirst
         case .custom:
             var key = ""
             for sortField in collection.customFields {
@@ -1610,7 +1603,6 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     //
     
     public var lastNameFirst: String {
-        var val = StringValue()
         var lnf = ""
         switch collection.lastNameFirstConfig {
         case .author:
@@ -1619,32 +1611,29 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
             lnf = person.lastNameFirst
         case .title:
             let pv = PersonValue(title.value)
-            val = pv
             lnf = pv.lastNameFirst
         case .kindPlusPerson:
             let kind = getFieldAsString(label: "kind")
             if kind == "org" {
-                val = person
                 if person.isEmpty {
-                    val = title
+                    lnf = title.value
+                } else {
+                    lnf = person.value
                 }
-                lnf = val.value
             } else {
-                val = person
-                if val.isEmpty {
+                if person.isEmpty {
                     let pv = PersonValue(title.value)
-                    val = pv
                     lnf = pv.lastNameFirst
+                } else {
+                    lnf = person.value
                 }
             }
         case .kindPlusTitle:
             let kind = getFieldAsString(label: "kind")
             if kind == "org" {
-                val = title
-                lnf = val.value
+                lnf = title.value
             } else {
                 let pv = PersonValue(title.value)
-                val = pv
                 lnf = pv.lastNameFirst
             }
         }
