@@ -36,9 +36,9 @@ public class ContactCards {
     var org = ""
     var jobTitle = ""
     var birthday = ""
-    var emails: [QualifiedValue] = []
-    var phones: [QualifiedValue] = []
-    var adrs:   [QualifiedValue] = []
+    var emails = QualifiedValues()
+    var phones = QualifiedValues()
+    var adrs   = QualifiedValues()
     var url = ""
     var body = ""
     
@@ -141,9 +141,9 @@ public class ContactCards {
         jobTitle = ""
         birthday = ""
         url = ""
-        emails = []
-        phones = []
-        adrs = []
+        emails.clear()
+        phones.clear()
+        adrs.clear()
         body = ""
     }
     
@@ -159,14 +159,7 @@ public class ContactCards {
         }
         switch mainLabel {
         case "ADR":
-            let anotherAddress = QualifiedValue()
-            var i = 1
-            while i < labelSplits.count {
-                anotherAddress.qualifiers.append(String(labelSplits[i]))
-                i += 1
-            }
-            anotherAddress.data = data
-            adrs.append(anotherAddress)
+            adrs.addAnother(data: data, labelSplits: labelSplits)
         case "BEGIN":
             if data == "VCARD" {
                 vCardBegun = true
@@ -175,19 +168,7 @@ public class ContactCards {
         case "BDAY":
             birthday = data
         case "EMAIL":
-            for email in emails {
-                if data.lowercased() == email.data.lowercased() {
-                    return
-                }
-            }
-            let anotherEmail = QualifiedValue()
-            var i = 1
-            while i < labelSplits.count {
-                anotherEmail.qualifiers.append(String(labelSplits[i]))
-                i += 1
-            }
-            anotherEmail.data = data
-            emails.append(anotherEmail)
+            emails.addAnother(data: data, labelSplits: labelSplits)
         case "END":
             if data == "VCARD" {
                 finishCard()
@@ -207,14 +188,7 @@ public class ContactCards {
         case "ORG":
             org = data
         case "TEL":
-            let anotherPhone = QualifiedValue()
-            var i = 1
-            while i < labelSplits.count {
-                anotherPhone.qualifiers.append(String(labelSplits[i]))
-                i += 1
-            }
-            anotherPhone.data = data
-            phones.append(anotherPhone)
+            phones.addAnother(data: data, labelSplits: labelSplits)
         case "TITLE":
             jobTitle = data
         case "URL":
@@ -264,26 +238,39 @@ public class ContactCards {
         updateNoteField(note: note, label: "Birthday", value: birthday)
         updateNoteField(note: note, label: NotenikConstants.link, value: url)
         
-        var emailCount = 0
-        for email in emails {
-            emailCount += 1
-            var label = "Email"
-            if emailCount > 1 {
-                label = "Email-\(emailCount)"
-            }
-            updateNoteField(note: note, label: label, value: email.data)
+        var i = 0
+        var ok = true
+        while ok {
+            ok = updateNoteField(note: note, 
+                                 labelPrefix: NotenikConstants.email,
+                                 suffixType: .number,
+                                 values: emails,
+                                 i: i)
+            i += 1
         }
-
-        if !phones.isEmpty {
-            if phones.count == 1 {
-                updateNoteField(note: note, label: NotenikConstants.phone, value: phones[0].data)
-            }
+        
+        i = 0
+        ok = true
+        while ok {
+            ok = updateNoteField(note: note,
+                                 labelPrefix: NotenikConstants.phone,
+                                 suffixType: .type,
+                                 values: phones,
+                                 i: i)
+            i += 1
         }
-        if !adrs.isEmpty {
-            if adrs.count == 1 {
-                updateNoteField(note: note, label: NotenikConstants.address, value: adrs[0].data)
-            }
+        
+        i = 0
+        ok = true
+        while ok {
+            ok = updateNoteField(note: note, 
+                                 labelPrefix: NotenikConstants.address,
+                                 suffixType: .number,
+                                 values: adrs,
+                                 i: i)
+            i += 1
         }
+        
         if !body.isEmpty {
             _ = note.setBody(unescape(body))
         }
@@ -319,6 +306,26 @@ public class ContactCards {
             output.append(String(line))
         }
         return output
+    }
+    
+    func updateNoteField(note: Note, 
+                         labelPrefix: String,
+                         suffixType: SuffixType,
+                         values: QualifiedValues,
+                         i: Int) -> Bool {
+        
+        guard i < values.count else { return false }
+        let val = values.values[i]
+        var label = labelPrefix
+        if i > 0 {
+            if suffixType == .number || val.type == .na {
+                label = "\(labelPrefix)-\(i+1)"
+            } else {
+                label = "\(labelPrefix)-\(val.type.rawValue)"
+            }
+        }
+        updateNoteField(note: note, label: label, value: val.data)
+        return true
     }
     
     /// Update a single note field, using the passed label and data.
@@ -371,6 +378,12 @@ public class ContactCards {
             if def.fieldLabel.commonForm.starts(with: "email") && def.fieldLabel.commonForm.count > 5 {
                 def.fieldType = EmailType()
                 family = "email"
+            } else if def.fieldLabel.commonForm.starts(with: "phone") && def.fieldLabel.commonForm.count > 5 {
+                def.fieldType = PhoneType()
+                family = "phone"
+            } else if def.fieldLabel.commonForm.starts(with: "address") && def.fieldLabel.commonForm.count > 7 {
+                def.fieldType = AddressType()
+                family = "address"
             }
         }
         return (def, family)
@@ -402,9 +415,96 @@ public class ContactCards {
         _ = noteIO.modNote(oldNote: existingNote, newNote: updatedNote!)
     }
     
+    // -----------------------------------------------------------
+    //
+    // MARK: Internal classes and enums
+    //
+    // -----------------------------------------------------------
+    
+    /// A set of qualified values found for a contact.
+    class QualifiedValues {
+        
+        // Variables
+        
+        var values: [QualifiedValue] = []
+        var prefFound = false
+        
+        /// Clear the variables.
+        func clear() {
+            values = []
+            prefFound = false
+        }
+        
+        /// Number of values.
+        var count: Int {
+            return values.count
+        }
+        
+        /// Do we have any values at all?
+        var isEmpty: Bool {
+            return values.isEmpty
+        }
+        
+        /// Add another value to the set.
+        func addAnother(data: String, labelSplits: [String.SubSequence]) {
+
+            // Don't store any duplicate data values.
+            for value in values {
+                if data.lowercased() == value.data.lowercased() {
+                    return
+                }
+            }
+            
+            let anotherValue = QualifiedValue()
+            var i = 1
+            var pref = false
+            while i < labelSplits.count {
+                let q = String(labelSplits[i])
+                let ql = q.lowercased()
+                switch ql {
+                case "type=pref":
+                    pref = true
+                case "type=cell":
+                    anotherValue.type = .cell
+                case "type=home":
+                    anotherValue.type = .home
+                case "type=work":
+                    anotherValue.type = .work
+                default:
+                    break
+                }
+                anotherValue.qualifiers.append(q)
+                i += 1
+            }
+            anotherValue.data = data
+            if pref && !values.isEmpty && !prefFound {
+                values.insert(anotherValue, at: 0)
+            } else {
+                values.append(anotherValue)
+            }
+            if pref {
+                prefFound = true
+            }
+        }
+        
+    }
+    
+    enum ValueType: String {
+        case na   = "n/a"
+        case home = "home"
+        case work = "work"
+        case cell = "cell"
+    }
+    
+    enum SuffixType {
+        case number
+        case type
+    }
+    
     /// Contains some data with associated qualifiers.
     class QualifiedValue {
         var qualifiers: [String] = []
+        var type: ValueType = .na
         var data = ""
     }
     
