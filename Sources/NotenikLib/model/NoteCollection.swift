@@ -61,7 +61,8 @@ public class NoteCollection {
     public  var displayTemplate = ""
     public  var displayCSS = ""
     
-    public  var seqFormatter = SeqFormatter()
+    public  var seqFormatter =  SeqFormatter()
+    public  var linkFormatter = LinkFormatter()
     
     // Store some key and singular field definitions for easy access.
     public  var addressFieldDef: FieldDefinition?

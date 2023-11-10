@@ -340,7 +340,7 @@ public class NoteFieldsToHTML {
             // code.finishEmphasis()
             // code.finishParagraph()
         } else if field.def.fieldType is LinkType {
-            displayLink(field, markedup: code)
+            displayLink(field, collection: collection, markedup: code)
         } else if field.def.fieldType is EmailType {
             displayEmail(field, markedup: code)
         } else if field.def.fieldType is PhoneType {
@@ -401,7 +401,9 @@ public class NoteFieldsToHTML {
                 break
             case NotenikConstants.displaySeqCommon:
                 break
-            case NotenikConstants.teaserCommon, NotenikConstants.longTextType:
+            case NotenikConstants.teaserCommon:
+                break
+            case NotenikConstants.longTextType:
                 displayMarkdown(field, markedup: code, noteTitle: noteTitle, note: note, mkdownContext: mkdownContext)
                 if !collection.bodyLabel && note.hasBody() {
                     code.horizontalRule()
@@ -601,7 +603,7 @@ public class NoteFieldsToHTML {
         }
     }
     
-    func displayLink(_ field: NoteField, markedup: Markedup) {
+    func displayLink(_ field: NoteField, collection: NoteCollection, markedup: Markedup) {
         if parms.reducedDisplay {
             if field.def.fieldLabel.commonForm == NotenikConstants.imageCreditLinkCommon {
                 return
@@ -611,17 +613,22 @@ public class NoteFieldsToHTML {
         markedup.append(field.def.fieldLabel.properForm)
         markedup.append(": ")
         let path = field.value.value
-        var pathDisplay = path.removingPercentEncoding
+        let displayPath = field.value.value.removingPercentEncoding
+        var pathToDisplay = displayPath
+        if let linkValue = field.value as? LinkValue {
+            pathToDisplay = collection.linkFormatter.format(link: linkValue)
+        }
         var pathForLink = ""
-        if pathDisplay == path {
+        if displayPath == path {
             pathForLink = pop.toURL(path)
         } else {
             pathForLink = path
         }
-        if pathDisplay == nil {
-            pathDisplay = path
+        if pathToDisplay == nil {
+            pathToDisplay = path
         }
-        pathDisplay = pop.toXML(pathDisplay!)
+        pathToDisplay = pop.toXML(pathToDisplay!)
+        
         var blankTarget = parms.extLinksOpenInNewWindows
         if blankTarget {
             if !(path.starts(with: "https://") || path.starts(with: "http://") || path.starts(with: "www.")) {
@@ -629,9 +636,10 @@ public class NoteFieldsToHTML {
             }
         }
         
-        markedup.link(text: pathDisplay!,
-                  path: pathForLink,
-                  blankTarget: blankTarget)
+        markedup.link(text: pathToDisplay!,
+                      path: pathForLink,
+                      klass: "ext-link",
+                      blankTarget: blankTarget)
         markedup.finishParagraph()
     }
     

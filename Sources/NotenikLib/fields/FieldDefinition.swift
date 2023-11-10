@@ -16,11 +16,11 @@ public class FieldDefinition: Comparable, CustomStringConvertible {
     
     var typeCatalog: AllTypes!
     
-    public var fieldLabel:  FieldLabel = FieldLabel()
-    public var fieldType:   AnyType = StringType()
-    public var pickList:    PickList?
-    public var comboList:   ComboList?
-    public var lookupFrom:  String = ""
+    public var fieldLabel:      FieldLabel = FieldLabel()
+    public var fieldType:       AnyType = StringType()
+    public var pickList:        PickList?
+    public var comboList:       ComboList?
+    public var lookupFrom:      String = ""
     
     /// Initialize with no parameters, defaulting to a simple String type.
     init() {

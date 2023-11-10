@@ -329,6 +329,8 @@ public class FileIO: NotenikIO, RowConsumer {
                     value = "<rank: \(collection!.rankConfig.possibleValuesAsString)>"
                 } else if def.fieldLabel.commonForm == NotenikConstants.levelCommon {
                     value = "<level: \(collection!.levelConfig.intsWithLabels)>"
+                } else if def.fieldType.typeString == NotenikConstants.linkCommon {
+                    value = "<link\(collection!.linkFormatter.toCodes(withOptionalPrefix: true))>"
                 } else if def.fieldLabel.commonForm == NotenikConstants.bodyCommon {
                     value = ""
                 } else if def.fieldType is LongTextType {

@@ -238,7 +238,7 @@ public class NoteLineParser {
             if template {
                 field.value = StringValue(value)
             } else {
-                field.value = def.fieldType.createValue(value)
+                field.setValue(value)
             }
             if field.def.fieldType.typeString == NotenikConstants.indexCommon {
                 if indexStarted {

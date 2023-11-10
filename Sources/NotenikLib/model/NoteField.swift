@@ -52,6 +52,10 @@ public class NoteField: CustomStringConvertible {
         self.value = def.fieldType.createValue(value)
     }
     
+    public func setValue(_ str: String) {
+        value = def.fieldType.createValue(str)
+    }
+    
     public var description: String {
         return "\(def.fieldLabel), type: \(type(of: value)), value: \(value.value)"
     }

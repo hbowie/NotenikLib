@@ -2052,7 +2052,7 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
         }
         var val = StringValue()
         if (def!.fieldType.typeString == NotenikConstants.pickFromType
-                && def!.pickList != nil) {
+            && def!.pickList != nil) {
             let pickListValue = def!.fieldType.createValue() as! PickListValue
             pickListValue.pickList = def!.pickList!
             pickListValue.set(value)

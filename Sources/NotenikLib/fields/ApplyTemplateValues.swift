@@ -175,5 +175,11 @@ class ApplyTemplateValues {
             }
         }
         
+        if def.fieldType.typeString == NotenikConstants.linkCommon {
+            if typeValues.count > 0 {
+                collection.linkFormatter = LinkFormatter(with: typeValues.str)
+            }
+        }
+        
     }
 } // end of class ApplyTemplateValues
