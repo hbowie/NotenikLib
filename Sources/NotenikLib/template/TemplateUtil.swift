@@ -678,9 +678,10 @@ public class TemplateUtil {
         var varyTo = ""
         
         var linkedTags = false
+        var linkedTagsStage = 0
         var linkedTagsPath = ""
-        var linkedTagsPathDone = false
         var linkedTagsClass = ""
+        var linkedTagsSep = ", "
         
         var zStage = 0
         var zPrefix = ""
@@ -722,10 +723,12 @@ public class TemplateUtil {
                 } else if varyStage == 3 && char == varyDelim {
                     varyStage = 4
                 }
-            } else if linkedTags {
+            } else if linkedTags && linkedTagsStage < 4 {
                 if char == ";" {
-                    linkedTagsPathDone = true
-                } else if linkedTagsPathDone {
+                    linkedTagsStage += 1
+                } else if linkedTagsStage == 3 {
+                    linkedTagsSep.append(char)
+                } else if linkedTagsStage == 2 {
                     linkedTagsClass.append(char)
                 } else {
                     linkedTagsPath.append(char)
@@ -785,6 +788,10 @@ public class TemplateUtil {
                 formatFileName = true
             } else if charLower == "g" {
                 linkedTags = true
+                linkedTagsStage = 1
+                linkedTagsSep = ""
+                linkedTagsPath = ""
+                linkedTagsClass = ""
             } else if charLower == "h" {
                 let markedUp = Markedup(format: .htmlFragment)
                 markedUp.parse(text: modifiedValue, startingLastCharWasWhiteSpace: true)
@@ -912,7 +919,10 @@ public class TemplateUtil {
                 && !linkedTagsPath.hasSuffix(endVar)) {
                 linkedTagsPath.append("/")
             }
-            modifiedValue = tags.getLinkedTags(parent: relative + linkedTagsPath, htmlClass: linkedTagsClass)
+            if linkedTagsSep.isEmpty {
+                linkedTagsSep = ", "
+            }
+            modifiedValue = tags.getLinkedTags(parent: relative + linkedTagsPath, htmlClass: linkedTagsClass, sep: linkedTagsSep)
         }
         
         if zStage > 0 {
@@ -1127,7 +1137,7 @@ public class TemplateUtil {
             return dataFileName.fileName
         case "datafilebasename":
             return dataFileName.base
-        case "dateparent":
+        case "dataparent":
             return dataFileName.path
         case "exportpath":
             if workspace == nil {
