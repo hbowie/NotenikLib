@@ -160,6 +160,22 @@ public class ScriptEngine: RowConsumer {
             scriptRecord(command)
         } else if command.action == .stop {
             scriptStopRecording(command)
+        } else if command.action == .include {
+            scriptInclude(command)
+        } else if command.action == .set {
+            if command.objectCommon == "lognoise" {
+                if command.valueCommon == "noisy" {
+                    workspace.scriptNoisy = true
+                } else if command.valueCommon == "quiet" {
+                    workspace.scriptNoisy = false
+                } else {
+                    logError("Script Set log noise value of \(command.valueCommon) not recognized")
+                }
+            } else {
+                logError("Script Set object of \(command.objectCommon) not recognized")
+            }
+        } else {
+            logError("Script Action of \(command.action) not recognized")
         }
     }
     
@@ -230,6 +246,27 @@ public class ScriptEngine: RowConsumer {
             return
         }
         stopRecording()
+    }
+    
+    func scriptInclude(_ command: ScriptCommand) {
+        
+        guard let scriptURL = workspace.scriptURL else {
+            logError("Script Include command encountered but no valid script file specified")
+            return
+        }
+        
+        var includeURL = scriptURL
+        includeURL.deletePathExtension()
+        includeURL.deleteLastPathComponent()
+        let fileName = command.value
+        includeURL.appendPathComponent(fileName)
+        if !fileName.hasSuffix(".tcz") {
+            includeURL.appendPathExtension("tcz")
+        }
+        
+        logInfo("Starting to include script located at \(includeURL.path) on \(DateUtils.shared.dateTimeToday)")
+        reader.include(fileURL: includeURL)
+        logInfo("Script inclusion complete on \(DateUtils.shared.dateTimeToday)")
     }
     
     func stopRecording() {

@@ -15,6 +15,7 @@ import Foundation
 public enum ScriptModule: String {
     case blank    = ""
     case comment  = "<!--"
+    case module   = "module"
     case script   = "script"
     case input    = "input"
     case filter   = "filter"

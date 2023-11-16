@@ -23,4 +23,5 @@ public protocol RowImporter {
     ///
     /// - Parameter fileURL: The URL of the file to be read.
     func read(fileURL: URL)
+    
 }

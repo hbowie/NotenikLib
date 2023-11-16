@@ -13,11 +13,13 @@ import Foundation
 
 public enum ScriptAction: String {
     case blank    = ""
+    case action   = "action"
     case add      = "add"
     case clear    = "clear"
     case epubin   = "epubin"
     case epubout  = "epubout"
     case generate = "generate"
+    case include  = "include"
     case open     = "open"
     case play     = "play"
     case record   = "record"

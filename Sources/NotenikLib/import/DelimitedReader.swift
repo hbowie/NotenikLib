@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 4/24/19.
-//  Copyright © 2019 Herb Bowie (https://powersurgepub.com)
+//  Copyright © 2019 - 2023 Herb Bowie (https://powersurgepub.com)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -24,18 +24,20 @@ public class DelimitedReader: RowImporter {
     var labels:             [String] = []
     var fields:             [String] = []
     
-    var bigString =         ""
+    var stringToRead        = ""
+    var stringToInclude     = ""
+    var skipNextChar        = false
     var lastChar:           Character = " "
-    var endCount =          0
-    var lineCount =         0
-    var fieldCount =        0
-    var charsInLine =       0
+    var endCount            = 0
+    var lineCount           = 0
+    var fieldCount          = 0
+    var charsInLine         = 0
     
-    var field =             ""
-    var pendingSpaces =     ""
+    var field               = ""
+    var pendingSpaces       = ""
     
     var delimChar:          Character = " "
-    var openQuote =         false
+    var openQuote           = false
     var openQuoteChar:      Character = " "
     
     public init() {
@@ -54,7 +56,7 @@ public class DelimitedReader: RowImporter {
     /// - Parameter fileURL: The URL of the file to be read.
     public func read(fileURL: URL) {
         do {
-            bigString = try String(contentsOf: fileURL, encoding: .utf8)
+            stringToRead = try String(contentsOf: fileURL, encoding: .utf8)
             scanString()
         } catch {
             Logger.shared.log(subsystem: "com.powersurgepub.notenik",
@@ -70,49 +72,88 @@ public class DelimitedReader: RowImporter {
         beginLine()
         beginField()
         
-        var i = bigString.startIndex
-        var skipNextChar = false
-        for c in bigString {
+        var i = stringToRead.startIndex
+        skipNextChar = false
+        for c in stringToRead {
             
-            let nextIndex = bigString.index(after: i)
+            let nextIndex = stringToRead.index(after: i)
             var nextChar: Character = " "
-            if nextIndex < bigString.endIndex {
-                nextChar = bigString[nextIndex]
+            if nextIndex < stringToRead.endIndex {
+                nextChar = stringToRead[nextIndex]
             }
-            
-            if skipNextChar {
-                skipNextChar = false
-            } else if openQuote {
-                if c == openQuoteChar && nextChar == openQuoteChar {
-                    appendToField(c)
-                    skipNextChar = true
-                } else if c == openQuoteChar {
-                    openQuote = false
-                } else {
-                    appendToField(c)
-                }
-            } else if c.isNewline {
-                endCount += 1
-                if lastChar.isNewline && c != lastChar && endCount <= 2 {
-                    // Skip this character -- no action needed
-                } else {
-                    endLine()
-                }
-            } else if delimChar == " " && (c == "," || c == "\t") {
-                delimChar = c
-                endField()
-            } else if c != " " && c == delimChar {
-                endField()
-            } else if field.count == 0 && (c == "'" || c == "\"") {
-                openQuoteChar = c
-                openQuote = true
+            processChar(c: c, nextChar: nextChar)
+            i = stringToRead.index(after: i)
+        }
+        endLine()
+    }
+    
+    /// Include another file and insert its contents into the sequence of
+    /// rows being passed back to the Row Consumer.
+    /// - Parameter fileURL: The URL of the file to be included.
+    func include(fileURL: URL) {
+        do {
+            stringToInclude = try String(contentsOf: fileURL, encoding: .utf8)
+            scanInclude()
+        } catch {
+            Logger.shared.log(subsystem: "com.powersurgepub.notenik",
+                              category: "DelimitedReader",
+                              level: .error,
+                              message: "Error including Delimited Text File from \(fileURL)")
+        }
+    }
+    
+    func scanInclude() {
+        
+        beginLine()
+        beginField()
+        
+        var j = stringToInclude.startIndex
+        skipNextChar = false
+        for c in stringToInclude {
+            let nextIndex = stringToInclude.index(after: j)
+            var nextChar: Character = " "
+            if nextIndex < stringToInclude.endIndex {
+                nextChar = stringToInclude[nextIndex]
+            }
+            processChar(c: c, nextChar: nextChar)
+            j = stringToInclude.index(after: j)
+        }
+        endLine()
+    }
+    
+    /// Process the next char, whether from the main file or an included file.
+    func processChar(c: Character, nextChar: Character) {
+        
+        if skipNextChar {
+            skipNextChar = false
+        } else if openQuote {
+            if c == openQuoteChar && nextChar == openQuoteChar {
+                appendToField(c)
+                skipNextChar = true
+            } else if c == openQuoteChar {
+                openQuote = false
             } else {
                 appendToField(c)
             }
-            lastChar = c
-            i = bigString.index(after: i)
+        } else if c.isNewline {
+            endCount += 1
+            if lastChar.isNewline && c != lastChar && endCount <= 2 {
+                // Skip this character -- no action needed
+            } else {
+                endLine()
+            }
+        } else if delimChar == " " && (c == "," || c == "\t") {
+            delimChar = c
+            endField()
+        } else if c != " " && c == delimChar {
+            endField()
+        } else if field.count == 0 && (c == "'" || c == "\"") {
+            openQuoteChar = c
+            openQuote = true
+        } else {
+            appendToField(c)
         }
-        endLine()
+        lastChar = c
     }
 
     /// Append the next character to the current field string, but

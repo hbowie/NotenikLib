@@ -912,7 +912,7 @@ public class TemplateUtil {
             var relative = ""
             if relativePathToRoot != nil {
                 relative = relativePathToRoot!
-            }
+            } 
             let tags = TagsValue(modifiedValue)
             if (linkedTagsPath.count > 0
                 && !linkedTagsPath.hasSuffix("/")
@@ -1118,7 +1118,9 @@ public class TemplateUtil {
         }
         
         if value == nil && varName != "relative" {
-            logError("Template Variable named \(varName) could not be found")
+            if workspace == nil || workspace!.scriptNoisy {
+                logError("Template Variable named \(varName) could not be found")
+            }
         }
         
         return value

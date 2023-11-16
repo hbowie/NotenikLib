@@ -26,6 +26,8 @@ public class ScriptWorkspace {
     
     var scriptingStage: ScriptingStage = .none
     
+    var scriptNoisy = true
+    
     public var collection  = NoteCollection()
     
     public var mkdownContext: NotesMkdownContext?

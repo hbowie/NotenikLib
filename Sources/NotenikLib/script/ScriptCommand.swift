@@ -49,6 +49,10 @@ public class ScriptCommand: CustomStringConvertible {
         }
     }
     
+    public var objectCommon: String {
+        return StringUtils.toCommon(_object)
+    }
+    
     public var value: String {
         get {
             return _value
@@ -57,6 +61,10 @@ public class ScriptCommand: CustomStringConvertible {
             _value = newValue
             valueWithPathResolved = newValue
         }
+    }
+    
+    public var valueCommon: String {
+        return StringUtils.toCommon(_value)
     }
     
     public var description: String {
