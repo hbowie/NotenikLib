@@ -254,6 +254,11 @@ public class NotesMkdownContext: MkdownContext {
         self.tocDetails = details
         guard io.collectionOpen else { return "" }
         guard let collection = io.collection else { return "" }
+        if collection.sortParm == .datePlusSeq {
+            self.levelStart = 1
+            self.levelEnd = 2
+            return datePlusSeqToC()
+        }
         collection.tocNoteID = StringUtils.toCommon(collection.titleToParse)
         hasLevel = (collection.levelFieldDef != nil)
         hasSeq = (collection.seqFieldDef != nil)
@@ -330,6 +335,102 @@ public class NotesMkdownContext: MkdownContext {
             toc.finishDetails()
         }
         toc.finishListItem()
+    }
+    
+    // -----------------------------------------------------------
+    //
+    // MARK: Generate HTML for a Date plus Seq Table of Contents.
+    //
+    // -----------------------------------------------------------
+    
+    var lastDate = ""
+    var itemCount = 0
+    var dateStarted = false
+    
+    func datePlusSeqToC() -> String {
+        guard io.collectionOpen else { return "" }
+        guard let collection = io.collection else { return "" }
+        collection.tocNoteID = StringUtils.toCommon(collection.titleToParse)
+        toc = Markedup(format: .htmlFragment)
+        datePlusSeqStartTocUnorderedList(top: true)
+        lastDate = ""
+        dateStarted = false
+        var (note, position) = io.firstNote()
+        while note != nil {
+            if note!.noteID.identifier != collection.tocNoteID {
+                datePlusSeqTocEntry(for: note!)
+            }
+            (note, position) = io.nextNote(position)
+        }
+        if dateStarted {
+            finishLastDate()
+        }
+        toc.finishUnorderedList()
+        return toc.code
+    }
+    
+    func datePlusSeqTocEntry(for note: Note) {
+        itemCount += 1
+        var dateYMD = ""
+        if let date = note.date.simpleDate {
+            dateYMD = date.ymdDate
+        }
+        if dateYMD != lastDate && dateStarted {
+            finishLastDate()
+        }
+        if dateYMD != lastDate || itemCount == 1 {
+            startNewDate(dateYMD: dateYMD, note: note)
+        }
+        var itemText = ""
+        if note.hasSeq() {
+            itemText = note.seq.valueToDisplay() + " "
+        }
+        itemText.append(note.title.value)
+        toc.startListItem()
+        toc.link(text: itemText,
+                 path: displayParms.wikiLinks.assembleWikiLink(title: note.title.value),
+                 klass: Markedup.htmlClassNavLink)
+        toc.finishListItem()
+        lastDate = dateYMD
+    }
+    
+    func startNewDate(dateYMD: String, note: Note) {
+        
+        let dateValue = note.date
+        var dateLabel = "n/a"
+        if dateYMD.count >= 8 {
+            dateLabel = dateValue.dMyWDate
+        }
+        toc.startListItem()
+        if tocDetails {
+            toc.startDetails(klass: "list-item-1-details")
+            toc.startSummary()
+        }
+        toc.link(text: dateLabel,
+                 path: displayParms.wikiLinks.assembleWikiLink(title: note.title.value),
+                 klass: Markedup.htmlClassNavLink)
+        if tocDetails {
+            toc.finishSummary()
+        }
+        datePlusSeqStartTocUnorderedList(top: false)
+        dateStarted = true
+    }
+    
+    func finishLastDate() {
+        toc.finishUnorderedList()
+        if tocDetails {
+            toc.finishDetails()
+        }
+        toc.finishListItem()
+        dateStarted = false
+    }
+    
+    func datePlusSeqStartTocUnorderedList(top: Bool) {
+        var ulKlass: String? = nil
+        if tocDetails && top {
+            ulKlass = "outline-list"
+        }
+        toc.startUnorderedList(klass: ulKlass)
     }
     
     // -----------------------------------------------------------

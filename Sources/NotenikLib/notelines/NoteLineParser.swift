@@ -150,6 +150,7 @@ public class NoteLineParser {
                 label = noteLine.label
                 def   = noteLine.definition!
                 value = noteLine.value
+                fieldNumber += 1
                 if def.fieldType.typeString == NotenikConstants.bodyCommon {
                     bodyStarted = true
                 }
@@ -190,6 +191,7 @@ public class NoteLineParser {
                 // Value with no label
                 label.set(collection.bodyFieldDef.fieldLabel.properForm)
                 label.validLabel = true
+                fieldNumber += 1
                 if let labelDef = note.collection.getDef(label: &label, allowDictAdds: allowDictAdds) {
                     def = labelDef
                     value = noteLine.line
@@ -286,7 +288,7 @@ public class NoteLineParser {
                 }
             }
             
-            fieldNumber += 1
+            // fieldNumber += 1
         }
         label = FieldLabel()
         clearValue()
