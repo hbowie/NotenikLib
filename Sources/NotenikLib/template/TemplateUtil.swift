@@ -886,10 +886,6 @@ public class TemplateUtil {
                 modifiedValue = separateVariables(from: modifiedValue, separator: char)
             }
             
-            if wordDemarcationPending {
-                modifiedValue = StringUtils.wordDemarcation(modifiedValue, caseMods: wordCaseMods, delimiter: wordDelimiter)
-            }
-            
             if separator == " " {
                 lastSeparator = " "
                 separatorPending = false
@@ -923,6 +919,10 @@ public class TemplateUtil {
                 linkedTagsSep = ", "
             }
             modifiedValue = tags.getLinkedTags(parent: relative + linkedTagsPath, htmlClass: linkedTagsClass, sep: linkedTagsSep)
+        }
+        
+        if wordDemarcationPending {
+            modifiedValue = StringUtils.wordDemarcation(modifiedValue, caseMods: wordCaseMods, delimiter: wordDelimiter)
         }
         
         if zStage > 0 {
