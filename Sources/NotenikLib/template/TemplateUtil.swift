@@ -936,8 +936,13 @@ public class TemplateUtil {
                 formatter.dateFormat = formatString
                 modifiedValue = formatter.string(from: today)
             } else {
-                let date = DateValue(modifiedValue)
-                modifiedValue = date.format(with: formatString)
+                if modifiedValue.count > 11 {
+                    let dateTime = DateTimeValue(modifiedValue)
+                    modifiedValue = dateTime.format(with: formatString)
+                } else {
+                    let date = DateValue(modifiedValue)
+                    modifiedValue = date.format(with: formatString)
+                }
             }
         }
         

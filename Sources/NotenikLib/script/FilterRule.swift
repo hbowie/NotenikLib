@@ -73,4 +73,15 @@ class FilterRule {
                           level: .error,
                           message: msg)
     }
+    
+    public func display() {
+        print("Filter Rule")
+        if field == nil {
+            print("  - Field is nil!")
+        } else {
+            print("  - Field: \(field!)")
+        }
+        print("  - Operand: \(op)")
+        print("  - To value: \(to)")
+    }
 }
