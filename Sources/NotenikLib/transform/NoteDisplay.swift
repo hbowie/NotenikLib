@@ -74,6 +74,7 @@ public class NoteDisplay {
     public func display(_ note: Note, io: NotenikIO, parms: DisplayParms, mdResults: TransformMdResults) -> String {
 
         self.parms = parms
+        self.mdResults = mdResults
 
         if note.hasShortID() {
             mkdownOptions.shortID = note.shortID.value
@@ -98,7 +99,7 @@ public class NoteDisplay {
                                        markdown: note.body.value,
                                        io: io,
                                        parms: parms,
-                                       results: mdResults,
+                                       results: self.mdResults,
                                        noteTitle: note.title.value,
                                        shortID: shortID)
             
@@ -122,7 +123,6 @@ public class NoteDisplay {
             return displayWithTemplate(note, io: io)
         } else {
             return displayWithoutTemplate(note, io: io,
-                                          results: mdResults,
                                           topOfPage: topHTML,
                                           imageWithinPage: imageHTML,
                                           bottomOfPage: bottomHTML)
@@ -490,7 +490,7 @@ public class NoteDisplay {
         template.supplyData(note,
                             dataSource: note.collection.title,
                             io: io,
-                            bodyHTML: mdResults.html,
+                            bodyHTML: mdResults.bodyHTML,
                             minutesToRead: mdResults.minutesToRead)
         let ok = template.generateOutput()
         if !ok {
@@ -505,7 +505,6 @@ public class NoteDisplay {
     /// Display the Note without use of a template.
     func displayWithoutTemplate(_ note: Note,
                                 io: NotenikIO,
-                                results: TransformMdResults,
                                 topOfPage: String,
                                 imageWithinPage: String,
                                 bottomOfPage: String) -> String {
@@ -517,7 +516,7 @@ public class NoteDisplay {
                                          parms: parms,
                                          topOfPage: topOfPage,
                                          imageWithinPage: imageWithinPage,
-                                         results: results,
+                                         results: mdResults,
                                          bottomOfPage: bottomOfPage)
     }
 
