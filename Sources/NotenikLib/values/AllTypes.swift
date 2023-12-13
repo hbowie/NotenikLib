@@ -61,7 +61,7 @@ public class AllTypes {
     let workTitleType = WorkTitleType()
     let workTypeType = WorkTypeType()
     
-    var fieldTypes: [AnyType] = []
+    public var fieldTypes: [AnyType] = []
     
     var statusValueConfig: StatusValueConfig {
         get {
@@ -155,7 +155,7 @@ public class AllTypes {
     }
     
     /// Assign a field type based on a field label and, optionally, a type string. 
-    func assignType(label: FieldLabel, type: String?) -> AnyType {
+    public func assignType(label: FieldLabel, type: String?) -> AnyType {
         
         for fieldType in fieldTypes {
             if fieldType.appliesTo(label: label, type: type) {

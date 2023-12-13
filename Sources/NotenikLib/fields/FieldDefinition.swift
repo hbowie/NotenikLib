@@ -52,7 +52,7 @@ public class FieldDefinition: Comparable, CustomStringConvertible {
     }
     
     /// Initialize with a string label and an integer type
-    convenience init (typeCatalog: AllTypes, label: String, type: String) {
+    public convenience init (typeCatalog: AllTypes, label: String, type: String) {
         self.init(typeCatalog: typeCatalog)
         fieldLabel.set(label)
         fieldType = typeCatalog.assignType(label: fieldLabel, type: type)

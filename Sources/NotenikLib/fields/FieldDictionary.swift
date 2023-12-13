@@ -13,11 +13,11 @@ public class FieldDictionary {
     
     var dict = [:] as [String: FieldDefinition]
     public var list: [FieldDefinition] = []
-    var insertPositionFromEnd = 0
+    public var insertPositionFromEnd = 0
     var locked = false
     
     /// Default initializer
-    init() {
+    public init() {
         
     }
     
@@ -133,7 +133,8 @@ public class FieldDictionary {
     /// - Returns: The new definition just added, or the existing definition,
     ///            if the field was already in the dictionary.
     ///
-    func addDef(_ def : FieldDefinition, family: String? = nil) -> FieldDefinition? {
+    public func addDef(_ def : FieldDefinition, family: String? = nil) -> FieldDefinition? {
+ 
         let common = def.fieldLabel.commonForm
         let existingDef = dict[common]
         if existingDef != nil {

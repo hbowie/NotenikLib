@@ -24,7 +24,7 @@ public class FieldLabel: CustomStringConvertible, Comparable  {
     
     }
     
-    convenience init (_ value: String) {
+    public convenience init (_ value: String) {
         self.init()
         set(value)
     }

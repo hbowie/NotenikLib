@@ -112,6 +112,8 @@ class ApplyTemplateValues {
         
         guard leftAngle == "<" && typeStrCommon.count > 0 else { return }
         
+        let originalDefTypeStr = def.fieldType.typeString
+        
         if typeStrCommon == NotenikConstants.pickFromType && def.fieldLabel.commonForm == NotenikConstants.klassCommon {
             let pickList = KlassPickList(values: typeValues.str)
             pickList.setDefaults()
@@ -143,6 +145,10 @@ class ApplyTemplateValues {
             def.fieldType = collection.typeCatalog.assignType(label: def.fieldLabel, type: typeStrCommon)
             def.pickList = def.fieldType.genPickList()
             def.comboList = def.fieldType.genComboList()
+        }
+        
+        if def.fieldType.typeString == NotenikConstants.bodyCommon && def.fieldType.typeString != originalDefTypeStr {
+            collection.dict.insertPositionFromEnd += 1
         }
         
         if def.fieldType.typeString == NotenikConstants.statusCommon {

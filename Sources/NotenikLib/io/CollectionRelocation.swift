@@ -144,7 +144,7 @@ public class CollectionRelocation {
             return false
         }
         logInfo("New Collection successfully initialized at \(toPath)")
-        toDict.display()
+        // toDict.display()
         
         // Copy/move the notes between Collections.
         var (nextNote, position) = fromIO.firstNote()
