@@ -156,13 +156,13 @@ public class NoteLineMaker {
             writer.writeLine("# \(note.title.value)")
             fieldsWritten += 1
         case .multiMarkdown:
-            putField(note.getTitleAsField(), format: note.fileInfo.format)
+            putField(note.getTitleAsField(), format: note.fileInfo.format, newLabel: note.collection.newLabelForTitle)
         case .notenik:
-            putField(note.getTitleAsField(), format: note.fileInfo.format)
+            putField(note.getTitleAsField(), format: note.fileInfo.format, newLabel: note.collection.newLabelForTitle)
         case .plainText:
             break
         default:
-            putField(note.getTitleAsField(), format: note.fileInfo.format)
+            putField(note.getTitleAsField(), format: note.fileInfo.format, newLabel: note.collection.newLabelForTitle)
         }
     }
     
@@ -216,9 +216,9 @@ public class NoteLineMaker {
         case .yaml:
             putFieldValueOnSameLine(note.body)
         case .notenik:
-            putField(note.getBodyAsField(), format: .notenik)
+            putField(note.getBodyAsField(), format: .notenik, newLabel: note.collection.newLabelForBody)
         default:
-            putField(note.getBodyAsField(), format: note.fileInfo.format)
+            putField(note.getBodyAsField(), format: note.fileInfo.format, newLabel: note.collection.newLabelForBody)
         }
         fieldsWritten += 1
     }
@@ -226,10 +226,10 @@ public class NoteLineMaker {
     /// Write a field's label and value, along with the usual Notenik formatting.
     ///
     /// - Parameter field: The Note Field to be written.
-    public func putField(_ possibleField: NoteField?, format: NoteFileFormat) {
+    public func putField(_ possibleField: NoteField?, format: NoteFileFormat, newLabel: String = "") {
         guard let field = possibleField else { return }
         guard field.value.hasData else { return }
-        putFieldName(field, format: format)
+        putFieldName(field, format: format, newLabel: newLabel)
         putFieldValue(field, format: format)
         fieldsWritten += 1
     }
@@ -237,11 +237,14 @@ public class NoteLineMaker {
     /// Write the field label to the writer, along with any necessary preceding and following text.
     ///
     /// - Parameter def: The Field Definition for the field.
-    func putFieldName(_ field: NoteField, format: NoteFileFormat) {
+    func putFieldName(_ field: NoteField, format: NoteFileFormat, newLabel: String = "") {
         if fieldsWritten > 0 && format == .notenik {
             writer.endLine()
         }
-        let proper = field.def.fieldLabel.properForm
+        var proper = field.def.fieldLabel.properForm
+        if !newLabel.isEmpty {
+            proper = newLabel
+        }
         writer.write("\(proper):")
         var usingYAMLdashLines = false
         if format == .yaml {

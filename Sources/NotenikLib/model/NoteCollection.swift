@@ -99,6 +99,10 @@ public class NoteCollection {
     
     public  var personDef:      FieldDefinition?
     public  var authorDef:      FieldDefinition?
+    
+    public  var newLabelForTitle = ""
+    public  var newLabelForBody  = ""
+    
             var creatorFound = false
     
             var dateCount = 0

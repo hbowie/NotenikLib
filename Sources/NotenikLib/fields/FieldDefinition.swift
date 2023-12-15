@@ -60,6 +60,80 @@ public class FieldDefinition: Comparable, CustomStringConvertible {
         comboList = fieldType.genComboList()
     }
     
+    public func applyTypeConfig(_ configStr: String, collection: NoteCollection) {
+        guard !configStr.isEmpty else { return }
+        switch fieldType.typeString {
+        case NotenikConstants.statusCommon:
+            let config = collection.statusConfig
+            config.set(configStr)
+            collection.typeCatalog.statusValueConfig = config
+        case NotenikConstants.rankCommon:
+            let config = collection.rankConfig
+            config.set(configStr)
+            collection.typeCatalog.rankValueConfig = config
+        case NotenikConstants.levelCommon:
+            let config = collection.levelConfig
+            config.set(configStr)
+            collection.typeCatalog.levelValueConfig = config
+        case NotenikConstants.linkCommon:
+            collection.linkFormatter = LinkFormatter(with: configStr)
+        case NotenikConstants.lookupType:
+            lookupFrom = configStr
+        case NotenikConstants.pickFromType:
+            pickList = PickList(values: configStr)
+        case NotenikConstants.klassCommon:
+            let klassPicker = KlassPickList(values: configStr)
+            klassPicker.setDefaults()
+            pickList = klassPicker
+        case NotenikConstants.comboType:
+            comboList = ComboList()
+        case NotenikConstants.seqCommon:
+            collection.seqFormatter = SeqFormatter(with: configStr)
+        case NotenikConstants.displaySeqCommon:
+            if let seqAltType = fieldType as? DisplaySeqType {
+                seqAltType.formatString = configStr
+            }
+        default:
+            break
+        }
+    }
+    
+    /// Generate a type configuration string, if one is appropriate. 
+    public func extractTypeConfig(collection: NoteCollection) -> String {
+        switch fieldType.typeString {
+        case NotenikConstants.statusCommon:
+            return collection.statusConfig.statusOptionsAsString
+        case NotenikConstants.rankCommon:
+            return collection.rankConfig.possibleValuesAsString
+        case NotenikConstants.levelCommon:
+            return collection.levelConfig.intsWithLabels
+        case NotenikConstants.linkCommon:
+            return collection.linkFormatter.toCodes(withOptionalPrefix: false)
+        case NotenikConstants.lookupType:
+            return lookupFrom
+        case NotenikConstants.pickFromType:
+            if pickList == nil {
+                return ""
+            } else {
+                return pickList!.getValueString()
+            }
+        case NotenikConstants.seqCommon:
+            if collection.seqFormatter.formatStack.count > 0 {
+                return collection.seqFormatter.toCodes()
+            } else {
+                return ""
+            }
+        case NotenikConstants.displaySeqCommon:
+            if let displaySeqType = fieldType as? DisplaySeqType {
+                return displaySeqType.formatString
+            } else {
+                return ""
+            }
+        default:
+            return ""
+        }
+    }
+    
     var isBody: Bool {
         return fieldType.isBody
     }

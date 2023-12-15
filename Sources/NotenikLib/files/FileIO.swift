@@ -353,7 +353,13 @@ public class FileIO: NotenikIO, RowConsumer {
                 } else if def.fieldType.typeString != NotenikConstants.stringType {
                     value = "<\(def.fieldType.typeString)>"
                 }
-                str.append("\(def.fieldLabel.properForm): \(value) \n\n")
+                var label = def.fieldLabel.properForm
+                if def.fieldType.typeString == NotenikConstants.titleCommon && !collection!.newLabelForTitle.isEmpty {
+                    label = collection!.newLabelForTitle
+                } else if def.fieldType.typeString == NotenikConstants.bodyCommon && !collection!.newLabelForBody.isEmpty {
+                    label = collection!.newLabelForBody
+                }
+                str.append("\(label): \(value) \n\n")
                 written[def.fieldLabel.commonForm] = def
             }
         }
