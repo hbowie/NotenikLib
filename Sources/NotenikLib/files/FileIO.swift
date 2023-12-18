@@ -358,6 +358,7 @@ public class FileIO: NotenikIO, RowConsumer {
                     label = collection!.newLabelForTitle
                 } else if def.fieldType.typeString == NotenikConstants.bodyCommon && !collection!.newLabelForBody.isEmpty {
                     label = collection!.newLabelForBody
+                    value = "<body>"
                 }
                 str.append("\(label): \(value) \n\n")
                 written[def.fieldLabel.commonForm] = def
