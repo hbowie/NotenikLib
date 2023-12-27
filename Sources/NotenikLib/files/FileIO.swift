@@ -1042,6 +1042,7 @@ public class FileIO: NotenikIO, RowConsumer {
                 reports.append(report)
             }
         }
+        reports.sort()
     }
     
     // -----------------------------------------------------------

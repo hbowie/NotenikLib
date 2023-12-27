@@ -369,8 +369,17 @@ public class DisplayPrefs {
             margin-bottom: 0.5em;
         }
         
-        ul.outline-list {
+        ul.outline-ul {
             list-style-type: none;
+        }
+        ul.outline-ul-within-details {
+            list-style-type: none;
+            margin-left: 0;
+            padding-left: 5px;
+        }
+        li.outline-li-bullet {
+            list-style-type: disc;
+            list-style-position: inside;
         }
         
         details {

@@ -34,6 +34,8 @@ public class KlassValue: StringValue {
             return true
         case NotenikConstants.titleKlass:
             return true
+        case NotenikConstants.tocKlass:
+            return true
         case NotenikConstants.workKlass:
             return true
         default:

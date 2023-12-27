@@ -239,12 +239,12 @@ public class NotesMkdownContext: MkdownContext {
         return hasLevel && hasSeq
     }
     var toc = Markedup(format: .htmlFragment)
-    var levels: [Int] = []
-    var lastLevel: Int {
-        if levels.count > 0 {
-            return levels[levels.count - 1]
+    var levelInfo: [LevelInfo] = []
+    var lastLevel: LevelInfo {
+        if levelInfo.count > 0 {
+            return levelInfo[levelInfo.count - 1]
         } else {
-            return 0
+            return LevelInfo(level: 0, hasChildren: false)
         }
     }
     
@@ -254,87 +254,29 @@ public class NotesMkdownContext: MkdownContext {
         self.tocDetails = details
         guard io.collectionOpen else { return "" }
         guard let collection = io.collection else { return "" }
+        collection.tocNoteID = StringUtils.toCommon(collection.titleToParse)
+        hasLevel = (collection.levelFieldDef != nil)
+        hasSeq = (collection.seqFieldDef != nil)
+        
         if collection.sortParm == .datePlusSeq {
             self.levelStart = 1
             self.levelEnd = 2
             return datePlusSeqToC()
+        } else if details {
+            let outliner = NoteOutliner(list: io.notesList,
+                                        levelStart: levelStart,
+                                        levelEnd: levelEnd,
+                                        skipID: collection.tocNoteID,
+                                        displayParms: displayParms)
+            return outliner.genToC(details: true).code
+        } else {
+            let outliner = NoteOutliner(list: io.notesList,
+                                        levelStart: levelStart,
+                                        levelEnd: levelEnd,
+                                        skipID: collection.tocNoteID,
+                                        displayParms: displayParms)
+            return outliner.genToC(details: false).code
         }
-        collection.tocNoteID = StringUtils.toCommon(collection.titleToParse)
-        hasLevel = (collection.levelFieldDef != nil)
-        hasSeq = (collection.seqFieldDef != nil)
-        levels = []
-        toc = Markedup(format: .htmlFragment)
-        var (note, position) = io.firstNote()
-        while note != nil {
-            if note!.noteID.identifier != collection.tocNoteID {
-                genTocEntry(for: note!)
-            }
-            (note, position) = io.nextNote(position)
-        }
-        closeTocEntries(downTo: 0)
-        return toc.code
-    }
-    
-    func genTocEntry(for note: Note) {
-        var level = note.level.getInt()
-        let seq = note.seq.value
-        if hasLevelAndSeq && level <= 1 && seq.count == 0 { return }
-        if note.klass.value == NotenikConstants.titleKlass { return }
-        if !hasLevel { level = 1 }
-        guard level >= levelStart else { return }
-        guard level <= levelEnd else { return }
-        guard note.includeInBook(epub: displayParms.epub3) else { return }
-        
-        // Manage nested lists.
-        if level < lastLevel {
-            closeTocEntries(downTo: level)
-        }
-        if level == lastLevel {
-            finishTocListItem(level: level)
-        }
-        if level > lastLevel {
-            startTocUnorderedList(level: level)
-            levels.append(level)
-        }
-        
-        // Display the next TOC entry
-        startTocListItem(note: note, level: level)
-    }
-    
-    func startTocUnorderedList(level: Int) {
-        var ulKlass: String? = nil
-        if tocDetails && level < levelEnd {
-            ulKlass = "outline-list"
-        }
-        toc.startUnorderedList(klass: ulKlass)
-    }
-    
-    func startTocListItem(note: Note, level: Int) {
-        toc.startListItem()
-        if tocDetails && level < levelEnd {
-            toc.startDetails(klass: "list-item-\(level)-details")
-            toc.startSummary()
-        }
-        displayParms.streamlinedTitleWithLink(markedup: toc, note: note, klass: Markedup.htmlClassNavLink)
-        if tocDetails && level < levelEnd {
-            toc.finishSummary()
-        }
-    }
-    
-    func closeTocEntries(downTo: Int) {
-        while lastLevel > downTo {
-            finishTocListItem(level: lastLevel)
-            toc.finishUnorderedList()
-            let top = levels.count - 1
-            levels.remove(at: top)
-        }
-    }
-    
-    func finishTocListItem(level: Int) {
-        if tocDetails && level < levelEnd {
-            toc.finishDetails()
-        }
-        toc.finishListItem()
     }
     
     // -----------------------------------------------------------
@@ -1373,6 +1315,10 @@ public class NotesMkdownContext: MkdownContext {
         return biblio.code
     }
     
+    func inPrint(_ msg: String, indent: Int) {
+        print(String(repeating: " ", count: indent) + "- " + msg)
+    }
+    
     /// Send an informational message to the log.
     func logInfo(msg: String) {
         Logger.shared.log(subsystem: "com.powersurgepub.notenik",
@@ -1388,5 +1334,15 @@ public class NotesMkdownContext: MkdownContext {
                           category: "WebBookMaker",
                           level: .error,
                           message: msg)
+    }
+    
+    class LevelInfo {
+        var level = 0
+        var hasChildren = false
+        
+        init(level: Int, hasChildren: Bool) {
+            self.level = level
+            self.hasChildren = hasChildren
+        }
     }
 }
