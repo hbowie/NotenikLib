@@ -21,6 +21,15 @@ public class MergeReport: CustomStringConvertible, Comparable {
     public var reportName = ""
     public var reportType = ""
     
+    public init() {
+        
+    }
+    
+    public init(reportName: String, reportType: String) {
+        self.reportName = reportName
+        self.reportType = reportType
+    }
+    
     public var sortKey: String {
         return reportName + "." + reportType
     }
