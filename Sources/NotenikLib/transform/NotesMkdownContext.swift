@@ -1315,6 +1315,28 @@ public class NotesMkdownContext: MkdownContext {
         return biblio.code
     }
     
+    /// Provide links to file attachments.
+    public func mkdownAttachments() -> String {
+        guard let collection = io.collection else { return "" }
+        guard !collection.titleToParse.isEmpty else { return "" }
+        guard let note = io.getNote(knownAs: collection.titleToParse) else { return "" }
+        let noteLink = note.getNotenikLink(preferringTimestamp: true)
+        guard !note.attachments.isEmpty else { return "" }
+        let html = Markedup(format: .htmlFragment)
+        html.paragraph(text: "See attached files:")
+        html.startUnorderedList(klass: nil)
+        for attachment in note.attachments {
+            html.startListItem()
+            let aLink = "\(noteLink)&attachment=\(attachment.suffix)"
+            html.startLink(path: aLink)
+            html.append(attachment.suffix + attachment.ext.originalExtWithDot)
+            html.finishLink()
+            html.finishListItem()
+        }
+        html.finishUnorderedList()
+        return html.code
+    }
+    
     func inPrint(_ msg: String, indent: Int) {
         print(String(repeating: " ", count: indent) + "- " + msg)
     }
