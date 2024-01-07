@@ -81,7 +81,7 @@ public class TemplateUtil {
     let xmlConverter = StringConverter()
     let emailSingleQuoteConverter = StringConverter()
     let noBreakConverter = StringConverter()
-    let markedup = Markedup(format: .htmlFragment)
+    // let markedup = Markedup(format: .htmlFragment)
     
     var parms = DisplayParms()
     var mkdownOptions = MkdownOptions()
@@ -1285,6 +1285,27 @@ public class TemplateUtil {
                     }
                 }
             }
+            
+            if field!.def.fieldType.typeString == NotenikConstants.lookBackType {
+                
+                let lkBkLines = MultiFileIO.shared.getLookBackLines(collectionID: note!.collection.collectionID,
+                                                                    noteID: note!.id,
+                                                                    lkBkCommonLabel: field!.def.fieldLabel.commonForm)
+                guard !lkBkLines.isEmpty else { return "" }
+                let markedup = Markedup(format: .htmlFragment)
+                markedup.startDetails(summary: field!.def.fieldLabel.properForm + ": ")
+                markedup.startUnorderedList(klass: nil)
+                for line in lkBkLines {
+                    markedup.startListItem()
+                    let openLink = "notenik://open?shortcut=\(field!.def.lookupFrom)&id=\(StringUtils.toCommon(line.noteTitle))"
+                    markedup.link(text: line.noteTitle, path: openLink)
+                    markedup.finishListItem()
+                }
+                markedup.finishUnorderedList()
+                markedup.finishDetails()
+                return markedup.code
+            }
+            
             return field!.value.value
         }
     }

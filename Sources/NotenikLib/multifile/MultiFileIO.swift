@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 8/19/21.
 
-//  Copyright © 2021 Herb Bowie (https://hbowie.net)
+//  Copyright © 2021 - 2024 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -20,9 +20,11 @@ public class MultiFileIO {
     public static let shared = MultiFileIO()
     
     // Use a Collection's shortcut as the key for the dictionary.
-    public var entries: [String : MultiFileEntry] = [:]
+    var entries: [String : MultiFileEntry] = [:]
     
     var bookmarks: [MultiFileBookmark] = []
+    
+    var lookBackTree = LookBackTree()
     
     init() {
         
@@ -34,6 +36,7 @@ public class MultiFileIO {
     //
     // -----------------------------------------------------------
     
+    /// Prepare for later lookups referencing the given collection shortcut.
     public func prepareForLookup(shortcut: String, collectionPath: String, realm: Realm) {
 
         let entry = entries[shortcut]
@@ -44,6 +47,7 @@ public class MultiFileIO {
         let _ = getFileIO(shortcut: shortcut)
     }
     
+    /// Look for the given shortcut, first in collection subfolders, then in collection peers, beneath the same parent. 
     func scanForLookupCollection(shortcut: String, collectionPath: String, realm: Realm) {
         var shortcutFound = scanFolder(shortcut: shortcut, folderPath: collectionPath, realm: realm)
         if !shortcutFound {
@@ -54,7 +58,7 @@ public class MultiFileIO {
     }
     
     /// Scan folders recursively looking for signs that they are Notenik Collections
-    func scanFolder(shortcut: String, folderPath: String, realm: Realm) -> Bool {
+    private func scanFolder(shortcut: String, folderPath: String, realm: Realm) -> Bool {
         var shortcutFound = false
         do {
             let dirContents = try FileManager.default.contentsOfDirectory(atPath: folderPath)
@@ -84,7 +88,7 @@ public class MultiFileIO {
         return shortcutFound
     }
     
-    /// Add the Info file's collection to the collection of collections.
+    /// See if the collection containing the info file is one identified by the given shortcut.
     func infoFileFound(shortcut: String, folderPath: String, itemFullPath: String, realm: Realm) -> Bool {
         var shortcutFound = false
         let folderURL = URL(fileURLWithPath: folderPath)
@@ -117,10 +121,12 @@ public class MultiFileIO {
         if !link.shortcut.isEmpty {
             id = link.shortcut
         } else if !link.folder.isEmpty {
-            id = link.folder
-        } else {
-            return
+            let folderID = StringUtils.toCommon(link.folder)
+            if folderID == link.folder {
+                id = link.folder
+            }
         }
+        guard !id.isEmpty else { return }
         let newEntry = MultiFileEntry(link: link)
         let entry = entries[id]
         if entry == nil {
@@ -142,6 +148,96 @@ public class MultiFileIO {
         } else {
             entry!.io = io
         }
+    }
+    
+    // -----------------------------------------------------------
+    //
+    // MARK: Manage lookbacks.
+    //
+    // -----------------------------------------------------------
+    
+    /// See if the passed I/O module is for a Collection with any fields of type lookback.
+    /// If it is, then build the list of lookbacks from the lookups in another collection.
+    /// - Parameter io: The I/O module for the Collection to be looked back from. 
+    public func populateLookBacks(_ lkBkIO: FileIO) {
+        guard let lkBkCollection = lkBkIO.collection else { return }
+        let lkBkCollectionID = lkBkCollection.collectionID
+        guard !lkBkCollection.lookBackDefs.isEmpty else { return }
+        for lkBkDef in lkBkCollection.lookBackDefs {
+            let lkUpCollectionID = lkBkDef.lookupFrom
+            lookBackTree.requestLookbacks(collectionID: lkUpCollectionID)
+            if let lkUpIO = getFileIO(shortcut: lkUpCollectionID) {
+                let lkUpCollection = lkUpIO.collection!
+                let lkUpLib = lkUpCollection.lib!
+                let lkUpDict = lkUpCollection.dict
+                var lkUpDef: FieldDefinition?
+                var i = 0
+                var found = false
+                while i < lkUpDict.count && !found {
+                    if let checkDef = lkUpDict[i] {
+                        if checkDef.fieldType.typeString == NotenikConstants.lookupType
+                            && checkDef.lookupFrom == lkBkCollectionID {
+                            lookBackTree.requestLookbacks(lkUpCollectionID: lkUpCollectionID,
+                                                          lkUpFieldLabel: checkDef.fieldLabel.commonForm,
+                                                          lkBkCollectionID: lkBkCollectionID,
+                                                          lkBkFieldLabel: lkBkDef.fieldLabel.commonForm)
+                            lkUpDef = checkDef
+                            found = true
+                        } else {
+                            i += 1
+                        }
+                    }
+                }
+                
+                if found {
+                    for lkUpNote in lkUpIO.notesList {
+                        if let lkUpField = lkUpNote.getField(def: lkUpDef!) {
+                            let lkUpValue = StringUtils.toCommon(lkUpField.value.value)
+                            lookBackTree.registerLookup(lkUpCollectionID: lkUpCollectionID, 
+                                                        lkUpNoteTitle: lkUpNote.title.value, 
+                                                        lkUpFieldLabel: lkUpDef!.fieldLabel.commonForm,
+                                                        lkBkCollectionID: lkBkCollectionID,
+                                                        lkBkFieldLabel: lkBkDef.fieldLabel.commonForm,
+                                                        lkUpValue: lkUpValue)
+                        }
+                    }
+                }
+            } else {
+                communicateError("Look back collection identified by \(lkBkDef.lookupFrom) could not be found")
+            }
+        }
+    }
+    
+    /// Register all the lookups in this note, for use by lookbacks in another collection.
+    /// - Parameter lkUpNote: A new note whose lookups are to be registered for later lookbacks.
+    func registerLookBacks(lkUpNote: Note) {
+    
+        lookBackTree.registerLookBacks(lkUpNote: lkUpNote)
+    }
+    
+    /// Cancel all the lookups in this note
+    /// - Parameter lkUpNote: The note containing the lookbacks to be canceled. 
+    func cancelLookBacks(lkUpNote: Note) {
+        
+        lookBackTree.cancelLookBacks(lkUpNote: lkUpNote)
+    }
+    
+    /// Get all the lookback lines for this Note and the indicated field.
+    /// - Parameters:
+    ///   - collectionID: Identifying the lookback collection.
+    ///   - noteID: Identifying the lookback note.
+    ///   - lkBkCommonLabel: Identifying the lookback field.
+    /// - Returns: An array of lookback lines. 
+    func getLookBackLines(collectionID: String, noteID: String, lkBkCommonLabel: String) -> [LookBackLine] {
+        return lookBackTree.getLookBackLines(collectionID: collectionID,
+                                             noteID: noteID,
+                                             lkBkCommonLabel: lkBkCommonLabel)
+    }
+    
+    
+    
+    public func getEntry(shortcut: String) -> MultiFileEntry? {
+        return entries[shortcut]
     }
     
     /// Attempt to get a Note from the indicated lookup Collection.
@@ -235,6 +331,8 @@ public class MultiFileIO {
     }
     
     public func display() {
+        print(" ")
+        print("MultiFileIO.display")
         for (key, entry) in entries {
             print("  - key = \(key), path = \(entry.link.path)")
             // entry.display()

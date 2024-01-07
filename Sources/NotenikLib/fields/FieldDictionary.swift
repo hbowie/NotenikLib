@@ -36,6 +36,11 @@ public class FieldDictionary {
         return (dict.count > 0)
     }
     
+    subscript(i: Int) -> FieldDefinition? {
+        guard i >= 0 && i < list.count else { return nil }
+        return list[i]
+    }
+    
     public var isLocked: Bool {
         return locked
     }

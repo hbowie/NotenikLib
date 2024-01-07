@@ -337,6 +337,8 @@ public class FileIO: NotenikIO, RowConsumer {
                     value = "<longtext>"
                 } else if def.fieldType.typeString == NotenikConstants.lookupType {
                     value = "<lookup: \(def.lookupFrom)>"
+                } else if def.fieldType.typeString == NotenikConstants.lookBackType {
+                    value = "<lookback: \(def.lookupFrom)>"
                 } else if def.pickList != nil && def.fieldType.typeString != NotenikConstants.authorCommon {
                     value = def.pickList!.getTypeWithValues(type: def.fieldType.typeString)
                 } else if def.pickList != nil && def.fieldType.typeString == NotenikConstants.pickFromType {
@@ -525,9 +527,8 @@ public class FileIO: NotenikIO, RowConsumer {
             }
             
             // Check for lookup collections.
-            for def in collection!.dict.list {
+            for def in collection!.lookupDefs {
                 if !def.lookupFrom.isEmpty {
-                    collection!.hasLookupFields = true
                     MultiFileIO.shared.prepareForLookup(shortcut: def.lookupFrom,
                                                         collectionPath: collectionPath,
                                                         realm: realm)
@@ -549,6 +550,8 @@ public class FileIO: NotenikIO, RowConsumer {
             }
 
             logInfo("Preferred Note File Format Presumed to be \(collection!.noteFileFormat)")
+            
+            MultiFileIO.shared.populateLookBacks(self)
             
             return collection
         }
@@ -1140,6 +1143,8 @@ public class FileIO: NotenikIO, RowConsumer {
         deleted = bunch!.delete(note: oldNote)
         guard deleted else { return (nil, NotePosition(index: -1)) }
         
+        MultiFileIO.shared.cancelLookBacks(lkUpNote: oldNote)
+        
         // Get New Note ready for storage.
         if collection!.hasTimestamp {
             if !newNote.hasTimestamp() {
@@ -1151,6 +1156,8 @@ public class FileIO: NotenikIO, RowConsumer {
         // Add the new note to memory.
         let added = bunch!.add(note: newNote)
         guard added else { return (nil, NotePosition(index: -1)) }
+        
+        MultiFileIO.shared.registerLookBacks(lkUpNote: newNote)
         
         // Rename the Note file if needed.
         newNote.fileInfo.genFileName()
@@ -1199,6 +1206,9 @@ public class FileIO: NotenikIO, RowConsumer {
         ensureUniqueID(for: newNote)
         let added = bunch!.add(note: newNote)
         guard added else { return (nil, NotePosition(index: -1)) }
+
+        MultiFileIO.shared.registerLookBacks(lkUpNote: newNote)
+
         newNote.fileInfo.genFileName()
         let written = writeNote(newNote)
         if !written {
@@ -1264,6 +1274,9 @@ public class FileIO: NotenikIO, RowConsumer {
         var returnPosition = priorPosition
  
         _ = bunch!.delete(note: noteToDelete!)
+        
+        MultiFileIO.shared.cancelLookBacks(lkUpNote: noteToDelete!)
+        
         if priorNote != nil {
             let (nextNote, nextPosition) = bunch!.nextNote(priorPosition)
             if nextNote != nil {
@@ -1323,6 +1336,8 @@ public class FileIO: NotenikIO, RowConsumer {
         var deleted = false
         deleted = bunch!.delete(note: noteToDelete)
         guard deleted else { return false }
+        
+        MultiFileIO.shared.cancelLookBacks(lkUpNote: noteToDelete)
 
         // Delete any attachments, unless asked to preserve them.
         if !preserveAttachments {

@@ -176,6 +176,7 @@ public struct NotenikConstants {
     public static let labelType         = "label"
     public static let longTextType      = "longtext"
     public static let lookupType        = "lookup"
+    public static let lookBackType      = "lookback"
     public static let stringType        = "string"
     public static let pickFromType      = "pickfrom"
     

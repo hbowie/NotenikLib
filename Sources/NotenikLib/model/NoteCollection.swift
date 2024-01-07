@@ -26,7 +26,6 @@ public class NoteCollection {
     public  var duplicates  = 0
             var noteType    : NoteType = .general
     public  var dict        : FieldDictionary
-    public  var hasLookupFields = false
     public  var sortParm    : NoteSortParm
     public  var lastNameFirstConfig : LastNameFirstConfig = .title
     public  var sortDescending: Bool
@@ -108,8 +107,12 @@ public class NoteCollection {
             var dateCount = 0
             var linkCount = 0
     
-            var comboDefs:     [FieldDefinition] = []
-            var pickLists:     [FieldDefinition] = []
+            var comboDefs:      [FieldDefinition] = []
+            var pickLists:      [FieldDefinition] = []
+    
+            var lookupDefs:     [FieldDefinition] = []
+            var lookBackDefs:   [FieldDefinition] = []
+    
     public  var klassDefs:     [KlassDef] = []
     public  var lastNewKlass   = ""
     public  var webBookPath    = ""

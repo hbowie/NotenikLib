@@ -38,6 +38,7 @@ public class AllTypes {
     let levelType   = LevelType()
     let linkType    = LinkType()
     let longTextType = LongTextType()
+    let lookBackType = LookBackType()
     let lookupType  = LookupType()
     let minutesToReadType = MinutesToReadType()
     let personType  = PersonType()
@@ -132,6 +133,7 @@ public class AllTypes {
         fieldTypes.append(linkType)
         fieldTypes.append(longTextType)
         fieldTypes.append(lookupType)
+        fieldTypes.append(lookBackType)
         
         fieldTypes.append(teaserType)
         fieldTypes.append(textFormatType)
@@ -192,6 +194,8 @@ public class AllTypes {
         case NotenikConstants.dateAddedCommon:
             return false
         case NotenikConstants.timestampCommon:
+            return false
+        case NotenikConstants.lookBackType:
             return false
         default:
             return true

@@ -137,6 +137,11 @@ class ApplyTemplateValues {
         } else if typeStrCommon == NotenikConstants.lookupType {
             def.fieldType = collection.typeCatalog.assignType(label: def.fieldLabel, type: typeStrCommon)
             def.lookupFrom = typeValues.str
+            collection.lookupDefs.append(def)
+        } else if typeStrCommon == NotenikConstants.lookBackType {
+            def.fieldType = collection.typeCatalog.assignType(label: def.fieldLabel, type: typeStrCommon)
+            def.lookupFrom = typeValues.str
+            collection.lookBackDefs.append(def)
         } else if typeStrCommon == NotenikConstants.displaySeqCommon && !typeValues.isEmpty {
             let seqAltType = DisplaySeqType()
             seqAltType.formatString = typeValues.str

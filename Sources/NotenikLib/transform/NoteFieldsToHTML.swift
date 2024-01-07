@@ -122,6 +122,8 @@ public class NoteFieldsToHTML {
                 if def == collection.minutesToReadDef && minutesToRead != nil {
                     let minutesToReadField = NoteField(def: def!, value: minutesToRead!)
                     code.append(display(minutesToReadField, noteTitle: noteTitle, note: note, collection: collection, io: io))
+                } else if def!.fieldType.typeString == NotenikConstants.lookBackType {
+                    displayLookBack(def: def!, note: note, markedup: code)
                 } else {
                     let field = note.getField(def: def!)
                     if field != nil && field!.value.hasData {
@@ -727,6 +729,23 @@ public class NoteFieldsToHTML {
             markedup.append(field.value.value)
             markedup.newLine()
         }
+    }
+    
+    func displayLookBack(def: FieldDefinition, note: Note, markedup: Markedup) {
+        let lkBkLines = MultiFileIO.shared.getLookBackLines(collectionID: note.collection.collectionID,
+                                                            noteID: note.id, 
+                                                            lkBkCommonLabel: def.fieldLabel.commonForm)
+        guard !lkBkLines.isEmpty else { return }
+        markedup.startDetails(summary: def.fieldLabel.properForm + ": ")
+        markedup.startUnorderedList(klass: nil)
+        for line in lkBkLines {
+            markedup.startListItem()
+            let openLink = "notenik://open?shortcut=\(def.lookupFrom)&id=\(StringUtils.toCommon(line.noteTitle))"
+            markedup.link(text: line.noteTitle, path: openLink)
+            markedup.finishListItem()
+        }
+        markedup.finishUnorderedList()
+        markedup.finishDetails()
     }
     
     /// Display a lookup field.
