@@ -168,7 +168,6 @@ public class MultiFileIO {
             lookBackTree.requestLookbacks(collectionID: lkUpCollectionID)
             if let lkUpIO = getFileIO(shortcut: lkUpCollectionID) {
                 let lkUpCollection = lkUpIO.collection!
-                let lkUpLib = lkUpCollection.lib!
                 let lkUpDict = lkUpCollection.dict
                 var lkUpDef: FieldDefinition?
                 var i = 0
