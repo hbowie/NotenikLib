@@ -41,7 +41,7 @@ public class RealmScanner {
         realmURL = URL(fileURLWithPath: path, isDirectory: true)
         
         realmIO = BunchIO()
-        realmCollection = realmIO.openCollection(realm: realm, collectionPath: "", readOnly: true)
+        realmCollection = realmIO.openCollection(realm: realm, collectionPath: "", readOnly: true, multiRequests: nil)
         
         if realmCollection != nil {
             scanFolder(folderPath: path, realm: realm)

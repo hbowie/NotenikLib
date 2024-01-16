@@ -35,12 +35,13 @@ public class NoteLinkResolver {
         resolution.result = .unresolved
         
         // See if we have a secondary folder specified.
-        let multiIO = MultiFileIO.shared
+        let multi = MultiFileIO.shared
         var targetIO = io
         if !resolution.linkPath.isEmpty {
-            if let iolinkPath = multiIO.getFileIO(shortcut: resolution.linkPath) {
-                targetIO = iolinkPath
+            let (targetCollection, tgIO) = multi.provision(shortcut: resolution.linkPath, inspector: nil, readOnly: false)
+            if targetCollection != nil {
                 resolution.resolvedPath = resolution.linkPath
+                targetIO = tgIO
             }
         }
         

@@ -14,10 +14,13 @@ import Foundation
 
 import NotenikUtils
 
+/// Lookback/Lookup info for each Collection.
 class LookBackCollection {
     
+    /// The Collection ID (shortcut or simple folder name) used to identify this Collection.
     var collectionID = ""
     
+    /// Has this Collection requested any lookbacks?
     var lookBacksRequested = false
     
     /// Dictionary of lookback field definitions, each identified by the common form

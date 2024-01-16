@@ -113,7 +113,10 @@ public protocol NotenikIO {
     /// - Parameter path: The path identifying the collection within this
     /// - Returns: A NoteCollection object, if the collection was opened successfully;
     ///            otherwise nil.
-    func openCollection(realm: Realm, collectionPath: String, readOnly: Bool) -> NoteCollection?
+    func openCollection(realm: Realm,
+                        collectionPath: String,
+                        readOnly: Bool,
+                        multiRequests: MultiFileRequestStack?) -> NoteCollection?
     
     /// Close the currently collection, if one is open
     func closeCollection()

@@ -195,7 +195,8 @@ class BunchIO: NotenikIO, RowConsumer  {
     /// - Parameter collectionPath: The path identifying the collection within this realm
     /// - Returns: A NoteCollection object, if the collection was opened successfully;
     ///            otherwise nil.
-    func openCollection(realm: Realm, collectionPath: String, readOnly: Bool) -> NoteCollection? {
+    func openCollection(realm: Realm, collectionPath: String, readOnly: Bool,
+                        multiRequests: MultiFileRequestStack? = nil) -> NoteCollection? {
         
         let initOK = initCollection(realm: realm, collectionPath: collectionPath, readOnly: readOnly)
         guard initOK else { return nil }

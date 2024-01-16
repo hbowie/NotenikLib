@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 12/14/18.
-//  Copyright © 2018 - 2023 Herb Bowie (https://hbowie.net)
+//  Copyright © 2018 - 2024 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -414,7 +414,10 @@ public class FileIO: NotenikIO, RowConsumer {
     /// - Parameter collectionPath: The path identifying the collection within this realm
     /// - Returns: A NoteCollection object, if the collection was opened successfully;
     ///            otherwise nil.
-    public func openCollection(realm: Realm, collectionPath: String, readOnly: Bool) -> NoteCollection? {
+    public func openCollection(realm: Realm, 
+                               collectionPath: String,
+                               readOnly: Bool,
+                               multiRequests: MultiFileRequestStack? = nil) -> NoteCollection? {
         
         let initOK = initCollection(realm: realm, collectionPath: collectionPath, readOnly: readOnly)
         guard initOK else { return nil }
@@ -529,9 +532,9 @@ public class FileIO: NotenikIO, RowConsumer {
             // Check for lookup collections.
             for def in collection!.lookupDefs {
                 if !def.lookupFrom.isEmpty {
-                    MultiFileIO.shared.prepareForLookup(shortcut: def.lookupFrom,
-                                                        collectionPath: collectionPath,
-                                                        realm: realm)
+                    if multiRequests != nil {
+                        multiRequests!.requestPrepForLookup(shortcut: def.lookupFrom, collectionPath: collectionPath, realm: realm)
+                    }
                 }
             }
             
@@ -550,8 +553,9 @@ public class FileIO: NotenikIO, RowConsumer {
             }
 
             logInfo("Preferred Note File Format Presumed to be \(collection!.noteFileFormat)")
-            
-            MultiFileIO.shared.populateLookBacks(self)
+            if multiRequests != nil {
+                multiRequests!.populateLookBacks(io: self)
+            }
             
             return collection
         }

@@ -217,8 +217,9 @@ public class Transmogrifier {
     func getNote(_ target: WikiLinkTarget) -> (NotenikIO?, Note?) {
         var targetIO = io
         if target.hasPath {
-            if let ioFromPath = multiIO.getFileIO(shortcut: target.path) {
-                targetIO = ioFromPath
+            let (targetCollection, maybeIO) = multiIO.provision(shortcut: target.path, inspector: nil, readOnly: false)
+            if targetCollection != nil {
+                targetIO = maybeIO
             }
         }
         let linkedNote = targetIO.getNote(forID: target.itemID)

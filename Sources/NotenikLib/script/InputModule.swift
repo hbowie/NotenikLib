@@ -158,7 +158,10 @@ class InputModule: RowConsumer {
         } else {
             collectionURL = openURL.deletingLastPathComponent()
         }
-        let collection = io.openCollection(realm: realm, collectionPath: collectionURL.path, readOnly: true)
+        let collection = io.openCollection(realm: realm,
+                                           collectionPath: collectionURL.path,
+                                           readOnly: true,
+                                           multiRequests: nil)
         if collection == nil {
             logError("Problems opening the collection at " + collectionURL.path)
             return

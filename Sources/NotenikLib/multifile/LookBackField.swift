@@ -46,7 +46,9 @@ class LookBackField {
         let newLine = LookBackLine(noteTitle: lkUpNoteTitle)
         var i = 0
         while i < lookBackLines.count {
-            if newLine == lookBackLines[i] { return }
+            if newLine == lookBackLines[i] {
+                return
+            }
             if newLine < lookBackLines[i] {
                 lookBackLines.insert(newLine, at: i)
                 return

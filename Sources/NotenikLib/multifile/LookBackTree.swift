@@ -12,8 +12,13 @@
 
 import Foundation
 
+import NotenikUtils
+
+/// The root of a tree structure enabling access to lookback information. A lookback field
+/// shows all the lookup references to that Note.
 class LookBackTree {
     
+    /// The biggest branches on the tree are the Collections with lookbacks and/or lookups. 
     var collectionDict: [String: LookBackCollection] = [:]
     
     /// Initialize a new Tree to contain lookback information.
@@ -23,6 +28,10 @@ class LookBackTree {
     
     ///
     func requestLookbacks(collectionID: String) {
+        Logger.shared.log(subsystem: "com.powersurgepub.notenik.macos",
+                          category: "LookBackTree",
+                          level: .info,
+                          message: "Lookbacks requested for collection ID of \(collectionID)")
         ensureCollection(collectionID: collectionID)
         collectionDict[collectionID]!.requestLookbacks()
     }
@@ -78,11 +87,21 @@ class LookBackTree {
                                 collectionDict[field.def.lookupFrom]!.registerLookBacks(lkUpNote: lkUpNote,
                                                                                         lkUpField: field,
                                                                                         lkBkDef: lkBkDef)
+                            } else {
+                                // print("    - lkBkDef not found!")
                             }
+                        } else {
+                            // print("    - look up from is empty")
                         }
+                    } else {
+                        // print("    - not a lookup field type")
                     }
                 }
+            } else {
+                // print("  - No lookbacks requested for this collection")
             }
+        } else {
+            // print("  - lkUpCollection not found for \(lkUpNote.collection.collectionID)")
         }
     }
     

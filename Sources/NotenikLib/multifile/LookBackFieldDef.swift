@@ -12,11 +12,15 @@
 
 import Foundation
 
-class LookBackFieldDef {
+class LookBackFieldDef: CustomStringConvertible {
     
     var lkUpFieldLabel = ""
     var lkBkCollectionID = ""
     var lkBkFieldLabel = ""
+    
+    var description: String {
+        return "lkUpFieldLabel = \(lkUpFieldLabel), lkBkCollectionID = \(lkBkCollectionID), lkBkFieldLabel = \(lkBkFieldLabel)"
+    }
     
     init(lkUpFieldLabel: String) {
         self.lkUpFieldLabel = lkUpFieldLabel

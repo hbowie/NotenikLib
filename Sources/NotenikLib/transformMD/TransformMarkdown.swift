@@ -97,11 +97,12 @@ public class TransformMarkdown {
             for link in mdParser.wikiLinkList.links {
                 if !link.targetFound {
                     let target = link.originalTarget
-                    let multiIO = MultiFileIO.shared
+                    let multi = MultiFileIO.shared
                     var targetIO = io
                     if target.hasPath {
-                        if let iolinkPath = multiIO.getFileIO(shortcut: target.path) {
-                            targetIO = iolinkPath
+                        let (targetCollection, maybeIO) = multi.provision(shortcut: target.path, inspector: nil, readOnly: false)
+                        if targetCollection != nil {
+                            targetIO = maybeIO
                         }
                     }
                     let newNote = Note(collection: targetIO.collection!)

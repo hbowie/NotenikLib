@@ -14,20 +14,220 @@ import Foundation
 
 import NotenikUtils
 
-/// Perform requested lookup operations on the indicated Collection. 
+/// Used to manage interactions between two or more collections.
 public class MultiFileIO {
     
+    /// The singleton instance to be used in all cases.
     public static let shared = MultiFileIO()
     
-    // Use a Collection's shortcut as the key for the dictionary.
-    var entries: [String : MultiFileEntry] = [:]
+    var requests = MultiFileRequestStack()
+    
+    /// Use a Collection's shorthand identifier as the key for the dictionary.
+    var shortcutDict: [String: MultiFileEntry] = [:]
+    
+    /// Use a Collection's folder location as the key for the dictionary.
+    var linkDict: [FilePathKey: MultiFileEntry] = [:]
     
     var bookmarks: [MultiFileBookmark] = []
     
     var lookBackTree = LookBackTree()
     
-    init() {
+    private init() {
+
+    }
+    
+    var requestsWorking = false
+    
+    private func processRequests() {
+        guard !requestsWorking else { return }
+        requestsWorking = true
+        while requests.count > 0 {
+            let request = requests[0]!
+            switch request.requestType {
+            case .populateLookBacks:
+                populateLookBacks(request.io)
+            case .prepForLookup:
+                prepareForLookup(shortcut: request.shortcut, collectionPath: request.collectionPath, realm: request.realm)
+            case .undefined:
+                break
+            }
+            requests.removeFirst()
+        }
+        requestsWorking = false
+    }
+    
+    // -----------------------------------------------------------
+    //
+    // MARK: Register/Provision/Release Multi File Entries.
+    //
+    // -----------------------------------------------------------
+    
+    /// Prepare for later lookups referencing the given collection shortcut.
+    public func prepareForLookup(shortcut: String, collectionPath: String, realm: Realm) {
+
+        let entry = shortcutDict[shortcut]
+        if entry == nil {
+            scanForLookupCollection(shortcut: shortcut, collectionPath: collectionPath, realm: realm)
+        } else {
+            (_, _) = provision(shortcut: shortcut, inspector: nil, readOnly: false)
+        }
+    }
+    
+    public func provision(shortcut: String,
+                          inspector: NoteOpenInspector?,
+                          readOnly: Bool) -> (NoteCollection?, FileIO) {
         
+        guard let entry = shortcutDict[shortcut] else {
+            displayShortcuts()
+            return (nil, FileIO())
+        }
+        return provision(collectionPath: entry.linkStr,
+                         inspector: inspector,
+                         readOnly: readOnly)
+    }
+    
+    public func provision(fileURL: URL,
+                          inspector: NoteOpenInspector?,
+                          readOnly: Bool) -> (NoteCollection?, FileIO) {
+        
+        var collectionURL: URL?
+        if FileUtils.isDir(fileURL.path) {
+            collectionURL = fileURL
+        } else {
+            collectionURL = fileURL.deletingLastPathComponent()
+        }
+        
+        return provision(collectionPath: collectionURL!.path,
+                         inspector: inspector,
+                         readOnly: readOnly)
+    }
+    
+    /// Return a functioning I/O module for this Collection.
+    /// - Parameters:
+    ///   - collectionPath: The path to the Collection.
+    ///   - inspector: Any desired Note inspector.
+    ///   - readOnly: Read-only access?
+    /// - Returns: The Collection, if successfully opened, and the I/O module.
+    public func provision(collectionPath: String,
+                          inspector: NoteOpenInspector?,
+                          readOnly: Bool) -> (NoteCollection?, FileIO) {
+        
+        let io = FileIO()
+        let realm = io.getDefaultRealm()
+        realm.path = ""
+        
+        if readOnly {
+            return (io.openCollection(realm: realm, collectionPath: collectionPath, readOnly: readOnly), io)
+        }
+        
+        let filePathKey = FilePathKey(str: collectionPath)
+        
+        if linkDict.keys.contains(filePathKey) {
+            if let existingIO = linkDict[filePathKey]!.io {
+                if existingIO.collectionOpen && existingIO.collection != nil {
+                    return (existingIO.collection, existingIO)
+                } else {
+                    // print("  - I/O module found but not opened")
+                }
+            } else {
+                // print("  - Existing I/O module not found!")
+            }
+        } else {
+            // print("  - File Path Key could not be found!")
+        }
+        
+
+        if inspector != nil {
+            io.setInspector(inspector!)
+        }
+        let collection: NoteCollection? = io.openCollection(realm: realm,
+                                                            collectionPath: filePathKey.key,
+                                                            readOnly: readOnly,
+                                                            multiRequests: requests)
+        
+        if collection != nil {
+            if let url = collection!.fullPathURL {
+                let link = NotenikLink(url: url, isCollection: true)
+                let entry = MultiFileEntry(link: link, io: io)
+                entry.establishCollectionID()
+                entry.filePathKey = FilePathKey(str: collectionPath)
+                register(entry: entry)
+            }
+        }
+        
+        processRequests()
+        
+        return (collection, io)
+    }
+    
+    /// Register a known Collection with an assigned shortcut.
+    public func register(link: NotenikLink) {
+        
+        let entry = MultiFileEntry(link: link)
+        entry.establishCollectionID()
+        entry.filePathKey = FilePathKey(str: entry.linkStr)
+        
+        if linkDict.keys.contains(entry.filePathKey) {
+            linkDict[entry.filePathKey]!.link = link
+            if entry.hasCollectionID {
+                linkDict[entry.filePathKey]!.collectionID = entry.collectionID
+            }
+        } else {
+            linkDict[entry.filePathKey] = entry
+        }
+        
+        if entry.hasCollectionID {
+            shortcutDict[entry.collectionID] = linkDict[entry.filePathKey]
+        }
+    }
+    
+    /// Register an I/O module for a Collection.
+    public func register(link: NotenikLink, io: FileIO) {
+        
+        let entry = MultiFileEntry(link: link, io: io)
+        entry.establishCollectionID()
+        entry.filePathKey = FilePathKey(str: entry.linkStr)
+        
+        if linkDict.keys.contains(entry.filePathKey) {
+            linkDict[entry.filePathKey]!.io = io
+            if entry.hasCollectionID && entry.collectionID != linkDict[entry.filePathKey]!.collectionID {
+                linkDict[entry.filePathKey]!.collectionID = entry.collectionID
+            }
+        } else {
+            register(entry: entry)
+        }
+    }
+    
+    private func register(entry: MultiFileEntry) {
+        if entry.hasCollectionID {
+            shortcutDict[entry.collectionID] = entry
+        }
+        linkDict[entry.filePathKey] = entry
+    }
+    
+    /// Close the collection if it appears not to be used anywhere else;
+    /// if it might be in use elsewhere then save some files but
+    /// leave the I/O module open.
+    /// - Parameter io: The I/O module in question.
+    public func closeCollection(io: FileIO) {
+        guard let collection = io.collection else { return }
+        guard io.collectionOpen else { return }
+        guard !collection.readOnly else {
+            io.closeCollection()
+            return
+        }
+        let filePathKey = FilePathKey(str: collection.path)
+        guard let entry = linkDict[filePathKey] else {
+            io.closeCollection()
+            return
+        }
+        guard entry.hasCollectionID else {
+            io.closeCollection()
+            return
+        }
+        
+        _ = io.saveInfoFile()
+        _ = io.aliasList.saveToDisk()
     }
     
     // -----------------------------------------------------------
@@ -35,17 +235,6 @@ public class MultiFileIO {
     // MARK: Manage multi-file entries.
     //
     // -----------------------------------------------------------
-    
-    /// Prepare for later lookups referencing the given collection shortcut.
-    public func prepareForLookup(shortcut: String, collectionPath: String, realm: Realm) {
-
-        let entry = entries[shortcut]
-        if entry == nil {
-            scanForLookupCollection(shortcut: shortcut, collectionPath: collectionPath, realm: realm)
-        }
-        guard entry != nil else { return }
-        let _ = getFileIO(shortcut: shortcut)
-    }
     
     /// Look for the given shortcut, first in collection subfolders, then in collection peers, beneath the same parent. 
     func scanForLookupCollection(shortcut: String, collectionPath: String, realm: Realm) {
@@ -115,41 +304,6 @@ public class MultiFileIO {
         return shortcutFound
     }
     
-    /// Register a known Collection with an assigned shortcut.
-    public func register(link: NotenikLink) {
-        var id = ""
-        if !link.shortcut.isEmpty {
-            id = link.shortcut
-        } else if !link.folder.isEmpty {
-            let folderID = StringUtils.toCommon(link.folder)
-            if folderID == link.folder {
-                id = link.folder
-            }
-        }
-        guard !id.isEmpty else { return }
-        let newEntry = MultiFileEntry(link: link)
-        let entry = entries[id]
-        if entry == nil {
-            entries[id] = newEntry
-        } else if link.shortcut.isEmpty {
-            return
-        } else if entry!.link != newEntry.link {
-            entries[id] = newEntry
-        }
-    }
-    
-    /// Register an I/O module for a Collection.
-    public func register(link: NotenikLink, io: FileIO) {
-        guard !link.shortcut.isEmpty else { return }
-        let entry = entries[link.shortcut]
-        let newEntry = MultiFileEntry(link: link, io: io)
-        if entry == nil || entry!.link != newEntry.link {
-            entries[link.shortcut] = newEntry
-        } else {
-            entry!.io = io
-        }
-    }
-    
     // -----------------------------------------------------------
     //
     // MARK: Manage lookbacks.
@@ -163,12 +317,13 @@ public class MultiFileIO {
         guard let lkBkCollection = lkBkIO.collection else { return }
         let lkBkCollectionID = lkBkCollection.collectionID
         guard !lkBkCollection.lookBackDefs.isEmpty else { return }
+        logInfo(msg: "Populating \(lkBkCollection.lookBackDefs.count) lookbacks for Collection identified as \(lkBkCollectionID)")
         for lkBkDef in lkBkCollection.lookBackDefs {
             let lkUpCollectionID = lkBkDef.lookupFrom
             lookBackTree.requestLookbacks(collectionID: lkUpCollectionID)
-            if let lkUpIO = getFileIO(shortcut: lkUpCollectionID) {
-                let lkUpCollection = lkUpIO.collection!
-                let lkUpDict = lkUpCollection.dict
+            let (lkUpCollection, lkUpIO) = provision(shortcut: lkUpCollectionID, inspector: nil, readOnly: false)
+            if lkUpCollection != nil {
+                let lkUpDict = lkUpCollection!.dict
                 var lkUpDef: FieldDefinition?
                 var i = 0
                 var found = false
@@ -210,14 +365,12 @@ public class MultiFileIO {
     /// Register all the lookups in this note, for use by lookbacks in another collection.
     /// - Parameter lkUpNote: A new note whose lookups are to be registered for later lookbacks.
     func registerLookBacks(lkUpNote: Note) {
-    
         lookBackTree.registerLookBacks(lkUpNote: lkUpNote)
     }
     
     /// Cancel all the lookups in this note
     /// - Parameter lkUpNote: The note containing the lookbacks to be canceled. 
     func cancelLookBacks(lkUpNote: Note) {
-        
         lookBackTree.cancelLookBacks(lkUpNote: lkUpNote)
     }
     
@@ -236,105 +389,34 @@ public class MultiFileIO {
     
     
     public func getEntry(shortcut: String) -> MultiFileEntry? {
-        return entries[shortcut]
+        return shortcutDict[shortcut]
     }
     
     /// Attempt to get a Note from the indicated lookup Collection.
     public func getNote(shortcut: String, knownAs vagueID: String) -> Note? {
-        guard let io = getFileIO(shortcut: shortcut) else { return nil }
+        let (collection, io) = provision(shortcut: shortcut, inspector: nil, readOnly: false)
+        guard collection != nil else { return nil }
         return io.getNote(knownAs: vagueID)
     }
     
     public func getNotesList(shortcut: String) -> NotesList? {
-        guard let io = getFileIO(shortcut: shortcut) else { return nil }
+        let (collection, io) = provision(shortcut: shortcut, inspector: nil, readOnly: false)
+        guard collection != nil else { return nil }
         return io.notesList
     }
     
-    /// Get the shared I/O module for the Collection with the indicated shortcut.  If we
-    ///  don't already have one, then create one, and open it.
-    /// - Parameter shortcut: <#shortcut description#>
-    /// - Returns: <#description#>
-    public func getFileIO(shortcut: String) -> FileIO? {
-        
-        // First, see if we can find an entry for the shortcut.
-        guard let entry = entries[shortcut] else {
-            return nil
-        }
-        
-        // Now let's ensure we have a File Input/Output instance.
-        let link = entry.link
-        var collection: NoteCollection?
-        
-        if entry.io != nil && entry.io!.collection != nil && entry.io!.collectionOpen {
-            collection = entry.io!.collection!
-        } else {
-            entry.io = FileIO()
-            let realm = entry.io!.getDefaultRealm()
-            realm.path = ""
-            collection = entry.io!.openCollection(realm: realm, collectionPath: link.path, readOnly: false)
-        }
-        guard entry.io != nil && collection != nil && entry.io!.collectionOpen else {
-            communicateError("Could not open Collection at \(link.path)")
-            return nil
-        }
-        
-        return entry.io
-    }
-    
-    /// Either find an open I/O module or create one.
-    public func getFileIO(fileURL: URL, readOnly: Bool) -> FileIO? {
-        
-        // Do we already have an open I/O module?
-        for (_, entry) in entries {
-            if fileURL.path == entry.link.path {
-                if entry.io != nil && entry.io!.collectionOpen {
-                    return entry.io
-                }
-            }
-        }
-        
-        // Nothing open, so let's make one.
-        let io = FileIO()
-        let realm = io.getDefaultRealm()
-        realm.path = ""
-        var collectionURL: URL
-        if FileUtils.isDir(fileURL.path) {
-            collectionURL = fileURL
-        } else {
-            collectionURL = fileURL.deletingLastPathComponent()
-        }
-        
-        let collection = io.openCollection(realm: realm, collectionPath: collectionURL.path, readOnly: readOnly)
-        if collection == nil {
-            communicateError("Problems opening the collection at " + collectionURL.path)
-            return nil
-        } else {
-            Logger.shared.log(subsystem: "com.powersurgepub.notenik.macos",
-                              category: "MultiFileIO",
-                              level: .info,
-                              message: "Collection successfully opened: \(collection!.title)")
-        }
-        if !collection!.shortcut.isEmpty {
-            let link = NotenikLink(url: collectionURL, isCollection: true)
-            link.shortcut = collection!.shortcut
-            register(link: link, io: io)
-        }
-        return io
-    }
-    
     public func getLink(shortcut: String) -> NotenikLink? {
-        guard let entry = entries[shortcut] else {
+        guard let entry = shortcutDict[shortcut] else {
             return nil
         }
         return entry.link
     }
     
-    public func display() {
+    public func displayShortcuts() {
         print(" ")
-        print("MultiFileIO.display")
-        for (key, entry) in entries {
-            print("  - key = \(key), path = \(entry.link.path)")
-            // entry.display()
+        print("MultiFileIO.display Shortcuts")
+        for (key, entry) in shortcutDict {
+            print("  - id = \(key), path = \(entry.link.path)")
         }
     }
     
@@ -449,6 +531,14 @@ public class MultiFileIO {
         } else {
             bookmarks.insert(bookmark, at: index)
         }
+    }
+    
+    /// Send an informational message to the log.
+    func logInfo(msg: String) {
+        Logger.shared.log(subsystem: "com.powersurgepub.notenik.macos",
+                          category: "MultiFileIO",
+                          level: .info,
+                          message: msg)
     }
     
     /// Log an error message and optionally display an alert message.
