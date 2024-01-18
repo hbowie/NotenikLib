@@ -99,7 +99,7 @@ public class ModWhenChanged {
                     newField.value = newValue
                     let addOK = modNote.addField(newField)
                     if !addOK {
-                        logError("Unable to add field to note")
+                        logError("Unable to add \(newField.def.fieldLabel.properForm) field to note titled \(modNote.title.value)")
                     }
                 } else {
                     field!.value = newValue

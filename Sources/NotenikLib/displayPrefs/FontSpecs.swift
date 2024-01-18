@@ -21,7 +21,7 @@ public class FontSpecs {
     let displayFontKey = "display-font"
     var completeFontKey = ""
     let webDefaultFont = "Verdana"
-    let macDefaultFont = " - System Font -"
+    let macDefaultFont = "- System Font -"
     var _displayFont: String?
     var startingFont = ""
     var latestFont = ""
