@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 3/3/23.
 //
-//  Copyright © 2023 Herb Bowie (https://hbowie.net)
+//  Copyright © 2023 - 2024 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -20,7 +20,8 @@ public class FontSpecs {
     
     let displayFontKey = "display-font"
     var completeFontKey = ""
-    let defaultFont = "Verdana"
+    let webDefaultFont = "Verdana"
+    let macDefaultFont = " - System Font -"
     var _displayFont: String?
     var startingFont = ""
     var latestFont = ""
@@ -29,6 +30,7 @@ public class FontSpecs {
     var completeSizeKey = ""
     let bodyDefaultSize = "12"
     let headingDefaultSize = "2.0"
+    let listDefaultSize = "13"
     var _displaySize: String?
     var startingSize = ""
     var latestSize = ""
@@ -123,7 +125,14 @@ public class FontSpecs {
     }
     
     public func setDefaultFont() -> String {
-        font = defaultFont
+        switch fontsFor {
+        case .body:
+            font = webDefaultFont
+        case .headings:
+            font = webDefaultFont
+        case .list:
+            font = macDefaultFont
+        }
         return font
     }
     
@@ -133,6 +142,8 @@ public class FontSpecs {
             size = bodyDefaultSize
         case .headings:
             size = headingDefaultSize
+        case .list:
+            size = listDefaultSize
         }
         return size!
     }
@@ -154,6 +165,8 @@ public class FontSpecs {
             return _displaySize! + "pt"
         } else if fontsFor == .headings {
             return _displaySize! + "em"
+        } else if fontsFor == .list {
+            return _displaySize! + "pt"
         } else {
             return _displaySize!
         }

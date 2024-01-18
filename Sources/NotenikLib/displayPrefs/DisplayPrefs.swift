@@ -3,7 +3,7 @@
 //  NotenikLib
 //
 //  Created by Herb Bowie on 5/8/19.
-//  Copyright © 2019 - 2023 Herb Bowie (https://hbowie.net)
+//  Copyright © 2019 - 2024 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -29,6 +29,7 @@ public class DisplayPrefs {
     
     public var bodySpecs = FontSpecs(fontsFor: .body)
     public var headingSpecs = FontSpecs(fontsFor: .headings)
+    public var listSpecs = FontSpecs(fontsFor: .list)
     
     let fontCSSKey = "display-css"
     var _fontCSS: String?
@@ -50,6 +51,7 @@ public class DisplayPrefs {
         
         bodySpecs.loadDefaults()
         headingSpecs.loadDefaults()
+        listSpecs.loadDefaults()
         
         _fontCSS = defaults.string(forKey: fontCSSKey)
         if _fontCSS == nil || _fontCSS!.count == 0 {
@@ -63,6 +65,7 @@ public class DisplayPrefs {
     public func saveLatestFontSpecs() {
         bodySpecs.saveLatest()
         headingSpecs.saveLatest()
+        listSpecs.saveLatest()
     }
     
     public func getSpecs(fontsFor: FontsFor) -> FontSpecs {
@@ -71,6 +74,8 @@ public class DisplayPrefs {
             return bodySpecs
         case .headings:
             return headingSpecs
+        case .list:
+            return listSpecs
         }
     }
     
