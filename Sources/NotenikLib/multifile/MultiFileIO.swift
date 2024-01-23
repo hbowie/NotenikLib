@@ -78,7 +78,6 @@ public class MultiFileIO {
                           readOnly: Bool) -> (NoteCollection?, FileIO) {
         
         guard let entry = shortcutDict[shortcut] else {
-            displayShortcuts()
             return (nil, FileIO())
         }
         return provision(collectionPath: entry.linkStr,
