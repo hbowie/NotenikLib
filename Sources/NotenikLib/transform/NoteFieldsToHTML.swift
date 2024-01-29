@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 4/15/21.
 //
-//  Copyright © 2021 - 2023 Herb Bowie (https://hbowie.net)
+//  Copyright © 2021 - 2024 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -82,15 +82,22 @@ public class NoteFieldsToHTML {
         // See if we need to start a list of included children.
         startListOfChildren(code: code)
         
-        let headerContents = parms.header + collection.mkdownCommandList.getCodeFor(MkdownConstants.headerCmd)
+        var headerContents = ""
+        if note.treatAsTitlePage {
+            headerContents = parms.header
+        } else {
+            headerContents = parms.header + collection.mkdownCommandList.getCodeFor(MkdownConstants.headerCmd)
+        }
         
         if !parms.epub3 {
-            if note.mkdownCommandList.contentPage && note.klass.value != NotenikConstants.titleKlass {
+            if note.mkdownCommandList.contentPage 
+                // && note.klass.value != NotenikConstants.titleKlass
+                {
                 if !headerContents.isEmpty {
                     code.header(headerContents)
                 }
                 let navCode = collection.mkdownCommandList.getCodeFor(MkdownConstants.navCmd)
-                if !navCode.isEmpty {
+                if !navCode.isEmpty && note.klass.value != NotenikConstants.titleKlass {
                     code.nav(navCode)
                 }
             }

@@ -402,16 +402,21 @@ public class WebBookMaker {
     func deleteOldFiles() {
         // Delete any html files already present in the output folder.
         filesDeleted = 0
+        let hdrFN = headerFileName + "." + headerFileExt
         do {
             let contents = try fm.contentsOfDirectory(at: htmlFolder,
                                                       includingPropertiesForKeys: nil,
                                                       options: .skipsHiddenFiles)
             for entry in contents {
                 if entry.pathExtension == htmlFileExt || entry.pathExtension == opfFileExt {
-                    // if epub || entry.lastPathComponent != "index.html" {
+                    if webBookType == .website && entry.lastPathComponent == hdrFN {
+                        // Leave the header file
+                    } else {
+                        // if epub || entry.lastPathComponent != "index.html" {
                         try fm.removeItem(at: entry)
                         filesDeleted += 1
-                    // }
+                        // }
+                    }
                 }
             }
         } catch {

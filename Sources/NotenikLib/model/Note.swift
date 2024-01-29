@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 12/4/18.
-//  Copyright © 2018 - 2023 Herb Bowie (https://hbowie.net)
+//  Copyright © 2018 - 2024 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -70,6 +70,14 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
         if klass.exclude { return false }
         if mkdownCommandList.contentPage { return true }
         if mkdownCommandList.search && !epub { return true }
+        return false
+    }
+    
+    public var treatAsTitlePage: Bool {
+        if klass.value == NotenikConstants.titleKlass { return true }
+        if collection.klassFieldDef != nil { return false }
+        if level.level > 1 { return false }
+        if level.label.lowercased().contains("title") { return true }
         return false
     }
     

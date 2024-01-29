@@ -312,12 +312,12 @@ public struct NotenikConstants {
     public static let iosIntroPath        = "intro-ios"
     public static let iosIntroDesc        = "Introduction to Notenik"
     
-    public static let kbPath              = "notenik-KB"
+    public static let kbPath              = "NotenikDocs/knowledge-base"
     public static let kbDesc              = "Notenik Knowledge Base"
     
-    public static let tipsPath            = "notenik-tips"
+    public static let tipsPath            = "NotenikDocs/tips"
     public static let tipsDesc            = "Notenik Tips"
     
-    public static let mcPath              = "notenik-master-class"
+    public static let mcPath              = "NotenikDocs/master-class"
     public static let mcDesc              = "Notenik Master Class"
 }
