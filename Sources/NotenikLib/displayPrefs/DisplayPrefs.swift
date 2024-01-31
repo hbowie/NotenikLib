@@ -437,7 +437,7 @@ public class DisplayPrefs {
             font-family: \"\(headingsFont)\", Helvetica, Arial, sans-serif;
             font-weight: \(fontWeight);
             margin-top: 0.7em;
-            margin-bottom: 0.0em;
+            margin-bottom: 0.2em;
             font-style: normal;
         }
         

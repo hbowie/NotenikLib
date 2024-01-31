@@ -123,8 +123,6 @@ public class SearchNotes {
         } else {
             (note, position) = io.getSelectedNote()
             if note != nil {
-                print("  - Selected Note is titled \(note!.title.value)")
-                print("  - Advancing to next note")
                 startingNote = note
                 startingPosition = position
                 (note, position) = io.nextNote(position)

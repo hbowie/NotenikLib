@@ -320,4 +320,18 @@ public struct NotenikConstants {
     
     public static let mcPath              = "NotenikDocs/master-class"
     public static let mcDesc              = "Notenik Master Class"
+    
+    //-------------------------------------------------------------
+    //
+    // Web locations
+    //
+    //-------------------------------------------------------------
+    
+    public static let webNotenik          = "https://notenik.app"
+    public static let webDonate           = "https://ko-fi.com/hbowie"
+    public static let webForum            = "https://discourse.notenik.app"
+    public static let webIntro            = "https://notenik.app/intro/welcome-to-notenik.html"
+    public static let webVid101           = "https://youtu.be/JR0kpAUXM5E"
+    public static let webMacAppStoreRate  = "https://itunes.apple.com/app/id1465997984?action=write-review"
+
 }
