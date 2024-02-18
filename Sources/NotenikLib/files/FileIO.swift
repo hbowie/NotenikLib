@@ -305,6 +305,13 @@ public class FileIO: NotenikIO, RowConsumer {
         if collection!.highestTitleNumber > 0 {
             str.append(label: NotenikConstants.highestTitleNumber, value: "\(collection!.highestTitleNumber)")
         }
+        
+        if collection!.noteIdentifier.uniqueIdRule != .titleOnly {
+            str.append(label: NotenikConstants.noteIdRule, value: collection!.noteIdentifier.uniqueIdRule.rawValue)
+            str.append(label: NotenikConstants.noteIdAux, value: collection!.noteIdentifier.noteIdAuxField)
+            str.append(label: NotenikConstants.textIdRule, value: collection!.noteIdentifier.textIdRule.rawValue)
+            str.append(label: NotenikConstants.textIdSep, value: "\"\(collection!.noteIdentifier.textIdSep)\"")
+        }
 
         return lib.saveInfo(str: str.str)
     }
@@ -381,6 +388,7 @@ public class FileIO: NotenikIO, RowConsumer {
         _ = firstNote.setLink("https://notenik.app")
         _ = firstNote.setTags("Software.Groovy")
         _ = firstNote.setBody("A note-taking system cunningly devised by Herb Bowie")
+        firstNote.identify()
         
         let added = bunch!.add(note: firstNote)
         guard added else {
@@ -388,7 +396,6 @@ public class FileIO: NotenikIO, RowConsumer {
             return false
         }
         
-        firstNote.fileInfo.genFileName()
         collectionOpen = true
         let ok = writeNote(firstNote)
         guard ok else {
@@ -479,7 +486,7 @@ public class FileIO: NotenikIO, RowConsumer {
                                 _ = collection!.lib.saveNote(note: note!)
                             }
                         }
-                        switch note!.fileInfo.format {
+                        switch note!.noteID.noteFileFormat {
                             case .plainText: plainCount += 1
                             case .markdown: mdCount += 1
                             case .multiMarkdown: mmdCount += 1
@@ -487,7 +494,7 @@ public class FileIO: NotenikIO, RowConsumer {
                             case .notenik: notenikCount += 1
                             default: break
                         }
-                        if let noteExt = note?.fileInfo.ext {
+                        if let noteExt = note?.noteID.existingExt {
                             if !templateFound && collection!.preferredExt == "txt" && !noteExt.isEmpty && noteExt != "txt" {
                                 collection!.preferredExt = noteExt
                             }
@@ -782,6 +789,37 @@ public class FileIO: NotenikIO, RowConsumer {
             }
         }
         
+        let noteIdRuleField = infoNote.getField(label: NotenikConstants.noteIdRuleCommon)
+        if noteIdRuleField != nil && !noteIdRuleField!.value.isEmpty {
+            if let noteIdRule = NoteIdentifierRule(rawValue: noteIdRuleField!.value.value) {
+                collection!.noteIdentifier.uniqueIdRule = noteIdRule
+            }
+        }
+        
+        let noteIdAuxField = infoNote.getField(label: NotenikConstants.noteIdAuxCommon)
+        if noteIdAuxField != nil && !noteIdAuxField!.value.isEmpty {
+            collection!.noteIdentifier.noteIdAuxField = noteIdAuxField!.value.value
+        }
+        
+        let textIdRuleField = infoNote.getField(label: NotenikConstants.textIdRuleCommon)
+        if textIdRuleField != nil && !textIdRuleField!.value.isEmpty {
+            if let textIdRule = NoteIdentifierRule(rawValue: textIdRuleField!.value.value) {
+                collection!.noteIdentifier.textIdRule = textIdRule
+            }
+        }
+        
+        let textIdSepField = infoNote.getField(label: NotenikConstants.textIdSepCommon)
+        if textIdSepField != nil && !textIdSepField!.value.isEmpty {
+            var sep = textIdSepField!.value.value
+            if sep.hasPrefix("\"") {
+                sep.removeFirst()
+            }
+            if sep.hasSuffix("\"") {
+                sep.removeLast()
+            }
+            collection!.noteIdentifier.textIdSep = sep
+        }
+        
         infoFound = true
         return infoNote
     }
@@ -908,7 +946,7 @@ public class FileIO: NotenikIO, RowConsumer {
     
     /// Add matching attachments to a Note. 
     func addAttachments(to note: Note) {
-        guard let base = note.fileInfo.base else { return }
+        guard let base = note.noteID.getBaseFilename() else { return }
         guard attachments != nil else { return }
         var i = 0
         var looking = true
@@ -957,8 +995,8 @@ public class FileIO: NotenikIO, RowConsumer {
     /// - Returns: True if successful, false otherwise.
     public func reattach(from: Note, to: Note) -> Bool {
         guard from.attachments.count > 0 else { return true }
-        guard let fromNoteName = from.fileInfo.base else { return false }
-        guard let toNoteName = to.fileInfo.base else { return false }
+        guard let fromNoteName = from.noteID.getBaseFilename() else { return false }
+        guard let toNoteName = to.noteID.getBaseFilename() else { return false }
         guard let lib = collection?.lib else { return false }
         guard lib.hasAvailable(type: .attachments) else { return false }
         if fromNoteName == toNoteName { return true }
@@ -1155,7 +1193,8 @@ public class FileIO: NotenikIO, RowConsumer {
                 _ = newNote.setTimestamp("")
             }
         }
-        ensureUniqueID(for: newNote)
+        newNote.identify()
+        ensureUniqueID(for: newNote.noteID)
         
         // Add the new note to memory.
         let added = bunch!.add(note: newNote)
@@ -1164,16 +1203,16 @@ public class FileIO: NotenikIO, RowConsumer {
         MultiFileIO.shared.registerLookBacks(lkUpNote: newNote)
         
         // Rename the Note file if needed.
-        newNote.fileInfo.genFileName()
-        guard let oldPath = oldNote.fileInfo.fullPath else {
+        // newNote.fileInfo.genFileName()
+        guard let oldPath = oldNote.noteID.getFullPath(collection: collection!) else {
             return (nil, NotePosition(index: -1))
         }
-        guard let newPath = newNote.fileInfo.fullPath else {
+        guard let newPath = newNote.noteID.getFullPath(collection: collection!) else {
             return (nil, NotePosition(index: -1))
         }
         if oldPath != newPath {
             let notesFolder = oldNote.collection.lib.getResource(type: .notes)
-            let fileName = oldNote.fileInfo.baseDotExt
+            let fileName = oldNote.noteID.getBaseDotExt()
             let noteResource = ResourceFileSys(parent: notesFolder, fileName: fileName!, type: .note)
             let renameOK = noteResource.rename(to: newPath)
             if !renameOK {
@@ -1207,13 +1246,14 @@ public class FileIO: NotenikIO, RowConsumer {
                 _ = newNote.setTimestamp("")
             }
         }
-        ensureUniqueID(for: newNote)
+        newNote.identify()
+        ensureUniqueID(for: newNote.noteID)
         let added = bunch!.add(note: newNote)
         guard added else { return (nil, NotePosition(index: -1)) }
 
         MultiFileIO.shared.registerLookBacks(lkUpNote: newNote)
 
-        newNote.fileInfo.genFileName()
+        // newNote.fileInfo.genFileName()
         let written = writeNote(newNote)
         if !written {
             return (nil, NotePosition(index: -1))
@@ -1231,7 +1271,7 @@ public class FileIO: NotenikIO, RowConsumer {
         
         // Make sure we have an open collection available to us
         guard collection != nil && collectionOpen else { return false }
-        guard !note.fileInfo.isEmpty else { return false }
+        guard !note.noteID.isEmpty else { return false }
         
         note.setDateModNow()
         if let tagsField = note.getTagsAsField() {
@@ -1245,16 +1285,11 @@ public class FileIO: NotenikIO, RowConsumer {
     
     /// Check for uniqueness and, if necessary, Increment the suffix
     /// for this Note's ID until it becomes unique.
-    public func ensureUniqueID(for newNote: Note) {
-        var existingNote = bunch!.getNote(forID: newNote.noteID)
-        var inc = false
-        while existingNote != nil || newNote.noteID.identifier == "template" {
-            _ = newNote.incrementID()
-            existingNote = bunch!.getNote(forID: newNote.noteID)
-            inc = true
-        }
-        if inc {
-            newNote.updateIDSource()
+    public func ensureUniqueID(for noteID: NoteIdentification) {
+        var existingNote = bunch!.getNote(forID: noteID)
+        while existingNote != nil || noteID.basis == "template" {
+            noteID.avoidDuplicate()
+            existingNote = bunch!.getNote(forID: noteID)
         }
     }
     
@@ -1391,7 +1426,7 @@ public class FileIO: NotenikIO, RowConsumer {
 
         guard collection != nil && collectionOpen else { return nil }
         guard let lib = collection?.lib else { return nil }
-        guard let fileName = noteToReload.fileInfo.baseDotExt else { return nil }
+        guard let fileName = noteToReload.noteID.getBaseDotExt() else { return nil }
         saveAttachments(from: noteToReload)
         let reloaded = lib.getNote(type: .note, collection: collection!, fileName: fileName, reportErrors: true)
         guard reloaded != nil && reloaded!.hasTitle() else { return nil }
@@ -1565,9 +1600,9 @@ public class FileIO: NotenikIO, RowConsumer {
     ///
     /// - Parameter id: The ID we are looking for.
     /// - Returns: The Note with this key, if one exists; otherwise nil.
-    public func getNote(forID id: NoteID) -> Note? {
+    public func getNote(forID noteID: NoteIdentification) -> Note? {
         guard collection != nil && collectionOpen else { return nil }
-        return bunch!.getNote(forID: id)
+        return bunch!.getNote(forID: noteID)
     }
     
     /// Get the existing note with the specified ID.
@@ -1732,7 +1767,7 @@ public class FileIO: NotenikIO, RowConsumer {
     ///   - fields: A corresponding array of field values.
     public func consumeRow(labels: [String], fields: [String]) {
         
-        noteToImport!.setID()
+        noteToImport!.identify()
         
         if importParms.matching {
             let existingNote = getNote(forID: noteToImport!.noteID)
@@ -1845,7 +1880,7 @@ public class FileIO: NotenikIO, RowConsumer {
             } else {
                 let noteResourceMod = noteResource?.changeExt(to: newFileExt)
                 if noteResourceMod != nil && noteResourceMod!.isAvailable {
-                    note!.fileInfo.ext = newFileExt
+                    note!.noteID.changeFileExt(to: newFileExt)
                 } else {
                     errors += 1
                 }

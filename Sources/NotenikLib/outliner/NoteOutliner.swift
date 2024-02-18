@@ -76,7 +76,7 @@ public class NoteOutliner: Sequence {
                 include = false
             } else if node.level > levelEnd {
                 include = false
-            } else if note.noteID.identifier == skipID {
+            } else if note.noteID.commonID == skipID {
                 include = false
             } else if note.klass.value == NotenikConstants.titleKlass {
                 include = false

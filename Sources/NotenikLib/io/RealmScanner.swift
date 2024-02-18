@@ -126,6 +126,7 @@ public class RealmScanner {
                 if !tagsOK {
                     logError("Unable to add a tag to Collection located at \(folderPath)")
                 }
+                realmNote.identify()
                 let (addedNote, _) = realmIO.addNote(newNote: realmNote)
                 if addedNote == nil {
                     logError("Unable to record the Collection located at \(folderPath)")
@@ -195,6 +196,7 @@ public class RealmScanner {
         if !tagsOK {
             print("Tags could not be set to \(tags)")
         }
+        scriptNote.identify()
         let (addedNote, _) = realmIO.addNote(newNote: scriptNote)
         if addedNote == nil {
             print("Note titled \(scriptNote.title.value) could not be added")
@@ -235,6 +237,7 @@ public class RealmScanner {
         if !tagsOK {
             print("BBEdit Note Tags could not be set to \(tags)")
         }
+        bbNote.identify()
         let (addedNote, _) = realmIO.addNote(newNote: bbNote)
         if addedNote == nil {
             print("BBEdit Note titled \(bbNote.title.value) could not be added")
@@ -274,6 +277,7 @@ public class RealmScanner {
         if !tagsOK {
             print("Special File Note Tags could not be set to \(tags)")
         }
+        fileNote.identify()
         let (addedNote, _) = realmIO.addNote(newNote: fileNote)
         if addedNote == nil {
             print("Special File Note titled \(fileNote.title.value) could not be added")

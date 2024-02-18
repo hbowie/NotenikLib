@@ -462,7 +462,7 @@ public class NotesExporter {
     ///   - cleanTags: The cleaned tags for this note, with any suppressed tags removed.
     ///   - note: The Note to be written.
     func writeObject(splitTag: String, cleanTags: String, note: Note) {
-        jsonWriter.writeKey(note.id)
+        jsonWriter.writeKey(note.noteID.commonID)
         jsonWriter.startObject()
         if split {
             jsonWriter.write(key: NotenikConstants.tag, value: splitTag)
@@ -645,10 +645,9 @@ public class NotesExporter {
             }
         }
         
-        exportNote.setID()
-        exportNote.fileInfo.ext = fileExt
-        exportNote.fileInfo.format = .notenik
-        exportNote.fileInfo.genFileName()
+        exportNote.identify()
+        exportNote.noteID.changeFileExt(to: fileExt)
+        exportNote.noteID.setNoteFileFormat(newFormat: .notenik)
         let (added, position) = exportIO.addNote(newNote: exportNote)
         if added == nil || position.index < 0 {
             exportErrors += 1
@@ -686,10 +685,9 @@ public class NotesExporter {
             }
         }
         
-        exportNote.setID()
-        exportNote.fileInfo.ext = fileExt
-        exportNote.fileInfo.format = .yaml
-        exportNote.fileInfo.genFileName()
+        exportNote.identify()
+        exportNote.noteID.changeFileExt(to: fileExt)
+        exportNote.noteID.setNoteFileFormat(newFormat: .yaml)
         let (added, position) = exportIO.addNote(newNote: exportNote)
         if added == nil || position.index < 0 {
             exportErrors += 1
@@ -935,7 +933,10 @@ public class NotesExporter {
             mkdownOptions.shortID = ""
         }
 
-        mkdownContext.setTitleToParse(title: note.title.value, shortID: note.shortID.value)
+        mkdownContext.setTitleToParse(id: note.noteID.commonID,
+                                      text: note.noteID.text,
+                                      fileName: note.noteID.commonFileName,
+                                      shortID: note.shortID.value)
         let collection = note.collection
         collection.skipContentsForParent = false
         mdBodyParser = nil

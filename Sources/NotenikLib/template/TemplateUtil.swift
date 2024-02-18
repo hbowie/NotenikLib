@@ -1289,7 +1289,7 @@ public class TemplateUtil {
             if field!.def.fieldType.typeString == NotenikConstants.lookBackType {
                 
                 let lkBkLines = MultiFileIO.shared.getLookBackLines(collectionID: note!.collection.collectionID,
-                                                                    noteID: note!.id,
+                                                                    noteID: note!.noteID.commonID,
                                                                     lkBkCommonLabel: field!.def.fieldLabel.commonForm)
                 guard !lkBkLines.isEmpty else { return "" }
                 let markedup = Markedup(format: .htmlFragment)
@@ -1352,11 +1352,12 @@ public class TemplateUtil {
         }
         guard index < notesList.count else { return "" }
         let note = notesList[index]
-        let title = note.title.value
         let nextHTML = Markedup()
         nextHTML.startParagraph()
         nextHTML.append(label)
-        nextHTML.link(text: title, path: parms.wikiLinks.assembleWikiLink(title: title), klass: Markedup.htmlClassNavLink)
+        nextHTML.link(text: note.noteID.text,
+                      path: parms.wikiLinks.assembleWikiLink(idBasis: note.noteID.getBasis()),
+                      klass: Markedup.htmlClassNavLink)
         nextHTML.finishParagraph()
         return nextHTML.code
     }
@@ -1384,7 +1385,6 @@ public class TemplateUtil {
         }
         
         let parent = notesList[aboveIndex]
-        let parentTitle = parent.title.value
         let parentSeq = parent.seq
         let parentHTML = Markedup()
         parentHTML.startParagraph()
@@ -1393,7 +1393,9 @@ public class TemplateUtil {
                 parentHTML.append("\(parentSeq) ")
             }
         }
-        parentHTML.link(text: parentTitle, path: parms.wikiLinks.assembleWikiLink(title: parentTitle), klass: Markedup.htmlClassNavLink)
+        parentHTML.link(text: parent.noteID.text, 
+                        path: parms.wikiLinks.assembleWikiLink(idBasis: parent.noteID.getBasis()),
+                        klass: Markedup.htmlClassNavLink)
         parentHTML.append("&nbsp;")
         parentHTML.append("&#8593;")
         parentHTML.finishParagraph()
@@ -1419,12 +1421,13 @@ public class TemplateUtil {
         childrenHTML.startUnorderedList(klass: "notenik-toc")
         while nextPosition < notesList.count && nextDepth > parentDepth {
             if nextDepth == childDepth {
-                let tocTitle = nextNote.title.value
                 childrenHTML.startListItem()
                 if !nextNote.klass.frontOrBack {
                     childrenHTML.append("\(nextNote.formattedSeqForDisplay) ")
                 }
-                childrenHTML.link(text: tocTitle, path: parms.wikiLinks.assembleWikiLink(title: tocTitle), klass: Markedup.htmlClassNavLink)
+                childrenHTML.link(text: nextNote.noteID.text,
+                                  path: parms.wikiLinks.assembleWikiLink(idBasis: nextNote.noteID.getBasis()),
+                                  klass: Markedup.htmlClassNavLink)
                 childrenHTML.finishListItem()
             }
             nextPosition += 1

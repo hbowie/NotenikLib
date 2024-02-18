@@ -14,6 +14,7 @@ import Foundation
 import NotenikUtils
 
 /// The file name for a Note stored on disk.
+/*
 public class NoteFileInfo {
     
             var note: Note
@@ -161,4 +162,4 @@ public class NoteFileInfo {
         print("  - matches ID source? \(matchesIDSource)")
     }
     
-}
+} */

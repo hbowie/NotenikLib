@@ -105,7 +105,7 @@ public class NoteLineParser {
                 } else if fieldNumber == 1 && !noteLine.yamlDashLine {
                     valueComplete = true
                 } else if noteLine.mmdMetaStartEndLine
-                            && (note.fileInfo.mmdOrYaml) {
+                            && (note.noteID.mmdOrYaml) {
                     valueComplete = true
                 }
             }
@@ -123,26 +123,26 @@ public class NoteLineParser {
             
             // Now figure out what to do with this line.
             if noteLine.mmdMetaStartEndLine && lineNumber == 1 {
-                note.fileInfo.format = .multiMarkdown
-                note.fileInfo.mmdMetaStartLine = noteLine.line
+                note.noteID.setNoteFileFormat(newFormat: .multiMarkdown)
+                note.noteID.mmdMetaStartLine = noteLine.line
                 mmdMetaStartEndLineCount = 1
             } else if noteLine.mmdMetaStartEndLine 
-                        && note.fileInfo.mmdOrYaml
+                        && note.noteID.mmdOrYaml
                         && fieldNumber > 1
                         && !bodyStarted
                         && mmdMetaStartEndLineCount > 0 {
-                note.fileInfo.mmdMetaEndLine = noteLine.line
+                note.noteID.mmdMetaEndLine = noteLine.line
                 def = note.collection.bodyFieldDef
                 clearValue()
                 bodyStarted = true
-            } else if noteLine.mmdMetaStartEndLine && note.fileInfo.format == .toBeDetermined && !bodyStarted && blankLines == 0 {
-                note.fileInfo.mmdMetaEndLine = noteLine.line
-                note.fileInfo.format = .multiMarkdown
+            } else if noteLine.mmdMetaStartEndLine && note.noteID.noteFileFormat == .toBeDetermined && !bodyStarted && blankLines == 0 {
+                note.noteID.mmdMetaEndLine = noteLine.line
+                note.noteID.noteFileFormat = .multiMarkdown
             } else if lineNumber == 1 && noteLine.mdH1Line && noteLine.value.count > 0 && !bodyStarted {
                 def = collection.titleFieldDef
                 value = noteLine.value
-                note.fileInfo.format = .markdown
-            } else if note.fileInfo.format == .markdown && !bodyStarted && noteLine.mdTagsLine {
+                note.noteID.noteFileFormat = .markdown
+            } else if note.noteID.noteFileFormat == .markdown && !bodyStarted && noteLine.mdTagsLine {
                 def = collection.tagsFieldDef
                 value = noteLine.value
                 valueComplete = true
@@ -159,8 +159,8 @@ public class NoteLineParser {
                     && blankLines == 1
                     && mmdMetaStartEndLineCount == 0
                     && !bodyStarted {
-                    if note.fileInfo.format != .yaml && fieldNumber > 2 {
-                        note.fileInfo.format = .multiMarkdown
+                    if note.noteID.noteFileFormat != .yaml && fieldNumber > 2 {
+                        note.noteID.noteFileFormat = .multiMarkdown
                     }
                     def = note.collection.bodyFieldDef
                     clearValue()
@@ -171,10 +171,10 @@ public class NoteLineParser {
                     }
                 }
             } else if label.validLabel {
-                if noteLine.yamlDashLine && note.fileInfo.format == .multiMarkdown {
-                    note.fileInfo.format = .yaml
+                if noteLine.yamlDashLine && note.noteID.noteFileFormat == .multiMarkdown {
+                    note.noteID.noteFileFormat = .yaml
                 }
-                if noteLine.yamlDashLine && note.fileInfo.format == .yaml
+                if noteLine.yamlDashLine && note.noteID.noteFileFormat == .yaml
                     && def.fieldType.typeString != NotenikConstants.bodyCommon
                     && def.fieldType.typeString != NotenikConstants.longTextType
                     && def.fieldType.typeString != NotenikConstants.teaserCommon {
@@ -197,10 +197,10 @@ public class NoteLineParser {
                     value = noteLine.line
                     bodyStarted = true
                     if lineNumber == 1 {
-                        note.fileInfo.format = .plainText
+                        note.noteID.noteFileFormat = .plainText
                     } else {
-                        if !note.fileInfo.mmdOrYaml {
-                            note.fileInfo.format = .markdown
+                        if !note.noteID.mmdOrYaml {
+                            note.noteID.noteFileFormat = .markdown
                         }
                     }
                 }
@@ -221,9 +221,10 @@ public class NoteLineParser {
         if !note.hasTitle() && defaultTitle.count > 0 && defaultTitle != ResourceFileSys.templateFileName {
             _ = note.setTitle(defaultTitle)
         }
-        if note.fileInfo.format == .toBeDetermined {
-            note.fileInfo.format = .notenik
+        if note.noteID.noteFileFormat == .toBeDetermined {
+            note.noteID.noteFileFormat = .notenik
         }
+        note.identify()
         return note
     }
     
@@ -279,12 +280,12 @@ public class NoteLineParser {
             case NotenikConstants.bodyCommon:
                 break
             case NotenikConstants.tagsCommon:
-                if note.fileInfo.format == .plainText {
-                    note.fileInfo.format = .yaml
+                if note.noteID.noteFileFormat == .plainText {
+                    note.noteID.noteFileFormat = .yaml
                 }
             default:
-                if note.fileInfo.format == .plainText || note.fileInfo.format == .markdown {
-                    note.fileInfo.format = .yaml
+                if note.noteID.noteFileFormat == .plainText || note.noteID.noteFileFormat == .markdown {
+                    note.noteID.noteFileFormat = .yaml
                 }
             }
             
@@ -314,7 +315,7 @@ public class NoteLineParser {
             pendingBlankLines -= 1
         }
         if !bodyStarted && blankLines == 0 && noteLine.indented && noteLine.valueFound
-            && (note.fileInfo.format == .multiMarkdown || note.fileInfo.format == .toBeDetermined) {
+            && (note.noteID.noteFileFormat == .multiMarkdown || note.noteID.noteFileFormat == .toBeDetermined) {
             value.append(noteLine.value)
         } else {
             value.append(noteLine.line)

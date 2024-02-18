@@ -165,9 +165,9 @@ public class CollectionRelocation {
                 }
             }
             toNote.setID() */
-            toNote.fileInfo.ext = toCollection!.preferredExt
-            toNote.fileInfo.format = .notenik
-            toNote.fileInfo.genFileName()
+            toNote.noteID.changeFileExt(to: toCollection!.preferredExt)
+            toNote.noteID.setNoteFileFormat(newFormat: .notenik)
+            toNote.identify()
             let (added, toPosition) = toIO.addNote(newNote: toNote)
             if added == nil || toPosition.index < 0 {
                 errors += 1
@@ -176,7 +176,7 @@ public class CollectionRelocation {
                 notesWritten += 1
                 copyAttachments(fromNote: fromNote, toNote: toNote)
                 if move {
-                    let removed = FileUtils.removeItem(at: fromNote.fileInfo.url)
+                    let removed = FileUtils.removeItem(at: fromNote.noteID.getURL(collection: fromNote.collection))
                     if !removed {
                         errors += 1
                     }

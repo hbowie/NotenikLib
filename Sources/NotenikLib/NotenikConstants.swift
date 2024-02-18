@@ -282,6 +282,14 @@ public struct NotenikConstants {
     static let highestTitleNumberCommon = "highesttitlenumber"
     static let displayMode              = "Display Mode"
     static let displayModeCommon        = "displaymode"
+    static let noteIdAux                = "Note ID Aux Field"
+    static let noteIdAuxCommon          = "noteidauxfield"
+    static let noteIdRule               = "Note ID Rule"
+    static let noteIdRuleCommon         = "noteidrule"
+    static let textIdRule               = "Text ID Rule"
+    static let textIdRuleCommon         = "textidrule"
+    static let textIdSep                = "Text ID Separator"
+    static let textIdSepCommon          = "textidseparator"
     
     //-------------------------------------------------------------
     //

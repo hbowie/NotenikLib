@@ -62,7 +62,7 @@ class TagsTree {
         while i < node.countChildren {
             let child = node.getChild(at: i)
             if child!.type == .note {
-                if child!.note!.noteID == note.noteID {
+                if child!.note!.noteID.commonID == note.noteID.commonID {
                     node.remove(at: i)
                     deleted += 1
                 } else {

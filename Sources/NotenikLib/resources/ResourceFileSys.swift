@@ -205,7 +205,7 @@ public class ResourceFileSys: CustomStringConvertible, Comparable {
         let parser = NoteLineParser(collection: collection, reader: reader!)
         let defaultTitle = noteURL.deletingPathExtension().lastPathComponent
         let note = parser.getNote(defaultTitle: defaultTitle, template: template)
-        note.fileInfo.baseDotExt = noteURL.lastPathComponent
+        note.noteID.setExistingFileName(noteURL.lastPathComponent)
         if collection.textFormatFieldDef != nil {
             if noteURL.pathExtension == NotenikConstants.textFormatTxt {
                 _ = note.setTextFormat(NotenikConstants.textFormatTxt)
@@ -214,7 +214,7 @@ public class ResourceFileSys: CustomStringConvertible, Comparable {
             }
         }
         updateEnvDates(note: note, noteURL: noteURL)
-        note.setID()
+        note.identify()
         return note
     }
     
@@ -223,7 +223,7 @@ public class ResourceFileSys: CustomStringConvertible, Comparable {
         let collection = note.collection
         guard let lib = collection.lib else { return false }
         guard lib.hasAvailable(type: .notes) else { return false }
-        guard !note.fileInfo.isEmpty else { return false }
+        guard !note.noteID.isEmpty else { return false }
         
         let preTimestamp = note.timestampAsString
         
@@ -249,7 +249,7 @@ public class ResourceFileSys: CustomStringConvertible, Comparable {
         
         guard writeNoteAtomic(note) else { return false }
         
-        let noteURL = note.fileInfo.url
+        let noteURL = note.noteID.getURL(collection: collection)
         if noteURL != nil {
             updateEnvDates(note: note, noteURL: noteURL!)
             if collection.hasTimestamp {
@@ -295,6 +295,7 @@ public class ResourceFileSys: CustomStringConvertible, Comparable {
             } else {
                 logError("Inscrutable modification date for note at \(noteURL.path)")
             }
+            note.identify()
         }
         catch {
             logError("Unable to obtain file attributes for for note at \(noteURL.path)")
@@ -555,6 +556,8 @@ public class ResourceFileSys: CustomStringConvertible, Comparable {
             type = .alias
         } else if (_fName == ResourceFileSys.infoFileName) {
             type = .info
+        } else if (_fName.starts(with: "- INFO") && extLower == "nnk" && _fName.contains("conflicted copy")) {
+            type = .infoConflicted
         } else if (_fName == ResourceFileSys.displayHTMLFileName) {
             type = .display
         } else if (_fName == ResourceFileSys.displayCSSFileName) {

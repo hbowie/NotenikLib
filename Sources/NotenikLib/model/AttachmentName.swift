@@ -71,7 +71,7 @@ public class AttachmentName: Comparable, NSCopying, CustomStringConvertible {
         sepCharFound = false
         suffix = ""
         var extWork = ""
-        guard let fnBase = note.fileInfo.base else { return false }
+        guard let fnBase = note.noteID.getBaseFilename() else { return false }
         prefix = fnBase
         var index = fullName.index(fullName.startIndex, offsetBy: prefix.count)
         while index < fullName.endIndex {
@@ -112,7 +112,7 @@ public class AttachmentName: Comparable, NSCopying, CustomStringConvertible {
         self.prefix = ""
         self.separator = ""
         self.suffix = ""
-        guard let fnBase = note.fileInfo.base else { return }
+        guard let fnBase = note.noteID.getBaseFilename() else { return }
         let fromFileName = FileName(fromFile)
         self.prefix = fnBase
         self.separator = preferredSeparator
@@ -123,7 +123,7 @@ public class AttachmentName: Comparable, NSCopying, CustomStringConvertible {
     /// Change the prefix based on the passed note, but leave
     /// other elements of the attachment name as-is. 
     func changeNote(note: Note) {
-        guard let fnBase = note.fileInfo.base else { return }
+        guard let fnBase = note.noteID.getBaseFilename() else { return }
         self.prefix = fnBase
     }
     

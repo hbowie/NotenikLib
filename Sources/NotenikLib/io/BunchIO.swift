@@ -347,11 +347,20 @@ class BunchIO: NotenikIO, RowConsumer  {
     /// - Returns: The added Note and its position, if added successfully;
     ///            otherwise nil and -1.
     func addNote(newNote: Note) -> (Note?, NotePosition) {
-        guard collection != nil && collectionOpen else { return (nil, NotePosition(index: -1)) }
-        guard newNote.hasTitle() else { return (nil, NotePosition(index: -1)) }
+        guard collection != nil && collectionOpen else {
+            print("No collection available")
+            return (nil, NotePosition(index: -1))
+        }
+        guard newNote.hasTitle() else {
+            print("Note does not have a title")
+            return (nil, NotePosition(index: -1))
+        }
         
         let added = bunch!.add(note: newNote)
-        guard added else { return (nil, NotePosition(index: -1)) }
+        guard added else {
+            print("Trouble adding to bunch of notes")
+            return (nil, NotePosition(index: -1))
+        }
         pickLists.registerNote(note: newNote)
         let (_, position) = bunch!.selectNote(newNote)
         return (newNote, position)
@@ -359,16 +368,11 @@ class BunchIO: NotenikIO, RowConsumer  {
     
     /// Check for uniqueness and, if necessary, Increment the suffix
     /// for this Note's ID until it becomes unique.
-    func ensureUniqueID(for newNote: Note) {
-        var existingNote = bunch!.getNote(forID: newNote.noteID)
-        var inc = false
+    func ensureUniqueID(for noteID: NoteIdentification) {
+        var existingNote = bunch!.getNote(forID: noteID)
         while existingNote != nil {
-            _ = newNote.incrementID()
-            existingNote = bunch!.getNote(forID: newNote.noteID)
-            inc = true
-        }
-        if inc {
-            newNote.updateIDSource()
+            noteID.avoidDuplicate()
+            existingNote = bunch!.getNote(forID: noteID)
         }
     }
     
@@ -416,17 +420,17 @@ class BunchIO: NotenikIO, RowConsumer  {
         
         // Check for first possible case: title within the wiki link
         // points directly to another note having that same title.
-        let titleID = StringUtils.toCommon(knownAs)
-        var knownNote = getNote(forID: titleID)
+        let commonID = StringUtils.toCommon(knownAs)
+        var knownNote = getNote(forID: commonID)
         if knownNote != nil {
-            aliasList.add(titleID: titleID, timestamp: knownNote!.timestampAsString)
+            aliasList.add(titleID: commonID, timestamp: knownNote!.timestampAsString)
             return knownNote!
         }
         
         // Check for second possible case: title within the wiki link
         // uses the singular form of a word, but the word appears in its
         // plural form within the target note's title.
-        knownNote = getNote(forID: titleID + "s")
+        knownNote = getNote(forID: commonID + "s")
         if knownNote != nil {
             return knownNote!
         }
@@ -434,7 +438,7 @@ class BunchIO: NotenikIO, RowConsumer  {
         // Check for third possible case: title within the wiki link
         // refers to an alias by which a Note is also known.
         if collection!.akaFieldDef != nil {
-            knownNote = getNote(alsoKnownAs: titleID)
+            knownNote = getNote(alsoKnownAs: commonID)
             if knownNote != nil {
                 return knownNote!
             }
@@ -445,7 +449,7 @@ class BunchIO: NotenikIO, RowConsumer  {
         // Check for fourth possible case: title within the wiki link
         // used to point directly to another note having that same title,
         // but the target note's title has since been modified.
-        let timestamp = aliasList.get(titleID: titleID)
+        let timestamp = aliasList.get(titleID: commonID)
         if timestamp != nil {
             knownNote = getNote(forTimestamp: timestamp!)
             if knownNote != nil {
@@ -469,9 +473,9 @@ class BunchIO: NotenikIO, RowConsumer  {
     ///
     /// - Parameter id: The ID we are looking for.
     /// - Returns: The Note with this key, if one exists; otherwise nil.
-    func getNote(forID id: NoteID) -> Note? {
+    func getNote(forID noteID: NoteIdentification) -> Note? {
         guard collection != nil && collectionOpen else { return nil }
-        return bunch!.getNote(forID: id)
+        return bunch!.getNote(forID: noteID)
     }
     
     /// Get the existing note with the specified ID.

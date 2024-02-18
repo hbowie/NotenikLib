@@ -63,6 +63,8 @@ public class NoteCollection {
     public  var seqFormatter =  SeqFormatter()
     public  var linkFormatter = LinkFormatter()
     
+    public  var noteIdentifier = NoteIdentifier()
+    
     // Store some key and singular field definitions for easy access.
     public  var addressFieldDef: FieldDefinition?
     public  var directionsFieldDef: FieldDefinition?
@@ -118,7 +120,9 @@ public class NoteCollection {
     public  var webBookPath    = ""
     public  var webBookAsEPUB  = true
     
-    public  var titleToParse   = ""
+    public  var idToParse      = ""
+    public  var textToParse    = ""
+    public  var fileNameToParse = ""
     public  var shortID        = ""
     public  var tocNoteID      = ""
     public  var skipContentsForParent = false

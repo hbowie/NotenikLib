@@ -328,7 +328,7 @@ public class NoteFieldsToHTML {
                          noteTitle: noteTitle,
                          markedup: code)
             if mkdownContext != nil {
-                mkdownContext!.setTitleToParse(title: note.title.value, shortID: note.shortID.value)
+                mkdownContext!.setTitleToParse(id: note.noteID.commonID, text: note.noteID.text, fileName: note.noteID.commonFileName, shortID: note.shortID.value)
             }
         // Format the tags field
         } else if field.def == collection.tagsFieldDef && parms.fullDisplay {
@@ -740,7 +740,7 @@ public class NoteFieldsToHTML {
     
     func displayLookBack(def: FieldDefinition, note: Note, markedup: Markedup) {
         let lkBkLines = MultiFileIO.shared.getLookBackLines(collectionID: note.collection.collectionID,
-                                                            noteID: note.id, 
+                                                            noteID: note.noteID.commonID, 
                                                             lkBkCommonLabel: def.fieldLabel.commonForm)
         guard !lkBkLines.isEmpty else { return }
         markedup.startDetails(summary: def.fieldLabel.properForm + ": ")

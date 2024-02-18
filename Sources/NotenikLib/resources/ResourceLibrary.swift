@@ -295,7 +295,7 @@ public class ResourceLibrary {
     /// Attempt to create a Resource for the given Note.
     func getNoteResource(note: Note) -> ResourceFileSys? {
         guard notesFolder.isAvailable else { return nil }
-        guard let fileName = note.fileInfo.baseDotExt else { return nil }
+        guard let fileName = note.noteID.getBaseDotExt() else { return nil }
         return ResourceFileSys(parent: notesFolder, fileName: fileName, type: .note)
     }
     
@@ -491,9 +491,9 @@ public class ResourceLibrary {
     /// Save the indicated Note to disk.
     func saveNote(note: Note) -> Bool {
         guard notesFolder.isAvailable else { return false }
-        guard !note.fileInfo.isEmpty else { return false }
+        guard !note.noteID.isEmpty else { return false }
         
-        let noteResource = ResourceFileSys(parent: notesFolder, fileName: note.fileInfo.baseDotExt!, type: .note)
+        let noteResource = ResourceFileSys(parent: notesFolder, fileName: note.noteID.getBaseDotExt()!, type: .note)
         return noteResource.writeNote(note)
     }
     

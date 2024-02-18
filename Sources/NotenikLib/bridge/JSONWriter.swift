@@ -73,7 +73,7 @@ public class JSONWriter {
         startObject()
         var (note, position) = io.firstNote()
         while note != nil {
-            writeKey(note!.id)
+            writeKey(note!.noteID.commonID)
             startObject()
             let defs = collection.dict.list
             for def in defs {

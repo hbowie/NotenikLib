@@ -72,7 +72,7 @@ public class TransformMarkdown {
         }
         results.mkdownContext = NotesMkdownContext(io: io, displayParms: parms)
         mkdownOptions.shortID = shortID
-        results.mkdownContext!.setTitleToParse(title: noteTitle, shortID: shortID)
+        results.mkdownContext!.setTitleToParse(text: noteTitle, shortID: shortID)
         let collection = io.collection!
         collection.skipContentsForParent = false
         
@@ -107,7 +107,7 @@ public class TransformMarkdown {
                     }
                     let newNote = Note(collection: targetIO.collection!)
                     _ = newNote.setTitle(target.item)
-                    newNote.setID()
+                    newNote.identify()
                     if collection.backlinksDef == nil && !target.hasPath {
                         _ = newNote.setBody("Created by Wiki-style Link found in the Markdown code for the Note titled [[\(noteTitle)]].")
                     } else {

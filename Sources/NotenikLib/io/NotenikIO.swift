@@ -209,7 +209,7 @@ public protocol NotenikIO {
     
     /// Check for uniqueness and, if necessary, Increment the suffix
     /// for this Note's ID until it becomes unique.
-    func ensureUniqueID(for newNote: Note)
+    func ensureUniqueID(for noteID: NoteIdentification)
     
     /// Delete the currently selected Note, plus any attachments it might have.
     ///
@@ -292,7 +292,7 @@ public protocol NotenikIO {
     ///
     /// - Parameter id: The ID we are looking for.
     /// - Returns: The Note with this key, if one exists; otherwise nil.
-    func getNote(forID id: NoteID) -> Note?
+    func getNote(forID noteID: NoteIdentification) -> Note?
     
     /// Get the existing note with the specified ID.
     ///

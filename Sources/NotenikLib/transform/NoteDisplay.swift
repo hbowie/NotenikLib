@@ -43,12 +43,13 @@ public class NoteDisplay {
         for usage in collection.mkdownCommandList.commands {
             guard !usage.noteID.isEmpty else { continue }
             guard let noteWithCommand = io.getNote(knownAs: usage.noteID) else { continue }
-            let noteTitle = noteWithCommand.title.value
             let noteBody = noteWithCommand.body.value
             parms.setMkdownOptions(mkdownOptions)
             mkdownContext = NotesMkdownContext(io: io, displayParms: parms)
-            mkdownContext!.setTitleToParse(title: noteTitle,
-                                          shortID: noteWithCommand.shortID.value)
+            mkdownContext!.setTitleToParse(id: noteWithCommand.noteID.commonID,
+                                           text: noteWithCommand.noteID.text,
+                                           fileName: noteWithCommand.noteID.commonFileName,
+                                           shortID: noteWithCommand.shortID.value)
             mdBodyParser = MkdownParser(noteBody, options: mkdownOptions)
             mdBodyParser!.setWikiLinkFormatting(prefix: parms.wikiLinks.prefix,
                                                 format: parms.wikiLinks.format,
@@ -245,7 +246,8 @@ public class NoteDisplay {
             return bottomHTML.code
         }
         
-        var nextTitle = nextNote!.title.value
+        var nextBasis = nextNote!.noteID.getBasis()
+        var nextText  = nextNote!.noteID.text
         var nextLevel = nextNote!.level
         var nextSeq = nextNote!.seq
         var nextDepth = nextNote!.depth
@@ -266,7 +268,8 @@ public class NoteDisplay {
             }
             (nextNote, nextPosition) = skipNonMainPageTypes(startingPosition: nextPosition, startingNote: nextNote, passedIO: io)
             if nextNote != nil && nextPosition.valid {
-                nextTitle = nextNote!.title.value
+                nextBasis = nextNote!.noteID.getBasis()
+                nextText  = nextNote!.noteID.text
                 nextLevel = nextNote!.level
                 nextSeq = nextNote!.seq
                 nextDepth = nextNote!.depth
@@ -280,16 +283,17 @@ public class NoteDisplay {
                                        bottomHTML: bottomHTML)
                 }
             } else {
-                nextTitle = ""
+                nextBasis = ""
+                nextText  = ""
             }
         }
         
-        if parms.displayMode == .streamlinedReading && nextNote != nil && !nextTitle.isEmpty && nextDepth > currDepth {
+        if parms.displayMode == .streamlinedReading && nextNote != nil && !nextBasis.isEmpty && nextDepth > currDepth {
             (skipTitleWithSeq, skipTitle) = skipDetails(note, io: io, nextNote: nextNote!, nextPosition: nextPosition)
         }
         
         if !parms.epub3 {
-            if nextTitle.isEmpty {
+            if nextBasis.isEmpty {
                 backToTop(io: io, bottomHTML: bottomHTML)
             } else if parms.displayMode == .streamlinedReading {
                 bottomHTML.startDiv(klass: nil)
@@ -299,20 +303,20 @@ public class NoteDisplay {
                     bottomHTML.startParagraph()
                 }
                 bottomHTML.append("Next: ")
-                bottomHTML.link(text: nextTitle, path: parms.wikiLinks.assembleWikiLink(title: nextTitle), klass: Markedup.htmlClassNavLink)
+                bottomHTML.link(text: nextText, path: parms.wikiLinks.assembleWikiLink(idBasis: nextBasis), klass: Markedup.htmlClassNavLink)
                 bottomHTML.finishParagraph()
                 if !skipTitle.isEmpty {
                     bottomHTML.startParagraph(klass: "float-right")
                     bottomHTML.append("Skip to: ")
                     bottomHTML.link(text: skipTitleWithSeq,
-                                    path: parms.wikiLinks.assembleWikiLink(title: skipTitle),
+                                    path: parms.wikiLinks.assembleWikiLink(idBasis: skipTitle),
                                     klass: Markedup.htmlClassNavLink)
                     bottomHTML.finishParagraph()
                 }
                 bottomHTML.finishDiv()
             } else if parms.displayMode == .presentation {
                 bottomHTML.startParagraph()
-                bottomHTML.link(text: "Next", path: parms.wikiLinks.assembleWikiLink(title: nextTitle), klass: Markedup.htmlClassNavLink)
+                bottomHTML.link(text: "Next", path: parms.wikiLinks.assembleWikiLink(idBasis: nextBasis), klass: Markedup.htmlClassNavLink)
                 bottomHTML.finishParagraph()
             }
         }
@@ -340,10 +344,11 @@ public class NoteDisplay {
     func backToTop(io: NotenikIO, bottomHTML: Markedup) {
         let (firstNote, _) = io.firstNote()
         guard firstNote != nil else { return }
-        let firstTitle = firstNote!.title.value
+        let firstBasis = firstNote!.noteID.getBasis() 
+        let firstText = firstNote!.noteID.text
         bottomHTML.startParagraph()
         bottomHTML.append("Back to Top: ")
-        bottomHTML.link(text: firstTitle, path: parms.wikiLinks.assembleWikiLink(title: firstTitle), klass: Markedup.htmlClassNavLink)
+        bottomHTML.link(text: firstText, path: parms.wikiLinks.assembleWikiLink(idBasis: firstBasis), klass: Markedup.htmlClassNavLink)
         bottomHTML.finishParagraph()
     }
     
@@ -406,7 +411,7 @@ public class NoteDisplay {
             let lastInList = nextUpNote == nil || nextUpPosition.invalid || nextUpNote!.level <= note.level || nextUpNote!.seq <= note.seq
             
             var alreadyIncluded = false
-            let followingID = followingNote!.noteID.identifier
+            let followingID = followingNote!.noteID.commonID
             for includedNote in includedNotes {
                 if followingID == includedNote {
                     alreadyIncluded = true
@@ -529,7 +534,10 @@ public class NoteDisplay {
         mkdownContext = NotesMkdownContext(io: io, displayParms: parms)
         let code = Markedup(format: parms.format)
         if field.def == collection.titleFieldDef {
-            mkdownContext!.setTitleToParse(title: field.value.value, shortID: note.shortID.value)
+            mkdownContext!.setTitleToParse(id: note.noteID.commonID,
+                                           text: note.noteID.text,
+                                           fileName: note.noteID.commonFileName,
+                                           shortID: note.shortID.value)
             code.displayLine(opt: collection.titleDisplayOption,
                              text: field.value.value,
                              depth: note.depth,

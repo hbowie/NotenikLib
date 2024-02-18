@@ -61,7 +61,6 @@ public class ModWhenChanged {
         }
         
         outcome = .noChange
-        var textFormatChange = false
         
         // Let's get a Note ready for comparison and possible modifications
         var modNote: Note
@@ -162,8 +161,8 @@ public class ModWhenChanged {
         // Were any fields modified?
         if modified || newNoteRequested {
             outcome = .modify
-            modNote.setID()
-            let modID = modNote.noteID
+            modNote.identify()
+            let modID = modNote.noteID.commonID
             
             // If we have a new Note ID, make sure it's unique
             var newID = newNoteRequested
@@ -171,13 +170,13 @@ public class ModWhenChanged {
                 outcome = .add
             }
             if !newNoteRequested {
-                newID = (startingNote.noteID != modID)
+                newID = (startingNote.noteID.commonID != modID)
                 if newID {
                     outcome = .modWithKeyChanges
                 }
             }
             if newID {
-                io.ensureUniqueID(for: modNote)
+                io.ensureUniqueID(for: modNote.noteID)
             }
             if outcome == .modify {
                 if startingNote.sortKey != modNote.sortKey {
@@ -188,7 +187,6 @@ public class ModWhenChanged {
                     outcome = .modWithKeyChanges
                 } else if collection.textFormatFieldDef != nil && (startingNote.textFormat != modNote.textFormat) {
                     outcome = .modWithKeyChanges
-                    textFormatChange = true
                 }
             }
             if modID.count == 0 {
@@ -217,10 +215,7 @@ public class ModWhenChanged {
                 return (.tryAgain, nil)
             }
         case .modWithKeyChanges:
-            modNote.fileInfo.optRegenFileName()
-            if textFormatChange {
-                modNote.fileInfo.genFileExt()
-            }
+            modNote.identify()
             let attachmentsOK = io.reattach(from: startingNote, to: modNote)
             if !attachmentsOK {
                 logError("Problems renaming attachments for \(modNote.title)")

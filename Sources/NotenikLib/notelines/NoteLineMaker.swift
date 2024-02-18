@@ -40,27 +40,27 @@ public class NoteLineMaker {
     /// - Returns: The number of fields written.
     public func putNote(_ note: Note, includeAttachments: Bool = false) -> Int {
         
-        if note.fileInfo.format == .toBeDetermined {
-            note.fileInfo.format = note.collection.noteFileFormat
-            if note.fileInfo.mmdOrYaml {
-                note.fileInfo.mmdMetaStartLine = "---"
-                note.fileInfo.mmdMetaEndLine = "---"
+        if note.noteID.noteFileFormat == .toBeDetermined {
+            note.noteID.setNoteFileFormat(newFormat: note.collection.noteFileFormat)
+            if note.noteID.mmdOrYaml {
+                note.noteID.mmdMetaStartLine = "---"
+                note.noteID.mmdMetaEndLine = "---"
             }
         }
         
-        if note.fileInfo.format == .yaml {
-            if note.fileInfo.mmdMetaStartLine.isEmpty {
-                note.fileInfo.mmdMetaStartLine = "---"
+        if note.noteID.noteFileFormat == .yaml {
+            if note.noteID.mmdMetaStartLine.isEmpty {
+                note.noteID.mmdMetaStartLine = "---"
             }
-            if note.fileInfo.mmdMetaEndLine.isEmpty {
-                note.fileInfo.mmdMetaEndLine = "---"
+            if note.noteID.mmdMetaEndLine.isEmpty {
+                note.noteID.mmdMetaEndLine = "---"
             }
         }
         
         /// If we have more data than can fit in a restricted format,
         /// then switch formats.
-        if note.fileInfo.format != .notenik
-            && !note.fileInfo.mmdOrYaml {
+        if note.noteID.noteFileFormat != .notenik
+            && !note.noteID.mmdOrYaml {
             for def in note.collection.dict.list {
                 let field = note.getField(def: def)
                 if field != nil && field!.value.hasData {
@@ -68,13 +68,13 @@ public class NoteLineMaker {
                         || def.fieldLabel.commonForm == NotenikConstants.bodyCommon {
                         break
                     } else if def.fieldLabel.commonForm == NotenikConstants.tags {
-                        if note.fileInfo.mmdOrYaml || note.fileInfo.format == .markdown {
+                        if note.noteID.mmdOrYaml || note.noteID.noteFileFormat == .markdown {
                             break
                         } else {
-                            note.fileInfo.format = .notenik
+                            note.noteID.noteFileFormat = .notenik
                         }
                     } else {
-                        note.fileInfo.format = .notenik
+                        note.noteID.noteFileFormat = .notenik
                     }
                 }
             }
@@ -83,8 +83,8 @@ public class NoteLineMaker {
         fieldsWritten = 0
         fieldMods = " "
         writer.open()
-        if note.fileInfo.mmdOrYaml && note.fileInfo.mmdMetaStartLine.count > 0 {
-            writer.writeLine(note.fileInfo.mmdMetaStartLine)
+        if note.noteID.mmdOrYaml && note.noteID.mmdMetaStartLine.count > 0 {
+            writer.writeLine(note.noteID.mmdMetaStartLine)
         }
         if note.hasTitle() {
             putTitle(note)
@@ -117,13 +117,13 @@ public class NoteLineMaker {
                     }
                 } else {
                     let field = note.getField(def: def!)
-                    putField(field, format: note.fileInfo.format)
+                    putField(field, format: note.noteID.noteFileFormat)
                 }
             }
             i += 1
         }
-        if note.fileInfo.mmdOrYaml && note.fileInfo.mmdMetaEndLine.count > 0 {
-            writer.writeLine(note.fileInfo.mmdMetaEndLine)
+        if note.noteID.mmdOrYaml && note.noteID.mmdMetaEndLine.count > 0 {
+            writer.writeLine(note.noteID.mmdMetaEndLine)
         }
         if includeAttachments && !note.attachments.isEmpty {
             let attachmentsPath = note.collection.lib.getPath(type: .attachments)
@@ -141,7 +141,7 @@ public class NoteLineMaker {
                                              value: attachmentsValue,
                                              typeCatalog: note.collection.typeCatalog,
                                              statusConfig: statusConfig)
-            putField(attachmentsField, format: note.fileInfo.format)
+            putField(attachmentsField, format: note.noteID.noteFileFormat)
         }
         if note.hasBody() {
             putBody(note)
@@ -151,18 +151,18 @@ public class NoteLineMaker {
     }
     
     func putTitle(_ note: Note) {
-        switch note.fileInfo.format {
+        switch note.noteID.noteFileFormat {
         case .markdown:
             writer.writeLine("# \(note.title.value)")
             fieldsWritten += 1
         case .multiMarkdown:
-            putField(note.getTitleAsField(), format: note.fileInfo.format, newLabel: note.collection.newLabelForTitle)
+            putField(note.getTitleAsField(), format: note.noteID.noteFileFormat, newLabel: note.collection.newLabelForTitle)
         case .notenik:
-            putField(note.getTitleAsField(), format: note.fileInfo.format, newLabel: note.collection.newLabelForTitle)
+            putField(note.getTitleAsField(), format: note.noteID.noteFileFormat, newLabel: note.collection.newLabelForTitle)
         case .plainText:
             break
         default:
-            putField(note.getTitleAsField(), format: note.fileInfo.format, newLabel: note.collection.newLabelForTitle)
+            putField(note.getTitleAsField(), format: note.noteID.noteFileFormat, newLabel: note.collection.newLabelForTitle)
         }
     }
     
@@ -172,7 +172,7 @@ public class NoteLineMaker {
         if note.collection.hashTags {
             fieldMods = "#"
         }
-        switch note.fileInfo.format {
+        switch note.noteID.noteFileFormat {
         case .markdown:
             if note.collection.hashTags {
                 writer.writeLine(tags.valueToWrite(mods: fieldMods))
@@ -181,18 +181,18 @@ public class NoteLineMaker {
             }
             fieldsWritten += 1
         case .multiMarkdown:
-            putField(note.getTagsAsField(), format: note.fileInfo.format)
+            putField(note.getTagsAsField(), format: note.noteID.noteFileFormat)
         case .notenik:
-            putField(note.getTagsAsField(), format: note.fileInfo.format)
+            putField(note.getTagsAsField(), format: note.noteID.noteFileFormat)
         case .plainText:
             break
         default:
-            putField(note.getTagsAsField(), format: note.fileInfo.format)
+            putField(note.getTagsAsField(), format: note.noteID.noteFileFormat)
         }
     }
     
     func putWikilinks(note: Note, def: FieldDefinition, notePointers: WikiLinkTargetList) {
-        if !note.fileInfo.mmdOrYaml {
+        if !note.noteID.mmdOrYaml {
             writer.endLine()
         }
         for notePointer in notePointers {
@@ -202,14 +202,14 @@ public class NoteLineMaker {
     }
     
     func putBody(_ note: Note) {
-        switch note.fileInfo.format {
+        switch note.noteID.noteFileFormat {
         case .plainText:
             putFieldValueOnSameLine(note.body)
         case .markdown:
             writer.endLine()
             putFieldValueOnSameLine(note.body)
         case .multiMarkdown:
-            if !note.fileInfo.mmdMetaEndLine.isEmpty && note.fileInfo.mmdMetaEndLine != " " {
+            if !note.noteID.mmdMetaEndLine.isEmpty && note.noteID.mmdMetaEndLine != " " {
                 writer.endLine()
             }
             putFieldValueOnSameLine(note.body)
@@ -218,7 +218,7 @@ public class NoteLineMaker {
         case .notenik:
             putField(note.getBodyAsField(), format: .notenik, newLabel: note.collection.newLabelForBody)
         default:
-            putField(note.getBodyAsField(), format: note.fileInfo.format, newLabel: note.collection.newLabelForBody)
+            putField(note.getBodyAsField(), format: note.noteID.noteFileFormat, newLabel: note.collection.newLabelForBody)
         }
         fieldsWritten += 1
     }

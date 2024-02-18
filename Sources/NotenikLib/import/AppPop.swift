@@ -193,7 +193,8 @@ public class AppPop {
         var noteToUpdate: Note?
         if existingNote == nil {
             noteToUpdate = Note(collection: noteIO.collection!)
-            _ =  noteToUpdate!.setTitle(appName)
+            _ = noteToUpdate!.setTitle(appName)
+            noteToUpdate!.identify()
         } else {
             noteToUpdate = existingNote!.copy() as? Note
         }

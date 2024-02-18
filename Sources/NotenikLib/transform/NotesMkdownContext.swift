@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 7/12/21.
 //
-//  Copyright © 2021 - 2023 Herb Bowie (https://hbowie.net)
+//  Copyright © 2021 - 2024 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -54,10 +54,20 @@ public class NotesMkdownContext: MkdownContext {
     //
     // -----------------------------------------------------------
     
+    /// Let the context figure out the derived fields.
+    public func setTitleToParse(text: String, shortID: String) {
+        setTitleToParse(id: StringUtils.toCommon(text),
+                        text: text,
+                        fileName: StringUtils.toCommonFileName(text),
+                        shortID: shortID)
+    }
+    
     /// Set the Title of the Note whose Markdown text is to be parsed.
-    public func setTitleToParse(title: String, shortID: String) {
+    public func setTitleToParse(id: String, text: String, fileName: String, shortID: String) {
         guard let collection = io.collection else { return }
-        collection.titleToParse = title
+        collection.idToParse = id
+        collection.textToParse = text
+        collection.fileNameToParse = fileName
         collection.shortID = shortID
         mkdownCommandList = MkdownCommandList(collectionLevel: false)
         javaScript = ""
@@ -72,8 +82,8 @@ public class NotesMkdownContext: MkdownContext {
     /// Expose the usage of a Markdown command found within the page.
     public func exposeMarkdownCommand(_ command: String) {
         guard let collection = io.collection else { return }
-        guard !collection.titleToParse.isEmpty else { return }
-        mkdownCommandList.updateWith(command: command, noteTitle: collection.titleToParse, code: nil)
+        guard !collection.idToParse.isEmpty else { return }
+        mkdownCommandList.updateWith(command: command, noteTitle: collection.idToParse, code: nil)
     }
     
     // -----------------------------------------------------------
@@ -215,7 +225,7 @@ public class NotesMkdownContext: MkdownContext {
         var (note, position) = io.firstNote()
         var done = false
         while note != nil && !done {
-            let link = displayParms.wikiLinks.assembleWikiLink(title: note!.title.value)
+            let link = displayParms.wikiLinks.assembleWikiLink(idBasis: note!.noteID.getBasis())
             done = calendar.nextNote(note!, link: link)
             (note, position) = io.nextNote(position)
         }
@@ -254,7 +264,7 @@ public class NotesMkdownContext: MkdownContext {
         self.tocDetails = details
         guard io.collectionOpen else { return "" }
         guard let collection = io.collection else { return "" }
-        collection.tocNoteID = StringUtils.toCommon(collection.titleToParse)
+        collection.tocNoteID = collection.idToParse
         hasLevel = (collection.levelFieldDef != nil)
         hasSeq = (collection.seqFieldDef != nil)
         
@@ -292,14 +302,14 @@ public class NotesMkdownContext: MkdownContext {
     func datePlusSeqToC() -> String {
         guard io.collectionOpen else { return "" }
         guard let collection = io.collection else { return "" }
-        collection.tocNoteID = StringUtils.toCommon(collection.titleToParse)
+        collection.tocNoteID = collection.idToParse
         toc = Markedup(format: .htmlFragment)
         datePlusSeqStartTocUnorderedList(top: true)
         lastDate = ""
         dateStarted = false
         var (note, position) = io.firstNote()
         while note != nil {
-            if note!.noteID.identifier != collection.tocNoteID {
+            if note!.noteID.commonID != collection.tocNoteID {
                 datePlusSeqTocEntry(for: note!)
             }
             (note, position) = io.nextNote(position)
@@ -330,7 +340,7 @@ public class NotesMkdownContext: MkdownContext {
         itemText.append(note.title.value)
         toc.startListItem()
         toc.link(text: itemText,
-                 path: displayParms.wikiLinks.assembleWikiLink(title: note.title.value),
+                 path: displayParms.wikiLinks.assembleWikiLink(idBasis: note.noteID.getBasis()),
                  klass: Markedup.htmlClassNavLink)
         toc.finishListItem()
         lastDate = dateYMD
@@ -349,7 +359,7 @@ public class NotesMkdownContext: MkdownContext {
             toc.startSummary()
         }
         toc.link(text: dateLabel,
-                 path: displayParms.wikiLinks.assembleWikiLink(title: note.title.value),
+                 path: displayParms.wikiLinks.assembleWikiLink(idBasis: note.noteID.getBasis()),
                  klass: Markedup.htmlClassNavLink)
         if tocDetails {
             toc.finishSummary()
@@ -440,7 +450,7 @@ public class NotesMkdownContext: MkdownContext {
             for ref in term.refs {
                 pageCount += 1
                 mkdown.startDefDef()
-                let link = displayParms.wikiLinks.assembleWikiLink(title: ref.page)
+                let link = displayParms.wikiLinks.assembleWikiLink(idBasis: ref.page)
                 let text = htmlConverter.convert(from: ref.page)
                 mkdown.link(text: text, path: link, klass: Markedup.htmlClassNavLink)
                 mkdown.finishDefDef()
@@ -504,9 +514,8 @@ public class NotesMkdownContext: MkdownContext {
         markup.startParagraph()
         if ok {
             markup.append("Click to go to ")
-            let title = note!.title.value
-            let link = displayParms.wikiLinks.assembleWikiLink(title: title)
-            let text = htmlConverter.convert(from: title)
+            let link = displayParms.wikiLinks.assembleWikiLink(idBasis: note!.noteID.getBasis())
+            let text = htmlConverter.convert(from: note!.noteID.text)
             markup.link(text: text, path: link, klass: Markedup.htmlClassNavLink)
             markup.append(".")
         } else {
@@ -572,7 +581,7 @@ public class NotesMkdownContext: MkdownContext {
         if displayParms.epub3 {
             javaScript = js.bigString
             if let collection = io.collection {
-                let jsFileName = StringUtils.toCommonFileName(collection.titleToParse)
+                let jsFileName = collection.fileNameToParse
                 markup.script(src: "js/\(jsFileName).js")
             }
         } else {
@@ -590,7 +599,7 @@ public class NotesMkdownContext: MkdownContext {
     func isEligibleRandomNote(note: Note, klassList: [String]) -> Bool {
         
         if let collection = io.collection {
-            if collection.titleToParse == note.title.value {
+            if collection.idToParse == note.noteID.commonID {
                 return false
             }
         }
@@ -885,7 +894,7 @@ public class NotesMkdownContext: MkdownContext {
         if displayParms.epub3 {
             javaScript = js.bigString
             if let collection = io.collection {
-                let jsFileName = StringUtils.toCommonFileName(collection.titleToParse)
+                let jsFileName = collection.fileNameToParse
                 markup.script(src: "js/\(jsFileName).js")
             }
         } else {
@@ -942,13 +951,12 @@ public class NotesMkdownContext: MkdownContext {
             let note = node.note!
             if includeUntagged || note.hasTags() {
                 let seq = note.seq.value
-                let title = note.title.value
-                let link = displayParms.wikiLinks.assembleWikiLink(title: title)
+                let link = displayParms.wikiLinks.assembleWikiLink(idBasis: note.noteID.getBasis())
                 tagsCode.startListItem()
                 if seq.count > 0 {
                     tagsCode.write("\(seq) ")
                 }
-                let text = htmlConverter.convert(from: title)
+                let text = htmlConverter.convert(from: note.noteID.text)
                 tagsCode.link(text: text, path: link, klass: Markedup.htmlClassNavLink)
                 tagsCode.finishListItem()
             }
@@ -993,7 +1001,7 @@ public class NotesMkdownContext: MkdownContext {
         guard collection.sortParm == .seqPlusTitle else { return "" }
         
         
-        guard let parent = io.getNote(knownAs: collection.titleToParse) else { return "" }
+        guard let parent = io.getNote(knownAs: collection.idToParse) else { return "" }
         let currentPosition = io.positionOfNote(parent)
         let (nextNote, nextPosition) = io.nextNote(currentPosition)
         guard nextPosition.valid && nextNote != nil else { return "" }
@@ -1153,9 +1161,8 @@ public class NotesMkdownContext: MkdownContext {
             
             guard pass == 2 else { break }
             
-            let title = note.title.value
-            let link = displayParms.wikiLinks.assembleWikiLink(title: title)
-            let text = htmlConverter.convert(from: title)
+            let link = displayParms.wikiLinks.assembleWikiLink(idBasis: note.noteID.getBasis())
+            let text = htmlConverter.convert(from: note.noteID.text)
             tagsCode.startListItem()
             tagsCode.link(text: text, path: link, klass: Markedup.htmlClassNavLink)
             tagsCode.finishListItem()
@@ -1189,7 +1196,7 @@ public class NotesMkdownContext: MkdownContext {
         let sortParm = collection.sortParm
         guard sortParm == .seqPlusTitle || sortParm == .custom else { return "" }
         
-        guard let parent = io.getNote(knownAs: collection.titleToParse) else { return "" }
+        guard let parent = io.getNote(knownAs: collection.idToParse) else { return "" }
         
         hasLevel = (collection.levelFieldDef != nil)
         hasSeq = (collection.seqFieldDef != nil)
@@ -1225,7 +1232,7 @@ public class NotesMkdownContext: MkdownContext {
                 
                 // Author
                 if authorKlassFound {
-                    let link = displayParms.wikiLinks.assembleWikiLink(title: author)
+                    let link = displayParms.wikiLinks.assembleWikiLink(idBasis: author)
                     let text = htmlConverter.convert(from: author)
                     biblio.link(text: text, path: link, klass: Markedup.htmlClassNavLink)
                     biblio.append(" ")
@@ -1258,7 +1265,7 @@ public class NotesMkdownContext: MkdownContext {
                     biblio.leftDoubleQuote()
                 }
                 if nextNote!.klass.value == NotenikConstants.workKlass {
-                    let link = displayParms.wikiLinks.assembleWikiLink(title: workTitle)
+                    let link = displayParms.wikiLinks.assembleWikiLink(idBasis: workTitle)
                     let text = htmlConverter.convert(from: workTitle)
                     biblio.link(text: text, path: link, klass: Markedup.htmlClassNavLink)
                 } else {
@@ -1318,8 +1325,8 @@ public class NotesMkdownContext: MkdownContext {
     /// Provide links to file attachments.
     public func mkdownAttachments() -> String {
         guard let collection = io.collection else { return "" }
-        guard !collection.titleToParse.isEmpty else { return "" }
-        guard let note = io.getNote(knownAs: collection.titleToParse) else { return "" }
+        guard !collection.idToParse.isEmpty else { return "" }
+        guard let note = io.getNote(knownAs: collection.idToParse) else { return "" }
         let noteLink = note.getNotenikLink(preferringTimestamp: true)
         guard !note.attachments.isEmpty else { return "" }
         let html = Markedup(format: .htmlFragment)

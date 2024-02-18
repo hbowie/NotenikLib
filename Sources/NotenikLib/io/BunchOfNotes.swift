@@ -113,11 +113,12 @@ class BunchOfNotes {
     /// - Returns: True if the note was added to the collection, false if it could not be added.
     func add(note: Note) -> Bool {
 
-        let noteID = note.id
-        let existingNote = notesDict[noteID]
-        guard existingNote == nil else { return false }
-
-        notesDict[noteID] = note
+        let existingNote = notesDict[note.noteID.commonID]
+        guard existingNote == nil else {
+            print("Note with an id of \(note.noteID.commonID) already seems to exist")
+            return false
+        }
+        notesDict[note.noteID.commonID] = note
         let (index, _) = searchList(note)
         if index < 0 {
             notesList.insert(note, at: 0)
@@ -179,12 +180,11 @@ class BunchOfNotes {
     /// - Parameter note: The Note to be removed.
     /// - Returns: True if successful, false if any issues.
     func delete(note: Note) ->  Bool {
-        let noteID = note.noteID.identifier
-        let existingNote = notesDict[noteID]
+        let existingNote = notesDict[note.noteID.commonID]
         guard existingNote != nil else { return false }
         
         // Remove the note from the notes dictionary
-        notesDict.removeValue(forKey: noteID)
+        notesDict.removeValue(forKey: note.noteID.commonID)
         
         // Remove the note from sorted list of notes
         let (index, found) = searchList(note)
@@ -324,8 +324,8 @@ class BunchOfNotes {
     ///
     /// - Parameter id: The ID we are looking for.
     /// - Returns: The Note with this key, if one exists; otherwise nil.
-    func getNote(forID id: NoteID) -> Note? {
-        return notesDict[id.identifier]
+    func getNote(forID noteID: NoteIdentification) -> Note? {
+        return notesDict[noteID.commonID]
     }
     
     /// Get the existing note with the specified ID.

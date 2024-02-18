@@ -52,8 +52,8 @@ public class NoteLinkResolver {
             targetIO.aliasList.add(titleID: resolution.linkID, timestamp: linkedNote!.timestampAsString)
             resolution.result = .resolved
             resolution.resolvedIO = targetIO
-            resolution.resolvedItem = linkedNote!.title.value
-            resolution.resolvedID = StringUtils.toCommon(resolution.resolvedItem)
+            resolution.resolvedItem = linkedNote!.noteID.getBasis()
+            resolution.resolvedID = linkedNote!.noteID.commonID
             resolution.resolvedNote = linkedNote
             return
         }
@@ -68,8 +68,8 @@ public class NoteLinkResolver {
         if linkedNote != nil {
             resolution.result = .resolved
             resolution.resolvedIO = targetIO
-            resolution.resolvedItem = linkedNote!.title.value
-            resolution.resolvedID = StringUtils.toCommon(resolution.resolvedItem)
+            resolution.resolvedItem = linkedNote!.noteID.getBasis()
+            resolution.resolvedID = linkedNote!.noteID.commonID
             resolution.resolvedNote = linkedNote
             return
         }
@@ -81,8 +81,8 @@ public class NoteLinkResolver {
             if linkedNote != nil {
                 resolution.result = .resolved
                 resolution.resolvedIO = targetIO
-                resolution.resolvedItem = linkedNote!.title.value
-                resolution.resolvedID = StringUtils.toCommon(resolution.resolvedItem)
+                resolution.resolvedItem = linkedNote!.noteID.getBasis()
+                resolution.resolvedID = linkedNote!.noteID.commonID
                 resolution.resolvedNote = linkedNote
                 return
             }
@@ -95,8 +95,8 @@ public class NoteLinkResolver {
             if linkedNote != nil {
                 resolution.result = .resolved
                 resolution.resolvedIO = targetIO
-                resolution.resolvedItem = linkedNote!.title.value
-                resolution.resolvedID = StringUtils.toCommon(resolution.resolvedItem)
+                resolution.resolvedItem = linkedNote!.noteID.getBasis()
+                resolution.resolvedID = linkedNote!.noteID.commonID
                 resolution.resolvedNote = linkedNote
                 return
             }
@@ -113,8 +113,8 @@ public class NoteLinkResolver {
             if linkedNote != nil {
                 resolution.result = .resolved
                 resolution.resolvedIO = targetIO
-                resolution.resolvedItem = linkedNote!.title.value
-                resolution.resolvedID = StringUtils.toCommon(resolution.resolvedItem)
+                resolution.resolvedItem = linkedNote!.noteID.getBasis()
+                resolution.resolvedID = linkedNote!.noteID.commonID
                 resolution.resolvedNote = linkedNote
                 return
             }
@@ -127,8 +127,8 @@ public class NoteLinkResolver {
         if linkedNote != nil {
             resolution.result = .resolved
             resolution.resolvedIO = targetIO
-            resolution.resolvedItem = linkedNote!.title.value
-            resolution.resolvedID = StringUtils.toCommon(resolution.resolvedItem)
+            resolution.resolvedItem = linkedNote!.noteID.getBasis()
+            resolution.resolvedID = linkedNote!.noteID.commonID
             resolution.resolvedNote = linkedNote
             return
         }

@@ -22,17 +22,24 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     public var fields = [:] as [String: NoteField]
     public var attachments: [AttachmentName] = []
     
+    public var noteID = NoteIdentification()
+    
+    public var id: String {
+        return noteID.commonID
+    }
+    
     var _envCreateDate = ""
     var _envModDate    = ""
     
-    public var fileInfo: NoteFileInfo!
+    // public var fileInfo: NoteFileInfo!
     
     public var mkdownCommandList = MkdownCommandList(collectionLevel: false)
     
     /// Initialize with a Collection
     public init (collection: NoteCollection) {
         self.collection = collection
-        fileInfo = NoteFileInfo(note: self)
+        noteID.setNoteFileFormat(newFormat: collection.noteFileFormat)
+        noteID.setPreferredExt(collection.preferredExt)
         applyDefaults()
     }
     
@@ -51,6 +58,12 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
                 }
             }
         }
+    }
+    
+    /// Generate identifiers for the Note.
+    /// - Returns: True if the note's unique id changed. 
+    public func identify() {
+        collection.noteIdentifier.identify(note: self, noteID: noteID)
     }
     
     /// Should this Note be excluded from a web book being generated?
@@ -117,7 +130,6 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
                     let timestamp = TimestampValue(newValue)
                     let timestampField = NoteField(def: timestampDef!, value: timestamp)
                     fields[timestampDef!.fieldLabel.commonForm] = timestampField
-                    setID()
                 }
             }
         }
@@ -292,11 +304,7 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
         let newNote = Note(collection: collection)
         copyFields(to: newNote)
         copyAttachments(to: newNote)
-        if !fileInfo.isEmpty {
-            newNote.fileInfo.base = fileInfo.base
-            newNote.fileInfo.ext  = fileInfo.ext
-            newNote.fileInfo.baseDotExt = fileInfo.baseDotExt
-        }
+        newNote.noteID = noteID.copy()
         if hasCheckBoxUpdates {
             for (ckBoxName, checked) in checkBoxUpdates {
                 newNote.checkBoxUpdates[ckBoxName] = checked
@@ -328,7 +336,7 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
                 field2!.value.set(field!.value.value)
             }
         }
-        note2.setID()
+        note2.identify()
     }
     
     /// Copy field values from this Note to a second Note, but only copying fields
@@ -377,7 +385,7 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
             copyMissingFields(to: note2)
         }
         
-        note2.setID()
+        note2.identify()
     }
     
     func copyMissingFields(to note2: Note) {
@@ -421,13 +429,14 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
         if preferringTimestamp && collection.hasTimestamp {
             str.append("&timestamp=\(timestampAsString)")
         } else {
-            str.append("&id=\(id)")
+            str.append("&id=\(noteID.commonID)")
         }
         return str
     }
     
     /// Provide a value to uniquely identify this note within its Collection, and provide
     /// conformance to the Identifiable protocol.
+    /*
     public var id: String {
         return _noteID.identifier
     }
@@ -450,6 +459,8 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     func updateIDSource() {
         _noteID.updateSource(note: self)
     }
+     
+     */
     
     /// Set the Note's Code value
     func setCode(_ code: String) -> Bool {
@@ -689,7 +700,6 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     /// Set the Note's Title value
     public func setTitle(_ title: String) -> Bool {
         let ok = setField(label: collection.titleFieldDef.fieldLabel.commonForm, value: title)
-        setID()
         return ok
     }
     
@@ -1284,7 +1294,6 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     
     func setTimestamp(_ timestamp: String) -> Bool {
         let ok = setField(label: NotenikConstants.timestamp, value: timestamp)
-        setID()
         return ok
     }
     

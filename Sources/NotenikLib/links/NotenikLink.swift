@@ -171,7 +171,11 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
     
     public func set(with url: URL) {
         self.url = url
-        str = url.absoluteString
+        if let percentRemoved = url.absoluteString.removingPercentEncoding {
+            str = percentRemoved
+        } else {
+            str = url.absoluteString
+        }
         scanForParts()
         scanFilePath()
         determineType()

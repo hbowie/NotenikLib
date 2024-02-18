@@ -118,7 +118,7 @@ public class DisplayParms {
     }
     
     public func streamlinedTitleWithLink(markedup: Markedup, note: Note, klass: String?) {
-        let simpleTitle = note.title.value
+        let idBasis = note.noteID.getBasis()
         if note.klass.frontOrBack || note.klass.quote {
             // no need for a preceding number
         } else if note.hasDisplaySeq() {
@@ -126,8 +126,8 @@ public class DisplayParms {
         } else {
             markedup.append(note.formattedSeq + " ")
         }
-        markedup.link(text: simpleTitle,
-                      path: wikiLinks.assembleWikiLink(title: simpleTitle),
+        markedup.link(text: note.noteID.text,
+                      path: wikiLinks.assembleWikiLink(idBasis: idBasis),
                       klass: klass)
     }
     
@@ -143,10 +143,14 @@ public class DisplayParms {
         guard !included.asList else { return simpleTitle }
         guard !note.klass.frontOrBack else { return simpleTitle }
         guard !note.klass.quote else { return simpleTitle }
-        if note.hasDisplaySeq() {
-            return note.formattedDisplaySeq + simpleTitle
-        } else if note.hasSeq() {
-            return note.formattedSeq + " " + simpleTitle
+        if note.collection.sortParm == .seqPlusTitle {
+            if note.hasDisplaySeq() {
+                return note.formattedDisplaySeq + simpleTitle
+            } else if note.hasSeq() {
+                return note.formattedSeq + " " + simpleTitle
+            } else {
+                return simpleTitle
+            }
         } else {
             return simpleTitle
         }

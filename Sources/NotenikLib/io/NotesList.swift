@@ -78,8 +78,11 @@ public class NotesList: Sequence {
                 }
             }
         }
-        while exactMatch && index > 0 && note == list[index - 1] {
+        while exactMatch && index > 0 && note == list[index - 1] && note.noteID != list[index].noteID {
             index -= 1
+        }
+        while exactMatch && (index + 1) < list.count && note == list[index + 1] && note.noteID != list[index].noteID {
+            index += 1
         }
         return (index, exactMatch)
     }

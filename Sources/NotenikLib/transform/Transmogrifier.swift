@@ -130,7 +130,7 @@ public class Transmogrifier {
                     if !link.targetFound {
                         let newNote = Note(collection: note!.collection)
                         _ = newNote.setTitle(link.originalTarget.item)
-                        newNote.setID()
+                        newNote.identify()
                         _ = io.addNote(newNote: newNote)
                     }
                     
@@ -166,18 +166,17 @@ public class Transmogrifier {
         var backlinksCount = 0
         (note, position) = io.firstNote()
         while note != nil {
-            let titleCommon = note!.id
             let wikiLinks = WikilinkValue()
             let backLinks = BacklinkValue()
 
-            let fromList = from[titleCommon]
+            let fromList = from[note!.noteID.commonID]
             if fromList != nil {
                 for title in fromList!.titles {
                     wikiLinks.add(title: title)
                 }
             }
             
-            let toList = to[titleCommon]
+            let toList = to[note!.noteID.commonID]
             if toList != nil {
                 for title in toList!.titles {
                     backLinks.notePointers.add(title: title)

@@ -17,9 +17,9 @@ public class NavHistory {
     
     var io: NotenikIO
     
-    var previousNotes: [NoteID] = []
+    var previousNotes: [String] = []
     
-    var lastHistoryID: NoteID? = nil
+    var lastHistoryID: String? = nil
     
     public init(io: NotenikIO) {
         self.io = io
@@ -38,7 +38,7 @@ public class NavHistory {
         var i = previousNotes.count - 1
         var found = false
         while i >= 0 && !found {
-            if startingNote.noteID == previousNotes[i] {
+            if startingNote.noteID.commonID == previousNotes[i] {
                 found = true
             } else {
                 i -= 1
@@ -53,7 +53,7 @@ public class NavHistory {
         
         var verified = false
         while i >= 0 && !verified {
-            priorNote = io.getNote(knownAs: previousNotes[i].identifier)
+            priorNote = io.getNote(knownAs: previousNotes[i])
             if priorNote == nil {
                 i -= 1
             } else {
@@ -62,7 +62,7 @@ public class NavHistory {
         }
         
         if priorNote != nil {
-            lastHistoryID = priorNote!.noteID.copy()
+            lastHistoryID = priorNote!.noteID.commonID
         }
         
         return priorNote
@@ -76,7 +76,7 @@ public class NavHistory {
         var i = previousNotes.count - 1
         var found = false
         while i >= 0 && !found {
-            if startingNote.noteID == previousNotes[i] {
+            if startingNote.noteID.commonID == previousNotes[i] {
                 found = true
             } else {
                 i -= 1
@@ -91,7 +91,7 @@ public class NavHistory {
         
         var verified = false
         while i < previousNotes.count && !verified {
-            nextNote = io.getNote(knownAs: previousNotes[i].identifier)
+            nextNote = io.getNote(knownAs: previousNotes[i])
             if nextNote == nil {
                 i += 1
             } else {
@@ -100,7 +100,7 @@ public class NavHistory {
         }
         
         if nextNote != nil {
-            lastHistoryID = nextNote!.noteID.copy()
+            lastHistoryID = nextNote!.noteID.commonID
         }
         
         return nextNote
@@ -110,20 +110,20 @@ public class NavHistory {
     public func addToHistory(another: Note) {
         
         /// If we're trying to add something that's already part of the history trail, then skip it.
-        if lastHistoryID != nil && another.noteID == lastHistoryID! {
+        if lastHistoryID != nil && another.noteID.commonID == lastHistoryID! {
             return
         }
         
         /// If we're trying to add something already recorded at the top of the list, then skip it.
         if previousNotes.count > 0 {
-            if another.noteID == previousNotes[previousNotes.count - 1] {
+            if another.noteID.commonID == previousNotes[previousNotes.count - 1] {
                 return
             }
         }
         
         if lastHistoryID != nil {
             var i = 0
-            var previousID: NoteID? = nil
+            var previousID: String? = nil
             while i < previousNotes.count && previousID == nil {
                 if lastHistoryID == previousNotes[i] {
                     previousID = previousNotes.remove(at: i)
@@ -139,7 +139,7 @@ public class NavHistory {
         var i = 0
         var found = false
         while i < previousNotes.count && !found {
-            if another.noteID == previousNotes[i] {
+            if another.noteID.commonID == previousNotes[i] {
                 found = true
             } else {
                 i += 1
@@ -150,7 +150,7 @@ public class NavHistory {
             previousNotes.remove(at: i)
         }
         
-        previousNotes.append(another.noteID)
+        previousNotes.append(another.noteID.commonID)
         
         lastHistoryID = nil
     }
