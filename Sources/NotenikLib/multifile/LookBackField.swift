@@ -23,10 +23,11 @@ class LookBackField {
     }
     
     func registerLookup(lkUpCollectionID: String,
-                        lkUpNoteTitle:    String,
+                        lkUpNoteIdCommon: String,
+                        lkUpNoteIdText:   String,
                         lkUpFieldLabel:   String) {
         
-        let newLine = LookBackLine(noteTitle: lkUpNoteTitle)
+        let newLine = LookBackLine(noteIdCommon: lkUpNoteIdCommon, noteIdText: lkUpNoteIdText)
         var i = 0
         while i < lookBackLines.count {
             if newLine == lookBackLines[i] {
@@ -42,8 +43,7 @@ class LookBackField {
     }
     
     func registerLookBacks(lkUpNote: Note) {
-        let lkUpNoteTitle = lkUpNote.title.value
-        let newLine = LookBackLine(noteTitle: lkUpNoteTitle)
+        let newLine = LookBackLine(noteIdCommon: lkUpNote.noteID.commonID, noteIdText: lkUpNote.noteID.text)
         var i = 0
         while i < lookBackLines.count {
             if newLine == lookBackLines[i] {
@@ -59,10 +59,9 @@ class LookBackField {
     }
     
     func cancelLookBacks(lkUpNote: Note) {
-        let lkUpNoteTitle = lkUpNote.title.value
         var i = 0
         while i < lookBackLines.count {
-            if lkUpNoteTitle == lookBackLines[i].noteTitle {
+            if lkUpNote.noteID.commonID == lookBackLines[i].noteIdCommon {
                 lookBackLines.remove(at: i)
             } else {
                 i += 1

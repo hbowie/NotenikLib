@@ -1870,14 +1870,14 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
             case "*", "+", "-":
                 ckBox = CkBoxInMarkdown()
                 ckBox.dashPosition = i
-            case " ":
-                if ckBox.leftBracketPosition != nil {
-                    ckBox.length += 1
-                }
             case "[":
                 if ckBox.dashPosition != nil {
                     ckBox.leftBracketPosition = i
                     ckBox.length = 1
+                }
+            case " ":
+                if ckBox.leftBracketPosition != nil {
+                    ckBox.length += 1
                 }
             case "x", "X":
                 if ckBox.leftBracketPosition != nil {
@@ -1899,6 +1899,7 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
                         replacements += 1
                     }
                 }
+                ckBox = CkBoxInMarkdown()
             default:
                 if ckBox.dashPosition != nil {
                     ckBox = CkBoxInMarkdown()

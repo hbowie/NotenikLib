@@ -62,7 +62,8 @@ class LookBackTree {
     ///   - lkBkFieldLabel:   The common label for the lookback field.
     ///   - lkUpValue:        The common form of the title of the note being looked up.
     func registerLookup(lkUpCollectionID: String,
-                        lkUpNoteTitle:    String,
+                        lkUpNoteIdCommon: String,
+                        lkUpNoteIdText:   String,
                         lkUpFieldLabel:   String,
                         lkBkCollectionID: String,
                         lkBkFieldLabel:   String,
@@ -70,7 +71,8 @@ class LookBackTree {
         
         ensureCollection(collectionID: lkBkCollectionID)
         collectionDict[lkBkCollectionID]!.registerLookup(lkUpCollectionID: lkUpCollectionID,
-                                                         lkUpNoteTitle: lkUpNoteTitle,
+                                                         lkUpNoteIdCommon: lkUpNoteIdCommon,
+                                                         lkUpNoteIdText: lkUpNoteIdText,
                                                          lkUpFieldLabel: lkUpFieldLabel,
                                                          lkBkFieldLabel: lkBkFieldLabel,
                                                          lkUpValue: lkUpValue)

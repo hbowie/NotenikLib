@@ -209,7 +209,7 @@ public protocol NotenikIO {
     
     /// Check for uniqueness and, if necessary, Increment the suffix
     /// for this Note's ID until it becomes unique.
-    func ensureUniqueID(for noteID: NoteIdentification)
+    func ensureUniqueID(for note: Note)
     
     /// Delete the currently selected Note, plus any attachments it might have.
     ///

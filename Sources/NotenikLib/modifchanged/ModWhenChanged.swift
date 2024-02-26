@@ -176,7 +176,7 @@ public class ModWhenChanged {
                 }
             }
             if newID {
-                io.ensureUniqueID(for: modNote.noteID)
+                io.ensureUniqueID(for: modNote)
             }
             if outcome == .modify {
                 if startingNote.sortKey != modNote.sortKey {

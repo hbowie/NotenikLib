@@ -368,11 +368,15 @@ class BunchIO: NotenikIO, RowConsumer  {
     
     /// Check for uniqueness and, if necessary, Increment the suffix
     /// for this Note's ID until it becomes unique.
-    func ensureUniqueID(for noteID: NoteIdentification) {
-        var existingNote = bunch!.getNote(forID: noteID)
+    func ensureUniqueID(for note: Note) {
+        var dupeCounter = 1
+        let originalTitle = note.title.value
+        var existingNote = bunch!.getNote(forID: note.noteID)
         while existingNote != nil {
-            noteID.avoidDuplicate()
-            existingNote = bunch!.getNote(forID: noteID)
+            dupeCounter += 1
+            _ = note.setTitle("\(originalTitle) \(dupeCounter)")
+            note.identify()
+            existingNote = bunch!.getNote(forID: note.noteID)
         }
     }
     

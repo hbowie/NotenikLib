@@ -36,7 +36,6 @@ public class NoteIdentification: Identifiable, Comparable, Equatable {
     
     var basis            = ""
     var text             = ""
-    var dupeCounter      = 0
     
     var existingBase:    String?
     var existingExt:     String?
@@ -47,7 +46,6 @@ public class NoteIdentification: Identifiable, Comparable, Equatable {
     
     var derivationNeeded = false
     
-    var basisPlusDupe    = ""
     var commonID         = ""
     var readableFileName = ""
     var commonFileName   = ""
@@ -117,15 +115,6 @@ public class NoteIdentification: Identifiable, Comparable, Equatable {
         deriveIdentifiers()
     }
     
-    public func avoidDuplicate() {
-        if dupeCounter < 2 {
-            dupeCounter = 2
-        } else {
-            dupeCounter += 1
-        }
-        deriveIdentifiers()
-    }
-    
     // -----------------------------------------------------------
     //
     // MARK: Figure out the derived fields.
@@ -139,13 +128,9 @@ public class NoteIdentification: Identifiable, Comparable, Equatable {
     }
     
     func deriveIdentifiers() {
-        basisPlusDupe = basis
-        if dupeCounter >= 2 {
-            basisPlusDupe.append(" \(dupeCounter)")
-        }
-        commonID         = StringUtils.toCommon(basisPlusDupe)
-        readableFileName = StringUtils.toReadableFilename(basisPlusDupe)
-        commonFileName   = StringUtils.toCommonFileName(basisPlusDupe)
+        commonID         = StringUtils.toCommon(basis)
+        readableFileName = StringUtils.toReadableFilename(basis)
+        commonFileName   = StringUtils.toCommonFileName(basis)
         derivationNeeded = false
     }
     
@@ -248,7 +233,6 @@ public class NoteIdentification: Identifiable, Comparable, Equatable {
     public func copy() -> NoteIdentification {
         let noteID2 = NoteIdentification()
         noteID2.basis       = self.basis
-        noteID2.dupeCounter = self.dupeCounter
         noteID2.text        = self.text
         noteID2.commonID    = commonID
         noteID2.readableFileName = self.readableFileName

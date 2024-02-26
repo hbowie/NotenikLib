@@ -12,20 +12,29 @@
 
 import Foundation
 
+import NotenikUtils
+
 /// One line, pointing to one Note, in a list of lookback items. 
 class LookBackLine: Comparable {
     
-    var noteTitle    = ""
+    var noteIdCommon    = ""
+    var noteIdText      = ""
     
-    init(noteTitle: String) {
-        self.noteTitle = noteTitle
+    init(noteIdCommon: String, noteIdText: String) {
+        self.noteIdCommon = noteIdCommon
+        self.noteIdText = noteIdText
+        if self.noteIdText.isEmpty {
+            self.noteIdText = self.noteIdCommon
+        } else if self.noteIdCommon.isEmpty {
+            self.noteIdCommon = StringUtils.toCommon(self.noteIdText)
+        }
     }
     
     static func < (lhs: LookBackLine, rhs: LookBackLine) -> Bool {
-        return lhs.noteTitle < rhs.noteTitle
+        return lhs.noteIdCommon < rhs.noteIdCommon
     }
     
     static func == (lhs: LookBackLine, rhs: LookBackLine) -> Bool {
-        return lhs.noteTitle == rhs.noteTitle
+        return lhs.noteIdCommon == rhs.noteIdCommon
     }
 }

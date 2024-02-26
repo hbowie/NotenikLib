@@ -24,13 +24,15 @@ class LookBackNote {
     }
     
     func registerLookup(lkUpCollectionID: String,
-                        lkUpNoteTitle:    String,
+                        lkUpNoteIdCommon: String,
+                        lkUpNoteIdText:   String,
                         lkUpFieldLabel:   String,
                         lkBkFieldLabel:   String) {
         
         ensureField(lkBkFieldLabel: lkBkFieldLabel)
         fields[lkBkFieldLabel]!.registerLookup(lkUpCollectionID: lkUpCollectionID,
-                                               lkUpNoteTitle: lkUpNoteTitle,
+                                               lkUpNoteIdCommon: lkUpNoteIdCommon,
+                                               lkUpNoteIdText: lkUpNoteIdText,
                                                lkUpFieldLabel: lkUpFieldLabel)
         
     }

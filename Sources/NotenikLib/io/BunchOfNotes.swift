@@ -94,6 +94,7 @@ class BunchOfNotes {
     /// - Parameter title: The title to be evaluated.
     /// - Returns: nil if not in use, otherwise a message
     ///            indicating current usage.
+    /*
     func inUse(title: String) -> String? {
         let noteID = StringUtils.toCommon(title)
         let existingNote = notesDict[noteID]
@@ -105,7 +106,7 @@ class BunchOfNotes {
             return "Another Note already exists that is known by this identifier"
         }
         return nil
-    }
+    } */
     
     /// Add a new Note to memory, so it can be accessed later
     ///

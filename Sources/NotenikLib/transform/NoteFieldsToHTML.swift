@@ -747,8 +747,8 @@ public class NoteFieldsToHTML {
         markedup.startUnorderedList(klass: nil)
         for line in lkBkLines {
             markedup.startListItem()
-            let openLink = "notenik://open?shortcut=\(def.lookupFrom)&id=\(StringUtils.toCommon(line.noteTitle))"
-            markedup.link(text: line.noteTitle, path: openLink)
+            let openLink = "notenik://open?shortcut=\(def.lookupFrom)&id=\(line.noteIdCommon)"
+            markedup.link(text: line.noteIdText, path: openLink)
             markedup.finishListItem()
         }
         markedup.finishUnorderedList()
