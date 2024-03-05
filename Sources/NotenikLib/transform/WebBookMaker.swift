@@ -272,7 +272,7 @@ public class WebBookMaker {
         parms.extLinksOpenInNewWindows = collection.extLinksOpenInNewWindows
         parms.imagesPath = imagesRelPath
         parms.header = header
-        parms.cssString = cssRelPath
+        // parms.cssString = cssRelPath
         
         htmlConverter.addHTML()
         
@@ -305,6 +305,8 @@ public class WebBookMaker {
         generateCSS()
         
         deleteOldFiles()
+        
+        parms.cssString = cssRelPath
         
         // Now generate fresh content.
         display.loadResourcePagesForCollection(io: io, parms: parms)
@@ -499,7 +501,7 @@ public class WebBookMaker {
     /// If the CSS file already exists, then leave it in place.
     func generateCSS() {
         
-        // defaultCSS = parms.cssString
+        defaultCSS = parms.cssString
         defaultCSS.append("\nimg { max-width: 100%; border: 4px solid gray; }")
         defaultCSS.append("\nbody { max-width: 33em; margin: 0 auto; float: none; }")
         

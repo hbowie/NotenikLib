@@ -55,6 +55,8 @@ class SeqStack {
     }
     
     var possibleTimeStack: Bool {
+        guard !segments.isEmpty else { return false }
+        guard segments.count <= 4 else { return false }
         for segment in segments {
             if !segment.possibleTimeSegment {
                 return false
@@ -80,14 +82,36 @@ class SeqStack {
         }
     }
     
+    var postMidday: Bool {
+        return count > 1 && segments[max].amPM && segments[max].value.lowercased() == "pm" && possibleTimeStack
+    }
+    
+    var hours: String {
+        guard segments.count > 0 else { return "00" }
+        var hours = segments[0].value
+        var adjusted = Int(hours)
+        guard adjusted != nil else { return hours }
+        if postMidday {
+            if adjusted! < 12 {
+                adjusted! += 12
+            }
+        }
+        let adjustedValue = "\(adjusted!)"
+        var adjustedChars = adjustedValue.count
+        hours = ""
+        while adjustedChars < 2 {
+            hours.append("0")
+            adjustedChars += 1
+        }
+        hours.append(adjustedValue)
+        return hours
+    }
+    
     /// A sort key for the stack, with appropriate padding added to each segment. 
     var sortKey: String {
         var key = ""
         var segIndex = 0
-        var pm = false
-        if count > 2 && segments[max].amPM && segments[max].value.lowercased() == "pm" && possibleTimeStack {
-            pm = true
-        }
+        let pm = postMidday
         for segment in segments {
             var appended = false
             if pm && segIndex == 0 {

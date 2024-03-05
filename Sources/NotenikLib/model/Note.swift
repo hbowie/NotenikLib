@@ -1190,6 +1190,11 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
         return setField(label: collection.seqFieldDef!.fieldLabel.commonForm, value: seq)
     }
     
+    public func getSeqAsField() -> NoteField? {
+        guard collection.seqFieldDef != nil else { return nil }
+        return getField(def: collection.seqFieldDef!)
+    }
+    
     /// Return the Note's Sequence Value
     public var seq: SeqValue {
         guard collection.seqFieldDef != nil else {
@@ -1211,6 +1216,38 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
         guard let seqValue = getFieldAsValue(def: collection.seqFieldDef!) as? SeqValue else { return "" }
 
         return collection.seqFormatter.format(seq: seqValue)
+    }
+    
+    //
+    // Functions and variables concerning the Note's Duration field.
+    //
+    public func hasDuration() -> Bool {
+        guard let def = collection.durationFieldDef else { return false }
+        guard let field = fields[def.fieldLabel.commonForm] else { return false }
+        guard field.value.hasData else { return false }
+        return true
+    }
+    
+    public func setDuration(_ duration: String) -> Bool {
+        guard collection.durationFieldDef != nil else { return false }
+        return setField(label: collection.durationFieldDef!.fieldLabel.commonForm, value: duration)
+    }
+    
+    public func getDurationAsField() -> NoteField? {
+        guard let def = collection.durationFieldDef else { return nil }
+        return getField(def: def)
+    }
+    
+    public var duration: DurationValue {
+        guard collection.durationFieldDef != nil else {
+            return DurationValue()
+        }
+        let val = getFieldAsValue(def: collection.durationFieldDef!)
+        if val is DurationValue {
+            return val as! DurationValue
+        } else {
+            return collection.durationFieldDef!.fieldType.createValue(val.value) as! DurationValue
+        }
     }
     
     //

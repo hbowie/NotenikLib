@@ -79,6 +79,7 @@ public class NoteCollection {
     public  var rankFieldDef:    FieldDefinition?
     public  var levelFieldDef:   FieldDefinition?
     public  var seqFieldDef:     FieldDefinition?
+    public  var durationFieldDef: FieldDefinition?
     public  var displaySeqFieldDef: FieldDefinition?
     public  var klassFieldDef:   FieldDefinition?
     public  var includeChildrenDef: FieldDefinition?
@@ -180,6 +181,7 @@ public class NoteCollection {
         
         personDef = nil
         authorDef = nil
+        durationFieldDef = nil
         creatorFound = false
 
         dateCount = 0
@@ -239,6 +241,29 @@ public class NoteCollection {
     
     public var fullPathURL: URL? {
         return lib.getURL(type: .collection)
+    }
+    
+    /// Based on the folder path, and throwing out common rubbish, generate
+    /// a semi-unique, hopefully meaningful identifier for the collection. 
+    public var externalID: String {
+        guard let collectionURL = lib.getURL(type: .collection) else { return "" }
+        let pathComponents = collectionURL.pathComponents
+        var id = ""
+        for pathComponent in pathComponents {
+            guard pathComponent != "/" else { continue }
+            guard pathComponent != "Users" else { continue }
+            guard pathComponent != "Documents" else { continue }
+            guard pathComponent != "Library" else { continue }
+            guard pathComponent != "Mobile Documents" else { continue }
+            guard pathComponent != "com~apple~CloudDocs" else { continue }
+            guard pathComponent != "Dropbox" else { continue }
+            guard !pathComponent.contains("Cloud") else { continue }
+            if !id.isEmpty {
+                id.append("-")
+            }
+            id.append(StringUtils.toCommonFileName(pathComponent))
+        }
+        return id
     }
     
     /// Is this today's first startup?
@@ -473,6 +498,11 @@ public class NoteCollection {
                 directionsFieldDef = def
             }
             
+        case NotenikConstants.durationCommon:
+            if durationFieldDef == nil {
+                durationFieldDef = def
+            }
+            
         case NotenikConstants.imageNameCommon:
             if imageNameFieldDef == nil {
                 imageNameFieldDef = def
@@ -624,6 +654,7 @@ public class NoteCollection {
         }
     }
     
+    /// This is a short identifier meant for internal use.
     public var collectionID: String {
         if !shortcut.isEmpty {
             return shortcut
