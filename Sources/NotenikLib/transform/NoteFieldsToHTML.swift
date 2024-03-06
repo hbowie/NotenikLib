@@ -834,6 +834,8 @@ public class NoteFieldsToHTML {
             mkdownContext = NotesMkdownContext(io: io!, displayParms: parms)
         } */
         
+        self.io = io
+        
         if withAttrib && (note.hasAttribution() || note.hasAuthor() || note.hasWorkTitle()) {
             markedup.startFigure(klass: "notenik-quote-attrib")
         }
@@ -943,6 +945,7 @@ public class NoteFieldsToHTML {
     func transformMarkdown(markdown: String, fieldType: String, writer: Markedup, noteTitle: String, shortID: String) {
         let parserID = AppPrefs.shared.markdownParser
         guard io != nil else {
+            Logger.shared.log(subsystem: "NotenikLib", category: "NoteFieldsToHTML", level: .error, message: "I/O module is missing")
             return
         }
         TransformMarkdown.mdToHtml(parserID: parserID, fieldType: fieldType, markdown: markdown, io: io!, parms: parms, results: results, noteTitle: noteTitle, shortID: shortID)

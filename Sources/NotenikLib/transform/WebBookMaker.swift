@@ -311,7 +311,15 @@ public class WebBookMaker {
         // Now generate fresh content.
         display.loadResourcePagesForCollection(io: io, parms: parms)
         filesWritten = 0
-        io.sortParm = .seqPlusTitle
+        switch io.sortParm {
+        case .seqPlusTitle:
+            break
+        case .datePlusSeq:
+            break
+        default:
+            io.sortParm = .seqPlusTitle
+        }
+        
         bookTitle = ""
         var (note, position) = io.firstNote()
         firstPage = true
