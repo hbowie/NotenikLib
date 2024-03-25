@@ -231,10 +231,10 @@ public class NoteDisplay {
         
         // See if we meet necessary conditions.
         guard parms.displayMode != .normal else { return "" }
-        guard !parms.concatenated else { return ""}
-        guard note.collection.seqFieldDef != nil else { return "" }
+        guard !parms.concatenated else { return "" }
+        guard note.collection.seqFieldDef != nil || parms.displayMode == .quotations else { return "" }
         let sortParm = parms.sortParm
-        guard sortParm == .seqPlusTitle else { return "" }
+        guard sortParm == .seqPlusTitle || parms.displayMode == .quotations else { return "" }
         
         let bottomHTML = Markedup()
         
@@ -293,7 +293,25 @@ public class NoteDisplay {
         }
         
         if !parms.epub3 {
-            if nextBasis.isEmpty {
+            if parms.displayMode == .quotations {
+                bottomHTML.startDiv(klass: nil)
+                bottomHTML.startParagraph()
+                bottomHTML.link(text: "Next", path: parms.wikiLinks.assembleWikiLink(idBasis: nextBasis), klass: Markedup.htmlClassNavLink)
+                bottomHTML.append(" &nbsp; ")
+                guard let collection = io.collection else { return "" }
+                var str = "notenik://open?"
+                if collection.shortcut.count > 0 {
+                    str.append("shortcut=\(collection.shortcut)")
+                } else {
+                    let folderURL = URL(fileURLWithPath: collection.fullPath)
+                    let encodedPath = String(folderURL.absoluteString.dropFirst(7))
+                    str.append("path=\(encodedPath)")
+                }
+                str.append("&select=random")
+                bottomHTML.link(text: "Random", path: str, klass: Markedup.htmlClassNavLink)
+                bottomHTML.finishParagraph()
+                bottomHTML.finishDiv()
+            } else if nextBasis.isEmpty {
                 backToTop(io: io, bottomHTML: bottomHTML)
             } else if parms.displayMode == .streamlinedReading {
                 bottomHTML.startDiv(klass: nil)

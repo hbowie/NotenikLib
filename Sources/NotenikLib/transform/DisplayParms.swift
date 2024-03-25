@@ -92,6 +92,21 @@ public class DisplayParms {
             return false
         case .streamlinedReading:
             return false
+        case .quotations:
+            return false
+        }
+    }
+    
+    public var displayTags: Bool {
+        switch displayMode {
+        case .normal:
+            return true
+        case .presentation:
+            return false
+        case .streamlinedReading:
+            return false
+        case .quotations:
+            return false
         }
     }
     
@@ -102,6 +117,8 @@ public class DisplayParms {
         case .presentation:
             return true
         case .streamlinedReading:
+            return true
+        case .quotations:
             return true
         }
     }

@@ -30,6 +30,8 @@ public class NoteFieldsToHTML {
     
     var io: NotenikIO?
     
+    var mkdownContext: MkdownContext?
+    
     var results = TransformMdResults()
     
     var attribution: NoteField?
@@ -59,6 +61,9 @@ public class NoteFieldsToHTML {
         self.io = io
         self.results = results
         self.parms = parms
+        if io != nil {
+            mkdownContext = NotesMkdownContext(io: io!, displayParms: parms)
+        }
         parms.setMkdownOptions(mkdownOptions)
         if note.hasShortID() {
             mkdownOptions.shortID = note.shortID.value
@@ -67,6 +72,12 @@ public class NoteFieldsToHTML {
         }
         self.bodyHTML = results.bodyHTML
         self.minutesToRead = results.minutesToRead
+        
+        // Use separate logic if in quotes mode
+        if parms.displayMode == .quotations && !parms.epub3 {
+            return quoteFieldsToHTML(note, topOfPage: topOfPage, imageWithinPage: imageWithinPage, bottomOfPage: bottomOfPage, lastInList: lastInList)
+        }
+        
         let collection = note.collection
         let dict = collection.dict
         
@@ -114,7 +125,7 @@ public class NoteFieldsToHTML {
         startIncludedItem(code: code)
         
         // Let's put the tags at the top, if it's a normal display.
-        if note.hasTags() && topOfPage.isEmpty && parms.fullDisplay {
+        if note.hasTags() && topOfPage.isEmpty && parms.displayTags {
             let tagsField = note.getTagsAsField()
             code.append(display(tagsField!, noteTitle: noteTitle, note: note, collection: collection, io: io))
         }
@@ -148,6 +159,8 @@ public class NoteFieldsToHTML {
                             // ignore for now
                         } else if field!.def == collection.wikilinksDef {
                             // ignore for now
+                        } else if parms.displayMode == .quotations && field!.def.fieldType.typeString == NotenikConstants.booleanType {
+                            // don't show flags in quotes mode
                         } else if field!.def == collection.attribFieldDef {
                             attribution = field
                         } else {
@@ -224,6 +237,108 @@ public class NoteFieldsToHTML {
         return String(describing: code)
     }
     
+    /// Get the code used to display this entire note as a web page, including html tags.
+    ///
+    /// - Parameter note: The note to be displayed.
+    /// - Returns: A string containing the encoded note.
+    public func quoteFieldsToHTML(_ note: Note,
+                             topOfPage: String,
+                             imageWithinPage: String,
+                             bottomOfPage: String = "",
+                             lastInList: Bool = false) -> String {
+        
+        let collection = note.collection
+        
+        // Start the Markedup code generator.
+        let code = Markedup(format: parms.format)
+        let noteTitle = pop.toXML(note.title.value)
+        code.startDoc(withTitle: noteTitle,
+                      withCSS: parms.cssString,
+                      linkToFile: parms.cssLinkToFile,
+                      withJS: mkdownOptions.getHtmlScript(),
+                      epub3: parms.epub3)
+        
+        var headerContents = ""
+        if note.treatAsTitlePage {
+            headerContents = parms.header
+        } else {
+            headerContents = parms.header + collection.mkdownCommandList.getCodeFor(MkdownConstants.headerCmd)
+        }
+        
+        if note.mkdownCommandList.contentPage
+            // && note.klass.value != NotenikConstants.titleKlass
+            {
+            if !headerContents.isEmpty {
+                code.header(headerContents)
+            }
+            let navCode = collection.mkdownCommandList.getCodeFor(MkdownConstants.navCmd)
+            if !navCode.isEmpty && note.klass.value != NotenikConstants.titleKlass {
+                code.nav(navCode)
+            }
+        }
+        
+        code.startMain()
+        
+        // Start with top of page code, if we have any.
+        if !topOfPage.isEmpty {
+            code.append(topOfPage)
+        }
+        
+        // Start an included item, if needed.
+        startIncludedItem(code: code)
+        
+        // Display the Tags
+        if let field = note.getTagsAsField() {
+            displayTags(field, collection: collection, markedup: code)
+        }
+        
+        // Display the Title of the Note
+        displayTitle(note: note, noteTitle: note.title.value, markedup: code)
+        
+        // Display the body of the note.
+        if let bodyField = note.getBodyAsField() {
+            displayBody(bodyField, note: note, collection: collection, mkdownContext: mkdownContext, markedup: code)
+            // code.horizontalRule()
+        } else {
+            return ""
+        }
+        
+        // Put quote attribution after the quote itself.
+        // if quoted && attribution != nil {
+        if attribution != nil {
+            code.append(display(attribution!, noteTitle: noteTitle, note: note, collection: collection, io: io))
+        } else {
+            code.append(NoteSlugger.authorWorkSlug(fromNote: note, links: false, verbose: true))
+        }
+        
+        // Finish up an included item, if needed.
+        finishIncludedItem(code: code)
+        
+        // Now add the bottom of the page, if any.
+        if !bottomOfPage.isEmpty {
+            code.horizontalRule()
+            code.append(bottomOfPage)
+        }
+        
+        // If this is the last included child, and if a list was requested, finish it off.
+        if lastInList {
+            finishListOfChildren(code: code)
+        }
+        
+        code.finishMain()
+        
+        let footerCode = collection.mkdownCommandList.getCodeFor(MkdownConstants.footerCmd)
+        if note.includeInBook(epub: parms.epub3) && !footerCode.isEmpty {
+            code.footer(footerCode)
+        }
+        
+        // Finish off the entire document.
+        code.finishDoc()
+        
+        // Return the markup.
+        return String(describing: code)
+    }
+    
     func startListOfChildren(code: Markedup) {
 
         guard parms.reducedDisplay else { return }
@@ -288,7 +403,6 @@ public class NoteFieldsToHTML {
         guard let def = note.collection.wikilinksDef else { return }
         let links = note.wikilinks
         guard links.hasData else { return }
-        var mkdownContext: MkdownContext?
         if io != nil {
             mkdownContext = NotesMkdownContext(io: io!, displayParms: parms)
         }
@@ -300,7 +414,6 @@ public class NoteFieldsToHTML {
         guard let def = note.collection.backlinksDef else { return }
         let links = note.backlinks
         guard links.hasData else { return }
-        var mkdownContext: MkdownContext?
         if io != nil {
             mkdownContext = NotesMkdownContext(io: io!, displayParms: parms)
         }
@@ -316,7 +429,6 @@ public class NoteFieldsToHTML {
     func display(_ field: NoteField, noteTitle: String, note: Note, collection: NoteCollection, io: NotenikIO?) -> String {
         
         // Prepare for processing.
-        var mkdownContext: MkdownContext?
         if io != nil {
             mkdownContext = NotesMkdownContext(io: io!, displayParms: parms)
         }
@@ -331,7 +443,7 @@ public class NoteFieldsToHTML {
                 mkdownContext!.setTitleToParse(id: note.noteID.commonID, text: note.noteID.text, fileName: note.noteID.commonFileName, shortID: note.shortID.value)
             }
         // Format the tags field
-        } else if field.def == collection.tagsFieldDef && parms.fullDisplay {
+        } else if field.def == collection.tagsFieldDef && parms.displayTags {
             displayTags(field, collection: collection, markedup: code)
         } else if field.def == collection.bodyFieldDef {
             displayBody(field,
@@ -500,7 +612,7 @@ public class NoteFieldsToHTML {
                      mkdownContext: MkdownContext?,
                      markedup: Markedup) {
         
-        if collection.bodyLabel {
+        if collection.bodyLabel && parms.fullDisplay {
             markedup.startParagraph()
             markedup.append(field.def.fieldLabel.properForm)
             markedup.append(": ")
