@@ -58,8 +58,9 @@ public class LinkValue: StringValue {
             linkValue.removeFirst()
             linkValue.removeLast()
         }
-        super.set(linkValue)
-        link.set(with: linkValue, assume: .assumeWeb)
+        let schemed = StringUtils.addCommonUrlSchemes(str: linkValue)
+        super.set(schemed)
+        link.set(with: schemed, assume: .assumeWeb)
     }
     
     public override func valueToWrite(mods: String = " ") -> String {

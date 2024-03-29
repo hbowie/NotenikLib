@@ -671,6 +671,20 @@ public class NoteCollection {
         return highestTitleNumber
     }
     
+    public func makeLinkRelative(startingLink: String) -> String {
+        
+        if startingLink.hasPrefix("file://") || startingLink.hasPrefix("/") || startingLink.hasPrefix("mailto:") {
+            if let collectionURL = lib.getURL(type: .collection) {
+                let collectionFileName = FileName(collectionURL.absoluteString)
+                let fileName = FileName(startingLink)
+                if fileName.isBeneath(collectionFileName) {
+                    return collectionFileName.makeRelative(fileName2: fileName)
+                }
+            }
+        }
+        return startingLink
+    }
+    
     /// Useful for debugging. 
     public func display() {
         print(" ")

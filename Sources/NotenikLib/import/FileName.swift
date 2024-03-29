@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 12/26/18.
-//  Copyright © 2018 - 2020 Herb Bowie (https://hbowie.net)
+//  Copyright © 2018 - 2024 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -43,6 +43,14 @@ public class FileName: CustomStringConvertible {
     
     /// Do we think this is a file or a directory?
     var fileOrDir: FileOrDirectory = .unknown
+    
+    public var typeIsFile: Bool {
+        return fileOrDir == .file
+    }
+    
+    public var typeIsDirectory: Bool {
+        return fileOrDir == .directory
+    }
     
     public var description: String {
         return fileNameStr
@@ -184,7 +192,9 @@ public class FileName: CustomStringConvertible {
     /// - Parameter fn2: The possible parent to this file/folder.
     /// - Returns: True if this file is beneath fn2, otherwise false. 
     public func isBeneath(_ fn2: FileName) -> Bool {
-        guard folders.count > fn2.folders.count else { return false }
+        guard folders.count > fn2.folders.count
+                || (folders.count == fn2.folders.count
+                    && self.typeIsFile && fn2.typeIsDirectory) else { return false }
         var i = 0
         var matched = true
         while i < folders.count && i < fn2.folders.count && matched {
@@ -241,12 +251,17 @@ public class FileName: CustomStringConvertible {
     
     /// Take an absolute path and return a path relative
     /// to the path for this file name.
-    func makeRelative(path: String) -> String {
+    public func makeRelative(path: String) -> String {
         
         // If this is already a relative path, then don't mess with it
         guard path.hasPrefix("/") else { return path }
         
         let fileName2 = FileName(path)
+        
+        return makeRelative(fileName2: fileName2)
+    }
+    
+    public func makeRelative(fileName2: FileName) -> String {
         
         var folderIndex = 0
         while (folderIndex < folders.count

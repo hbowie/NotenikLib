@@ -922,7 +922,18 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
         let val = getFieldAsValue(def: collection.linkFieldDef)
         if val is LinkValue {
             let linkVal = val as! LinkValue
-            return linkVal.url
+            if linkVal.value.contains("://") || linkVal.value.hasPrefix("/") || linkVal.value.hasPrefix("mailto:") {
+                return linkVal.url
+            } else if let collectionURL = collection.lib.getURL(type: .collection) {
+                var filePath = linkVal.value
+                if let decoded = filePath.removingPercentEncoding {
+                    filePath = decoded
+                }
+                let fileURL = URL(fileURLWithPath: filePath, relativeTo: collectionURL)
+                return fileURL
+            } else {
+                return linkVal.url
+            }
         } else {
             return nil
         }
