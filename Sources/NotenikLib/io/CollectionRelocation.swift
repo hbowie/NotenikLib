@@ -176,7 +176,7 @@ public class CollectionRelocation {
                 notesWritten += 1
                 copyAttachments(fromNote: fromNote, toNote: toNote)
                 if move {
-                    let removed = FileUtils.removeItem(at: fromNote.noteID.getURL(collection: fromNote.collection))
+                    let removed = FileUtils.removeItem(at: fromNote.noteID.getURL(note: fromNote))
                     if !removed {
                         errors += 1
                     }

@@ -77,6 +77,10 @@ public class FieldLabel: CustomStringConvertible, Comparable  {
         return commonForm == NotenikConstants.dateModifiedCommon
     }
     
+    var isFolder: Bool {
+        return commonForm == NotenikConstants.folderCommon
+    }
+    
     var isIndex: Bool {
         return commonForm == NotenikConstants.indexCommon
     }
@@ -127,7 +131,6 @@ public class FieldLabel: CustomStringConvertible, Comparable  {
     
     var isTitle: Bool {
         return commonForm == NotenikConstants.titleCommon
-        
     }
     
     var isType: Bool {

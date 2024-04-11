@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 2/27/21.
 //
-//  Copyright © 2021-2022 Herb Bowie (https://hbowie.net)
+//  Copyright © 2021-2024 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -16,7 +16,7 @@ import NotenikUtils
 
 /// A repository from which to obtain the various resources that might be found
 /// within a particular Notenik Collection.
-public class ResourceLibrary {
+public class ResourceLibrary: Equatable {
     
     // -----------------------------------------------------------
     //
@@ -493,6 +493,10 @@ public class ResourceLibrary {
         guard notesFolder.isAvailable else { return false }
         guard !note.noteID.isEmpty else { return false }
         
+        if note.hasFolder() {
+            return saveSubNote(note: note)
+        }
+        
         let noteResource = ResourceFileSys(parent: notesFolder, fileName: note.noteID.getBaseDotExt()!, type: .note)
         return noteResource.writeNote(note)
     }
@@ -622,6 +626,91 @@ public class ResourceLibrary {
         readyForUse = true
     }
     
+    // -----------------------------------------------------------
+    //
+    // MARK: Manage Subfolders
+    //
+    // -----------------------------------------------------------
+    
+    var subLibs: [String: ResourceLibrary] = [:]
+    
+    public func getSubLib(folderName: String) -> ResourceLibrary? {
+        return subLibs[folderName]
+    }
+    
+    /// If this sub-folder doesn't already exist, then try to create it.
+    /// - Parameter note: A note that might be stored in a sub-folder.
+    public func checkForFolder(note: Note) {
+        guard note.hasFolder() else { return }
+        let folderName = note.folder.value
+        var subLib: ResourceLibrary? = subLibs[folderName]
+        guard subLib == nil else { return }
+        subLib = newSubLib(note: note)
+        guard subLib != nil else { return }
+        addSubLib(folderName: folderName, subLib: subLib!)
+    }
+    
+    /// Add a sub-library to our internal list.
+    /// - Parameters:
+    ///   - folderName: The name of the folder.
+    ///   - subLib: The Resource library defined for the folder.
+    public func addSubLib(folderName: String, subLib: ResourceLibrary) {
+        subLibs[folderName] = subLib
+    }
+    
+    /// Save a Note in a sub-folder, creating a new sub-folder if needed.
+    /// - Parameter note: The note to be saved.
+    /// - Returns: True if saved successfully; false otherwise.
+    public func saveSubNote(note: Note) -> Bool {
+        
+        // First of all, obtain a sub-library.
+        var subLib: ResourceLibrary? = subLibs[note.folder.value]
+        if subLib == nil {
+            subLib = newSubLib(note: note)
+        }
+        guard subLib != nil else { return false }
+        
+        let noteResource = ResourceFileSys(parent: subLib!.notesFolder, fileName: note.noteID.getBaseDotExt()!, type: .note)
+        return noteResource.writeNote(note)
+    }
+    
+    /// Create a new sub-folder, including the folder on disk and the Resource library.
+    /// - Parameter note: The note for which we need a new sub-folder.
+    /// - Returns: The new resource library, if successful 
+    public func newSubLib(note: Note) -> ResourceLibrary? {
+        
+        let folder = note.folder.value
+        let collection = note.collection
+        
+        let resource = ResourceFileSys(parent: notesFolder, fileName: folder, type: .collection)
+        guard resource.ensureExistence() else {
+            logError("Sub-folder could not be created for notes folder of '\(notesFolder)' and folder name of '\(folder)'")
+            return nil
+        }
+        let subLib = ResourceLibrary()
+        let subPath = joinPaths(path1: notesFolder.normalPath, path2: folder)
+        subLib.pathWithinRealm = subPath
+        subLib.prepareForUse()
+        _ = subLib.saveReadMe()
+        
+        let templateMaker = TemplateLineMaker()
+        templateMaker.putTemplate(collection: collection, subFolder: true)
+        _ =  subLib.saveTemplate(str: templateMaker.str, ext: collection.preferredExt)
+        
+        let infoMaker = InfoLineMaker()
+        infoMaker.putInfo(collection: collection, bunch: nil)
+        _ = subLib.saveInfo(str: infoMaker.str)
+        
+        return subLib
+    }
+    
+    
+    // -----------------------------------------------------------
+    //
+    // MARK: Utility Routines
+    //
+    // -----------------------------------------------------------
+    
     /// Join two path Strings, ensuring one and only one slash between the two.
     ///
     /// - Parameters:
@@ -665,5 +754,9 @@ public class ResourceLibrary {
                           category: "ResourceLibrary",
                           level: .error,
                           message: msg)
+    }
+    
+    public static func == (lhs: ResourceLibrary, rhs: ResourceLibrary) -> Bool {
+        return lhs.collection == rhs.collection
     }
 }

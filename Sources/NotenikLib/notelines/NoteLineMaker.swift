@@ -229,6 +229,7 @@ public class NoteLineMaker {
     public func putField(_ possibleField: NoteField?, format: NoteFileFormat, newLabel: String = "") {
         guard let field = possibleField else { return }
         guard field.value.hasData else { return }
+        guard field.def.fieldType.typeString != NotenikConstants.folderCommon else { return }
         putFieldName(field, format: format, newLabel: newLabel)
         putFieldValue(field, format: format)
         fieldsWritten += 1

@@ -23,6 +23,7 @@ public enum ResourceType {
     case displayCSS
     case exportFolder
     case exportScript
+    case folder
     case info
     case infoConflicted
     case infoParent

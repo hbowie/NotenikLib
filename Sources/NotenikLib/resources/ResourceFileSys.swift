@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 2/26/21.
 //
-//  Copyright © 2021 - 2023 Herb Bowie (https://hbowie.net)
+//  Copyright © 2021 - 2024 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -15,7 +15,7 @@ import Foundation
 import NotenikUtils
 
 /// An object representing a resource obtained from the file system.
-public class ResourceFileSys: CustomStringConvertible, Comparable {
+public class ResourceFileSys: CustomStringConvertible, Comparable, Equatable {
     
     // -----------------------------------------------------------
     //
@@ -249,7 +249,7 @@ public class ResourceFileSys: CustomStringConvertible, Comparable {
         
         guard writeNoteAtomic(note) else { return false }
         
-        let noteURL = note.noteID.getURL(collection: collection)
+        let noteURL = note.noteID.getURL(note: note)
         if noteURL != nil {
             updateEnvDates(note: note, noteURL: noteURL!)
             if collection.hasTimestamp {
@@ -534,6 +534,8 @@ public class ResourceFileSys: CustomStringConvertible, Comparable {
             type = .attachments
         } else if _fName == ResourceFileSys.exportFolderName {
             type = .exportFolder
+        } else {
+            type = .folder
         }
     }
         
@@ -585,6 +587,17 @@ public class ResourceFileSys: CustomStringConvertible, Comparable {
                           category: "ResourceFileSys",
                           level: .error,
                           message: msg)
+    }
+    
+    public func display() {
+        print("ResourceFileSys")
+        print("  - base: \(base)")
+        print("  - base lowered: \(baseLower)")
+        print("  - ext lowered: \(extLower)")
+        print("  - type: \(type)")
+        print("  - exists? \(exists)")
+        print("  - is readable? \(isReadable)")
+        print("  - is directory? \(isDirectory)")
     }
     
     // -----------------------------------------------------------

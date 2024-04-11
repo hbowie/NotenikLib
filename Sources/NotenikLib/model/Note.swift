@@ -239,11 +239,21 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     public func getURLforAttachment(attachmentName: String) -> URL? {
         for attachment in attachments {
             if attachmentName == attachment.fullName || attachmentName == attachment.suffix {
-                let attachmentsFolder = collection.lib.getResource(type: .attachments)
-                let attachmentResource = ResourceFileSys(parent: attachmentsFolder,
-                                                         fileName: attachment.fullName,
-                                                         type: .attachment)
-                return attachmentResource.url
+                if self.hasFolder() {
+                    if let subLib = collection.lib.getSubLib(folderName: folder.value) {
+                        let attachmentsFolder = subLib.getResource(type: .attachments)
+                        let attachmentResource = ResourceFileSys(parent: attachmentsFolder,
+                                                                 fileName: attachment.fullName,
+                                                                 type: .attachment)
+                        return attachmentResource.url
+                    }
+                } else {
+                    let attachmentsFolder = collection.lib.getResource(type: .attachments)
+                    let attachmentResource = ResourceFileSys(parent: attachmentsFolder,
+                                                             fileName: attachment.fullName,
+                                                             type: .attachment)
+                    return attachmentResource.url
+                }
             }
         }
         return nil
@@ -922,7 +932,7 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
         let val = getFieldAsValue(def: collection.linkFieldDef)
         if val is LinkValue {
             let linkVal = val as! LinkValue
-            if linkVal.value.contains("://") || linkVal.value.hasPrefix("/") || linkVal.value.hasPrefix("mailto:") {
+            if linkVal.value.contains(":") || linkVal.value.hasPrefix("/") {
                 return linkVal.url
             } else if let collectionURL = collection.lib.getURL(type: .collection) {
                 var filePath = linkVal.value
@@ -1549,6 +1559,43 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
         } else {
             return IndexValue(val.value)
         }
+    }
+    
+    //
+    // Functions and variables concerning the Note's folder field
+    //
+    
+    public func hasFolder() -> Bool {
+        guard let def = collection.folderFieldDef else { return false }
+        guard let field = getField(def: def) else { return false }
+        return field.value.hasData
+    }
+    
+    public func setFolder(str: String) -> Bool {
+        guard let def = collection.folderFieldDef else { return false }
+        return setField(label: def.fieldLabel.commonForm, value: str)
+    }
+    
+    public var folder: FolderValue {
+        guard let def = collection.folderFieldDef else { return FolderValue() }
+        if let field = getField(def: def) {
+            if let folderValue = field.value as? FolderValue {
+                return folderValue
+            } else {
+                return FolderValue(field.value.value)
+            }
+        } else {
+            return FolderValue()
+        }
+    }
+    
+    public func getResourceLib() -> ResourceLibrary {
+        if self.hasFolder() {
+            if let subLib = collection.lib.getSubLib(folderName: folder.value) {
+                return subLib
+            }
+        }
+        return collection.lib
     }
     
     //

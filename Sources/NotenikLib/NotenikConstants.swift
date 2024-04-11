@@ -55,6 +55,8 @@ public struct NotenikConstants {
     public static let durationCommon    = "duration"
     public static let email             = "Email"
     public static let emailCommon       = "email"
+    public static let folder            = "Folder"
+    public static let folderCommon      = "folder"
     public static let imageAlt          = "Image Alt"
     public static let imageAltCommon    = "imagealt"
     public static let imageCaption      = "Image Caption"

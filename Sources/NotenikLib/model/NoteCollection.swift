@@ -81,6 +81,7 @@ public class NoteCollection {
     public  var seqFieldDef:     FieldDefinition?
     public  var durationFieldDef: FieldDefinition?
     public  var displaySeqFieldDef: FieldDefinition?
+    public  var folderFieldDef:  FieldDefinition?
     public  var klassFieldDef:   FieldDefinition?
     public  var includeChildrenDef: FieldDefinition?
     public  var attribFieldDef:  FieldDefinition?
@@ -182,6 +183,7 @@ public class NoteCollection {
         personDef = nil
         authorDef = nil
         durationFieldDef = nil
+        folderFieldDef = nil
         creatorFound = false
 
         dateCount = 0
@@ -413,6 +415,7 @@ public class NoteCollection {
         } else if label.isAuthor
                 || label.isCode
                 || label.isDate
+                || label.isFolder
                 || label.isIndex
                 || label.isLevel
                 || label.isPerson
@@ -502,6 +505,9 @@ public class NoteCollection {
             if durationFieldDef == nil {
                 durationFieldDef = def
             }
+            
+        case NotenikConstants.folderCommon:
+            folderFieldDef = def
             
         case NotenikConstants.imageNameCommon:
             if imageNameFieldDef == nil {

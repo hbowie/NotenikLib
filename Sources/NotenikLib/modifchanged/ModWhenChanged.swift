@@ -187,6 +187,8 @@ public class ModWhenChanged {
                     outcome = .modWithKeyChanges
                 } else if collection.textFormatFieldDef != nil && (startingNote.textFormat != modNote.textFormat) {
                     outcome = .modWithKeyChanges
+                } else if collection.folderFieldDef != nil && (startingNote.folder != modNote.folder) {
+                    outcome = .modWithKeyChanges
                 }
             }
             if modID.count == 0 {

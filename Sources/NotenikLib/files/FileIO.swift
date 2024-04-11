@@ -249,71 +249,10 @@ public class FileIO: NotenikIO, RowConsumer {
         guard lib.hasAvailable(type: .notes) else { return false }
         guard !collection!.readOnly else { return false }
         
-        let str = NoteString(title: collection!.title)
-        str.append(label: NotenikConstants.titleSetByUser, value: "\(collection!.titleSetByUser)")
-        str.appendLink(lib.getPath(type: .collection))
-        str.append(label: "Sort Parm", value: collection!.sortParm.str)
-        str.append(label: "Sort Descending", value: "\(collection!.sortDescending)")
-        str.append(label: NotenikConstants.sortBlankDatesLast, value: "\(collection!.sortBlankDatesLast)")
-        str.append(label: "Other Fields Allowed", value: String(collection!.otherFields))
-        if bunch != nil {
-            str.append(label: NotenikConstants.lastIndexSelected, value: "\(bunch!.listIndex)")
-        }
-        str.append(label: NotenikConstants.mirrorAutoIndex,   value: "\(collection!.mirrorAutoIndex)")
-        str.append(label: NotenikConstants.bodyLabelDisplay,  value: "\(collection!.bodyLabel)")
-        str.append(label: NotenikConstants.titleDisplayOpt,   value: "\(collection!.titleDisplayOption.rawValue)")
-        str.append(label: NotenikConstants.displayMode,       value: collection!.displayMode.rawValue)
-        str.append(label: NotenikConstants.mathJax, value: "\(collection!.mathJax)")
-        str.append(label: NotenikConstants.imgLocal, value: "\(collection!.imgLocal)")
-        str.append(label: NotenikConstants.missingTargets, value: "\(collection!.missingTargets)")
-        str.append(label: NotenikConstants.curlyAposts, value: "\(collection!.curlyApostrophes)")
-        str.append(label: NotenikConstants.extLinksNewWindows, value: "\(collection!.extLinksOpenInNewWindows)")
-        str.append(label: NotenikConstants.scrollingSync, value: "\(collection!.scrollingSync)")
-        if collection!.lastStartupDate.count > 0 {
-            str.append(label: NotenikConstants.lastStartupDate, value: collection!.lastStartupDate)
-        }
-        if collection!.shortcut.count > 0 {
-            str.append(label: NotenikConstants.shortcut, value: collection!.shortcut)
-        }
-        if !collection!.webBookPath.isEmpty {
-            str.append(label: NotenikConstants.webBookFolder, value: collection!.webBookPath)
-        }
-        if !collection!.webBookAsEPUB {
-            str.append(label: NotenikConstants.webBookEPUB, value: "false")
-        }
-
-        if collection!.noteFileFormat != .toBeDetermined {
-            str.append(label: NotenikConstants.noteFileFormat, value: collection!.noteFileFormat.rawValue)
-        }
+        let maker = InfoLineMaker()
+        maker.putInfo(collection: collection!, bunch: bunch)
         
-        str.append(label: NotenikConstants.hashTags, value: "\(collection!.hashTags)")
-        
-        if !collection!.windowPosStr.isEmpty {
-            str.append(label: NotenikConstants.windowNumbers, value: collection!.windowPosStr)
-        }
-
-        str.append(label: NotenikConstants.columnWidths, value: "\(collection!.columnWidths)")
-        
-        for usage in collection!.mkdownCommandList.commands {
-            if usage.saveForCollection && !usage.noteID.isEmpty {
-                let label = "\(usage.command) Note ID"
-                let value = usage.noteID
-                str.append(label: label, value: value)
-            }
-        }
-        
-        if collection!.highestTitleNumber > 0 {
-            str.append(label: NotenikConstants.highestTitleNumber, value: "\(collection!.highestTitleNumber)")
-        }
-        
-        if collection!.noteIdentifier.uniqueIdRule != .titleOnly {
-            str.append(label: NotenikConstants.noteIdRule, value: collection!.noteIdentifier.uniqueIdRule.rawValue)
-            str.append(label: NotenikConstants.noteIdAux, value: collection!.noteIdentifier.noteIdAuxField)
-            str.append(label: NotenikConstants.textIdRule, value: collection!.noteIdentifier.textIdRule.rawValue)
-            str.append(label: NotenikConstants.textIdSep, value: "\"\(collection!.noteIdentifier.textIdSep)\"")
-        }
-
-        return lib.saveInfo(str: str.str)
+        return lib.saveInfo(str: maker.str)
     }
     
     /// Save the template file into the current collection
@@ -322,59 +261,19 @@ public class FileIO: NotenikIO, RowConsumer {
         guard lib.hasAvailable(type: .notes) else { return false }
         guard !collection!.readOnly else { return false }
         
-        let dict = collection!.dict
-        var str = ""
-        var written: [String: FieldDefinition] = [:]
-        for def in dict.list {
-            if written[def.fieldLabel.commonForm] == nil {
-                var value = ""
-                if def.fieldLabel.commonForm == NotenikConstants.timestampCommon {
-                    collection!.hasTimestamp = true
-                } else if def.fieldLabel.commonForm == NotenikConstants.statusCommon {
-                    value = collection!.statusConfig.statusOptionsAsString
-                } else if def.fieldType.typeString == NotenikConstants.rankCommon {
-                    value = "<rank: \(collection!.rankConfig.possibleValuesAsString)>"
-                } else if def.fieldLabel.commonForm == NotenikConstants.levelCommon {
-                    value = "<level: \(collection!.levelConfig.intsWithLabels)>"
-                } else if def.fieldType.typeString == NotenikConstants.linkCommon {
-                    value = "<link\(collection!.linkFormatter.toCodes(withOptionalPrefix: true))>"
-                } else if def.fieldLabel.commonForm == NotenikConstants.bodyCommon {
-                    value = ""
-                } else if def.fieldType is LongTextType {
-                    value = "<longtext>"
-                } else if def.fieldType.typeString == NotenikConstants.lookupType {
-                    value = "<lookup: \(def.lookupFrom)>"
-                } else if def.fieldType.typeString == NotenikConstants.lookBackType {
-                    value = "<lookback: \(def.lookupFrom)>"
-                } else if def.pickList != nil && def.fieldType.typeString != NotenikConstants.authorCommon {
-                    value = def.pickList!.getTypeWithValues(type: def.fieldType.typeString)
-                } else if def.pickList != nil && def.fieldType.typeString == NotenikConstants.pickFromType {
-                    value = def.pickList!.getTypeWithValues()
-                } else if def.fieldType.typeString == NotenikConstants.seqCommon
-                            && collection!.seqFormatter.formatStack.count > 0 {
-                    value = "<seq: \(collection!.seqFormatter.toCodes())>"
-                } else if def.fieldType.typeString == NotenikConstants.displaySeqCommon {
-                    if let displaySeqType = def.fieldType as? DisplaySeqType {
-                        value = "<displayseq: \(displaySeqType.formatString)>"
-                    } else {
-                        value = "<displayseq>"
-                    }
-                } else if def.fieldType.typeString != NotenikConstants.stringType {
-                    value = "<\(def.fieldType.typeString)>"
-                }
-                var label = def.fieldLabel.properForm
-                if def.fieldType.typeString == NotenikConstants.titleCommon && !collection!.newLabelForTitle.isEmpty {
-                    label = collection!.newLabelForTitle
-                } else if def.fieldType.typeString == NotenikConstants.bodyCommon && !collection!.newLabelForBody.isEmpty {
-                    label = collection!.newLabelForBody
-                    value = "<body>"
-                }
-                str.append("\(label): \(value) \n\n")
-                written[def.fieldLabel.commonForm] = def
+        let templateMaker = TemplateLineMaker()
+        templateMaker.putTemplate(collection: collection!, subFolder: false)
+        
+        var ok = lib.saveTemplate(str: templateMaker.str, ext: collection!.preferredExt)
+        if collection!.folderFieldDef != nil {
+            for (_, subLib) in lib.subLibs {
+                let subTemplateMaker = TemplateLineMaker()
+                subTemplateMaker.putTemplate(collection: collection!, subFolder: true)
+                ok =  subLib.saveTemplate(str: subTemplateMaker.str, ext: collection!.preferredExt)
             }
         }
         
-        return lib.saveTemplate(str: str, ext: collection!.preferredExt)
+        return ok
     }
     
     /// It's always good to have at least one Note in a Collection. 
@@ -409,6 +308,13 @@ public class FileIO: NotenikIO, RowConsumer {
         return true
     }
     
+    var notesRead = 0
+    var plainCount = 0
+    var mdCount = 0
+    var mmdCount = 0
+    var yamlCount = 0
+    var notenikCount = 0
+    
     // -----------------------------------------------------------
     //
     // MARK: Open and Close routines
@@ -439,7 +345,7 @@ public class FileIO: NotenikIO, RowConsumer {
         
         loadAttachments()
         
-        var notesRead = 0
+        notesRead = 0
         
         _ = loadInfoFile()
         _ = loadTemplateFile()
@@ -459,13 +365,17 @@ public class FileIO: NotenikIO, RowConsumer {
         let notesContents = collection!.lib.notesFolder.getResourceContents(preferredNoteExt: collection!.preferredExt)
         guard notesContents != nil else { return nil }
         collection!.duplicates = 0
-        var plainCount = 0
-        var mdCount = 0
-        var mmdCount = 0
-        var yamlCount = 0
-        var notenikCount = 0
+        plainCount = 0
+        mdCount = 0
+        mmdCount = 0
+        yamlCount = 0
+        notenikCount = 0
         for item in notesContents! {
-            if item.type == .note {
+            if item.type == .folder {
+                if let def = collection?.folderFieldDef {
+                    loadNotesSubFolder(folderFieldDef: def, realm: realm, collectionPath: collectionPath, subFolder: item)
+                }
+            } else if item.type == .note {
                 let note = item.readNote(collection: collection!, reportErrors: true)
                 if note != nil && note!.hasTitle() {
                     addAttachments(to: note!)
@@ -566,6 +476,181 @@ public class FileIO: NotenikIO, RowConsumer {
             
             return collection
         }
+    }
+    
+    /// Load notes from a subfolder.
+    func loadNotesSubFolder(folderFieldDef: FieldDefinition, realm: Realm, collectionPath: String, subFolder: ResourceFileSys) {
+        guard let foldersList = folderFieldDef.comboList else { return }
+        foldersList.registerValue(subFolder.base)
+        let subPath = FileUtils.joinPaths(path1: collectionPath, path2: subFolder.base)
+        let subLib = ResourceLibrary(realm: realm)
+        subLib.pathWithinRealm = subPath
+        subLib.prepareForUse()
+        collection!.lib.addSubLib(folderName: subFolder.base, subLib: subLib)
+        
+        /*
+        aliasList = AliasList(io: self)
+        
+        // Let's read the directory contents
+        bunch = BunchOfNotes(collection: collection!)
+        
+        loadAttachments()
+         
+         /// Load attachments from the files folder.
+         func loadAttachments() {
+             attachments = collection!.lib.getContents(type: .attachments)
+             guard attachments != nil else { return }
+             attachments!.sort()
+             logInfo("\(attachments!.count) Attachments loaded for the Collection")
+         }
+        
+        notesRead = 0
+        
+        _ = loadInfoFile()
+        _ = loadTemplateFile()
+        loadDisplayTemplate()
+        loadDisplayCSS()
+        if collection!.displayTemplate.count > 0 {
+            logInfo("Display tab will be formatted using HTML template named \(ResourceFileSys.displayHTMLFileName)")
+        } else if collection!.displayCSS.count > 0 {
+            logInfo("Display Template will be formatted using CSS file named \(ResourceFileSys.displayCSSFileName)")
+        }
+        if resourceLib.reportsFolder.isAvailable {
+            loadReports()
+        }
+        loadExportScripts()
+        loadKlassDefs() */
+        
+        let subContents = subLib.notesFolder.getResourceContents(preferredNoteExt: collection!.preferredExt)
+        guard subContents != nil else { return }
+        
+        /*
+        collection!.duplicates = 0
+        var plainCount = 0
+        var mdCount = 0
+        var mmdCount = 0
+        var yamlCount = 0
+        var notenikCount = 0 */
+        
+        var subNotesRead = 0
+        
+        if attachments == nil {
+            attachments = subLib.getContents(type: .attachments)
+        } else {
+            if let subAttachments = subLib.getContents(type: .attachments) {
+                attachments! += subAttachments
+            }
+        }
+        if attachments != nil {
+            attachments!.sort()
+            logInfo("\(attachments!.count) Attachments loaded for the Sub-Folder")
+        }
+        
+        for item in subContents! {
+            if item.type == .note {
+                let note = item.readNote(collection: collection!, reportErrors: true)
+                if note != nil && note!.hasTitle() {
+                    addAttachments(to: note!)
+                    _ = note!.setFolder(str: subFolder.base)
+                    pickLists.registerNote(note: note!)
+                    var shortIdRead = ""
+                    if collection!.shortIdDef != nil {
+                        shortIdRead = note!.shortID.value
+                    }
+                    let noteAdded = bunch!.add(note: note!)
+                    if noteAdded {
+                        notesRead += 1
+                        subNotesRead += 1
+                        for inspector in inspectors {
+                            inspector.inspect(note!)
+                        }
+                        if collection!.shortIdDef != nil {
+                            if note!.shortID.value != shortIdRead {
+                                note!.setDateModNow()
+                                _ = collection!.lib.saveNote(note: note!)
+                            }
+                        }
+                        switch note!.noteID.noteFileFormat {
+                            case .plainText: plainCount += 1
+                            case .markdown: mdCount += 1
+                            case .multiMarkdown: mmdCount += 1
+                            case .yaml: yamlCount += 1
+                            case .notenik: notenikCount += 1
+                            default: break
+                        }
+                        if let noteExt = note?.noteID.existingExt {
+                            if !templateFound && collection!.preferredExt == "txt" && !noteExt.isEmpty && noteExt != "txt" {
+                                collection!.preferredExt = noteExt
+                            }
+                        }
+                    } else {
+                        logError("Note titled '\(note!.title.value)' appears to be a duplicate and could not be accessed")
+                        collection!.duplicates += 1
+                    }
+                } else {
+                    logError("No title for Note read from \(item)")
+                }
+            }
+        }
+        
+        if (subNotesRead == 0) {
+            logError("This sub-folder does not seem to contain a valid Collection")
+            return
+        } else {
+            logInfo("\(subNotesRead) Notes loaded from the sub-folder")
+            /*
+            collectionOpen = true
+            bunch!.sortParm = collection!.sortParm
+            bunch!.sortDescending = collection!.sortDescending
+            bunch!.sortBlankDatesLast = collection!.sortBlankDatesLast
+            if pickLists.tagsPickList.values.count > 0 {
+                AppPrefs.shared.pickLists = pickLists
+            }
+            if !infoFound {
+                _ = saveInfoFile()
+            }
+            let transformer = NoteTransformer(io: self)
+            collection!.mirror = transformer
+            if collection!.mirror != nil {
+                logInfo("Mirroring Engaged")
+            }
+            aliasList.loadFromDisk()
+            if lastIndexSelected > 0 {
+                _ = selectNote(at: lastIndexSelected)
+            } else {
+                _ = firstNote()
+            }
+            
+            // Check for lookup collections.
+            for def in collection!.lookupDefs {
+                if !def.lookupFrom.isEmpty {
+                    if multiRequests != nil {
+                        multiRequests!.requestPrepForLookup(shortcut: def.lookupFrom, collectionPath: collectionPath, realm: realm)
+                    }
+                }
+            }
+            
+            if notenikCount > 0 {
+                collection!.noteFileFormat = .notenik
+            } else if yamlCount > 0 {
+                collection!.noteFileFormat = .yaml
+            } else if mmdCount > 0 {
+                collection!.noteFileFormat = .multiMarkdown
+            } else if mdCount > 0 {
+                collection!.noteFileFormat = .markdown
+            } else if plainCount > 0 {
+                collection!.noteFileFormat = .plainText
+            } else {
+                collection!.noteFileFormat = .notenik
+            }
+            
+            logInfo("Preferred Note File Format Presumed to be \(collection!.noteFileFormat)")
+            if multiRequests != nil {
+                multiRequests!.populateLookBacks(io: self)
+            }
+             */
+        }
+         
     }
     
     /// Attempt to initialize the collection at the provided path.
@@ -978,7 +1063,8 @@ public class FileIO: NotenikIO, RowConsumer {
     public func addAttachment(from: URL, to: Note, with: String, move: Bool) -> Bool {
         let attachmentName = AttachmentName()
         attachmentName.setName(fromFile: from, note: to, suffix: with)
-        let attachmentResource = collection!.lib.storeAttachment(fromURL: from,
+        let noteLib = to.getResourceLib()
+        let attachmentResource = noteLib.storeAttachment(fromURL: from,
                                                                  attachmentName: attachmentName.fullName,
                                                                  move: move)
         guard attachmentResource != nil else { return false }
@@ -997,44 +1083,43 @@ public class FileIO: NotenikIO, RowConsumer {
         guard from.attachments.count > 0 else { return true }
         guard let fromNoteName = from.noteID.getBaseFilename() else { return false }
         guard let toNoteName = to.noteID.getBaseFilename() else { return false }
-        guard let lib = collection?.lib else { return false }
-        guard lib.hasAvailable(type: .attachments) else { return false }
-        if fromNoteName == toNoteName { return true }
-        let attachmentsPath = lib.getPath(type: .attachments)
+        let fromLib = from.getResourceLib()
+        let toLib = to.getResourceLib()
+        guard fromLib.hasAvailable(type: .attachments) else { return false }
+        if fromNoteName == toNoteName && fromLib == toLib { return true }
+        let fromAttachmentsPath = fromLib.getPath(type: .attachments)
+        _ = toLib.ensureResource(type: .attachments)
+        let toAttachmentsPath = toLib.getPath(type: .attachments)
         to.attachments = []
         var allOK = true
         for attachment in from.attachments {
             let newAttachmentName = attachment.copy() as! AttachmentName
             newAttachmentName.changeNote(note: to)
             
-            let fromResource = ResourceFileSys(folderPath: attachmentsPath, fileName: attachment.fullName)
+            let fromResource = ResourceFileSys(folderPath: fromAttachmentsPath, fileName: attachment.fullName)
             guard fromResource.isAvailable else {
                 logError("Attachment not available at \(fromResource.actualPath)")
                 allOK = false
                 continue
             }
             
-            let toResource = ResourceFileSys(folderPath: attachmentsPath, fileName: newAttachmentName.fullName)
+            let toResource = ResourceFileSys(folderPath: toAttachmentsPath, fileName: newAttachmentName.fullName)
             guard !toResource.exists else {
                 logError("Attachment already exists at \(toResource.actualPath)")
                 allOK = false
                 continue
             }
             
-            let newResource = lib.storeAttachment(fromURL: fromResource.url!,
-                                                  attachmentName: newAttachmentName.fullName,
-                                                  move: true)
+            let newResource = toLib.storeAttachment(fromURL: fromResource.url!,
+                                                    attachmentName: newAttachmentName.fullName,
+                                                    move: true)
             guard newResource != nil else {
                 logError("Problems renaming attachment to: \(toResource.actualPath)")
                 allOK = false
                 continue
             }
             
-            // let ok = fromResource.remove()
-            // if !ok {
-            //     allOK = false
-            // }
-            
+            to.attachments.append(newAttachmentName)
         }
         return allOK
     }
@@ -1204,14 +1289,15 @@ public class FileIO: NotenikIO, RowConsumer {
         
         // Rename the Note file if needed.
         // newNote.fileInfo.genFileName()
-        guard let oldPath = oldNote.noteID.getFullPath(collection: collection!) else {
+        guard let oldPath = oldNote.noteID.getFullPath(note: oldNote) else {
             return (nil, NotePosition(index: -1))
         }
-        guard let newPath = newNote.noteID.getFullPath(collection: collection!) else {
+        guard let newPath = newNote.noteID.getFullPath(note: newNote) else {
             return (nil, NotePosition(index: -1))
         }
         if oldPath != newPath {
-            let notesFolder = oldNote.collection.lib.getResource(type: .notes)
+            collection!.lib.checkForFolder(note: newNote)
+            let notesFolder = oldNote.getResourceLib().notesFolder
             let fileName = oldNote.noteID.getBaseDotExt()
             let noteResource = ResourceFileSys(parent: notesFolder, fileName: fileName!, type: .note)
             let renameOK = noteResource.rename(to: newPath)
@@ -1252,7 +1338,6 @@ public class FileIO: NotenikIO, RowConsumer {
         guard added else { return (nil, NotePosition(index: -1)) }
 
         MultiFileIO.shared.registerLookBacks(lkUpNote: newNote)
-
         // newNote.fileInfo.genFileName()
         let written = writeNote(newNote)
         if !written {

@@ -141,14 +141,15 @@ public class NoteIdentification: Identifiable, Comparable, Equatable {
     // -----------------------------------------------------------
     
     /// Return the full URL pointing to the Note's file
-    public func getURL(collection: NoteCollection) -> URL? {
-        let path = getFullPath(collection: collection)
+    public func getURL(note: Note) -> URL? {
+        let path = getFullPath(note: note)
         guard path != nil else { return nil }
         return URL(fileURLWithPath: path!)
     }
     
     /// Return the full file path for the Note
-    public func getFullPath(collection: NoteCollection) -> String? {
+    public func getFullPath(note: Note) -> String? {
+        let collection = note.collection
         let base = getBaseFilename()
         guard base != nil && !base!.isEmpty else {
             return nil
@@ -157,7 +158,13 @@ public class NoteIdentification: Identifiable, Comparable, Equatable {
         guard ext != nil && !ext!.isEmpty else {
             return nil
         }
-        return FileUtils.joinPaths(path1: collection.lib.getPath(type: .notes), path2: getBaseDotExt()!)
+        let masterPath = collection.lib.getPath(type: .notes)
+        var folderPath = masterPath
+        if note.hasFolder() {
+            folderPath = FileUtils.joinPaths(path1: masterPath, path2: note.folder.value)
+        }
+        
+        return FileUtils.joinPaths(path1: folderPath, path2: getBaseDotExt()!)
     }
     
     public var hasData: Bool {

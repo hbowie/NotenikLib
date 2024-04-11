@@ -46,7 +46,7 @@ public class LinkValue: StringValue {
     }
     
     /// Set the link value from an actual URL
-    func set(_ url : URL) {
+    func set(_ url: URL) {
         link.set(with: url)
         super.set(link.str)
     }
