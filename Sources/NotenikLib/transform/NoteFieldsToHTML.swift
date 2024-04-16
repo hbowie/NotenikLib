@@ -656,9 +656,6 @@ public class NoteFieldsToHTML {
     
     /// Provide special formatting for the Tags field. 
     func displayTags(_ field: NoteField, collection: NoteCollection, markedup: Markedup) {
-
-        let folderURL = URL(fileURLWithPath: collection.fullPath)
-        let encodedPath = String(folderURL.absoluteString.dropFirst(7))
         
         markedup.startParagraph()
         markedup.startEmphasis()
@@ -668,7 +665,7 @@ public class NoteFieldsToHTML {
                 if tagsCount > 0 {
                     markedup.append(", ")
                 }
-                let link = "notenik://expand?path=\(encodedPath)&tag=\(tag.description)"
+                let link = CustomURLFormatter().expandTag(collection: collection, tag: tag)
                 markedup.link(text: tag.description, path: link, style: "text-decoration: none")
                 tagsCount += 1
             }

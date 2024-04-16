@@ -1257,6 +1257,9 @@ public class TemplateUtil {
         case NotenikConstants.titleDisplaySlugCommon:
             return genTitleDisplaySlug(fromNote: fromNote)
             
+        case NotenikConstants.uniqueIdCommon:
+            return fromNote.id
+            
         default:
             break
         }

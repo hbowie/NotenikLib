@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 12/27/18.
-//  Copyright © 2018 - 2022 Herb Bowie (https://hbowie.net)
+//  Copyright © 2018 - 2024 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -12,21 +12,23 @@
 import Foundation
 
 public enum NoteSortParm: Int {
-    case title          = 0
-    case seqPlusTitle   = 1
-    case tasksByDate    = 2
-    case tasksBySeq     = 3
-    case author         = 4
-    case tagsPlusTitle  = 5
-    case tagsPlusSeq    = 6
-    case custom         = 7
-    case dateAdded      = 8
-    case dateModified   = 9
-    case datePlusSeq    = 10
-    case rankSeqTitle   = 11
-    case klassTitle     = 12
-    case klassDateTitle = 13
-    case lastNameFirst  = 14
+    case title           = 0
+    case seqPlusTitle    = 1
+    case tasksByDate     = 2
+    case tasksBySeq      = 3
+    case author          = 4
+    case tagsPlusTitle   = 5
+    case tagsPlusSeq     = 6
+    case custom          = 7
+    case dateAdded       = 8
+    case dateModified    = 9
+    case datePlusSeq     = 10
+    case rankSeqTitle    = 11
+    case klassTitle      = 12
+    case klassDateTitle  = 13
+    case lastNameFirst   = 14
+    case folderTitle     = 15
+    case folderDateTitle = 16
     
     // Get or set with a String containing the raw value
     var str: String {

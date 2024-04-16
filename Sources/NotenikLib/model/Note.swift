@@ -600,6 +600,13 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
             return klass.sortKey
                 + date.getSortKey(sortBlankDatesLast: collection.sortBlankDatesLast)
                 + title.sortKey
+        case .folderTitle:
+            return folder.sortKey
+                + title.sortKey
+        case .folderDateTitle:
+            return folder.sortKey
+                + date.getSortKey(sortBlankDatesLast: collection.sortBlankDatesLast)
+                + title.sortKey
         case .lastNameFirst:
             return lastNameFirst
         case .custom:
