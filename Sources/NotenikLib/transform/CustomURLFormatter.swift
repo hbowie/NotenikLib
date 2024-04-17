@@ -40,6 +40,15 @@ public class CustomURLFormatter {
         return link
     }
     
+    public func openWithUniqueID(collection: NoteCollection) -> String {
+        initWithScheme()
+        addOpenCommand()
+        identifyCollection(collection: collection)
+        link.append("&id==$\(NotenikConstants.uniqueIdCommon)&i$=")
+        percentEncode()
+        return link
+    }
+    
     func initWithScheme() {
         link = "notenik://"
     }

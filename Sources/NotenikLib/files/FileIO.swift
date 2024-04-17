@@ -481,12 +481,12 @@ public class FileIO: NotenikIO, RowConsumer {
     /// Load notes from a subfolder.
     func loadNotesSubFolder(folderFieldDef: FieldDefinition, realm: Realm, collectionPath: String, subFolder: ResourceFileSys) {
         guard let foldersList = folderFieldDef.comboList else { return }
-        foldersList.registerValue(subFolder.base)
-        let subPath = FileUtils.joinPaths(path1: collectionPath, path2: subFolder.base)
+        foldersList.registerValue(subFolder.fileName)
+        let subPath = FileUtils.joinPaths(path1: collectionPath, path2: subFolder.fileName)
         let subLib = ResourceLibrary(realm: realm)
         subLib.pathWithinRealm = subPath
         subLib.prepareForUse()
-        collection!.lib.addSubLib(folderName: subFolder.base, subLib: subLib)
+        collection!.lib.addSubLib(folderName: subFolder.fileName, subLib: subLib)
         
         /*
         aliasList = AliasList(io: self)
@@ -551,7 +551,7 @@ public class FileIO: NotenikIO, RowConsumer {
                 let note = item.readNote(collection: collection!, reportErrors: true)
                 if note != nil && note!.hasTitle() {
                     addAttachments(to: note!)
-                    _ = note!.setFolder(str: subFolder.base)
+                    _ = note!.setFolder(str: subFolder.fileName)
                     pickLists.registerNote(note: note!)
                     var shortIdRead = ""
                     if collection!.shortIdDef != nil {

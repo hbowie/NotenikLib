@@ -472,9 +472,15 @@ public class ResourceFileSys: CustomStringConvertible, Comparable, Equatable {
     }
     
     func rename(to newPath: String) -> Bool {
-        guard isAvailable else { return false }
+        guard isAvailable else {
+            logError("Resource not available to rename - \(self)")
+            return false
+        }
         let oldPath = actualPath
-        guard oldPath != newPath else { return false }
+        guard oldPath != newPath else {
+            logError("New path for resource rename is identical to old path")
+            return false
+        }
         do {
             try fm.moveItem(atPath: oldPath, toPath: newPath)
         } catch let error as NSError {
@@ -591,6 +597,7 @@ public class ResourceFileSys: CustomStringConvertible, Comparable, Equatable {
     
     public func display() {
         print("ResourceFileSys")
+        print("  - file name: \(fileName)")
         print("  - base: \(base)")
         print("  - base lowered: \(baseLower)")
         print("  - ext lowered: \(extLower)")
