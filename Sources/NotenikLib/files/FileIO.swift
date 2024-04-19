@@ -251,8 +251,17 @@ public class FileIO: NotenikIO, RowConsumer {
         
         let maker = InfoLineMaker()
         maker.putInfo(collection: collection!, bunch: bunch)
+        var ok = lib.saveInfo(str: maker.str)
         
-        return lib.saveInfo(str: maker.str)
+        if collection!.folderFieldDef != nil {
+            for (_, subLib) in lib.subLibs {
+                let subInfoMaker = InfoLineMaker()
+                subInfoMaker.putInfo(collection: collection!, bunch: bunch, subFolder: true)
+                ok = subLib.saveInfo(str: subInfoMaker.str)
+            }
+        }
+        
+        return ok
     }
     
     /// Save the template file into the current collection

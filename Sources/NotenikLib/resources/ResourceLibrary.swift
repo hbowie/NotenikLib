@@ -698,7 +698,7 @@ public class ResourceLibrary: Equatable {
         _ =  subLib.saveTemplate(str: templateMaker.str, ext: collection.preferredExt)
         
         let infoMaker = InfoLineMaker()
-        infoMaker.putInfo(collection: collection, bunch: nil)
+        infoMaker.putInfo(collection: collection, bunch: nil, subFolder: true)
         _ = subLib.saveInfo(str: infoMaker.str)
         
         return subLib

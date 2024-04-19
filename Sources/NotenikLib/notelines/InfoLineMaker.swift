@@ -23,7 +23,7 @@ public class InfoLineMaker {
         writer = KeyValueWriter()
     }
     
-    func putInfo(collection: NoteCollection, bunch: BunchOfNotes?) {
+    func putInfo(collection: NoteCollection, bunch: BunchOfNotes?, subFolder: Bool = false) {
         
         guard let lib = collection.lib else { return }
 
@@ -34,7 +34,7 @@ public class InfoLineMaker {
         writer.append(label: "Sort Descending", value: "\(collection.sortDescending)")
         writer.append(label: NotenikConstants.sortBlankDatesLast, value: "\(collection.sortBlankDatesLast)")
         writer.append(label: "Other Fields Allowed", value: String(collection.otherFields))
-        if bunch != nil {
+        if bunch != nil && !subFolder {
             writer.append(label: NotenikConstants.lastIndexSelected, value: "\(bunch!.listIndex)")
         }
         writer.append(label: NotenikConstants.mirrorAutoIndex,   value: "\(collection.mirrorAutoIndex)")
@@ -50,7 +50,7 @@ public class InfoLineMaker {
         if collection.lastStartupDate.count > 0 {
             writer.append(label: NotenikConstants.lastStartupDate, value: collection.lastStartupDate)
         }
-        if collection.shortcut.count > 0 {
+        if collection.shortcut.count > 0 && !subFolder {
             writer.append(label: NotenikConstants.shortcut, value: collection.shortcut)
         }
         if !collection.webBookPath.isEmpty {
@@ -66,7 +66,7 @@ public class InfoLineMaker {
         
         writer.append(label: NotenikConstants.hashTags, value: "\(collection.hashTags)")
         
-        if !collection.windowPosStr.isEmpty {
+        if !collection.windowPosStr.isEmpty && !subFolder {
             writer.append(label: NotenikConstants.windowNumbers, value: collection.windowPosStr)
         }
         

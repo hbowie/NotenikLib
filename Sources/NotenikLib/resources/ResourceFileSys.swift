@@ -564,6 +564,8 @@ public class ResourceFileSys: CustomStringConvertible, Comparable, Equatable {
             type = .alias
         } else if (_fName == ResourceFileSys.infoFileName) {
             type = .info
+        } else if (_fName == ResourceFileSys.infoParentFileName) {
+            type = .infoParent
         } else if (_fName.starts(with: "- INFO") && extLower == "nnk" && _fName.contains("conflicted copy")) {
             type = .infoConflicted
         } else if (_fName == ResourceFileSys.displayHTMLFileName) {
