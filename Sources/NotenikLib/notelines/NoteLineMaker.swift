@@ -21,6 +21,7 @@ public class NoteLineMaker {
     let minCharsToValue = 8
     public var fieldsWritten = 0
     var fieldMods = " "
+    var parentLabel = ""
     
     /// Initialize with no input, assuming the writer will be a Big String Writer.
     public init() {
@@ -115,6 +116,9 @@ public class NoteLineMaker {
                         let notePointers = wikilinkField.notePointers
                         putWikilinks(note: note, def: def!, notePointers: notePointers)
                     }
+                } else if def!.parentField {
+                    parentLabel = def!.fieldLabel.properForm
+                    putParent(parentLabel: def!.fieldLabel.properForm)
                 } else {
                     let field = note.getField(def: def!)
                     putField(field, format: note.noteID.noteFileFormat)
@@ -223,6 +227,10 @@ public class NoteLineMaker {
         fieldsWritten += 1
     }
     
+    func putParent(parentLabel: String) {
+        writer.writeLine("\(parentLabel):")
+    }
+    
     /// Write a field's label and value, along with the usual Notenik formatting.
     ///
     /// - Parameter field: The Note Field to be written.
@@ -246,11 +254,17 @@ public class NoteLineMaker {
         if !newLabel.isEmpty {
             proper = newLabel
         }
-        writer.write("\(proper):")
+        if !parentLabel.isEmpty && field.def.fieldLabel.parentLabel == parentLabel {
+            writer.write("  \(proper):")
+        } else {
+            writer.write("\(proper):")
+        }
         var usingYAMLdashLines = false
         if format == .yaml {
-            if field.value as? MultiValues != nil {
-                usingYAMLdashLines = true
+            if let multi = field.value as? MultiValues {
+                if multi.multiCount > 1 {
+                    usingYAMLdashLines = true
+                }
             }
         }
         if field.def.fieldType.isTextBlock && format == .notenik {
@@ -277,14 +291,19 @@ public class NoteLineMaker {
     }
     
     func putFieldValueInYAML(_ field: NoteField) {
+        var written = false
         if let multi = field.value as? MultiValues {
-            writer.endLine()
-            var i = 0
-            while i < multi.multiCount {
-                writer.writeLine("- \(multi.multiAt(i)!)")
-                i += 1
+            if multi.multiCount > 1 {
+                writer.endLine()
+                var i = 0
+                while i < multi.multiCount {
+                    writer.writeLine("- \(multi.multiAt(i)!)")
+                    i += 1
+                }
+                written = true
             }
-        } else {
+        }
+        if !written {
             putFieldValueOnSameLine(field.value)
         }
     }

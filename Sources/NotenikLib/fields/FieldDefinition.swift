@@ -18,6 +18,7 @@ public class FieldDefinition: Comparable, CustomStringConvertible {
     
     public var fieldLabel:      FieldLabel = FieldLabel()
     public var fieldType:       AnyType = StringType()
+    public var parentField:     Bool = false
     public var pickList:        PickList?
     public var comboList:       ComboList?
     public var lookupFrom:      String = ""

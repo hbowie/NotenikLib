@@ -563,7 +563,7 @@ public class NoteFieldsToHTML {
             }
         } else if field.def.fieldType.typeString == NotenikConstants.codeCommon {
             code.startParagraph()
-            code.append(field.def.fieldLabel.properForm)
+            code.append(field.def.fieldLabel.properWithParent)
             code.append(": ")
             code.finishParagraph()
             code.codeBlock(field.value.value)
@@ -573,7 +573,7 @@ public class NoteFieldsToHTML {
             displayMarkdown(field, markedup: code, noteTitle: noteTitle, note: note, mkdownContext: mkdownContext)
         } else if field.def.fieldType.typeString == NotenikConstants.dateType {
             code.startParagraph()
-            code.append(field.def.fieldLabel.properForm)
+            code.append(field.def.fieldLabel.properWithParent)
             code.append(": ")
             if let dateValue = field.value as? DateValue {
                 code.append(dateValue.valueToDisplay())
@@ -728,7 +728,7 @@ public class NoteFieldsToHTML {
             }
         }
         markedup.startParagraph()
-        markedup.append(field.def.fieldLabel.properForm)
+        markedup.append(field.def.fieldLabel.properWithParent)
         markedup.append(": ")
         let path = field.value.value
         let displayPath = field.value.value.removingPercentEncoding
@@ -820,7 +820,7 @@ public class NoteFieldsToHTML {
     /// Display a field without any special formatting.
     func displayStraight(_ field: NoteField, markedup: Markedup) {
         markedup.startParagraph()
-        markedup.append(field.def.fieldLabel.properForm)
+        markedup.append(field.def.fieldLabel.properWithParent)
         markedup.append(": ")
         markedup.append(field.value.valueToDisplay())
         markedup.finishParagraph()
@@ -832,7 +832,7 @@ public class NoteFieldsToHTML {
                          note: Note,
                          mkdownContext: MkdownContext?) {
         markedup.startParagraph()
-        markedup.append(field.def.fieldLabel.properForm)
+        markedup.append(field.def.fieldLabel.properWithParent)
         markedup.append(": ")
         markedup.finishParagraph()
         if parms.formatIsHTML {

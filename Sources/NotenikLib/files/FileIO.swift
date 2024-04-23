@@ -255,8 +255,9 @@ public class FileIO: NotenikIO, RowConsumer {
         
         if collection!.folderFieldDef != nil {
             for (_, subLib) in lib.subLibs {
+                
                 let subInfoMaker = InfoLineMaker()
-                subInfoMaker.putInfo(collection: collection!, bunch: bunch, subFolder: true)
+                subInfoMaker.putInfo(collection: collection!, bunch: bunch, subFolder: true, folderName: subLib.collection.fileName)
                 ok = subLib.saveInfo(str: subInfoMaker.str)
             }
         }

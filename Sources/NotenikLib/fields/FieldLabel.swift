@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 11/30/18.
-//  Copyright © 2018 - 2021 Herb Bowie (https://hbowie.net)
+//  Copyright © 2018 - 2024 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -16,9 +16,22 @@ import NotenikUtils
 /// A label used to identify a particular field within a collection of items.
 public class FieldLabel: CustomStringConvertible, Comparable  {
     
+    public var parentLabel = ""
     public var properForm = ""
     public var commonForm = ""
     var validLabel = false
+    
+    public var properWithParent: String {
+        if parentLabel.isEmpty {
+            return properForm
+        } else {
+            return parentLabel + ": " + properForm
+        }
+    }
+    
+    public var hasParent: Bool {
+        return !parentLabel.isEmpty
+    }
     
     init() {
     
@@ -29,9 +42,15 @@ public class FieldLabel: CustomStringConvertible, Comparable  {
         set(value)
     }
     
+    func setParentLabel(_ parentLabel: String) {
+        guard !parentLabel.isEmpty else { return }
+        self.parentLabel = parentLabel
+        commonForm = StringUtils.toCommon(parentLabel + properForm)
+    }
+    
     func set(_ label: String) {
-        properForm = label
-        commonForm = FieldLabel.toCommon(label)
+        properForm = label.trimmingCharacters(in: .whitespacesAndNewlines)
+        commonForm = FieldLabel.toCommon(properForm)
         if isAuthor && commonForm != NotenikConstants.authorCommon {
             properForm = NotenikConstants.author
             commonForm = NotenikConstants.authorCommon
@@ -168,6 +187,9 @@ public class FieldLabel: CustomStringConvertible, Comparable  {
     /// Make a copy of this instance.
     func copy() -> FieldLabel {
         let copy = FieldLabel(self.properForm)
+        if !self.parentLabel.isEmpty {
+            copy.setParentLabel(self.parentLabel)
+        }
         return copy
     }
     

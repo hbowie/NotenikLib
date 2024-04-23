@@ -23,11 +23,15 @@ public class InfoLineMaker {
         writer = KeyValueWriter()
     }
     
-    func putInfo(collection: NoteCollection, bunch: BunchOfNotes?, subFolder: Bool = false) {
+    func putInfo(collection: NoteCollection, bunch: BunchOfNotes?, subFolder: Bool = false, folderName: String = "") {
         
         guard let lib = collection.lib else { return }
 
-        writer.append(label: NotenikConstants.title, value: collection.title)
+        if subFolder {
+            writer.append(label: NotenikConstants.title, value: collection.title + " / " + folderName)
+        } else {
+            writer.append(label: NotenikConstants.title, value: collection.title)
+        }
         writer.append(label: NotenikConstants.titleSetByUser, value: "\(collection.titleSetByUser)")
         writer.append(label: NotenikConstants.link, value: lib.getPath(type: .collection))
         writer.append(label: "Sort Parm", value: collection.sortParm.str)

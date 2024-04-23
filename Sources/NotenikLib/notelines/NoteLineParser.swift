@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 12/10/18.
-//  Copyright © 2018 - 2023 Herb Bowie (https://hbowie.net)
+//  Copyright © 2018 - 2024 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -28,6 +28,8 @@ public class NoteLineParser {
     var noteLine: NoteLineIn!
     
     var trailingSpaceCount = 0
+    
+    var possibleParentLabel = ""
     
     var label        = FieldLabel()
     var def          = FieldDefinition()
@@ -64,6 +66,7 @@ public class NoteLineParser {
         
         self.allowDictAdds = allowDictAdds
         note = Note(collection: collection)
+        possibleParentLabel = ""
         label = FieldLabel()
         def = FieldDefinition()
         clearValue()
@@ -88,11 +91,17 @@ public class NoteLineParser {
             noteLine = NoteLineIn(reader: reader,
                                   collection: collection,
                                   bodyStarted: bodyStarted,
+                                  possibleParentLabel: possibleParentLabel,
                                   allowDictAdds: allowDictAdds)
+
             lineNumber += 1
             fileSize += noteLine.line.count + 1
             if noteLine.blankLine {
                 blankLines += 1
+            }
+            
+            if !noteLine.indented {
+                possibleParentLabel = ""
             }
             
             // See if we should declare the value to be complete at this point.
@@ -107,7 +116,13 @@ public class NoteLineParser {
                 } else if noteLine.mmdMetaStartEndLine
                             && (note.noteID.mmdOrYaml) {
                     valueComplete = true
+                } else if noteLine.blankLine && !def.fieldType.isTextBlock {
+                    valueComplete = true
                 }
+            }
+            
+            if noteLine.validLabel && !noteLine.valueFound {
+                possibleParentLabel = noteLine.label.properForm
             }
             
             // If we've reached the end of the file, or the label for a new field,
@@ -153,6 +168,12 @@ public class NoteLineParser {
                 fieldNumber += 1
                 if def.fieldType.typeString == NotenikConstants.bodyCommon {
                     bodyStarted = true
+                }
+                if noteLine.label.hasParent {
+                    collection.dict.setParentDef(labelStr: noteLine.label.parentLabel)
+                    if note.noteID.noteFileFormat == .plainText || note.noteID.noteFileFormat == .markdown || note.noteID.noteFileFormat == .multiMarkdown {
+                        note.noteID.noteFileFormat = .yaml
+                    }
                 }
             } else if noteLine.blankLine {
                 if fieldNumber > 1 

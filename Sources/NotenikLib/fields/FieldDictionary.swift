@@ -90,6 +90,12 @@ public class FieldDictionary {
         return def != nil
     }
     
+    public func setParentDef(labelStr: String) {
+        if let def = getDef(labelStr) {
+            def.parentField = true
+        }
+    }
+    
     /// Return the optional definition for this field label
     func getDef(_ def: FieldDefinition) -> FieldDefinition? {
         return dict[def.fieldLabel.commonForm]

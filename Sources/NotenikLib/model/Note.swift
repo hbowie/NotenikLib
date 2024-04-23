@@ -607,6 +607,10 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
             return folder.sortKey
                 + date.getSortKey(sortBlankDatesLast: collection.sortBlankDatesLast)
                 + title.sortKey
+        case .folderSeqTitle:
+            return folder.sortKey
+                + seq.sortKey
+                + title.sortKey
         case .lastNameFirst:
             return lastNameFirst
         case .custom:

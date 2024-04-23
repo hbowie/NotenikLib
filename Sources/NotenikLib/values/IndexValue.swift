@@ -73,6 +73,16 @@ public class IndexValue: StringValue, MultiValues {
     
     func parseIndexValue() {
         indexList = self.value.components(separatedBy: ";")
+        var i = 0
+        while i < indexList.count {
+            let trimmed = indexList[i].trimmingCharacters(in: .whitespacesAndNewlines)
+            if trimmed.isEmpty {
+                indexList.remove(at: i)
+            } else {
+                indexList[i] = trimmed
+                i += 1
+            }
+        }
     }
     
     //
