@@ -103,6 +103,8 @@ public class NoteCollection {
     public  var personDef:      FieldDefinition?
     public  var authorDef:      FieldDefinition?
     
+    public  var pageStyleDef:   FieldDefinition?
+    
     public  var newLabelForTitle = ""
     public  var newLabelForBody  = ""
     
@@ -185,6 +187,7 @@ public class NoteCollection {
         durationFieldDef = nil
         folderFieldDef = nil
         creatorFound = false
+        pageStyleDef = nil
 
         dateCount = 0
         linkCount = 0
@@ -616,6 +619,9 @@ public class NoteCollection {
             
         case NotenikConstants.dateAddedCommon:
             dateAddedFieldDef = def
+            
+        case NotenikConstants.pageStyleCommon:
+            pageStyleDef = def
             
         default:
             break

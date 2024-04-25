@@ -85,7 +85,7 @@ public class NoteFieldsToHTML {
         let code = Markedup(format: parms.format)
         let noteTitle = pop.toXML(note.title.value)
         code.startDoc(withTitle: noteTitle,
-                      withCSS: parms.cssString,
+                      withCSS: note.getCombinedCSS(cssString: parms.cssString),
                       linkToFile: parms.cssLinkToFile,
                       withJS: mkdownOptions.getHtmlScript(),
                       epub3: parms.epub3)
@@ -161,6 +161,8 @@ public class NoteFieldsToHTML {
                             // ignore for now
                         } else if parms.displayMode == .quotations && field!.def.fieldType.typeString == NotenikConstants.booleanType {
                             // don't show flags in quotes mode
+                        } else if field!.def.fieldType.typeString == NotenikConstants.pageStyleCommon {
+                            // don't display as separate field
                         } else if field!.def == collection.attribFieldDef {
                             attribution = field
                         } else {
@@ -253,7 +255,7 @@ public class NoteFieldsToHTML {
         let code = Markedup(format: parms.format)
         let noteTitle = pop.toXML(note.title.value)
         code.startDoc(withTitle: noteTitle,
-                      withCSS: parms.cssString,
+                      withCSS: note.getCombinedCSS(cssString: parms.cssString),
                       linkToFile: parms.cssLinkToFile,
                       withJS: mkdownOptions.getHtmlScript(),
                       epub3: parms.epub3)

@@ -862,7 +862,8 @@ public class NotesExporter {
             } else {
                 docTitle = collection.title
             }
-            markup.startDoc(withTitle: docTitle, withCSS: displayParms.cssString)
+            markup.startDoc(withTitle: docTitle,
+                            withCSS: note.getCombinedCSS(cssString: displayParms.cssString))
         }
         switch format {
         case .concatHtml:
@@ -891,7 +892,8 @@ public class NotesExporter {
             } else {
                 docTitle = collection.title
             }
-            markup.startDoc(withTitle: docTitle, withCSS: displayParms.cssString)
+            markup.startDoc(withTitle: docTitle,
+                            withCSS: note.getCombinedCSS(cssString: displayParms.cssString))
             openParm = "true"
         } else {
             openParm = nil

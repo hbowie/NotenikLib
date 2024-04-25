@@ -43,6 +43,7 @@ public class AllTypes {
     let lookBackType = LookBackType()
     let lookupType  = LookupType()
     let minutesToReadType = MinutesToReadType()
+    let pageStyleType = PageStyleType()
     let personType  = PersonType()
     let phoneType   = PhoneType()
     let pickListType = PickListType()
@@ -157,6 +158,8 @@ public class AllTypes {
         
         fieldTypes.append(emailType)
         fieldTypes.append(phoneType)
+        
+        fieldTypes.append(pageStyleType)
         
     }
     

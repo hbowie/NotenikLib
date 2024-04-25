@@ -1610,6 +1610,46 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     }
     
     //
+    // Functions and variables concerning the Note's pageStyle field
+    //
+    
+    public func getCombinedCSS(cssString: String) -> String {
+        if self.hasPageStyle() {
+            if cssString.isEmpty {
+                return pageStyle.value
+            } else {
+                return cssString + "\n" + pageStyle.value
+            }
+        } else {
+            return cssString
+        }
+    }
+    
+    public func hasPageStyle() -> Bool {
+        guard let def = collection.pageStyleDef else { return false }
+        guard let field = getField(def: def) else { return false }
+        return field.value.hasData
+    }
+    
+    public func setPageStyle(str: String) -> Bool {
+        guard let def = collection.pageStyleDef else { return false }
+        return setField(label: def.fieldLabel.commonForm, value: str)
+    }
+    
+    public var pageStyle: PageStyleValue {
+        guard let def = collection.pageStyleDef else { return PageStyleValue() }
+        if let field = getField(def: def) {
+            if let pageStyleValue = field.value as? PageStyleValue {
+                return pageStyleValue
+            } else {
+                return PageStyleValue(field.value.value)
+            }
+        } else {
+            return PageStyleValue()
+        }
+    }
+    
+    //
     // Functions and variables concerning the Note's backlinks field.
     //
     

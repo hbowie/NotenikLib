@@ -61,7 +61,8 @@ public class AnyType {
         return (typeString == NotenikConstants.longTextType ||
                 typeString == NotenikConstants.bodyCommon ||
                 typeString == NotenikConstants.codeCommon ||
-                typeString == NotenikConstants.teaserCommon)
+                typeString == NotenikConstants.teaserCommon ||
+                typeString == NotenikConstants.pageStyleCommon)
     }
     
     var isBody: Bool {
