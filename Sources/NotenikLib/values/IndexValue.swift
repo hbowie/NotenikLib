@@ -41,7 +41,7 @@ public class IndexValue: StringValue, MultiValues {
     
     /// Append another line to the value, ensuring it ends
     /// with a semi-colon followed by a space.
-    func append(_ line: String) {
+    public func append(_ line: String) {
         var pendingSpaces = 0
         var finalSemiColon = false
         var contentCount = 0

@@ -50,6 +50,15 @@ public class AuthorValue: StringValue, MultiValues {
         }
     }
     
+    public func append(_ str: String) {
+        if self.isEmpty {
+            set(str)
+        } else {
+            let anotherAuthor = AuthorValue(str)
+            authors.append(anotherAuthor)
+        }
+    }
+    
     /// Default initialization
     override init() {
         super.init()

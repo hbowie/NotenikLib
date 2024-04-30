@@ -73,9 +73,9 @@ public class Transmogrifier {
                 let backLinks = modNote.backlinks
                 let path = note.collection.collectionID
                 if path.isEmpty {
-                    backLinks.add(title: note.title.value)
+                    backLinks.add(noteIdBasis: note.noteID.basis)
                 } else {
-                    backLinks.add(title: path + "/" + note.title.value)
+                    backLinks.add(noteIdBasis: path + "/" + note.noteID.basis)
                 }
                 _ = modNote.setBacklinks(backLinks)
                 _ = targetIO!.modNote(oldNote: linkedNote!, newNote: modNote)
@@ -88,7 +88,7 @@ public class Transmogrifier {
             if linkedNote != nil {
                 let modNote = linkedNote!.copy() as! Note
                 let backLinks = modNote.backlinks
-                backLinks.remove(title: note.title.value)
+                backLinks.remove(noteIdBasis: note.noteID.basis)
                 _ = modNote.setBacklinks(backLinks)
                 _ = targetIO!.modNote(oldNote: linkedNote!, newNote: modNote)
             }
@@ -112,8 +112,8 @@ public class Transmogrifier {
         let noteDisplay = NoteDisplay()
         let parms = DisplayParms()
         parms.localMj = false
-        var from: [String:ListOfTitles] = [:]
-        var to:   [String:ListOfTitles] = [:]
+        var from: [String:ListOfNoteIdentifiers] = [:]
+        var to:   [String:ListOfNoteIdentifiers] = [:]
         
         // First pass through the Notes in the Collection, storing linkages in memory.
         var (note, position) = io.firstNote()
@@ -124,7 +124,7 @@ public class Transmogrifier {
             let noteLinkList = mdResults.wikiLinks
             if !noteLinkList.isEmpty {
                 for link in noteLinkList.links {
-                    link.setFrom(path: "", item: note!.title.value)
+                    link.setFrom(path: "", item: note!.noteID.basis)
                     
                     // Add a Note if a target is missing
                     if !link.targetFound {
@@ -135,25 +135,25 @@ public class Transmogrifier {
                     }
                     
                     // Determine the To Title to be recorded
-                    var toTitle = link.originalTarget
+                    var toTarget = link.originalTarget
                     if !link.updatedTarget.isEmpty {
-                        toTitle = link.updatedTarget
+                        toTarget = link.updatedTarget
                     }
                     
                     // Record this link in the from dict.
                     let fromTitles = from[link.fromTarget.itemID]
                     if fromTitles == nil {
-                        from[link.fromTarget.itemID] = ListOfTitles(title: toTitle.pathSlashItem)
+                        from[link.fromTarget.itemID] = ListOfNoteIdentifiers(noteIdBasis: toTarget.pathSlashItem)
                     } else {
-                        from[link.fromTarget.itemID]!.add(title: toTitle.pathSlashItem)
+                        from[link.fromTarget.itemID]!.add(noteIdBasis: toTarget.pathSlashItem)
                     }
                     
                     // Record this link in the To dict
                     let toTitles = to[link.bestTarget.pathSlashID]
                     if toTitles == nil {
-                        to[link.bestTarget.pathSlashID] = ListOfTitles(title: link.fromTarget.pathSlashItem)
+                        to[link.bestTarget.pathSlashID] = ListOfNoteIdentifiers(noteIdBasis: link.fromTarget.pathSlashItem)
                     } else {
-                        to[link.bestTarget.pathSlashID]!.add(title: link.fromTarget.pathSlashItem)
+                        to[link.bestTarget.pathSlashID]!.add(noteIdBasis: link.fromTarget.pathSlashItem)
                     }
                 }
             }
@@ -171,15 +171,15 @@ public class Transmogrifier {
 
             let fromList = from[note!.noteID.commonID]
             if fromList != nil {
-                for title in fromList!.titles {
-                    wikiLinks.add(title: title)
+                for noteIdBasis in fromList!.noteIDs {
+                    wikiLinks.add(noteIdBasis: noteIdBasis)
                 }
             }
             
             let toList = to[note!.noteID.commonID]
             if toList != nil {
-                for title in toList!.titles {
-                    backLinks.notePointers.add(title: title)
+                for noteID in toList!.noteIDs {
+                    backLinks.notePointers.add(noteIdBasis: noteID)
                     backlinksCount += 1
                 }
             }
@@ -225,32 +225,32 @@ public class Transmogrifier {
         return (targetIO, linkedNote)
     }
     
-    class ListOfTitles {
+    class ListOfNoteIdentifiers {
         
-        var titles: [String] = []
+        var noteIDs: [String] = []
         
-        init(title: String) {
-            titles.append(title)
+        init(noteIdBasis: String) {
+            noteIDs.append(noteIdBasis)
         }
         
-        func add(title: String) {
+        func add(noteIdBasis: String) {
             var index = 0
-            while index < titles.count && title > titles[index] {
+            while index < noteIDs.count && noteIdBasis > noteIDs[index] {
                 index += 1
             }
-            if index >= titles.count {
-                titles.append(title)
-            } else if title == titles[index] {
+            if index >= noteIDs.count {
+                noteIDs.append(noteIdBasis)
+            } else if noteIdBasis == noteIDs[index] {
                 return
             } else {
-                titles.insert(title, at: index)
+                noteIDs.insert(noteIdBasis, at: index)
             }
         }
         
         func display() {
             print("Transmogrifier.ListOfTitles.display")
-            for title in titles {
-                print("  - title = \(title)")
+            for noteIdBasis in noteIDs {
+                print("  - note ID Basis = \(noteIdBasis)")
             }
         }
     }

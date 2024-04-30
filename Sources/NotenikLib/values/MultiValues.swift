@@ -11,7 +11,7 @@
 //
 
 /// A protocol for values that have sub-values that can be independently counted and addressed.
-protocol MultiValues {
+public protocol MultiValues {
     
     /// The number of sub-values within this multi-value.
     var multiCount: Int { get }
@@ -23,4 +23,7 @@ protocol MultiValues {
     
     /// The preferred delimiter to use to separate each sub-value when combining into a String. 
     var multiDelimiter: String { get }
+    
+    /// Append a new value to the list. 
+    func append(_ str: String)
 }

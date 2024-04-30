@@ -14,7 +14,7 @@ import Foundation
 import NotenikUtils
 
 /// One or more tags, each consisting of one or more levels
-public class TagsValue: StringValue, MultiValues {
+public class TagsValue: StringValue, MultiValues {    
     
     public var tags: [TagValue] = []
     public var hashTags = false
@@ -249,6 +249,16 @@ public class TagsValue: StringValue, MultiValues {
             return "#" + tag
         } else {
             return tag
+        }
+    }
+    
+    public func append(_ str: String) {
+        if self.isEmpty {
+            set(str)
+        } else {
+            let anotherTag = TagValue(str)
+            tags.append(anotherTag)
+            sort()
         }
     }
 }

@@ -77,7 +77,7 @@ public class WikilinkValue: StringValue {
     func set(wikiLinks: [WikiLink]) {
         notePointers.clear()
         for wikiLink in wikiLinks {
-            notePointers.add(title: wikiLink.bestTarget.pathSlashItem)
+            notePointers.add(noteIdBasis: wikiLink.bestTarget.pathSlashItem)
         }
     }
     
@@ -86,7 +86,7 @@ public class WikilinkValue: StringValue {
         notePointers.append(line)
     }
     
-    func add(title: String) {
-        notePointers.add(title: title)
+    func add(noteIdBasis: String) {
+        notePointers.add(noteIdBasis: noteIdBasis)
     }
 }

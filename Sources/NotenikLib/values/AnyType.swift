@@ -57,7 +57,7 @@ public class AnyType {
     }
     
     // Is this field type a text block?
-    var isTextBlock: Bool {
+    public var isTextBlock: Bool {
         return (typeString == NotenikConstants.longTextType ||
                 typeString == NotenikConstants.bodyCommon ||
                 typeString == NotenikConstants.codeCommon ||

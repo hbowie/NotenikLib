@@ -23,6 +23,48 @@ public class TagValue: StringValue {
         return levels.count
     }
     
+    /// Default initializer
+    public override init() {
+        super.init()
+    }
+    
+    /// Convenience initializer with String value
+    public convenience init (_ value: String) {
+        self.init()
+        set(value)
+    }
+    
+    
+    /// Set a new value for the tags.
+    ///
+    /// - Parameter value: The new value for the tags, with commas or semi-colons separating tags,
+    ///                    and periods or slashes separating levels within a tag.
+    public override func set(_ value: String) {
+        
+        var level = ""
+        
+        /// Loop through new value
+        for c in value {
+            if c == "," || c == ";" || c == "." || c == "/" || c == "#" {
+                if level.count > 0 {
+                    addLevel(level)
+                    level = ""
+                }
+            } else if c == " " {
+                if level.count > 0 {
+                  level.append(c)
+                }
+            } else if c.isLetter || c.isNumber || c == "-" || c == "_" {
+                level.append(c)
+            }
+        }
+        
+        /// Finish up
+        if level.count > 0 {
+            addLevel(level)
+        }
+    }
+    
     func addLevel(_ level: TagLevel) {
         levels.append(level)
         if value.count > 0 { value.append(".") }

@@ -79,12 +79,12 @@ public class BacklinkValue: StringValue {
         notePointers.append(line)
     }
     
-    func add(title: String) {
-        notePointers.add(title: title)
+    func add(noteIdBasis: String) {
+        notePointers.add(noteIdBasis: noteIdBasis)
     }
     
-    func remove(title: String) {
-        notePointers.remove(title: title)
+    func remove(noteIdBasis: String) {
+        notePointers.remove(noteIdBasis: noteIdBasis)
     }
     
     public func display() {

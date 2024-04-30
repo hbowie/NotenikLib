@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 12/3/18.
-//  Copyright © 2018 - 2020 PowerSurge Publishing. All rights reserved.
+//  Copyright © 2018 - 2024 PowerSurge Publishing. All rights reserved.
 //
 
 import Foundation
@@ -22,7 +22,7 @@ public class FieldDictionary {
     }
     
     /// Return the number of definitions in the dictionary
-    var count: Int {
+    public var count: Int {
         return dict.count
     }
     

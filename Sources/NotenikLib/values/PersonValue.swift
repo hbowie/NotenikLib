@@ -13,7 +13,7 @@ import Foundation
 
 /// The names associated with one or more individuals.
 public class PersonValue: StringValue, MultiValues {
-    
+
     //
     // The following constants, variables and functions provide conformance to the MultiValues protocol.
     //
@@ -47,6 +47,15 @@ public class PersonValue: StringValue, MultiValues {
             return people[index].firstNameFirst
         } else {
             return getCompleteName()
+        }
+    }
+    
+    public func append(_ str: String) {
+        if self.isEmpty {
+            set(str)
+        } else {
+            let anotherPerson = PersonValue(str)
+            people.append(anotherPerson)
         }
     }
     
