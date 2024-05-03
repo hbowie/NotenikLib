@@ -760,6 +760,10 @@ public class TemplateUtil {
             } else if char == "/" {
                 let website = StringUtils.websiteFromLink(str: modifiedValue)
                 modifiedValue = website
+            } else if char == "^" && (nextChar.lowercased() == "x") {
+                let caretFollowing = nextChar.lowercased()
+                modifiedValue = extractString(inStr: modifiedValue, command: caretFollowing)
+                inc = 2
             } else if char == "a" && (nextChar == "1" || nextChar == "2" || nextChar == "3") {
                 let authorValue = AuthorValue(modifiedValue)
                 switch nextChar {
@@ -932,11 +936,16 @@ public class TemplateUtil {
         if formatString.count > 0 {
             if varNameCommon == "today" && (formatString.count > 10 || formatString.contains("T")) {
                 let today = Date()
-                let formatter = DateFormatter()
-                formatter.dateFormat = formatString
-                modifiedValue = formatter.string(from: today)
+                if formatString.hasPrefix("yyyy-MM-ddT") {
+                    let isoFormatter = ISO8601DateFormatter()
+                    modifiedValue = isoFormatter.string(from: today)
+                } else {
+                    let formatter = DateFormatter()
+                    formatter.dateFormat = formatString
+                    modifiedValue = formatter.string(from: today)
+                }
             } else {
-                if modifiedValue.count > 11 {
+                if formatString.count > 11 {
                     let dateTime = DateTimeValue(modifiedValue)
                     modifiedValue = dateTime.format(with: formatString)
                 } else {
@@ -947,6 +956,32 @@ public class TemplateUtil {
         }
         
         return modifiedValue
+    }
+    
+    func extractString(inStr: String, command: String) -> String {
+        guard !inStr.isEmpty else { return inStr }
+        switch command {
+        case "x":
+            var ext = ""
+            var period = ""
+            var index = inStr.endIndex
+            repeat {
+                index = inStr.index(before: index)
+                if index >= inStr.startIndex {
+                    let c = inStr[index]
+                    if inStr[index] == "." {
+                        period = String(inStr[index])
+                    } else {
+                        ext.insert(c, at: ext.startIndex)
+                    }
+                } else {
+                    period = "."
+                }
+            } while period != "."
+            return ext
+        default:
+            return inStr
+        }
     }
     
     func zTags(tagsString: String, prefix: String, suffix: String, htmlClass: String)-> String {

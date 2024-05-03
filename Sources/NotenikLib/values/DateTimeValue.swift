@@ -225,9 +225,14 @@ public class DateTimeValue: StringValue {
     /// - Parameter with: The format string to be used.
     /// - Returns: The formatted date.
     public func format(with: String) -> String {
-        let customFormatter = DateFormatter()
-        customFormatter.dateFormat = with
-        return customFormatter.string(from: dateAndTime)
+        if with.hasPrefix("yyyy-MM-ddT") {
+            let isoFormatter = ISO8601DateFormatter()
+            return isoFormatter.string(from: dateAndTime)
+        } else {
+            let customFormatter = DateFormatter()
+            customFormatter.dateFormat = with
+            return customFormatter.string(from: dateAndTime)
+        }
     }
     
     public var ymdhmsFormat: String {
