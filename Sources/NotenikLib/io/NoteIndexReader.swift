@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 8/7/19.
-//  Copyright © 2019 Herb Bowie (https://powersurgepub.com)
+//  Copyright © 2019 - 2024 Herb Bowie (https://powersurgepub.com)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -98,6 +98,7 @@ class NoteIndexReader: RowImporter {
         labels.append("Term Link")
         labels.append("Page")
         labels.append("Page Type")
+        labels.append("Page Status")
         labels.append("Anchor")
         
         
@@ -113,7 +114,10 @@ class NoteIndexReader: RowImporter {
                 case .fromShortcut:
                     pageType = shortcut
                 }
-                indexCollection.add(page: note!.title.value, pageType: pageType, index: note!.index)
+                indexCollection.add(page: note!.title.value, 
+                                    pageType: pageType,
+                                    pageStatus: note!.status.value,
+                                    index: note!.index)
             }
             (note, position) = io.nextNote(position)
         }
@@ -143,7 +147,9 @@ class NoteIndexReader: RowImporter {
                 consumer!.consumeField(label: labels[5], value: ref.pageType)
                 fields.append(ref.pageType)
                 
-                consumer!.consumeField(label: labels[6], value: ref.anchor)
+                consumer!.consumeField(label: labels[6], value: ref.pageStatus)
+                
+                consumer!.consumeField(label: labels[7], value: ref.anchor)
                 fields.append(ref.anchor)
                 
                 consumer!.consumeRow(labels: labels, fields: fields)

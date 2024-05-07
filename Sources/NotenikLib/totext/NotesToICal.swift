@@ -51,10 +51,29 @@ public class NotesToICal: NotesToText {
         guard dateValue.isFullDate else { return 0 }
         guard let externalID = io?.collection?.externalID else { return 0 }
         
+        // Begin the event
         writer.writeLine("BEGIN:VEVENT")
-        fold("SUMMARY:\(note.title.value)")
+        
+        // Identify the event
         fold("UID:\(externalID)-\(note.noteID.commonFileName)")
         
+        // Identify date and time of last update
+        var dtStamp = ""
+        for c in note.envModDate {
+            if c.isNumber && dtStamp.count < 15 {
+                dtStamp.append(c)
+                if dtStamp.count == 8 {
+                    dtStamp.append("T")
+                }
+            }
+        }
+        dtStamp.append("Z")
+        writer.writeLine("DTSTAMP:\(dtStamp)")
+        
+        // Provide the event summary (aka title)
+        fold("SUMMARY:\(note.title.value)")
+
+        // Indicate Start and End Date(s) and Time(s)
         let date = dateValue.yyyy + dateValue.mm + dateValue.dd
         
         var time = getTimeFromSeq(note: note)
@@ -67,7 +86,7 @@ public class NotesToICal: NotesToText {
             writer.writeLine("DTEND;VALUE=DATE:\(date)")
         } else {
             writer.writeLine("DTSTART:\(date)T\(time!.withoutPunctuation)")
-            var duration = DurationValue("001500")
+            var duration = DurationValue("00:15:00")
             if note.hasDuration() {
                 duration = note.duration
             }
@@ -80,8 +99,17 @@ public class NotesToICal: NotesToText {
             fold("LOCATION:\(note.address.value)")
         }
         
-        if note.hasBody() {
-            fold("DESCRIPTION:\(note.body.value)")
+        var desc = ""
+        if let supplierField = note.getField(label: "supplier") {
+            desc.append("Supplier: \(supplierField.value.value)\n\n")
+        }
+        if let confirmationField = note.getField(label: "confirmation") {
+            desc.append("Confirmation: \(confirmationField.value.value)\n\n")
+        }
+        desc.append(note.body.value)
+        
+        if !desc.isEmpty {
+            fold("DESCRIPTION:\(desc)")
         }
         if note.hasLink() {
             fold("URL:\(note.link.value)")

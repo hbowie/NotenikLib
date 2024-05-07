@@ -116,4 +116,8 @@ public class TimeOfDay {
         return oldHours / 24
     }
     
+    func display() {
+        print("TimeOfDay hours = \(hours), minutes = \(minutes), seconds = \(seconds)")
+    }
+    
 }

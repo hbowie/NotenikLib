@@ -945,7 +945,7 @@ public class TemplateUtil {
                     modifiedValue = formatter.string(from: today)
                 }
             } else {
-                if formatString.count > 11 {
+                if formatString.contains("H:") || formatString.contains("h:") {
                     let dateTime = DateTimeValue(modifiedValue)
                     modifiedValue = dateTime.format(with: formatString)
                 } else {

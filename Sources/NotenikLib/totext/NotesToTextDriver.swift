@@ -31,6 +31,7 @@ public class NotesToTextDriver {
         self.io = io
         switch format {
         case .iCal:
+            writer.useCarriageReturns = true
             notesToText = NotesToICal(writer: writer, io: io)
         }
     }

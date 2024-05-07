@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 8/7/19.
-//  Copyright © 2019 Herb Bowie (https://hbowie.net)
+//  Copyright © 2019 - 2024 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -34,7 +34,7 @@ class IndexCollection {
         return term != nil
     }
     
-    func add(page: String, pageType: String, index: IndexValue) {
+    func add(page: String, pageType: String, pageStatus: String, index: IndexValue) {
         clearTermVars()
         for c in index.value {
             switch c {
@@ -55,7 +55,7 @@ class IndexCollection {
             case "#":
                 position = .anchor
             case ";":
-                endOfTermEntry(page: page, pageType: pageType)
+                endOfTermEntry(page: page, pageType: pageType, pageStatus: pageStatus)
             case " ":
                 pendingSpaces += 1
             default:
@@ -69,7 +69,7 @@ class IndexCollection {
                 pendingSpaces = 0
             }
         }
-        endOfTermEntry(page: page, pageType: pageType)
+        endOfTermEntry(page: page, pageType: pageType, pageStatus: pageStatus)
     }
     
     func append(_ c: Character) {
@@ -94,7 +94,7 @@ class IndexCollection {
         }
     }
     
-    func endOfTermEntry(page: String, pageType: String) {
+    func endOfTermEntry(page: String, pageType: String, pageStatus: String) {
         if term.count > 0 {
             var indexTerm = dict[term]
             if indexTerm == nil {
@@ -108,6 +108,7 @@ class IndexCollection {
             let ref = IndexPageRef(term: indexTerm!,
                                    page: page,
                                    pageType: pageType,
+                                   pageStatus: pageStatus,
                                    anchor: anchor)
             indexTerm!.addRef(ref)
         }

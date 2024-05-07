@@ -405,7 +405,10 @@ public class NotesMkdownContext: MkdownContext {
         while note != nil {
             if note!.hasTitle() && note!.hasIndex() && note!.includeInBook(epub: displayParms.epub3) {
                 let pageType = note!.getFieldAsString(label: NotenikConstants.typeCommon)
-                indexCollection.add(page: note!.title.value, pageType: pageType, index: note!.index)
+                indexCollection.add(page: note!.title.value, 
+                                    pageType: pageType,
+                                    pageStatus: note!.status.value,
+                                    index: note!.index)
             }
             (note, position) = io.nextNote(position)
         }
