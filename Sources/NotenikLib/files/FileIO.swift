@@ -492,7 +492,10 @@ public class FileIO: NotenikIO, RowConsumer {
     }
     
     /// Load notes from a subfolder.
-    func loadNotesSubFolder(folderFieldDef: FieldDefinition, realm: Realm, collectionPath: String, subFolder: ResourceFileSys) {
+    func loadNotesSubFolder(folderFieldDef: FieldDefinition, 
+                            realm: Realm,
+                            collectionPath: String,
+                            subFolder: ResourceFileSys) {
         guard let foldersList = folderFieldDef.comboList else { return }
         foldersList.registerValue(subFolder.fileName)
         let subPath = FileUtils.joinPaths(path1: collectionPath, path2: subFolder.fileName)

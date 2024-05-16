@@ -68,12 +68,21 @@ public class ResourceFileSys: CustomStringConvertible, Comparable, Equatable {
     }
     
     /// Initialize with a parent resource and a file/folder name. 
-    convenience init(parent: ResourceFileSys, fileName: String, type: ResourceType = .unknown, preferredNoteExt: String = "txt") {
-        self.init(folderPath: parent.actualPath, fileName: fileName, type: type, preferredNoteExt: preferredNoteExt)
+    convenience init(parent: ResourceFileSys, 
+                     fileName: String,
+                     type: ResourceType = .unknown,
+                     preferredNoteExt: String = "txt") {
+        self.init(folderPath: parent.actualPath, 
+                  fileName: fileName,
+                  type: type,
+                  preferredNoteExt: preferredNoteExt)
     }
     
     /// Initialize with the path to the enclosing folder, plus the item within the folder.
-    public init(folderPath: String, fileName: String, type: ResourceType = .unknown, preferredNoteExt: String = "txt") {
+    public init(folderPath: String, 
+                fileName: String,
+                type: ResourceType = .unknown,
+                preferredNoteExt: String = "txt") {
         self.folderPath = folderPath
         self.type = type
         if fileName.hasPrefix(ResourceFileSys.cloudyPrefix) && fileName.hasSuffix(ResourceFileSys.cloudySuffix) {
@@ -330,7 +339,10 @@ public class ResourceFileSys: CustomStringConvertible, Comparable, Equatable {
             } else if type == .exportFolder && item.hasSuffix(ResourceFileSys.scriptExt) {
                 itemType = .exportScript
             }
-            let resource = ResourceFileSys(folderPath: actualPath, fileName: item, type: itemType,  preferredNoteExt: preferredNoteExt)
+            let resource = ResourceFileSys(folderPath: actualPath, 
+                                           fileName: item,
+                                           type: itemType,
+                                           preferredNoteExt: preferredNoteExt)
             contents.append(resource)
         }
         return contents
@@ -540,6 +552,8 @@ public class ResourceFileSys: CustomStringConvertible, Comparable, Equatable {
             type = .attachments
         } else if _fName == ResourceFileSys.exportFolderName {
             type = .exportFolder
+        } else if _fName == ResourceFileSys.klassFolderName {
+            type = .klassFolder
         } else {
             type = .folder
         }
