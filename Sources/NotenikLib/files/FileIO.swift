@@ -1167,13 +1167,13 @@ public class FileIO: NotenikIO, RowConsumer {
         guard lib.hasAvailable(type: .reports) else { return }
         
         guard let contents = lib.getContents(type: .reports) else { return }
-            
+        /*
         var scriptsFound = false
         for content in contents {
             if content.type == .script {
                 scriptsFound = true
             }
-        }
+        } */
         
         for content in contents {
             if content.type == .script {
@@ -1181,7 +1181,7 @@ public class FileIO: NotenikIO, RowConsumer {
                 report.reportName = content.base
                 report.reportType = content.extLower
                 reports.append(report)
-            } else if !scriptsFound && content.baseLower.contains(mergeTemplateID) {
+            } else if content.baseLower.contains(mergeTemplateID) {
                 let report = MergeReport()
                 report.reportName = content.base
                 report.reportType = content.extLower

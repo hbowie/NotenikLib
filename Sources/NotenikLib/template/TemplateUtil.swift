@@ -402,10 +402,13 @@ public class TemplateUtil {
     
     /// Close the output file, sending it to the appropriate output. 
     func closeOutput() {
+        var output = false
         if let consumer = workspace?.templateOutputConsumer {
             consumer.consumeTemplateOutput(outputLines)
-            outputFilesWritten += 1
-        } else if outputOpen && textOutURL != nil {
+            output = true
+        }
+        // else
+        if outputOpen && textOutURL != nil {
             var skipWrite = false
             if outputOnlyIfNew {
                 if FileManager.default.fileExists(atPath: textOutURL!.path) {
@@ -418,13 +421,17 @@ public class TemplateUtil {
                                      createDirectories: true,
                                      checkForChanges: true)
                 if written {
-                    outputFilesWritten += 1
+                    output = true
                 } else {
                     outputFilesSkipped += 1
                 }
             }
-        } else {
+        } 
+        if !output {
             linesToOutput = outputLines
+        }
+        if output {
+            outputFilesWritten += 1
         }
         outputLines = ""
         outputLineCount = 0
