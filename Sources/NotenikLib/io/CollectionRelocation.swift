@@ -115,6 +115,7 @@ public class CollectionRelocation {
         // toCollection!.notesSubFolder = fromCollection!.notesSubFolder
         toCollection!.mirrorAutoIndex = fromCollection!.mirrorAutoIndex
         toCollection!.bodyLabel = fromCollection!.bodyLabel
+        toCollection!.minBodyEditViewHeight = fromCollection!.minBodyEditViewHeight
         toCollection!.titleDisplayOption = fromCollection!.titleDisplayOption
         toCollection!.displayMode = fromCollection!.displayMode
         toCollection!.mathJax = fromCollection!.mathJax

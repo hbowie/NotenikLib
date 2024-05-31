@@ -989,8 +989,8 @@ public class NotesExporter {
                 markup.finishDetails()
                 outlineLevels.removeLast()
             }
-            markup.finishDoc()
         }
+        markup.finishDoc()
         do {
             try markup.code.write(to: destination, atomically: true, encoding: .utf8)
         } catch {

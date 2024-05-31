@@ -765,6 +765,13 @@ public class FileIO: NotenikIO, RowConsumer {
             collection!.bodyLabel = bodyLabel.isTrue
         }
         
+        let minBodyEditField = infoNote.getField(label: NotenikConstants.minBodyEditViewHeightCommon)
+        if minBodyEditField != nil {
+            let minBodyEditStr = minBodyEditField!.value.value
+            let minBodyEdit = (minBodyEditStr as NSString).floatValue
+            collection!.minBodyEditViewHeight = minBodyEdit
+        }
+        
         let h1TitlesField = infoNote.getField(label: "displayh1titles")
         let titleDisplayField = infoNote.getField(label: NotenikConstants.titleDisplayOptCommon)
         if titleDisplayField == nil && h1TitlesField != nil {

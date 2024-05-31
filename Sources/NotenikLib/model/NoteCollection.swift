@@ -136,6 +136,8 @@ public class NoteCollection {
     public  var windowPosStr   = ""
     public  var columnWidths   = ColumnWidths()
     
+    public  var minBodyEditViewHeight: Float = 5.0
+    
     /// Default initialization of a new Collection.
     public init () {
         lib = ResourceLibrary()
