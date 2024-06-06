@@ -145,6 +145,7 @@ public class FieldDefinition: Comparable, CustomStringConvertible {
         copy.fieldType  = self.fieldType
         copy.pickList   = self.pickList
         copy.comboList  = self.comboList
+        copy.lookupFrom = self.lookupFrom
         return copy
     }
     

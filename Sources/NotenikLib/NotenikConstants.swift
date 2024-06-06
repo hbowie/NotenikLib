@@ -299,6 +299,8 @@ public struct NotenikConstants {
     static let textIdSepCommon          = "textidseparator"
     static let minBodyEditViewHeight    = "Minimum Body Edit View Height"
     static let minBodyEditViewHeightCommon = "minimumbodyeditviewheight"
+    static let lastImportParent         = "Last Import Parent"
+    static let lastImportParentCommon   = "lastimportparent"
     
     //-------------------------------------------------------------
     //

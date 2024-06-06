@@ -864,6 +864,9 @@ public class FileIO: NotenikIO, RowConsumer {
         let webBookPathStr = infoNote.getFieldAsString(label: NotenikConstants.webBookFolderCommon)
         collection!.webBookPath = webBookPathStr
         
+        let lastImportParentStr = infoNote.getFieldAsString(label: NotenikConstants.lastImportParentCommon)
+        collection!.lastImportParent = lastImportParentStr
+        
         let webBookAsEPUBField = infoNote.getField(label: NotenikConstants.webBookEPUBCommon)
         if webBookAsEPUBField == nil || webBookAsEPUBField!.value.value.isEmpty {
             collection!.webBookAsEPUB = true

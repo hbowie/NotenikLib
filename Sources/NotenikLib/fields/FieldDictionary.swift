@@ -55,6 +55,7 @@ public class FieldDictionary {
         locked = false
     }
     
+    /// Ensure the Title field is the first field in the dictionary. 
     public func checkTitle() {
         var i = 0
         var titleIx = -1

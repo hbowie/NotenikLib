@@ -96,6 +96,10 @@ public class InfoLineMaker {
             writer.append(label: NotenikConstants.textIdSep, value: "\"\(collection.noteIdentifier.textIdSep)\"")
         }
         
+        if !collection.lastImportParent.isEmpty {
+            writer.append(label: NotenikConstants.lastImportParent, value: collection.lastImportParent)
+        }
+        
     }
     
     public var str: String {

@@ -44,6 +44,7 @@ public class NoteCollection {
     public  var hashTags    : Bool = false
     public  var mirror:       NoteTransformer?
     public  var mirrorAutoIndex = false
+    public  var lastImportParent = ""
 
     public  var bodyLabel = true
     public  var titleDisplayOption: LineDisplayOption = .pBold
@@ -683,6 +684,20 @@ public class NoteCollection {
     public func nextTitleNumber() -> Int {
         highestTitleNumber += 1
         return highestTitleNumber
+    }
+    
+    public func setLastImportParent(url: URL) {
+        if #available(macOS 13.0, *) {
+            lastImportParent = url.path()
+        } 
+    }
+    
+    public func getLastImportParent() -> URL? {
+        if lastImportParent.isEmpty {
+            return nil
+        } else {
+            return URL(fileURLWithPath: lastImportParent)
+        }
     }
     
     public func makeLinkRelative(startingLink: String) -> String {
