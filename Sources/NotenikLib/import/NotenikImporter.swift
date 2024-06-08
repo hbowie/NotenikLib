@@ -25,6 +25,7 @@ public class NotenikImporter {
     var updateIO: NotenikIO
     var updateCollection: NoteCollection!
     var updateDict: FieldDictionary!
+    var updatePath = ""
     
     /// Initialize with necessary objects
     /// - Parameters:
@@ -41,9 +42,13 @@ public class NotenikImporter {
     public func importNotes() {
         
         logMsg("Starting Notenik Import", level: .info)
+        logMsg("Importing from \(importIO.collection!.fullPath)", level: .info)
+        logMsg("Importing into \(updateIO.collection!.fullPath)", level: .info)
         logMsg("Additional Fields Parm: \(parms.columnParm)", level: .info)
         logMsg("Rows Parm: \(parms.rowParm)", level: .info)
         logMsg("Consolidate Lookups? \(parms.consolidateLookups)", level: .error)
+        
+        updatePath = updateIO.collection!.fullPath
         
         parms.input = 0
         parms.added = 0
@@ -51,10 +56,12 @@ public class NotenikImporter {
         parms.ignored = 0
         parms.rejected = 0
         
-        guard let importCollection = importIO.collection else { return }
+        guard let impCollection = importIO.collection else { return }
+        importCollection = impCollection
         importDict = importCollection.dict
         
-        guard let updateCollection = updateIO.collection else { return }
+        guard let updCollection = updateIO.collection else { return }
+        updateCollection = updCollection
         updateDict = updateCollection.dict
         
         // If we're adding fields then add them now, to keep them in
@@ -67,8 +74,15 @@ public class NotenikImporter {
             for importDef in importDict.list {
                 if !updateDict.contains(importDef) {
                     let updateDef = importDef.copy()
-                    if parms.consolidateLookups && updateDef.fieldType.typeString == NotenikConstants.lookupType {
-                        updateDef.fieldType = updateDef.typeCatalog.assignType(label: updateDef.fieldLabel, type: NotenikConstants.stringType)
+                    if parms.consolidateLookups 
+                        && updateDef.fieldType.typeString == NotenikConstants.lookupType {
+                        var newType = NotenikConstants.stringType
+                        if updateDef.fieldLabel.commonForm == NotenikConstants.authorCommon
+                            || updateDef.lookupFrom == "author"
+                            || updateDef.lookupFrom == "authors" {
+                            newType = NotenikConstants.authorCommon
+                        }
+                        updateDef.fieldType = updateDef.typeCatalog.assignType(label: updateDef.fieldLabel, type: newType)
                         _ = updateDict.addDef(updateDef)
                         addLookupDefs(importDef)
                     } else {
@@ -176,14 +190,24 @@ public class NotenikImporter {
         
         logMsg("Looking up related defs for field labeled '\(def.fieldLabel.properForm)'", level: .info)
         let shortcut = def.lookupFrom
-        let (collection2, _) = MultiFileIO.shared.provision(shortcut: shortcut, inspector: nil, readOnly: false)
+        if updateCollection == nil {
+            logMsg("Update Collection Info is missing", level: .error)
+            return
+        }
+        let realm = updateCollection.lib.realm
+        MultiFileIO.shared.prepareForLookup(shortcut: shortcut,
+                                            collectionPath: updatePath,
+                                            realm: realm)
+        let (collection2, _) = MultiFileIO.shared.provision(shortcut: shortcut,
+                                                            inspector: nil,
+                                                            readOnly: false)
         guard let lookupCollection = collection2 else {
             logMsg("Collection shortcut of \(shortcut) could not be provisioned", level: .error)
             return
         }
         let lookupDict = lookupCollection.dict
         for lookupDef in lookupDict.list {
-            if lookupDef != lookupCollection.idFieldDef {
+            if includeLookupDef(def: lookupDef, lookupCollection: lookupCollection) {
                 if !updateDict.contains(lookupDef) {
                     let updateDef = lookupDef.copy()
                     _ = updateDict.addDef(updateDef)
@@ -193,12 +217,12 @@ public class NotenikImporter {
     }
     
     /// Add Lookup Fields.
-    func addLookupFields(_ field: NoteField, importCollection: NoteCollection, commonNote: Note) {
+    func addLookupFields(_ field: NoteField, 
+                         importCollection: NoteCollection,
+                         commonNote: Note) {
         
         let shortcut = field.def.lookupFrom
-        let path = importCollection.fullPath
-        let realm = importCollection.lib.realm
-        MultiFileIO.shared.prepareForLookup(shortcut: shortcut, collectionPath: path, realm: realm)
+
         let lookupNote = MultiFileIO.shared.getNote(shortcut: shortcut, knownAs: field.value.value)
         guard lookupNote != nil else {
             logMsg("Lookup failed for shortcut of '\(shortcut)' with ID of '\(field.value.value)'", level: .error)
@@ -207,7 +231,7 @@ public class NotenikImporter {
         let lookupCollection = lookupNote!.collection
         let lookupDict = lookupCollection.dict
         for lookupDef in lookupDict.list {
-            if lookupDef != lookupCollection.idFieldDef {
+            if includeLookupDef(def: lookupDef, lookupCollection: lookupCollection) {
                 let lookupField = lookupNote!.getField(def: lookupDef)
                 if lookupField != nil && lookupField!.value.hasData {
                     if let updateDef = updateDict.getDef(lookupField!.def.fieldLabel.commonForm) {
@@ -218,6 +242,17 @@ public class NotenikImporter {
                 }
             }
         }
+    }
+    
+    func includeLookupDef(def: FieldDefinition,
+                          lookupCollection: NoteCollection) -> Bool {
+        guard def != lookupCollection.idFieldDef else { return false }
+        let typeString = def.fieldType.typeString
+        guard typeString != NotenikConstants.lookBackType else { return false }
+        guard typeString != NotenikConstants.dateAddedCommon else { return false }
+        guard typeString != NotenikConstants.dateModifiedCommon else { return false }
+        guard typeString != NotenikConstants.bodyCommon else { return false }
+        return true
     }
     
     /// Log an error message and optionally display an alert message.

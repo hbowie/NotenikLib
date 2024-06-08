@@ -60,7 +60,9 @@ public class TemplateLineMaker {
                     value = "<lookup: \(def.lookupFrom)>"
                 } else if def.fieldType.typeString == NotenikConstants.lookBackType {
                     value = "<lookback: \(def.lookupFrom)>"
-                } else if def.pickList != nil && def.fieldType.typeString != NotenikConstants.authorCommon {
+                } else if def.pickList != nil 
+                            && def.fieldType.typeString != NotenikConstants.authorCommon
+                            && def.fieldType.typeString != NotenikConstants.stringType {
                     value = def.pickList!.getTypeWithValues(type: def.fieldType.typeString)
                 } else if def.pickList != nil && def.fieldType.typeString == NotenikConstants.pickFromType {
                     value = def.pickList!.getTypeWithValues()
