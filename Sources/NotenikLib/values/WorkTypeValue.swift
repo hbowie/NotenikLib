@@ -31,7 +31,7 @@ public class WorkTypeValue: StringValue {
     ///   returns an empty string. Otherwise the method returns a string
     ///   starting with " the " and ending with the work type value, in all
     ///   lowercase characters.
-    var theType: String {
+    public var theType: String {
         if value.isEmpty {
             return ""
         } else {
@@ -44,7 +44,7 @@ public class WorkTypeValue: StringValue {
         }
     }
     
-    var isMajor: Bool {
+    public var isMajor: Bool {
         switch value.lowercased() {
         case "", "album", "book", "cd", "decision", "film", "novel", "play", "television show", "unknown", "video", "web page":
             return true

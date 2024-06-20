@@ -247,12 +247,22 @@ public class NotenikImporter {
     func includeLookupDef(def: FieldDefinition,
                           lookupCollection: NoteCollection) -> Bool {
         guard def != lookupCollection.idFieldDef else { return false }
-        let typeString = def.fieldType.typeString
-        guard typeString != NotenikConstants.lookBackType else { return false }
-        guard typeString != NotenikConstants.dateAddedCommon else { return false }
-        guard typeString != NotenikConstants.dateModifiedCommon else { return false }
-        guard typeString != NotenikConstants.bodyCommon else { return false }
-        return true
+        switch def.fieldType.typeString {
+        case NotenikConstants.titleCommon:
+            return false
+        case NotenikConstants.tagsCommon:
+            return false
+        case NotenikConstants.lookBackType:
+            return false
+        case NotenikConstants.dateAddedCommon:
+            return false
+        case NotenikConstants.dateModifiedCommon:
+            return false
+        case NotenikConstants.bodyCommon:
+            return false
+        default:
+            return true
+        }
     }
     
     /// Log an error message and optionally display an alert message.
