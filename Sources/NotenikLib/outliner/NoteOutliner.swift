@@ -169,18 +169,23 @@ public class NoteOutliner: Sequence {
      
      */
     var code = Markedup(format: .htmlFragment)
-    
     var details = false
-    
     var openNodes: [OutlineNode] = []
+    var level = 0
     
     public func genToC(details: Bool) -> Markedup {
         
-        code = Markedup(format: .htmlFragment)
+        if displayParms.format == .markdown {
+            code = Markedup(format: .markdown)
+        } else {
+            code = Markedup(format: .htmlFragment)
+        }
         
         self.details = details
         
         openNodes = []
+        
+        level = 0
         
         startUnorderedList()
         
@@ -191,7 +196,7 @@ public class NoteOutliner: Sequence {
                 let top = openNodes.count - 1
                 let openNode = openNodes[top]
                 if openNode.hasChildren {
-                    code.finishUnorderedList()
+                    finishUnorderedList()
                     if details {
                         code.finishDetails()
                     }
@@ -215,6 +220,7 @@ public class NoteOutliner: Sequence {
     }
     
     func startUnorderedList() {
+        level += 1
         if details {
             code.startUnorderedList(klass: "outline-ul-within-details")
         } else {
@@ -224,10 +230,13 @@ public class NoteOutliner: Sequence {
     
     func startListItem(node: OutlineNode) {
         guard let note = node.note else { return }
+        if level < 1 {
+            level = 1
+        }
         if details && node.hasChildren {
             code.startListItem()
         } else {
-            code.startListItem(klass: "outline-li-bullet")
+            code.startListItem(klass: "outline-li-bullet", level: level)
         }
         if details && node.hasChildren {
             code.startDetails()
@@ -244,6 +253,9 @@ public class NoteOutliner: Sequence {
     }
     
     func finishUnorderedList() {
+        if level > 0 {
+            level -= 1
+        }
         code.finishUnorderedList()
     }
     

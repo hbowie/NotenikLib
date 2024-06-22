@@ -27,6 +27,7 @@ public class NoteDisplay {
     var includedNotes: [String] = []
     var mdBodyParser: MkdownParser?
     var mdResults = TransformMdResults()
+    var expandedMarkdown: String? = nil
     
     public var results: TransformMdResults {
         return mdResults
@@ -72,10 +73,15 @@ public class NoteDisplay {
     /// - Returns: A string containing the encoded note, and a flag indicating whether
     ///            any wiki link targets that did not yet exist were automatically added.
     ///
-    public func display(_ note: Note, io: NotenikIO, parms: DisplayParms, mdResults: TransformMdResults) -> String {
+    public func display(_ note: Note,
+                        io: NotenikIO,
+                        parms: DisplayParms,
+                        mdResults: TransformMdResults,
+                        expandedMarkdown: String? = nil) -> String {
 
         self.parms = parms
         self.mdResults = mdResults
+        self.expandedMarkdown = expandedMarkdown
 
         if note.hasShortID() {
             mkdownOptions.shortID = note.shortID.value
@@ -540,14 +546,18 @@ public class NoteDisplay {
                                          topOfPage: topOfPage,
                                          imageWithinPage: imageWithinPage,
                                          results: mdResults,
-                                         bottomOfPage: bottomOfPage)
+                                         bottomOfPage: bottomOfPage,
+                                         expandedMarkdown: expandedMarkdown)
     }
 
     /// Get the code used to display this field
     ///
     /// - Parameter field: The field to be displayed.
     /// - Returns: A String containing the code that can be used to display this field.
-    func display(_ field: NoteField, note: Note, collection: NoteCollection, io: NotenikIO) -> String {
+    func display(_ field: NoteField, 
+                 note: Note,
+                 collection: NoteCollection,
+                 io: NotenikIO) -> String {
         
         mkdownContext = NotesMkdownContext(io: io, displayParms: parms)
         let code = Markedup(format: parms.format)

@@ -34,6 +34,8 @@ public class NoteFieldsToHTML {
     
     var results = TransformMdResults()
     
+    var expandedMarkdown: String? = nil
+    
     var attribution: NoteField?
     
     var quoted = false
@@ -55,12 +57,15 @@ public class NoteFieldsToHTML {
                              imageWithinPage: String,
                              results: TransformMdResults,
                              bottomOfPage: String = "",
-                             lastInList: Bool = false) -> String {
+                             lastInList: Bool = false,
+                             expandedMarkdown: String? = nil) -> String {
         
         // Save parameters and make key variables easily accessible for later use.
         self.io = io
         self.results = results
         self.parms = parms
+        self.expandedMarkdown = expandedMarkdown
+        
         if io != nil {
             mkdownContext = NotesMkdownContext(io: io!, displayParms: parms)
         }
@@ -638,7 +643,7 @@ public class NoteFieldsToHTML {
                                   writer: markedup,
                                   noteTitle: note.title.value,
                                   shortID: note.shortID.value)
-                    
+                
                 if let context = results.mkdownContext {
                     if let bodyHTML = results.bodyHTML {
                         note.mkdownCommandList = context.mkdownCommandList
@@ -650,6 +655,9 @@ public class NoteFieldsToHTML {
             if note.klass.quote {
                 markedup.finishBlockQuote()
             }
+        } else if parms.format == .markdown && expandedMarkdown != nil && !expandedMarkdown!.isEmpty {
+            markedup.append(expandedMarkdown!)
+            markedup.newLine()
         } else {
             markedup.append(field.value.value)
             markedup.newLine()

@@ -53,6 +53,12 @@ public class NotesExporter {
     var notesExported = 0
     var tagsWritten = 0
     
+    // -----------------------------------------------------------
+    //
+    // MARK: Driver
+    //
+    // -----------------------------------------------------------
+    
     /// Initialize the Exporter.
     public init() {
         tagsToSelect = TagsValue(appPrefs.tagsToSelect)
@@ -154,7 +160,7 @@ public class NotesExporter {
         case .opml:
             markup = Markedup(format: .opml)
             markup.startDoc(withTitle: noteIO.collection!.title, withCSS: nil)
-        case .concatHtml, .outlineHtml,.concatMarkdown:
+        case .concatHtml, .outlineHtml, .concatMarkdown:
             concatOpen(exportFormat: format)
             break
         case .webBookEPUB, .webBookSite, .webBookEPUBFolder:
@@ -843,7 +849,7 @@ public class NotesExporter {
         displayParms.sortParm = collection.sortParm
         displayParms.displayMode = collection.displayMode
         displayParms.wikiLinks.prefix = "#"
-        displayParms.wikiLinks.format = .fileName
+        displayParms.wikiLinks.format = .mmdID
         displayParms.wikiLinks.suffix = ""
         displayParms.mathJax = collection.mathJax
         displayParms.localMj = false
@@ -865,18 +871,28 @@ public class NotesExporter {
             markup.startDoc(withTitle: docTitle,
                             withCSS: note.getCombinedCSS(cssString: displayParms.cssString))
         }
+        
+        var expMD: String?
+        
         switch format {
         case .concatHtml:
             displayParms.format = .htmlFragment
         case .concatMarkdown:
             displayParms.format = .markdown
+            let expander = MkdownExpander()
+            expMD = expander.expand(md: note.body.value,
+                                    note: note,
+                                    io: noteIO,
+                                    parms: displayParms)
         default:
             break
         }
+        
+        
         let mdResults = TransformMdResults()
-        let code = display.display(note, io: noteIO, parms: displayParms, mdResults: mdResults)
+        let code = display.display(note, io: noteIO, parms: displayParms, mdResults: mdResults, expandedMarkdown: expMD)
         markup.append(code)
-        markup.writeLine(" ")
+        // markup.writeLine(" ")
         notesExported += 1
     }
     

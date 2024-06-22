@@ -1289,12 +1289,18 @@ public class FileIO: NotenikIO, RowConsumer {
     public func modNote(oldNote: Note, newNote: Note) -> (Note?, NotePosition) {
 
         guard collection != nil && collectionOpen else { return (nil, NotePosition(index: -1)) }
-        guard newNote.hasTitle() else { return (nil, NotePosition(index: -1)) }
+        guard newNote.hasTitle() else {
+            logError("modNote error 1 - No Collection")
+            return (nil, NotePosition(index: -1))
+        }
         
         // Delete the old note from memory.
         var deleted = false
         deleted = bunch!.delete(note: oldNote)
-        guard deleted else { return (nil, NotePosition(index: -1)) }
+        guard deleted else {
+            logError("modNote error 2 - Could not delete old version from memory")
+            return (nil, NotePosition(index: -1))
+        }
         
         MultiFileIO.shared.cancelLookBacks(lkUpNote: oldNote)
         
@@ -1309,26 +1315,34 @@ public class FileIO: NotenikIO, RowConsumer {
         
         // Add the new note to memory.
         let added = bunch!.add(note: newNote)
-        guard added else { return (nil, NotePosition(index: -1)) }
+        guard added else {
+            logError("modNote error 3 - Could not add new version to memory")
+            return (nil, NotePosition(index: -1))
+        }
         
         MultiFileIO.shared.registerLookBacks(lkUpNote: newNote)
         
         // Rename the Note file if needed.
         // newNote.fileInfo.genFileName()
         guard let oldPath = oldNote.noteID.getFullPath(note: oldNote) else {
+            logError("modNote error 4 - Full path not available for old version")
             return (nil, NotePosition(index: -1))
         }
         guard let newPath = newNote.noteID.getFullPath(note: newNote) else {
+            logError("modNote error 5 - Full path not available for new version")
             return (nil, NotePosition(index: -1))
         }
         if oldPath != newPath {
             collection!.lib.checkForFolder(note: newNote)
             let notesFolder = oldNote.getResourceLib().notesFolder
-            let fileName = oldNote.noteID.getBaseDotExt()
+            var fileName = oldNote.noteID.getExistingBaseDotExt()
+            if fileName == nil {
+                fileName = oldNote.noteID.getBaseDotExt()
+            }
             let noteResource = ResourceFileSys(parent: notesFolder, fileName: fileName!, type: .note)
             let renameOK = noteResource.rename(to: newPath)
             if !renameOK {
-                logError("Could not rename file from \(oldPath) to \(newPath)")
+                logError("modNote error 6 - Could not rename file from \(oldPath) to \(newPath)")
                 return (nil, NotePosition(index: -1))
             }
         }
@@ -1336,6 +1350,7 @@ public class FileIO: NotenikIO, RowConsumer {
         // Save the changes to the Note file. 
         let written = writeNote(newNote)
         if !written {
+            logError("modNote error 7 - Could not write new version to disk")
             return (nil, NotePosition(index: -1))
         } else {
             let (_, position) = bunch!.selectNote(newNote)

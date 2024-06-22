@@ -135,16 +135,28 @@ public class DisplayParms {
     }
     
     public func streamlinedTitleWithLink(markedup: Markedup, note: Note, klass: String?) {
+
         let idBasis = note.noteID.getBasis()
+        var seqPrefix = ""
         if note.klass.frontOrBack || note.klass.quote {
             // no need for a preceding number
         } else if note.hasDisplaySeq() {
-            markedup.append(note.formattedDisplaySeq + " ")
+            seqPrefix = note.formattedDisplaySeq + " "
         } else {
-            markedup.append(note.formattedSeq + " ")
+            seqPrefix = note.formattedSeq + " "
         }
+        if !seqPrefix.isEmpty {
+            markedup.append(seqPrefix)
+        }
+        var idToUse = ""
+        if wikiLinks.prefix == "#" {
+            idToUse = seqPrefix + idBasis
+        } else {
+            idToUse = idBasis
+        }
+        let wikiLink = wikiLinks.assembleWikiLink(idBasis: idToUse)
         markedup.link(text: note.noteID.text,
-                      path: wikiLinks.assembleWikiLink(idBasis: idBasis),
+                      path: wikiLink,
                       klass: klass)
     }
     

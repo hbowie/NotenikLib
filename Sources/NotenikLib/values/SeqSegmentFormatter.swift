@@ -12,7 +12,7 @@
 
 import Foundation
 
-public class SeqSegmentFormatter {
+public class SeqSegmentFormatter: CustomStringConvertible {
     
     var exclude = false
     var padToLength = 0
@@ -25,6 +25,10 @@ public class SeqSegmentFormatter {
     
     public init(with codes: String) {
         set(to: codes)
+    }
+    
+    public var description: String {
+        return ("exclude? \(exclude), pad to length = \(padToLength), prefix = '\(prefix)', suffix = '\(suffix)'")
     }
     
     public func format(segment: SeqSegment, soFar: String, sepChar: Character) -> String {
