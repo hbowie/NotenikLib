@@ -27,13 +27,18 @@ class FilterRule {
     
     init(dict: FieldDictionary, label: String, op: String, to: String) {
         
+        
         let possibleField = dict.getDef(label)
         if possibleField != nil {
             self.field = possibleField!
         } else {
-            logError("Field label of \(label) could not be found in input source")
+            var fieldLabel = FieldLabel(label)
+            if label.lowercased() == "datacount" || label.lowercased() == "datamax" {
+                fieldLabel = FieldLabel("datacount")
+            } else {
+                logError("Field label of \(label) could not be found in input source")
+            }
             let typeCat = AllTypes()
-            let fieldLabel = FieldLabel(label)
             let fieldType = StringType()
             let newField = FieldDefinition(typeCatalog: typeCat)
             newField.fieldLabel = fieldLabel

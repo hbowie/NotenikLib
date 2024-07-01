@@ -58,12 +58,22 @@ class FilterModule {
     func setParams() {
         workspace.currentRules = workspace.pendingRules
         workspace.list = NotesList()
+        var dataCount = 0
         for note in workspace.fullList {
+            var counted = false
             var selected = true
             for rule in workspace.currentRules {
-                var field = FieldGrabber.getField(note: note, label: rule.field!.fieldLabel.commonForm)
+                var field: NoteField? = NoteField()
+                var value = ""
+                let label = rule.field!.fieldLabel.commonForm
+                field = FieldGrabber.getField(note: note, label: label)
                 if field == nil {
-                    field = NoteField(def: rule.field!, value: "",
+                    if label == "datacount" {
+                        dataCount += 1
+                        counted = true
+                        value = "\(dataCount)"
+                    }
+                    field = NoteField(def: rule.field!, value: value,
                                       statusConfig: workspace.collection.statusConfig,
                                       levelConfig: workspace.collection.levelConfig)
                 }
@@ -77,6 +87,9 @@ class FilterModule {
             }
             if selected {
                 workspace.list.append(note)
+                if !counted {
+                    dataCount += 1
+                }
             }
         }
         logInfo("\(workspace.list.count) Notes passed the filter rules")

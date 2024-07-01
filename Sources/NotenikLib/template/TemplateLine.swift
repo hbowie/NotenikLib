@@ -289,7 +289,7 @@ class TemplateLine {
         
         if tokens.count < 3 {
             // We're just testing for the presence of a variable
-            if operand1 == "" {
+            if operand1 == "" || operand1 == "false" {
                 util.skippingData = true
             }
             return

@@ -28,9 +28,13 @@ public class TemplateUtil {
     var templateFileName = FileName()
     
     var dataFileName = FileName()
+    var dataMax = 0
+    var dataCount = 0
     
     var webRootURL: URL?
     var webRootFileName = FileName()
+    
+    var includeFailure = false
     
     var typeCatalog = AllTypes()
     
@@ -274,6 +278,8 @@ public class TemplateUtil {
     /// - Parameter filePath: The complete path to the file to be included.
     func includeFile(filePath: String, copyParm: String, note: Note) {
         
+        includeFailure = true
+        
         let absFilePath = templateFileName.resolveRelative(path: filePath)
         
         guard fileManager.fileExists(atPath: absFilePath) else {
@@ -297,6 +303,7 @@ public class TemplateUtil {
         }
         
         // logInfo("Including file \(absFilePath)")
+        includeFailure = false
         
         let inFileName = FileName(absFilePath)
         let inType = idealizeExt(inFileName.ext)
@@ -1003,7 +1010,11 @@ public class TemplateUtil {
             for level in tag.levels {
                 if str.count > 0 {
                     str.append(".")
-                    link.append("-")
+                    if prefix.contains("notenik://") {
+                        link.append(".")
+                    } else {
+                        link.append("-")
+                    }
                 }
                 str.append(level.forDisplay)
                 link.append(StringUtils.toCommonFileName(level.forDisplay))
@@ -1212,6 +1223,12 @@ public class TemplateUtil {
             }
         case "displaycss":
             return displayCSS
+        case "datacount":
+            return "\(dataCount)"
+        case "datamax":
+            return "\(dataMax)"
+        case "includefailure":
+            return "\(includeFailure)"
         default:
             return nil
         }

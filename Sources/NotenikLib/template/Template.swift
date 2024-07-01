@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 6/3/19.
-//  Copyright © 2019 - 2023 Herb Bowie (https://hbowie.net)
+//  Copyright © 2019 - 2024 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -71,6 +71,8 @@ public class Template {
         util.notesList = NotesList()
         util.notesList.append(note)
         util.dataFileName = FileName(dataSource)
+        util.dataCount = 0
+        util.dataMax = 1
         util.io = io
         util.bodyHTML = bodyHTML
         util.mdResults.minutesToRead = minutesToRead
@@ -84,6 +86,8 @@ public class Template {
     public func supplyData(notesList: NotesList, dataSource: String) {
         util.notesList = notesList
         util.dataFileName = FileName(dataSource)
+        util.dataCount = 0
+        util.dataMax = notesList.count
         util.bodyHTML = nil
         util.mdResults.minutesToRead = nil
     }
@@ -230,6 +234,7 @@ public class Template {
         util.notesIndex = -1
         for note in util.notesList {
             util.notesIndex += 1
+            util.dataCount = util.notesIndex + 1
             util.note = note
             if workspace != nil {
                 workspace!.mkdownContext?.setTitleToParse(id: note.noteID.commonID,

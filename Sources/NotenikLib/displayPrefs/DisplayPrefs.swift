@@ -394,6 +394,9 @@ public class DisplayPrefs {
             margin-left: -2.2em;
             margin-bottom: 0.5em;
         }
+        pre {
+            overflow-x: auto;
+        }
         
         """)
         tempCSS.append(buildHeadingsCSS())
