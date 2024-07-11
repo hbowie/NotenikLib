@@ -94,6 +94,8 @@ public class DisplayParms {
             return false
         case .quotations:
             return false
+        case .custom:
+            return false
         }
     }
     
@@ -106,6 +108,8 @@ public class DisplayParms {
         case .streamlinedReading:
             return false
         case .quotations:
+            return false
+        case .custom:
             return false
         }
     }
@@ -120,6 +124,8 @@ public class DisplayParms {
             return true
         case .quotations:
             return true
+        case .custom:
+            return false
         }
     }
     

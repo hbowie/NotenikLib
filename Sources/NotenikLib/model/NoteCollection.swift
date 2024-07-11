@@ -45,10 +45,16 @@ public class NoteCollection {
     public  var mirror:       NoteTransformer?
     public  var mirrorAutoIndex = false
     public  var lastImportParent = ""
+    public  var lastAttachmentParent: URL? = nil
+    public  var forceStandardDisplay = false
 
     public  var bodyLabel = true
     public  var titleDisplayOption: LineDisplayOption = .pBold
     public  var displayMode: DisplayMode = .normal
+    public  var overrideCustomDisplay = false
+    public  var displayTemplate = ""
+    public  var displayCSS = ""
+    
     public  var mathJax = false
     public  var imgLocal = false
     public  var missingTargets = false
@@ -57,9 +63,6 @@ public class NoteCollection {
     public  var scrollingSync = false
     public  var lastStartupDate = ""
             var todaysDate = ""
-    
-    public  var displayTemplate = ""
-    public  var displayCSS = ""
     
     public  var seqFormatter =  SeqFormatter()
     public  var linkFormatter = LinkFormatter()

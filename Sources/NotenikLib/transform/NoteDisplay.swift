@@ -126,7 +126,7 @@ public class NoteDisplay {
             _ = io.selectNote(at: position.index)
         }
         
-        if parms.displayTemplate.count > 0 && parms.formatIsHTML {
+        if parms.displayTemplate.count > 0 && parms.displayMode == .custom && parms.formatIsHTML {
             return displayWithTemplate(note, io: io)
         } else {
             return displayWithoutTemplate(note, io: io,

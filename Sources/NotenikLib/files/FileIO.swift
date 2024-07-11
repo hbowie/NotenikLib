@@ -796,6 +796,12 @@ public class FileIO: NotenikIO, RowConsumer {
             }
         }
         
+        let overrideCustomDisplayField = infoNote.getField(label: NotenikConstants.overrideCustomDisplayCommon)
+        if overrideCustomDisplayField != nil {
+            let overrideCustomDisplay = BooleanValue(overrideCustomDisplayField!.value.value)
+            collection!.overrideCustomDisplay = overrideCustomDisplay.isTrue
+        }
+        
         let mathJaxField = infoNote.getField(label: NotenikConstants.mathJax)
         if mathJaxField != nil {
             let mathJax = BooleanValue(mathJaxField!.value.value)
@@ -973,6 +979,11 @@ public class FileIO: NotenikIO, RowConsumer {
         collection!.displayTemplate = ""
         guard collection!.lib.hasAvailable(type: .display) else { return }
         collection!.displayTemplate = collection!.lib.displayFile.getText()
+        if !collection!.displayTemplate.isEmpty {
+            if !collection!.overrideCustomDisplay {
+                collection?.displayMode = .custom
+            }
+        }
     }
     
     /// Close the current collection, if one is open

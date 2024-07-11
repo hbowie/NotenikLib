@@ -46,6 +46,7 @@ public class InfoLineMaker {
         writer.append(label: NotenikConstants.minBodyEditViewHeight, value: "\(collection.minBodyEditViewHeight)")
         writer.append(label: NotenikConstants.titleDisplayOpt,   value: "\(collection.titleDisplayOption.rawValue)")
         writer.append(label: NotenikConstants.displayMode,       value: collection.displayMode.rawValue)
+        writer.append(label: NotenikConstants.overrideCustomDisplay, value: "\(collection.overrideCustomDisplay)")
         writer.append(label: NotenikConstants.mathJax, value: "\(collection.mathJax)")
         writer.append(label: NotenikConstants.imgLocal, value: "\(collection.imgLocal)")
         writer.append(label: NotenikConstants.missingTargets, value: "\(collection.missingTargets)")
