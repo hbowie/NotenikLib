@@ -26,6 +26,8 @@ class TeaserType: AnyType {
         
         /// The common label typically assigned to fields of this type.
         commonLabel = NotenikConstants.teaserCommon
+        
+        reducedDisplay = false
     }
     
     /// Is this type suitable for a particular field, given its label and type (if any)?

@@ -29,7 +29,7 @@ class ImageNameType: AnyType {
         
         displayLines = 20
         
-        streamlinedDisplay = true
+        reducedDisplay = false
     }
     
     /// A factory method to create a new value of this type with no initial value.

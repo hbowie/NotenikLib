@@ -28,7 +28,8 @@ public class AnyType {
     
     public var displayLines = 2
     
-    public var streamlinedDisplay = true
+    // Display this field type for streamline reading (and similar display modes)?
+    public var reducedDisplay = true
     
     init() {
         

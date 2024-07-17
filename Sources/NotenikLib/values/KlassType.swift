@@ -26,6 +26,8 @@ class KlassType: AnyType {
         
         /// The common label typically assigned to fields of this type.
         commonLabel = NotenikConstants.klassCommon
+        
+        reducedDisplay = false
     }
     
     /// A factory method to create a new value of this type with no initial value.

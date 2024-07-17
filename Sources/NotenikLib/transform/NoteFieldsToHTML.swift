@@ -483,6 +483,8 @@ public class NoteFieldsToHTML {
                               writer: code,
                               noteTitle: noteTitle,
                               shortID: note.shortID.value)
+        } else if parms.reducedDisplay && !field.def.fieldType.reducedDisplay {
+            // no output
         } else if parms.reducedDisplay {
             switch field.def.fieldType.typeString {
             case NotenikConstants.authorCommon:
@@ -509,27 +511,17 @@ public class NoteFieldsToHTML {
                 } else {
                     displayStraight(field, markedup: code)
                 }
-            case NotenikConstants.imageNameCommon:
-                break
             case NotenikConstants.imageCreditCommon:
                 break
             case NotenikConstants.imageCreditLinkCommon:
                 break
             case NotenikConstants.includeChildrenCommon:
                 break
-            case NotenikConstants.indexCommon:
-                break
-            case NotenikConstants.klassCommon:
-                break
-            case NotenikConstants.levelCommon:
-                break
             case NotenikConstants.tagsCommon:
                 break
             case NotenikConstants.seqCommon:
                 break
             case NotenikConstants.displaySeqCommon:
-                break
-            case NotenikConstants.teaserCommon:
                 break
             case NotenikConstants.longTextType:
                 displayMarkdown(field, markedup: code, noteTitle: noteTitle, note: note, mkdownContext: mkdownContext)

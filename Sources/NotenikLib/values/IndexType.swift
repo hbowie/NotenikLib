@@ -25,6 +25,8 @@ class IndexType: AnyType {
         
         /// The common label typically assigned to fields of this type.
         commonLabel = "index"
+        
+        reducedDisplay = false
     }
     
     /// A factory method to create a new value of this type with no initial value.
