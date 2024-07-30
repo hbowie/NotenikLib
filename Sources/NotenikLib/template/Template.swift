@@ -248,6 +248,8 @@ public class Template {
     
     func processLoopForNote(_ note: Note, endOfNotes: Bool = false) {
         util.resetGroupBreaks()
+        util.bodyHTML = nil
+        util.mdResults = TransformMdResults()
         util.skippingData = false
         util.endingGroup = false
         for line in loopLines {

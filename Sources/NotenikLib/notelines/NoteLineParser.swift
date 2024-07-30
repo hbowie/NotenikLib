@@ -106,7 +106,7 @@ public class NoteLineParser {
             
             // See if we should declare the value to be complete at this point.
             if label.validLabel && value.count > 0 && !bodyStarted {
-                if noteLine.blankLine 
+                if noteLine.blankLine
                     && blankLines == 1
                     && mmdMetaStartEndLineCount == 0
                     && fieldNumber > 1 {

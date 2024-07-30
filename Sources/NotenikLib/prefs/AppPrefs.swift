@@ -926,7 +926,7 @@ public class AppPrefs {
     }
     
     public var parseUsingNotenik: Bool {
-        return (_mdParser == "notenik")
+        return (_mdParser == "notenik" || _mdParser == "mkdown")
     }
     
     /// Are we using the Notenik Parser?

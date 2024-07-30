@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 6/3/19.
-//  Copyright © 2019 - 2023 Herb Bowie (https://hbowie.net)
+//  Copyright © 2019 - 2024 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -1168,7 +1168,7 @@ public class TemplateUtil {
         value = replaceSpecialVarWithValue(inLine: inLine, varNameCommon: varName)
         
         if value == nil {
-            value = replaceVarWithValue(varName: varName, fromNote: globals)
+            value = replaceVarWithGlobalValue(varName: varName, fromNote: globals)
         }
         
         if value == nil {
@@ -1248,7 +1248,7 @@ public class TemplateUtil {
     /// Look for a replacement value for the passed field label.
     ///
     /// - Parameters:
-    ///   - varName: The desire field label (aka variable name)
+    ///   - varName: The desired field label (aka variable name)
     ///   - fromNote: The Note instance containing the field values to be used.
     /// - Returns: The replacement value, if the variable name was found, otherwise nil.
     func replaceExtendedVarWithValue(varName: String, fromNote: Note, position: Int = -1) -> String? {
@@ -1326,6 +1326,24 @@ public class TemplateUtil {
         return replaceVarWithValue(varName: varName, fromNote: fromNote)
     }
     
+    /// Look for a replacement global value for the passed field label.
+    ///
+    /// - Parameters:
+    ///   - varName: The desire field label (aka variable name)
+    ///   - fromNote: The Note instance containing the field values to be used.
+    /// - Returns: The replacement value, if the variable name was found, otherwise nil.
+    func replaceVarWithGlobalValue(varName: String, fromNote: Note) -> String? {
+        
+        // If not one of the derived values, then just look for a Note field with the
+        // supplied variable name.
+        let field = fromNote.getField(label: varName)
+        if field == nil {
+            return nil
+        } else {
+            return field!.value.value
+        }
+    }
+    
     /// Look for a replacement value for the passed field label.
     ///
     /// - Parameters:
@@ -1337,6 +1355,13 @@ public class TemplateUtil {
         // If not one of the derived values, then just look for a Note field with the
         // supplied variable name.
         let field = FieldGrabber.getField(note: fromNote, label: varName)
+        
+        // Use special logic to determine minutes to read
+        let mins = checkMinutesToRead(varName: varName, fromNote: fromNote, field: field)
+        if mins != nil {
+            return mins!.value
+        }
+        
         if field == nil {
             return nil
         } else {
@@ -1370,6 +1395,45 @@ public class TemplateUtil {
             
             return field!.value.value
         }
+    }
+    
+    func checkMinutesToRead(varName: String, fromNote: Note, field: NoteField?) -> MinutesToReadValue? {
+        if varName == NotenikConstants.minutesToReadCommon {
+            return getMinutesToRead(varName: varName, fromNote: fromNote, field: field)
+        }
+        if field != nil && field!.def.fieldType.typeString == NotenikConstants.minutesToReadCommon {
+            return getMinutesToRead(varName: varName, fromNote: fromNote, field: field)
+        }
+        var collection = NoteCollection()
+        if let coll = workspace?.collection {
+            collection = coll
+        } else {
+            collection = fromNote.collection
+        }
+        if let def = collection.dict.getDef(varName) {
+            if def.fieldType.typeString == NotenikConstants.minutesToReadCommon {
+                return getMinutesToRead(varName: varName, fromNote: fromNote, field: field)
+            }
+        }
+        return nil
+    }
+    
+    func getMinutesToRead(varName: String, fromNote: Note, field: NoteField?) -> MinutesToReadValue? {
+        let mins = MinutesToReadValue()
+        if bodyHTML != nil && mdResults.counts.words > 0 {
+            mins.calculate(with: mdResults.counts)
+            return mins
+        }
+        
+        let mkdown = Markdown()
+        mkdown.md = fromNote.body.value
+        mkdown.parse()
+        mins.calculate(with: mkdown.counts)
+        if AppPrefs.shared.parseUsingNotenik {
+            bodyHTML = mkdown.html
+            mdResults.counts = mkdown.counts
+        }
+        return mins
     }
     
     func genTitleDisplaySlug(fromNote: Note) -> String {

@@ -92,6 +92,7 @@ class NoteLineIn {
         firstChar = nil
 
         var badLabelPunctuationCount = 0
+        var embeddedBlankCount = 0
         
         definition = FieldDefinition()
         
@@ -169,7 +170,7 @@ class NoteLineIn {
                 // See if we have a colon following what appears to be a valid label
                 if colonCount == 0 {
                     if c == ":" {
-                        if badLabelPunctuationCount == 0 && !bodyStarted {
+                        if badLabelPunctuationCount == 0 && (embeddedBlankCount < 7) && !bodyStarted {
                             colonFound = true
                             colonIndex = reader.currIndex
                             label.set(String(reader.bigString[reader.lineStartIndex...labelLast]))
@@ -184,6 +185,7 @@ class NoteLineIn {
                         }
                         colonCount += 1
                     } else if c.isWhitespace {
+                        embeddedBlankCount += 1
                         // just skip it
                     } else if c.isLetter ||
                         c.isWholeNumber ||
