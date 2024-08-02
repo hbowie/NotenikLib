@@ -157,6 +157,21 @@ public class DisplayPrefs {
           margin-left: 0;
           padding-left: 1em;
         }
+        .quote-from {
+            margin-block-start: 0.1rem;
+            margin-block-end: 0.5rem;
+            margin: 0.1rem 0 0.5rem 0;
+            padding: 0.25rem 2.4em;
+            line-height: 1.45;
+            position: relative;
+        }
+        .quote-from:before {
+            display: block;
+            padding-left: 1.4em;
+            content: \"\\2014\";
+            position: absolute;
+            left: 0;
+        }
         figure {
           margin-left: 0.2em;
           padding-left: 0.2em;
