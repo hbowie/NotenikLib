@@ -3,7 +3,7 @@
 //  NotenikLib
 //
 //  Created by Herb Bowie on 2/5/19.
-//  Copyright © 2019 - 2021 Herb Bowie (https://hbowie.net)
+//  Copyright © 2019 - 2024 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -20,6 +20,7 @@ class BunchOfNotes {
     var notesDict = [String : Note]()
     var notesList = NotesList()
     var notesTree = TagsTree()
+    var outlineTree = OutlineTree()
     var shortIDs  = ShortIDs()
     var timestampDict = [String : Note]()
     var akaAll = AKAentries()
@@ -134,6 +135,8 @@ class BunchOfNotes {
         
         notesTree.add(note: note)
         
+        _ = outlineTree.add(note: note)
+        
         if collection.shortIdDef != nil {
             shortIDs.add(note: note)
         }
@@ -195,6 +198,11 @@ class BunchOfNotes {
         
         // Remove the note from the Tags Tree
         notesTree.delete(note: note)
+        
+        // Remove the note from the Outline Tree
+        if outlineTree.hasSeq {
+            _ = outlineTree.delete(note: note)
+        }
         
         // Remove the Note from the list of Short IDs. 
         if collection.shortIdDef != nil {
@@ -434,6 +442,7 @@ class BunchOfNotes {
         akaAll = AKAentries()
         notesList = NotesList()
         notesTree = TagsTree()
+        outlineTree = OutlineTree()
         shortIDs = ShortIDs()
     }
 }

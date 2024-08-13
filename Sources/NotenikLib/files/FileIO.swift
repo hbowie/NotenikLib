@@ -487,6 +487,8 @@ public class FileIO: NotenikIO, RowConsumer {
                 multiRequests!.populateLookBacks(io: self)
             }
             
+            // bunch!.outlineTree.display()
+            
             return collection
         }
     }
@@ -794,6 +796,12 @@ public class FileIO: NotenikIO, RowConsumer {
             if displayMode != nil {
                 collection!.displayMode = displayMode!
             }
+        }
+        
+        let outlineTabField = infoNote.getField(label: NotenikConstants.outlineTabCommon)
+        if outlineTabField != nil {
+            let outlineTab = BooleanValue(outlineTabField!.value.value)
+            collection!.outlineTab = outlineTab.isTrue
         }
         
         let overrideCustomDisplayField = infoNote.getField(label: NotenikConstants.overrideCustomDisplayCommon)
@@ -2061,6 +2069,25 @@ public class FileIO: NotenikIO, RowConsumer {
     /// Create an iterator for the tags nodes.
     public func makeTagsNodeIterator() -> TagsNodeIterator {
         return TagsNodeIterator(noteIO: self)
+    }
+    
+    // -----------------------------------------------------------
+    //
+    // MARK: Access the Outline based on Seq values.
+    //
+    // -----------------------------------------------------------
+    
+    /// Return the root of the Tags tree
+    public func getOutlineNodeRoot() -> OutlineNode2? {
+        guard collection != nil && collectionOpen && bunch?.outlineTree != nil else {
+            return nil
+        }
+        return bunch!.outlineTree.root
+    }
+    
+    /// Create an iterator for the tags nodes.
+    public func makeOutlineNodeIterator() -> OutlineNodeIterator {
+        return bunch!.outlineTree.makeIterator()
     }
     
     // -----------------------------------------------------------

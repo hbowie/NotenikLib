@@ -623,6 +623,19 @@ class BunchIO: NotenikIO, RowConsumer  {
         return TagsNodeIterator(noteIO: self)
     }
     
+    /// Return the root of the Tags tree
+    public func getOutlineNodeRoot() -> OutlineNode2? {
+        guard collection != nil && collectionOpen && bunch?.outlineTree != nil else {
+            return nil
+        }
+        return bunch!.outlineTree.root
+    }
+    
+    /// Create an iterator for the tags nodes.
+    public func makeOutlineNodeIterator() -> OutlineNodeIterator {
+        return bunch!.outlineTree.makeIterator()
+    }
+    
     /// Close the current collection, if one is open.
     func closeCollection() {
         collection = nil

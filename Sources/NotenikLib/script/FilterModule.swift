@@ -56,10 +56,23 @@ class FilterModule {
     }
     
     func setParams() {
+        
+        // Save latest sort parms
+        let customFields: [SortField] = workspace.collection.customFields
+        let sortParm = workspace.collection.sortParm
+        
         workspace.currentRules = workspace.pendingRules
-        workspace.list = NotesList()
+        workspace.list = workspace.fullList
+        
+        // Need to re-apply current sort parameters here
+        workspace.collection.customFields = customFields
+        workspace.collection.sortParm = sortParm
+        workspace.list.sort()
+        
         var dataCount = 0
-        for note in workspace.fullList {
+        var i = 0
+        while i < workspace.list.count {
+            let note = workspace.list[i]
             var counted = false
             var selected = true
             for rule in workspace.currentRules {
@@ -85,11 +98,13 @@ class FilterModule {
                     selected = false
                 }
             }
-            if selected {
-                workspace.list.append(note)
+            if !selected {
+                workspace.list.remove(at: i)
+            } else {
                 if !counted {
                     dataCount += 1
                 }
+                i += 1
             }
         }
         logInfo("\(workspace.list.count) Notes passed the filter rules")

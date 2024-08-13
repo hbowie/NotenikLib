@@ -362,5 +362,17 @@ public protocol NotenikIO {
     
     /// Create an iterator for the tags nodes.
     func makeTagsNodeIterator() -> TagsNodeIterator
+    
+    // -----------------------------------------------------------
+    //
+    // MARK: Access the Outline based on Seq values. 
+    //
+    // -----------------------------------------------------------
+    
+    /// Return the root of the Tags tree
+    func getOutlineNodeRoot() -> OutlineNode2?
+    
+    /// Create an iterator for the tags nodes.
+    func makeOutlineNodeIterator() -> OutlineNodeIterator
 }
 

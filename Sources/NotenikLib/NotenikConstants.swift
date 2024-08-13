@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 12/11/18.
-//  Copyright © 2018 - 2023 Herb Bowie (https://hbowie.net)
+//  Copyright © 2018 - 2024 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -303,6 +303,8 @@ public struct NotenikConstants {
     static let minBodyEditViewHeightCommon = "minimumbodyeditviewheight"
     static let lastImportParent         = "Last Import Parent"
     static let lastImportParentCommon   = "lastimportparent"
+    static let outlineTab               = "Outline Tab"
+    static let outlineTabCommon         = "outlinetab"
     
     //-------------------------------------------------------------
     //

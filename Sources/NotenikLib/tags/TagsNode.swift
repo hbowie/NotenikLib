@@ -26,11 +26,15 @@ public class TagsNode: Comparable, CustomStringConvertible {
         return lhs.compareTo(node2: rhs) == 0
     }
     
-    private(set) weak   var parent:   TagsNode?
+    public private(set) var parent:   TagsNode?
     public private(set) var children: [TagsNode] = []
     public              var type:     TagsNodeType = .root
     public              var tag:      TagLevel?
     public              var note:     Note?
+    
+    public var hasParent: Bool {
+        return (parent != nil)
+    }
     
     init() {
         
