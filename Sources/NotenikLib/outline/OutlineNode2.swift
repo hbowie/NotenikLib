@@ -321,10 +321,9 @@ public class OutlineNode2: Comparable, CustomStringConvertible {
         if (index + 1) < parent.children.count {
             following = parent.children[index + 1]
         }
-        var subIndex = 0
         var insertAt = index + 1
-        while subIndex < vanishingChild.children.count {
-            let grandChild = vanishingChild.children[subIndex]
+        while 0 < vanishingChild.children.count {
+            let grandChild = vanishingChild.children[0]
             if prior != nil && grandChild.isChildOf(prior!) {
                 _ = prior!.addChild(node: grandChild)
             } else if following != nil && grandChild.isChildOf(following!) {
@@ -334,7 +333,7 @@ public class OutlineNode2: Comparable, CustomStringConvertible {
                 parent.children.insert(grandChild, at: insertAt)
                 insertAt += 1
             }
-            vanishingChild.children.remove(at: subIndex)
+            vanishingChild.children.remove(at: 0)
         }
     }
     

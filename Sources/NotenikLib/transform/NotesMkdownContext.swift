@@ -35,6 +35,7 @@ public class NotesMkdownContext: MkdownContext {
     public var mkdownCommandList = MkdownCommandList(collectionLevel: false)
     public var includedNotes: [String] = []
     public var javaScript = ""
+    public var hashTags: [String] = []
     
     // Utility.
     let htmlConverter = StringConverter()
@@ -71,6 +72,7 @@ public class NotesMkdownContext: MkdownContext {
         collection.shortID = shortID
         mkdownCommandList = MkdownCommandList(collectionLevel: false)
         javaScript = ""
+        hashTags = []
     }
     
     // -----------------------------------------------------------
@@ -84,6 +86,18 @@ public class NotesMkdownContext: MkdownContext {
         guard let collection = io.collection else { return }
         guard !collection.idToParse.isEmpty else { return }
         mkdownCommandList.updateWith(command: command, noteTitle: collection.idToParse, code: nil)
+    }
+    
+    // -----------------------------------------------------------
+    //
+    // MARK: Collect embedded hash tags.
+    //
+    // -----------------------------------------------------------
+    
+    /// Collect embedded hash tags found within the Markdown.
+    public func addHashTag(_ tag: String) {
+        hashTags.append(tag)
+        print("add hash tag: #\(tag)")
     }
     
     // -----------------------------------------------------------

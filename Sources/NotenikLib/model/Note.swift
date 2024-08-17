@@ -21,6 +21,7 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     
     public var fields = [:] as [String: NoteField]
     public var attachments: [AttachmentName] = []
+    public var embeddedTags: [String] = []
     
     public var noteID = NoteIdentification()
     
