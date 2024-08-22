@@ -306,6 +306,9 @@ public struct NotenikConstants {
     static let outlineTab               = "Outline Tab"
     static let outlineTabCommon         = "outlinetab"
     
+    public static let listDisplayFont   = "list-display-font"
+    public static let listDisplaySize   = "list-display-size"
+    
     //-------------------------------------------------------------
     //
     // Files and folders
