@@ -13,11 +13,16 @@ import Foundation
 
 import NotenikUtils
 
-class FilterRule {
-    
+class FilterRule: CustomStringConvertible {
+
     var field:  FieldDefinition?
     var op    = FieldComparisonOperator()
     var to    = ""
+    
+    var description: String {
+        guard let def = field else { return "???" }
+        return "filter rule: \(def.fieldLabel.properForm) \(op) \(to)"
+    }
     
     init(field: FieldDefinition, op: FieldComparisonOperator, to: String) {
         self.field = field

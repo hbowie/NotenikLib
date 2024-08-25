@@ -1077,11 +1077,13 @@ public class FileIO: NotenikIO, RowConsumer {
     /// Add matching attachments to a Note. 
     func addAttachments(to note: Note) {
         guard let base = note.noteID.getBaseFilename() else { return }
+        let noteID = note.noteID.id
         guard attachments != nil else { return }
         var i = 0
         var looking = true
         while i < attachments!.count && looking {
-            if attachments![i].fileName.hasPrefix(base) {
+            if attachments![i].fileName.hasPrefix(base)
+                || attachments![i].baseCommon.hasPrefix(noteID) {
                 let attachmentName = AttachmentName()
                 guard attachmentName.setName(note: note, fullName: attachments![i].fileName) else {
                     i += 1
@@ -1089,7 +1091,7 @@ public class FileIO: NotenikIO, RowConsumer {
                 }
                 note.attachments.append(attachmentName)
                 attachments!.remove(at: i)
-            } else if base < attachments![i].fileName {
+            } else if base < attachments![i].fileName && noteID < attachments![i].baseCommon {
                 looking = false
             } else {
                 i += 1

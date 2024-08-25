@@ -53,6 +53,7 @@ public class ResourceFileSys: CustomStringConvertible, Comparable, Equatable {
 
     var base = ""
     var baseLower = ""
+    var baseCommon = ""
     var extLower = ""
     
     // -----------------------------------------------------------
@@ -72,7 +73,8 @@ public class ResourceFileSys: CustomStringConvertible, Comparable, Equatable {
                      fileName: String,
                      type: ResourceType = .unknown,
                      preferredNoteExt: String = "txt") {
-        self.init(folderPath: parent.actualPath, 
+        
+        self.init(folderPath: parent.actualPath,
                   fileName: fileName,
                   type: type,
                   preferredNoteExt: preferredNoteExt)
@@ -83,6 +85,7 @@ public class ResourceFileSys: CustomStringConvertible, Comparable, Equatable {
                 fileName: String,
                 type: ResourceType = .unknown,
                 preferredNoteExt: String = "txt") {
+        
         self.folderPath = folderPath
         self.type = type
         if fileName.hasPrefix(ResourceFileSys.cloudyPrefix) && fileName.hasSuffix(ResourceFileSys.cloudySuffix) {
@@ -196,6 +199,7 @@ public class ResourceFileSys: CustomStringConvertible, Comparable, Equatable {
                 base = _fName
             }
             baseLower = base.lowercased()
+            baseCommon = StringUtils.toCommon(base)
         }
     }
     var _fName = ""
@@ -255,19 +259,16 @@ public class ResourceFileSys: CustomStringConvertible, Comparable, Equatable {
                 }
             }
         }
-        
         guard writeNoteAtomic(note) else { return false }
         
-        let noteURL = note.noteID.getURL(note: note)
-        if noteURL != nil {
-            updateEnvDates(note: note, noteURL: noteURL!)
-            if collection.hasTimestamp {
-                let postTimestamp = note.timestampAsString
-                if !postTimestamp.isEmpty && postTimestamp != preTimestamp {
-                    let ok = writeNoteAtomic(note)
-                    if !ok {
-                        logError("Trouble rewriting Note with timestamp")
-                    }
+        let noteURL = URL(fileURLWithPath: proposedPath)
+        updateEnvDates(note: note, noteURL: noteURL)
+        if collection.hasTimestamp {
+            let postTimestamp = note.timestampAsString
+            if !postTimestamp.isEmpty && postTimestamp != preTimestamp {
+                let ok = writeNoteAtomic(note)
+                if !ok {
+                    logError("Trouble rewriting Note with timestamp")
                 }
             }
         }

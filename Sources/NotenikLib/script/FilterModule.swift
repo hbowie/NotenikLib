@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 7/25/19.
-//  Copyright © 2019 Herb Bowie (https://powersurgepub.com)
+//  Copyright © 2019 - 2024 Herb Bowie (https://powersurgepub.com)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -62,7 +62,7 @@ class FilterModule {
         let sortParm = workspace.collection.sortParm
         
         workspace.currentRules = workspace.pendingRules
-        workspace.list = workspace.fullList
+        workspace.list = workspace.fullList.copy()
         
         // Need to re-apply current sort parameters here
         workspace.collection.customFields = customFields

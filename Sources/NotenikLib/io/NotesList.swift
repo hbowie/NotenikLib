@@ -13,7 +13,7 @@ import Foundation
 
 /// A simple list of Notes. 
 public class NotesList: Sequence {
-    
+
     var list = [Note]()
     
     public var count: Int {
@@ -31,6 +31,12 @@ public class NotesList: Sequence {
     
     public init() {
         
+    }
+    
+    public func copy() -> NotesList {
+        let list2 = NotesList()
+        list2.list = self.list
+        return list2
     }
     
     /// Search the list to position the index at a matching entry, or the

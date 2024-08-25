@@ -97,6 +97,10 @@ public class NoteIdentification: Identifiable, Comparable, Equatable {
             }
         }
         checkIDSourceMatch()
+        if matchesIdSource {
+            useExistingFilename = true
+        }
+        
     }
     
     public func setIDSourceMatch(_ match: Bool) {
@@ -179,6 +183,17 @@ public class NoteIdentification: Identifiable, Comparable, Equatable {
         return commonID
     }
     
+    public func getBaseDotExtForWrite() -> String? {
+        var baseDotExt: String? = nil
+        if useExistingFilename {
+            baseDotExt = getExistingBaseDotExt()
+        }
+        if baseDotExt == nil {
+            baseDotExt = getBaseDotExt()
+        }
+        return baseDotExt
+    }
+    
     public func getExistingBaseDotExt() -> String? {
         guard existingBase != nil && existingExt != nil else { return nil }
         return existingBase! + "." + existingExt!
@@ -239,12 +254,40 @@ public class NoteIdentification: Identifiable, Comparable, Equatable {
     
     public func copy() -> NoteIdentification {
         let noteID2 = NoteIdentification()
+        noteID2.plainText = self.plainText
+        noteID2.noteFileFormat = self.noteFileFormat
+        noteID2.preferredExt = self.preferredExt
+        noteID2.mmdMetaStartLine = self.mmdMetaStartLine
+        noteID2.mmdMetaEndLine = self.mmdMetaEndLine
+        noteID2.existingBase = self.existingBase
+        noteID2.existingExt = self.existingExt
         noteID2.basis       = self.basis
         noteID2.text        = self.text
         noteID2.commonID    = commonID
         noteID2.readableFileName = self.readableFileName
         noteID2.commonFileName = self.commonFileName
+        noteID2.matchesIdSource = self.matchesIdSource
+        noteID2.useExistingFilename = self.useExistingFilename
+        noteID2.derivationNeeded = self.derivationNeeded
         return noteID2
+    }
+    
+    public func display() {
+        deriveIfNeeded()
+        print(" ")
+        print("NoteIdentification.display")
+        if getExistingBaseDotExt() == nil {
+            print("  - existing base and/or ext is nil")
+        } else {
+            print("  - existing base dot ext: \(getExistingBaseDotExt()!)")
+        }
+        print("  - common id: \(commonID)")
+        print("  - readable file name: \(readableFileName)")
+        print("  - commonFileName: \(commonFileName)")
+        print("  - plain text? \(plainText)")
+        print("  - note file format: \(noteFileFormat)")
+        print("  - matches id source? \(matchesIdSource)")
+        print("  - use existing file name? \(useExistingFilename)")
     }
     
     public static func == (lhs: NoteIdentification, rhs: NoteIdentification) -> Bool {

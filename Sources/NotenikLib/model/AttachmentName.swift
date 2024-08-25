@@ -73,6 +73,13 @@ public class AttachmentName: Comparable, NSCopying, CustomStringConvertible {
         var extWork = ""
         guard let fnBase = note.noteID.getBaseFilename() else { return false }
         prefix = fnBase
+        if let existingBase = note.noteID.existingBase {
+            if !existingBase.isEmpty {
+                if fullName.hasPrefix(existingBase) {
+                    prefix = existingBase
+                }
+            }
+        }
         var index = fullName.index(fullName.startIndex, offsetBy: prefix.count)
         while index < fullName.endIndex {
             let char = fullName[index]

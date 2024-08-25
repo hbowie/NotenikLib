@@ -497,7 +497,7 @@ public class ResourceLibrary: Equatable {
             return saveSubNote(note: note)
         }
         
-        let noteResource = ResourceFileSys(parent: notesFolder, fileName: note.noteID.getBaseDotExt()!, type: .note)
+        let noteResource = ResourceFileSys(parent: notesFolder, fileName: note.noteID.getBaseDotExtForWrite()!, type: .note)
         return noteResource.writeNote(note)
     }
     
