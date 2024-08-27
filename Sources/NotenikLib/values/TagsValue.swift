@@ -17,7 +17,7 @@ import NotenikUtils
 public class TagsValue: StringValue, MultiValues {    
     
     public var tags: [TagValue] = []
-    public var hashTags = false
+    public var hashtagsOption: HashtagsOption = .notenikField
     
     /// Default initializer
     public override init() {
@@ -54,7 +54,7 @@ public class TagsValue: StringValue, MultiValues {
                     tag = TagValue()
                 }
                 if c == "#" {
-                    hashTags = true
+                    hashtagsOption = .fieldWithHashSymbols
                 }
             } else if c == " " {
                 if level.count > 0 {
@@ -245,7 +245,7 @@ public class TagsValue: StringValue, MultiValues {
         guard index >= 0 else { return nil }
         guard index < tags.count else { return nil }
         let tag = tags[index].getTag(delim: "/")
-        if hashTags {
+        if hashtagsOption == .fieldWithHashSymbols {
             return "#" + tag
         } else {
             return tag

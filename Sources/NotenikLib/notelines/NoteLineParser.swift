@@ -290,8 +290,10 @@ public class NoteLineParser {
             }
             
             if let tags = field.value as? TagsValue {
-                if tags.hashTags {
-                    collection.hashTags = true
+                if tags.hashtagsOption == .fieldWithHashSymbols {
+                    if collection.hashTagsOption == .notenikField {
+                        collection.hashTagsOption = .fieldWithHashSymbols
+                    }
                 }
             }
             

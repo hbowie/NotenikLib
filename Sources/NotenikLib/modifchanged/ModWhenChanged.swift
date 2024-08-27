@@ -123,37 +123,69 @@ public class ModWhenChanged {
             }
         }
         
-        if modNote.hasBody() && AppPrefs.shared.parseUsingNotenik &&
-            (collection.textFormatFieldDef == nil || !modNote.textFormat.isText) &&
-            (collection.minutesToReadDef != nil || collection.wikilinksDef != nil || collection.backlinksDef != nil) {
-            
-            // Parse the body field.
-            let body = modNote.body
-            let mdBodyParser = MkdownParser(body.value, options: mkdownOptions)
-            mdBodyParser.setWikiLinkFormatting(prefix: parms.wikiLinks.prefix,
-                                               format: parms.wikiLinks.format,
-                                               suffix: parms.wikiLinks.suffix,
-                                               context: mkdownContext)
-            mdBodyParser.parse()
-            
-            // See if Minutes to Read have changed.
-            if collection.minutesToReadDef != nil {
-                let newMinutes = MinutesToReadValue(with: mdBodyParser.counts)
-                let oldMinutes = modNote.getField(def: collection.minutesToReadDef!)
-                if oldMinutes == nil || oldMinutes!.value != newMinutes {
-                    let minutesField = NoteField(def: collection.minutesToReadDef!, value: newMinutes)
-                    _ = modNote.setField(minutesField)
-                    modified = true
+        if modNote.hasBody() && AppPrefs.shared.parseUsingNotenik {
+            var parsingNeeded = false
+            if (collection.textFormatFieldDef == nil || !modNote.textFormat.isText) {
+                if collection.minutesToReadDef != nil {
+                    parsingNeeded = true
+                }
+                if collection.wikilinksDef != nil || collection.backlinksDef != nil {
+                    parsingNeeded = true
                 }
             }
-            
-            // See if extracted Wiki Links have changed.
-            if collection.wikilinksDef != nil {
-                let newLinks = mdBodyParser.wikiLinkList.links
-                let trans = Transmogrifier(io: io)
-                let mods = trans.updateLinks(for: modNote, links: newLinks)
-                if mods {
-                    modified = true
+            if collection.hashTagsOption == .inlineHashtags {
+                parsingNeeded = true
+            }
+            if parsingNeeded {
+                // Parse the body field.
+                let body = modNote.body
+                let mdBodyParser = MkdownParser(body.value, options: mkdownOptions)
+                mkdownContext.setTitleToParse(id: modNote.noteID.commonID,
+                                              text: modNote.noteID.text,
+                                              fileName: modNote.noteID.commonFileName,
+                                              shortID: modNote.shortID.value)
+                mdBodyParser.setWikiLinkFormatting(prefix: parms.wikiLinks.prefix,
+                                                   format: parms.wikiLinks.format,
+                                                   suffix: parms.wikiLinks.suffix,
+                                                   context: mkdownContext)
+                mdBodyParser.parse()
+                
+                // See if Minutes to Read have changed.
+                if collection.minutesToReadDef != nil {
+                    let newMinutes = MinutesToReadValue(with: mdBodyParser.counts)
+                    let oldMinutes = modNote.getField(def: collection.minutesToReadDef!)
+                    if oldMinutes == nil || oldMinutes!.value != newMinutes {
+                        let minutesField = NoteField(def: collection.minutesToReadDef!, value: newMinutes)
+                        _ = modNote.setField(minutesField)
+                        modified = true
+                    }
+                }
+                
+                // See if extracted Wiki Links have changed.
+                if collection.wikilinksDef != nil {
+                    let newLinks = mdBodyParser.wikiLinkList.links
+                    let trans = Transmogrifier(io: io)
+                    let mods = trans.updateLinks(for: modNote, links: newLinks)
+                    if mods {
+                        modified = true
+                    }
+                }
+                
+                if collection.hashTagsOption == .inlineHashtags {
+                    var newTags = TagsValue()
+                    if !mkdownContext.hashTags.isEmpty {
+                        newTags = TagsValue(mkdownContext.hashTags.joined(separator: "; "))
+                    }
+                    var oldTags = TagsValue()
+                    if let oldTagsField = modNote.getField(def: collection.tagsFieldDef) {
+                        if let oldTagsValue = oldTagsField.value as? TagsValue {
+                            oldTags = oldTagsValue
+                        }
+                    }
+                    if newTags != oldTags {
+                        _ = modNote.setTags(newTags.value)
+                        modified = true
+                    }
                 }
             }
         }

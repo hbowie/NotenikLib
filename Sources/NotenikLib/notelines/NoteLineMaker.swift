@@ -173,12 +173,12 @@ public class NoteLineMaker {
     func putTags(_ note: Note) {
         let tags = note.tags
         fieldMods = " "
-        if note.collection.hashTags {
+        if note.collection.hashTagsOption == .fieldWithHashSymbols {
             fieldMods = "#"
         }
         switch note.noteID.noteFileFormat {
         case .markdown:
-            if note.collection.hashTags {
+            if note.collection.hashTagsOption == .fieldWithHashSymbols {
                 writer.writeLine(tags.valueToWrite(mods: fieldMods))
             } else {
                 writer.writeLine("#\(note.tags.value)")
@@ -187,7 +187,9 @@ public class NoteLineMaker {
         case .multiMarkdown:
             putField(note.getTagsAsField(), format: note.noteID.noteFileFormat)
         case .notenik:
-            putField(note.getTagsAsField(), format: note.noteID.noteFileFormat)
+            if note.collection.hashTagsOption != .inlineHashtags {
+                putField(note.getTagsAsField(), format: note.noteID.noteFileFormat)
+            }
         case .plainText:
             break
         default:

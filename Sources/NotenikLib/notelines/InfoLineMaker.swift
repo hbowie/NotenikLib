@@ -71,7 +71,7 @@ public class InfoLineMaker {
             writer.append(label: NotenikConstants.noteFileFormat, value: collection.noteFileFormat.rawValue)
         }
         
-        writer.append(label: NotenikConstants.hashTags, value: "\(collection.hashTags)")
+        writer.append(label: NotenikConstants.hashTags, value: "\(collection.hashTagsOption.rawValue)")
         
         if !collection.windowPosStr.isEmpty && !subFolder {
             writer.append(label: NotenikConstants.windowNumbers, value: collection.windowPosStr)

@@ -37,6 +37,7 @@ public class DisplayParms {
     public var included = IncludeChildrenValue()
     public var includedList = ""
     public var checkBoxMessageHandlerName = ""
+    public var inlineHashtags = false
     
     public init() {
         
@@ -57,6 +58,9 @@ public class DisplayParms {
         mathJax = collection.mathJax
         curlyApostrophes = collection.curlyApostrophes
         extLinksOpenInNewWindows = collection.extLinksOpenInNewWindows
+        if collection.hashTagsOption == .inlineHashtags {
+            inlineHashtags = true
+        }
     }
     
     public func genMkdownOptions() -> MkdownOptions {
@@ -73,6 +77,7 @@ public class DisplayParms {
         options.curlyApostrophes = curlyApostrophes
         options.extLinksOpenInNewWindows = extLinksOpenInNewWindows
         options.checkBoxMessageHandlerName = checkBoxMessageHandlerName
+        options.inlineHashtags = inlineHashtags
     }
     
     public var formatIsHTML: Bool {

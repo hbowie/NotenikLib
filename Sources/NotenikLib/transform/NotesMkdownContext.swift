@@ -97,7 +97,6 @@ public class NotesMkdownContext: MkdownContext {
     /// Collect embedded hash tags found within the Markdown.
     public func addHashTag(_ tag: String) {
         hashTags.append(tag)
-        print("add hash tag: #\(tag)")
     }
     
     // -----------------------------------------------------------

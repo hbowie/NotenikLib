@@ -383,6 +383,15 @@ public class FileIO: NotenikIO, RowConsumer {
         mmdCount = 0
         yamlCount = 0
         notenikCount = 0
+        
+        let displayParms = DisplayParms()
+        displayParms.setFrom(collection: collection!)
+        let mkdownOptions = displayParms.genMkdownOptions()
+        var mkdownContext: NotesMkdownContext?
+        if collection!.hashTagsOption == .inlineHashtags {
+            mkdownOptions.inlineHashtags = true
+            mkdownContext = NotesMkdownContext(io: self, displayParms: displayParms)
+        }
         for item in notesContents! {
             if item.type == .folder {
                 if let def = collection?.folderFieldDef {
@@ -397,6 +406,25 @@ public class FileIO: NotenikIO, RowConsumer {
                     if collection!.shortIdDef != nil {
                         shortIdRead = note!.shortID.value
                     }
+                    
+                    if collection!.hashTagsOption == .inlineHashtags {
+                        let noteBody = note!.body.value
+                        mkdownContext!.setTitleToParse(id: note!.noteID.commonID,
+                                                       text: note!.noteID.text,
+                                                       fileName: note!.noteID.commonFileName,
+                                                       shortID: note!.shortID.value)
+                        let bodyParser = MkdownParser(noteBody, options: mkdownOptions)
+                        bodyParser.setWikiLinkFormatting(prefix: displayParms.wikiLinks.prefix,
+                                                          format: displayParms.wikiLinks.format,
+                                                          suffix: displayParms.wikiLinks.suffix,
+                                                          context: mkdownContext)
+                        bodyParser.parse()
+                        if !mkdownContext!.hashTags.isEmpty {
+                            let tags = mkdownContext!.hashTags.joined(separator: "; ")
+                            _ = note!.setTags(tags)
+                        }
+                    }
+
                     let noteAdded = bunch!.add(note: note!)
                     if noteAdded {
                         notesRead += 1
@@ -856,10 +884,16 @@ public class FileIO: NotenikIO, RowConsumer {
             }
         }
         
-        let hashTagsField = infoNote.getField(label: NotenikConstants.hashTags)
-        if hashTagsField != nil {
-            let hashTags = BooleanValue(hashTagsField!.value.value)
-            collection!.hashTags = hashTags.isTrue
+        if let hashTagsField = infoNote.getField(label: NotenikConstants.hashTags) {
+            let hashTagsValue = hashTagsField.value.value
+            if let hashtagsOption = HashtagsOption(rawValue: hashTagsValue) {
+                collection!.hashTagsOption = hashtagsOption
+            } else {
+                let hashTagsFlag = BooleanValue(hashTagsValue)
+                if hashTagsFlag.isTrue {
+                    collection!.hashTagsOption = .fieldWithHashSymbols
+                }
+            }
         }
         
         let lastStartupDate = infoNote.getFieldAsString(label: NotenikConstants.lastStartupDateCommon)
@@ -1423,7 +1457,7 @@ public class FileIO: NotenikIO, RowConsumer {
         note.setDateModNow()
         if let tagsField = note.getTagsAsField() {
             if let tags = tagsField.value as? TagsValue {
-                tags.hashTags = collection!.hashTags
+                tags.hashtagsOption = collection!.hashTagsOption
             }
         }
         pickLists.registerNote(note: note)

@@ -41,7 +41,7 @@ public class NoteCollection {
     public  var hasTimestamp = false
     public  var isRealmCollection = false
     public  var noteFileFormat: NoteFileFormat = .toBeDetermined
-    public  var hashTags    : Bool = false
+    public  var hashTagsOption: HashtagsOption = .notenikField
     public  var mirror:       NoteTransformer?
     public  var mirrorAutoIndex = false
     public  var lastImportParent = ""
