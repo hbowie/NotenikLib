@@ -286,6 +286,11 @@ public class DisplayPrefs {
             text-decoration: none;
             border-bottom: 1px dotted;
         }
+        
+        a.hashtag {
+            text-decoration: none;
+            border-bottom: 1px dotted;
+        }
 
         a.ext-link {
             text-decoration: none;

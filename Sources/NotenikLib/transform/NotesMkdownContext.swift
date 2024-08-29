@@ -95,8 +95,12 @@ public class NotesMkdownContext: MkdownContext {
     // -----------------------------------------------------------
     
     /// Collect embedded hash tags found within the Markdown.
-    public func addHashTag(_ tag: String) {
+    public func addHashTag(_ tag: String) -> String {
+        guard !tag.isEmpty else { return "" }
         hashTags.append(tag)
+        guard let collection = io.collection else { return "" }
+        let tagValue = TagValue(tag)
+        return CustomURLFormatter().expandTag(collection: collection, tag: tagValue)
     }
     
     // -----------------------------------------------------------
