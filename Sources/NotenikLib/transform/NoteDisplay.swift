@@ -3,7 +3,7 @@
 //  NotenikLib
 //
 //  Created by Herb Bowie on 1/22/19.
-//  Copyright © 2019 - 2023 Herb Bowie (https://hbowie.net)
+//  Copyright © 2019 - 2024 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -23,6 +23,8 @@ public class NoteDisplay {
     public var parms = DisplayParms()
     public var mkdownOptions = MkdownOptions()
     public var mkdownContext: NotesMkdownContext?
+    
+    var imagePref: ImagePref = .light
     
     var includedNotes: [String] = []
     var mdBodyParser: MkdownParser?
@@ -77,11 +79,13 @@ public class NoteDisplay {
                         io: NotenikIO,
                         parms: DisplayParms,
                         mdResults: TransformMdResults,
-                        expandedMarkdown: String? = nil) -> String {
+                        expandedMarkdown: String? = nil,
+                        imagePref: ImagePref = .light) -> String {
 
         self.parms = parms
         self.mdResults = mdResults
         self.expandedMarkdown = expandedMarkdown
+        self.imagePref = imagePref
 
         if note.hasShortID() {
             mkdownOptions.shortID = note.shortID.value
@@ -173,7 +177,8 @@ public class NoteDisplay {
     
     func formatImage(_ note: Note, io: NotenikIO) -> String {
         guard !parms.imagesPath.isEmpty else { return "" }
-        guard let imageAttachment = note.getImageAttachment() else { return "" }
+
+        guard let imageAttachment = note.getImageAttachment(pref: imagePref) else { return "" }
         
         var imageAlt = ""
         if let imageAltField = note.getField(label: NotenikConstants.imageAltCommon) {
@@ -205,11 +210,11 @@ public class NoteDisplay {
 
         let imageHTML = Markedup()
         if imageCaption.isEmpty && imageCaptionText.isEmpty {
-            imageHTML.image(alt: imageAlt, path: imagePath, title: imageAlt)
-        } else if imageCaption.isEmpty {            
+            imageHTML.image(alt: imageAlt, path: imagePath, title: imageAlt, klass: NotenikConstants.imageKlass)
+        } else if imageCaption.isEmpty {
             imageHTML.startFigure()
             let pathFixed = imagePath.replacingOccurrences(of: "?", with: "%3F")
-            imageHTML.image(alt: imageAlt, path: pathFixed, title: imageAlt)
+            imageHTML.image(alt: imageAlt, path: pathFixed, title: imageAlt, klass: NotenikConstants.imageKlass)
             imageHTML.startFigureCaption()
             imageHTML.append(imageCaptionPrefix)
             if !imageCaptionLink.isEmpty {
@@ -279,7 +284,8 @@ public class NoteDisplay {
                 nextLevel = nextNote!.level
                 nextSeq = nextNote!.seq
                 nextDepth = nextNote!.depth
-                if !note.collection.skipContentsForParent {
+                let collectionToC = note.mkdownCommandList.contains(MkdownConstants.collectionTocCmd)
+                if !note.collection.skipContentsForParent && !collectionToC {
                     formatToCforBottom(note,
                                        io: io,
                                        nextNote: nextNote!,

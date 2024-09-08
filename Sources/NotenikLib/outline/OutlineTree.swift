@@ -25,6 +25,10 @@ public class OutlineTree: Sequence {
     
     var outlineTreeEnabled = false
     
+    public init() {
+
+    }
+    
     /// Add a note to the Outline Tree.
     func add(note: Note) -> OutlineNode2? {
         let node = OutlineNode2()

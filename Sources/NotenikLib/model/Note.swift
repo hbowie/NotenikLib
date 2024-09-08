@@ -260,54 +260,47 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
         return nil
     }
     
-    public var imageURL: URL? {
-        guard let def = collection.imageNameFieldDef else { return nil }
-        guard let imageField = getField(def: def) else { return nil }
-        let imageName = imageField.value.value
-        guard imageName.count > 0 else { return nil }
-        
-        var imageURL: URL?
-        for attachment in attachments {
-            if attachment.suffix.lowercased() == imageName.lowercased() {
-                let attachmentsFolder = collection.lib.getResource(type: .attachments)
-                let attachmentResource = ResourceFileSys(parent: attachmentsFolder,
-                                                         fileName: attachment.fullName,
-                                                         type: .attachment)
-                imageURL = attachmentResource.url
-            }
-        }
-        return imageURL
+    public func getImageURL(pref: ImagePref = .light) -> URL? {
+        guard let attachment = getImageAttachment(pref: pref) else { return nil }
+        let attachmentsFolder = collection.lib.getResource(type: .attachments)
+        let attachmentResource = ResourceFileSys(parent: attachmentsFolder,
+                                                 fileName: attachment.fullName,
+                                                 type: .attachment)
+        return attachmentResource.url
     }
     
-    public var imageCommonName: String {
-
-        guard let def = collection.imageNameFieldDef else { return "" }
-        guard let imageField = getField(def: def) else { return "" }
-        let imageName = imageField.value.value
-        guard imageName.count > 0 else { return "" }
-        
-        var commonName = ""
-        for attachment in attachments {
-            if attachment.suffix.lowercased() == imageName.lowercased() {
-                commonName = attachment.commonName
-            }
-        }
-        return commonName
+    public func getImageCommonName(pref: ImagePref = .light) -> String? {
+        guard let attachment = getImageAttachment(pref: pref) else { return nil }
+        return attachment.commonName
     }
     
-    public func getImageAttachment() -> AttachmentName? {
-        guard let def = collection.imageNameFieldDef else { return nil }
-        guard let imageField = getField(def: def) else { return nil }
-        let imageName = imageField.value.value
-        guard !imageName.isEmpty else { return nil }
+    public func getImageAttachment(pref: ImagePref = .light) -> AttachmentName? {
+        guard let imageName = getImageName(pref: pref) else { return nil }
         let imageNameLowered = imageName.lowercased()
-        
         for attachment in attachments {
             if attachment.suffix.lowercased() == imageNameLowered {
                 return attachment
             }
         }
         return nil
+    }
+    
+    public func getImageName(pref: ImagePref = .light) -> String? {
+        guard let imageField = getImageField(pref: pref) else { return nil }
+        let imageName = imageField.value.value
+        guard !imageName.isEmpty else { return nil }
+        return imageName
+    }
+    
+    public func getImageField(pref: ImagePref = .light) -> NoteField? {
+        var def: FieldDefinition?
+        if pref == .dark && collection.imageDarkFieldDef != nil {
+            def = collection.imageDarkFieldDef
+        } else {
+            def = collection.imageNameFieldDef
+        }
+        guard def != nil else { return nil }
+        return getField(def: def!)
     }
     
     /// Make a copy of this Note

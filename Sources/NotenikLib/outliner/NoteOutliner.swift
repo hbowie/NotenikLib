@@ -192,18 +192,7 @@ public class NoteOutliner: Sequence {
         for node in self {
             
             // Process all the nodes in the tree structure.
-            while openNodes.count > 0 && node.depth <= openNodes[openNodes.count - 1].depth {
-                let top = openNodes.count - 1
-                let openNode = openNodes[top]
-                if openNode.hasChildren {
-                    finishUnorderedList()
-                    if details {
-                        code.finishDetails()
-                    }
-                }
-                finishListItem(node: openNode)
-                openNodes.remove(at: top)
-            }
+            closeOpenNodes(downTo: node.depth)
             
             startListItem(node: node)
             
@@ -214,9 +203,25 @@ public class NoteOutliner: Sequence {
             openNodes.append(node)
         }
         
+        closeOpenNodes(downTo: 0)
         finishUnorderedList()
         
         return code
+    }
+    
+    func closeOpenNodes(downTo: Int) {
+        while openNodes.count > 0 && downTo <= openNodes[openNodes.count - 1].depth {
+            let top = openNodes.count - 1
+            let openNode = openNodes[top]
+            if openNode.hasChildren {
+                finishUnorderedList()
+                if details {
+                    code.finishDetails()
+                }
+            }
+            finishListItem(node: openNode)
+            openNodes.remove(at: top)
+        }
     }
     
     func startUnorderedList() {

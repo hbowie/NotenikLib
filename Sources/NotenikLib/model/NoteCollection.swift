@@ -102,6 +102,7 @@ public class NoteCollection {
     public  var bodyFieldDef:   FieldDefinition
     public  var dateAddedFieldDef: FieldDefinition?
     public  var imageNameFieldDef: FieldDefinition?
+    public  var imageDarkFieldDef: FieldDefinition?
     public  var minutesToReadDef: FieldDefinition?
     public  var shortIdDef:     FieldDefinition?
     
@@ -522,6 +523,8 @@ public class NoteCollection {
         case NotenikConstants.imageNameCommon:
             if imageNameFieldDef == nil {
                 imageNameFieldDef = def
+            } else if imageDarkFieldDef == nil && def.fieldLabel.commonForm.contains("dark") {
+                imageDarkFieldDef = def
             }
             
         case NotenikConstants.includeChildrenCommon:

@@ -64,6 +64,15 @@ public class MkdownCommandList {
         return ""
     }
     
+    public func contains(_ command: String) -> Bool {
+        for usage in commands {
+            if usage.command == command {
+                return true
+            }
+        }
+        return false
+    }
+    
     // -----------------------------------------------------------
     //
     // MARK: Update routines.

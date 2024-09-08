@@ -219,6 +219,7 @@ public struct NotenikConstants {
     public static let tocKlass          = "toc"
     public static let workKlass         = "work"
     public static let defaultsKlass     = "defaults"
+    public static let imageKlass        = "notenik-image"
     
     //-------------------------------------------------------------
     //

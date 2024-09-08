@@ -601,9 +601,11 @@ public class WebBookMaker {
         
         if written {
             filesWritten += 1
-            if let imgURL = note.imageURL {
-                let img = ImageFile(originalLocation: imgURL, toName: note.imageCommonName)
-                images.append(img)
+            if let imgURL = note.getImageURL() {
+                if let imgCommon = note.getImageCommonName() {
+                    let img = ImageFile(originalLocation: imgURL, toName: imgCommon)
+                    images.append(img)
+                }
             }
             if epub {
                 var properties = ""

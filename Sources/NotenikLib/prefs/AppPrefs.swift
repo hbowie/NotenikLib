@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 5/25/19.
-//  Copyright © 2019 - 2023 Herb Bowie (https://hbowie.net)
+//  Copyright © 2019 - 2024 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -304,6 +304,9 @@ public class AppPrefs {
         let aa = defaults.string(forKey: appAppearanceKey)
         if aa != nil {
             _appearance = aa!
+            print("AppPrefs.appearance is \(aa!)")
+        } else {
+            print("AppPrefs.appearance is nil")
         }
         
         let hls = defaults.string(forKey: horizontalListScrolBarKey)

@@ -221,7 +221,7 @@ public class NoteFieldsToHTML {
         if !bottomOfPage.isEmpty {
             code.horizontalRule()
             code.append(bottomOfPage)
-        }
+        } 
         
         // If this is the last included child, and if a list was requested, finish it off.
         if lastInList {
