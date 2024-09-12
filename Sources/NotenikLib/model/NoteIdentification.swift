@@ -103,6 +103,12 @@ public class NoteIdentification: Identifiable, Comparable, Equatable {
         
     }
     
+    public func clearExistingFilename() {
+        existingBase = nil
+        existingExt = nil
+        useExistingFilename = false
+    }
+    
     public func setIDSourceMatch(_ match: Bool) {
         matchesIdSource = match
     }

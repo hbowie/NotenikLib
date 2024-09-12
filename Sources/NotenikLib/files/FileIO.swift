@@ -500,7 +500,7 @@ public class FileIO: NotenikIO, RowConsumer {
                 collection!.noteFileFormat = .notenik
             } else if yamlCount > 0 {
                 collection!.noteFileFormat = .yaml
-            } else if mmdCount > 0 {
+            } else if mmdCount > 0 && collection!.noteFileFormat != .yaml {
                 collection!.noteFileFormat = .multiMarkdown
             } else if mdCount > 0 {
                 collection!.noteFileFormat = .markdown
@@ -1400,6 +1400,7 @@ public class FileIO: NotenikIO, RowConsumer {
                 logError("modNote error 6 - Could not rename file from \(oldPath) to \(newPath)")
                 return (nil, NotePosition(index: -1))
             }
+            newNote.noteID.clearExistingFilename()
         }
         
         // Save the changes to the Note file. 

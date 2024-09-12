@@ -832,9 +832,10 @@ public class TemplateUtil {
             } else if charLower == "n" {
                 modifiedValue = noBreakConverter.convert(from: modifiedValue)
             } else if charLower == "o" {
-                if varNameCommon == NotenikConstants.bodyCommon && bodyHTML != nil && !bodyHTML!.isEmpty {
+                /* if varNameCommon == NotenikConstants.bodyCommon && bodyHTML != nil && !bodyHTML!.isEmpty {
                     modifiedValue = bodyHTML!
-                } else if varNameCommon == NotenikConstants.wikilinksCommon {
+                } else */
+                if varNameCommon == NotenikConstants.wikilinksCommon {
                     modifiedValue = convertWikilinksToHTML(modifiedValue, backLinks: false)
                 } else if varNameCommon == NotenikConstants.backlinksCommon {
                     modifiedValue = convertWikilinksToHTML(modifiedValue, backLinks: true)
