@@ -500,8 +500,10 @@ public class FileIO: NotenikIO, RowConsumer {
                 collection!.noteFileFormat = .notenik
             } else if yamlCount > 0 {
                 collection!.noteFileFormat = .yaml
-            } else if mmdCount > 0 && collection!.noteFileFormat != .yaml {
-                collection!.noteFileFormat = .multiMarkdown
+            } else if mmdCount > 0 {
+                if collection!.noteFileFormat != .yaml {
+                    collection!.noteFileFormat = .multiMarkdown
+                }
             } else if mdCount > 0 {
                 collection!.noteFileFormat = .markdown
             } else if plainCount > 0 {

@@ -231,6 +231,9 @@ public class ResourceFileSys: CustomStringConvertible, Comparable, Equatable {
         return note
     }
     
+    /// Write a note to disk.
+    /// - Parameter note: The note to be written.
+    /// - Returns: Success?
     func writeNote(_ note: Note) -> Bool {
         
         let collection = note.collection
