@@ -41,7 +41,9 @@ public class NoteLineMaker {
     /// - Returns: The number of fields written.
     public func putNote(_ note: Note, includeAttachments: Bool = false) -> Int {
         
-        if note.noteID.noteFileFormat == .toBeDetermined {
+        if note.noteID.noteFileFormat == .multiMarkdown && note.collection.noteFileFormat == .yaml {
+            note.noteID.noteFileFormat = note.collection.noteFileFormat
+        } else if note.noteID.noteFileFormat == .toBeDetermined {
             note.noteID.setNoteFileFormat(newFormat: note.collection.noteFileFormat)
             if note.noteID.mmdOrYaml {
                 note.noteID.mmdMetaStartLine = "---"
