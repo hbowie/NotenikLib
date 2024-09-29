@@ -241,6 +241,7 @@ public class ModWhenChanged {
         case .discard:
             return (outcome, nil)
         case .add:
+            modNote.setDatesToNow(adding: true)
             let (addedNote, _) = io.addNote(newNote: modNote)
             if addedNote != nil {
                 return (outcome, addedNote)
@@ -250,6 +251,7 @@ public class ModWhenChanged {
             }
         case .modWithKeyChanges:
             modNote.identify()
+            modNote.setDatesToNow(adding: false)
             let attachmentsOK = io.reattach(from: startingNote, to: modNote)
             if !attachmentsOK {
                 logError("Problems renaming attachments for \(modNote.title)")
@@ -266,6 +268,7 @@ public class ModWhenChanged {
             }
         case .modify:
             modNote.copyFields(to: startingNote)
+            startingNote.setDatesToNow(adding: false)
             let writeOK = io.writeNote(startingNote)
             if !writeOK {
                 logError("Write Note failed!")

@@ -12,7 +12,7 @@
 import Foundation
 
 /// One node in a Notenik Folder Tree.
-public class NotenikFolderNode: Comparable, CustomStringConvertible {
+public class NotenikFolderNode: Comparable, CustomStringConvertible, Hashable {
     
     private(set) weak   var parent:   NotenikFolderNode?
     public private(set) var children: [NotenikFolderNode] = []
@@ -107,6 +107,12 @@ public class NotenikFolderNode: Comparable, CustomStringConvertible {
     /// How many children does this node have?
     public var countChildren: Int {
         return children.count
+    }
+    
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(type.rawValue)
+        hasher.combine(desc.lowercased())
+        hasher.combine(desc)
     }
     
     /// Conform to Comparable protocol: determine if one node is less than another.

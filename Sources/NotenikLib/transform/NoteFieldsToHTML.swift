@@ -413,8 +413,15 @@ public class NoteFieldsToHTML {
         if io != nil {
             mkdownContext = NotesMkdownContext(io: io!, displayParms: parms)
         }
+        var initialReveal = false
+        if let wikiLinksType = def.fieldType as? WikilinkType {
+            initialReveal = wikiLinksType.initialReveal
+        }
         let wrangler = WikiLinkWrangler(options: mkdownOptions, context: mkdownContext)
-        wrangler.targetsToHTML(properLabel: def.fieldLabel.properForm, targets: links.notePointers, markedup: linksHTML)
+        wrangler.targetsToHTML(properLabel: def.fieldLabel.properForm,
+                               targets: links.notePointers,
+                               markedup: linksHTML,
+                               initialReveal: initialReveal)
     }
     
     func formatBacklinks(_ note: Note, linksHTML: Markedup, io: NotenikIO?) {
@@ -424,8 +431,15 @@ public class NoteFieldsToHTML {
         if io != nil {
             mkdownContext = NotesMkdownContext(io: io!, displayParms: parms)
         }
+        var initialReveal = false
+        if let backLinksType = def.fieldType as? BacklinkType {
+            initialReveal = backLinksType.initialReveal
+        }
         let wrangler = WikiLinkWrangler(options: mkdownOptions, context: mkdownContext)
-        wrangler.targetsToHTML(properLabel: def.fieldLabel.properForm, targets: links.notePointers, markedup: linksHTML)
+        wrangler.targetsToHTML(properLabel: def.fieldLabel.properForm,
+                               targets: links.notePointers,
+                               markedup: linksHTML,
+                               initialReveal: initialReveal)
     }
     
     

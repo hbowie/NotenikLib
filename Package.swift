@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "NotenikLib",
     platforms: [
-        .macOS("10.12"),
+        .macOS("10.15"),
         .iOS("9.0"),
         .tvOS("9.0")
     ],
@@ -21,13 +21,15 @@ let package = Package(
                    .package(url: "https://github.com/hbowie/NotenikTextile", from: "0.1.0"),
                    .package(url: "https://github.com/johnxnguyen/Down", from: "0.9.0"),
                    .package(url: "https://github.com/JohnSundell/Ink", from: "0.3.0"),
-                   .package(url: "https://github.com/CoreOffice/CoreXLSX.git", from: "0.13.0")
+                   .package(url: "https://github.com/CoreOffice/CoreXLSX.git", from: "0.13.0"),
+                   .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.6.0")
         ],
+    
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
         // Targets can depend on other targets in this package, and on products in packages which this package depends on.
         .target(
             name: "NotenikLib",
-            dependencies: ["NotenikUtils", "NotenikMkdown", "NotenikTextile", "Down", "Ink", "CoreXLSX"]),
+            dependencies: ["NotenikUtils", "NotenikMkdown", "NotenikTextile", "Down", "Ink", "CoreXLSX", "SwiftSoup"]),
     ]
 )

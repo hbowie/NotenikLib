@@ -825,13 +825,13 @@ public class NotesMkdownContext: MkdownContext {
     }
     
     /// Generate javascript to sort the following table.
-    public func mkdownTableSort(tableID: String) -> String {
+    public func mkdownTableSort() -> String {
         
         // Generate the JavaScript
         let js = BigStringWriter()
         js.open()
         let sortScript = """
-        function sortTable(n) {
+        function sortTable(tableID, n) {
           var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
           var firstElement = "";
           var nextElement = "";
@@ -841,7 +841,7 @@ public class NotesMkdownContext: MkdownContext {
           var nextNumber = 0;
           var firstValue = 0;
           var nextValue = 0;
-          table = document.getElementById("\(tableID)");
+          table = document.getElementById(tableID);
           switching = true;
           // Set the sorting direction to ascending:
           dir = "asc";

@@ -75,6 +75,22 @@ public class TemplateLineMaker {
                     } else {
                         value = "<displayseq>"
                     }
+                } else if def.fieldType.typeString == NotenikConstants.backlinksCommon {
+                    if let backLinksType = def.fieldType as? BacklinkType {
+                        if backLinksType.initialReveal {
+                            value = "<backlinks: reveal>"
+                        } else {
+                            value = "<backlinks>"
+                        }
+                    }
+                } else if def.fieldType.typeString == NotenikConstants.wikilinksCommon {
+                    if let wikiLinksType = def.fieldType as? WikilinkType {
+                        if wikiLinksType.initialReveal {
+                            value = "<wikilinks: reveal>"
+                        } else {
+                            value = "<wikilinks>"
+                        }
+                    }
                 } else if def.fieldType.typeString != NotenikConstants.stringType {
                     value = "<\(def.fieldType.typeString)>"
                 }

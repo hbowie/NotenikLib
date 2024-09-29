@@ -14,6 +14,8 @@ import Foundation
 
 class WikilinkType: AnyType {
     
+    var initialReveal = false
+    
     override init() {
 
         super.init()
@@ -29,6 +31,7 @@ class WikilinkType: AnyType {
         
         /// Can the user edit this type of field?
         userEditable = false
+    
     }
     
     /// A factory method to create a new value of this type with no initial value.
@@ -41,6 +44,12 @@ class WikilinkType: AnyType {
     override func createValue(_ str: String) -> StringValue {
         let wikilinks = WikilinkValue(str)
         return wikilinks
+    }
+    
+    func setInitialReveal(str: String) {
+        if str.lowercased().starts(with: "rev") {
+            initialReveal = true
+        }
     }
     
 }

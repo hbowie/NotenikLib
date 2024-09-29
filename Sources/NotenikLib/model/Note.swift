@@ -121,7 +121,7 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
             let dateAddedDef = collection.dict.getDef(NotenikConstants.dateAdded)
             if dateAddedDef != nil {
                 let dateAddedField = fields[dateAddedDef!.fieldLabel.commonForm]
-                if dateAddedField == nil {
+                if dateAddedField == nil || dateAddedField!.value.isEmpty {
                     _ = setDateAdded(newValue)
                 }
             }
@@ -145,7 +145,7 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
             let dateModifiedDef = collection.dict.getDef(NotenikConstants.dateModified)
             if dateModifiedDef != nil {
                 let dateModifiedField = fields[dateModifiedDef!.fieldLabel.commonForm]
-                if dateModifiedField == nil {
+                if dateModifiedField == nil || dateModifiedField!.value.isEmpty {
                     _ = setDateModified(newValue)
                 } else {
                     if let dateModifiedValue = dateModifiedField!.value as? DateTimeValue {
@@ -157,6 +157,26 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
                     }
                 }
             }
+        }
+    }
+    
+    public func setDatesToNow(adding: Bool = false) {
+        if adding {
+            if let dateAddedDef = collection.dict.getDef(NotenikConstants.dateAdded) {
+                let dateAddedValue = dateAddedDef.fieldType.createValue()
+                let dateAddedField = NoteField(def: dateAddedDef, value: dateAddedValue)
+                _ = setField(dateAddedField)
+            }
+            if let timestampDef = collection.dict.getDef(NotenikConstants.timestamp) {
+                let timestampValue = timestampDef.fieldType.createValue()
+                let timestampField = NoteField(def: timestampDef, value: timestampValue)
+                _ = setField(timestampField)
+            }
+        }
+        if let dateModifiedDef = collection.dict.getDef(NotenikConstants.dateModified) {
+            let dateModValue = dateModifiedDef.fieldType.createValue()
+            let dateModField = NoteField(def: dateModifiedDef, value: dateModValue)
+            _ = setField(dateModField)
         }
     }
     
@@ -2032,7 +2052,7 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
                     var repStr = "[ ]"
                     if let checked = checkBoxUpdates[ckBoxName] {
                         if checked {
-                            repStr = "[X]"
+                            repStr = "[x]"
                         }
                         work.replaceSubrange(ckBox.leftBracketPosition!...ckBox.rightBracketPosition!, with: repStr)
                         inc = 3 - ckBox.length + 1

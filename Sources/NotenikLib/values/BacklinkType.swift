@@ -14,6 +14,8 @@ import Foundation
 
 class BacklinkType: AnyType {
     
+    var initialReveal = false
+    
     override init() {
 
         super.init()
@@ -29,6 +31,7 @@ class BacklinkType: AnyType {
         
         /// Can the user edit this type of field?
         userEditable = false
+        
     }
     
     /// A factory method to create a new value of this type with no initial value.
@@ -41,6 +44,12 @@ class BacklinkType: AnyType {
     override func createValue(_ str: String) -> StringValue {
         let backlinks = BacklinkValue(str)
         return backlinks
+    }
+    
+    func setInitialReveal(str: String) {
+        if str.lowercased().starts(with: "rev") {
+            initialReveal = true
+        }
     }
     
 }

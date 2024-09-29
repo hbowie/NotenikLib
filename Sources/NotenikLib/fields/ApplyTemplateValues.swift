@@ -146,6 +146,14 @@ class ApplyTemplateValues {
             let seqAltType = DisplaySeqType()
             seqAltType.formatString = typeValues.str
             def.fieldType = seqAltType
+        } else if typeStrCommon == NotenikConstants.backlinksCommon && !typeValues.isEmpty {
+            let backLinksType = BacklinkType()
+            backLinksType.setInitialReveal(str: typeValues.str)
+            def.fieldType = backLinksType
+        } else if typeStrCommon == NotenikConstants.wikilinksCommon && !typeValues.isEmpty {
+            let wikiLinksType = WikilinkType()
+            wikiLinksType.setInitialReveal(str: typeValues.str)
+            def.fieldType = wikiLinksType
         } else {
             def.fieldType = collection.typeCatalog.assignType(label: def.fieldLabel, type: typeStrCommon)
             def.pickList = def.fieldType.genPickList()

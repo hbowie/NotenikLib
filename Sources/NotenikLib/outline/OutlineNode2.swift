@@ -13,7 +13,7 @@
 import Foundation
 
 /// A single node in the Tags Tree.
-public class OutlineNode2: Comparable, CustomStringConvertible {
+public class OutlineNode2: Comparable, CustomStringConvertible, Hashable {
     
     // Constants used within this class.
     static let thisLessThanThat = -1
@@ -105,6 +105,16 @@ public class OutlineNode2: Comparable, CustomStringConvertible {
         case .note:
             return note!.seq.value + " " + note!.title.value + " (level: \(level))"
         }
+    }
+    
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(type.rawValue)
+        hasher.combine(seqSortKey)
+        var noteID = ""
+        if note != nil {
+            noteID = note!.id
+        }
+        hasher.combine(noteID)
     }
     
     /// Is the first node less than the second node?
