@@ -3,7 +3,7 @@
 //
 //  Created by Herb Bowie on 12/14/20.
 
-//  Copyright © 2020 - 2022 Herb Bowie (https://hbowie.net)
+//  Copyright © 2020 - 2024 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -23,6 +23,7 @@ public enum NotenikLinkType {
     case folder                 // some sort of folder
     case mirrorFolder           // folder named 'mirror'
     case reportsFolder          // folder named 'reports'
+    case notenikFiles           // A folder for special Notenik files
     case emptyFolder            // An empty folder
     case package                // A valid package
     

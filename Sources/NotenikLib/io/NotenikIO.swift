@@ -98,6 +98,9 @@ public protocol NotenikIO {
     /// Open a New Collection
     func newCollection(collection: NoteCollection, withFirstNote: Bool) -> Bool
     
+    /// Stash Notenik special files into a special subfolder.
+    func stashNotenikFilesInSubfolder() 
+    
     /// Save some of the collection info to make it persistent
     func persistCollectionInfo()
     

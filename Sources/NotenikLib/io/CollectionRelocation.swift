@@ -60,7 +60,7 @@ public class CollectionRelocation {
                 let subFrom = FileUtils.joinPaths(path1: from, path2: dirEntry)
                 let isDir = FileUtils.isDir(subFrom)
                 if isDir {
-                    let infoPath = FileUtils.joinPaths(path1: subFrom, path2: ResourceFileSys.infoFileName)
+                    let infoPath = FileUtils.joinPaths(path1: subFrom, path2: NotenikConstants.infoFileName)
                     if fm.fileExists(atPath: infoPath) {
                         let subTo = FileUtils.joinPaths(path1: to, path2: dirEntry)
                         let subRelo = CollectionRelocation()
@@ -210,17 +210,17 @@ public class CollectionRelocation {
         // old location.
         if errors == 0 {
             if move {
-                removeFromItem(itemName: ResourceFileSys.infoFileName)
-                removeFromItem(itemName: ResourceFileSys.readmeFileName)
-                removeFromItem(itemName: ResourceFileSys.templateFileName + "." + fromExt)
-                if fromItemExists(itemName: ResourceFileSys.aliasFileName) {
-                    removeFromItem(itemName: ResourceFileSys.aliasFileName)
+                removeFromItem(itemName: NotenikConstants.infoFileName)
+                removeFromItem(itemName: NotenikConstants.readmeFileName)
+                removeFromItem(itemName: NotenikConstants.templateFileName + "." + fromExt)
+                if fromItemExists(itemName: NotenikConstants.aliasFileName) {
+                    removeFromItem(itemName: NotenikConstants.aliasFileName)
                 }
                 if fromItemExists(itemName: ResourceFileSys.oldSourceParms) {
                     removeFromItem(itemName: ResourceFileSys.oldSourceParms)
                 }
-                copySubfolder(folderName: ResourceFileSys.reportsFolderName, move: move)
-                copySubfolder(folderName: ResourceFileSys.mirrorFolderName, move: move)
+                copySubfolder(folderName: NotenikConstants.reportsFolderName, move: move)
+                copySubfolder(folderName: NotenikConstants.mirrorFolderName, move: move)
                 if fromItemExists(itemName: NotenikConstants.filesFolderName) {
                     if fromItemIsEmpty(itemName: NotenikConstants.filesFolderName) {
                         removeFromItem(itemName: NotenikConstants.filesFolderName)
@@ -230,8 +230,8 @@ public class CollectionRelocation {
                     removeFromItem(itemName: "")
                 }
             } else {
-                copySubfolder(folderName: ResourceFileSys.reportsFolderName, move: move)
-                copySubfolder(folderName: ResourceFileSys.mirrorFolderName, move: move, logErrors: false)
+                copySubfolder(folderName: NotenikConstants.reportsFolderName, move: move)
+                copySubfolder(folderName: NotenikConstants.mirrorFolderName, move: move, logErrors: false)
             }
         }
         

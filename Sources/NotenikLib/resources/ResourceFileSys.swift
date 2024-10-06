@@ -25,23 +25,11 @@ public class ResourceFileSys: CustomStringConvertible, Comparable, Equatable {
     
     let fm = FileManager.default
     
-    static let aliasFileName     = "alias.txt"
     static let cloudyPrefix      = "."
     static let cloudySuffix      = ".icloud"
-    public static let displayCSSFileName = "display.css"
-    public static let displayHTMLFileName = "display.html"
     static let dsstoreFileName   = ".DS_Store"
-    static let exportFolderName  = "export"
-    static let infoFileName      = "- INFO.nnk"
-    static let infoParentFileName = "- INFO-parent-realm.nnk"
-    static let klassFolderName   = "class"
-    static let mirrorFolderName  = "mirror"
-    static let notesFolderName   = "notes"
     static let oldSourceParms    = "pspub_source_parms.xml"
-    static let readmeFileName    = "- README.txt"
-    static let reportsFolderName = "reports"
     static let scriptExt         = ".tcz"
-    static let templateFileName  = "template"
     
     public var isAvailable: Bool { return exists && isReadable }
     public var exists = false
@@ -452,13 +440,17 @@ public class ResourceFileSys: CustomStringConvertible, Comparable, Equatable {
         } catch {
             trashOK = false
         }
-        if trashOK { return true }
+        if trashOK {
+            exists = false
+            return true
+        }
         do {
             try fm.removeItem(at: urlToRemove)
         } catch {
             logError("Error trying to remove item at: \(urlToRemove.path)")
             return false
         }
+        exists = false
         return true
     }
     
@@ -550,14 +542,16 @@ public class ResourceFileSys: CustomStringConvertible, Comparable, Equatable {
     
     func examineFolderName() {
         guard type == .unknown else { return }
-        if _fName == ResourceFileSys.reportsFolderName {
+        if _fName == NotenikConstants.reportsFolderName {
             type = .reports
         } else if _fName == NotenikConstants.filesFolderName {
             type = .attachments
-        } else if _fName == ResourceFileSys.exportFolderName {
+        } else if _fName == NotenikConstants.exportFolderName {
             type = .exportFolder
-        } else if _fName == ResourceFileSys.klassFolderName {
+        } else if _fName == NotenikConstants.klassFolderName {
             type = .klassFolder
+        } else if _fName == NotenikConstants.notenikFiles {
+            type = .notenikFiles
         } else {
             type = .folder
         }
@@ -578,19 +572,19 @@ public class ResourceFileSys: CustomStringConvertible, Comparable, Equatable {
             type = .robots
         } else if (baseLower == "collection parms") {
             type = .collectionParms
-        } else if (_fName == ResourceFileSys.aliasFileName) {
+        } else if (_fName == NotenikConstants.aliasFileName) {
             type = .alias
-        } else if (_fName == ResourceFileSys.infoFileName) {
+        } else if (_fName == NotenikConstants.infoFileName) {
             type = .info
-        } else if (_fName == ResourceFileSys.infoParentFileName) {
+        } else if (_fName == NotenikConstants.infoParentFileName) {
             type = .infoParent
         } else if (_fName.starts(with: "- INFO") && extLower == "nnk" && _fName.contains("conflicted copy")) {
             type = .infoConflicted
-        } else if (_fName == ResourceFileSys.displayHTMLFileName) {
+        } else if (_fName == NotenikConstants.displayHTMLFileName) {
             type = .display
-        } else if (_fName == ResourceFileSys.displayCSSFileName) {
+        } else if (_fName == NotenikConstants.displayCSSFileName) {
             type = .displayCSS
-        } else if baseLower == ResourceFileSys.templateFileName && extLower.count > 0 {
+        } else if baseLower == NotenikConstants.templateFileName && extLower.count > 0 {
             type = .template
         } else if base == NotenikConstants.tempDisplayBase && extLower == NotenikConstants.tempDisplayExt {
             type = .tempDisplay
@@ -617,6 +611,7 @@ public class ResourceFileSys: CustomStringConvertible, Comparable, Equatable {
     
     public func display() {
         print("ResourceFileSys")
+        print("  - folder path: \(folderPath)")
         print("  - file name: \(fileName)")
         print("  - base: \(base)")
         print("  - base lowered: \(baseLower)")

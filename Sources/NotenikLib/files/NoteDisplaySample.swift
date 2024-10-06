@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 4/15/21.
 //
-//  Copyright © 2021 Herb Bowie (https://hbowie.net)
+//  Copyright © 2021 - 2024 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -82,6 +82,10 @@ public class NoteDisplaySample {
         collection = io.collection!
         let resourceLib = io.collection!.lib
         let notes = resourceLib!.getResource(type: .notes)
+        var specialFiles = notes
+        if resourceLib!.hasAvailable(type: .notenikFiles) {
+            specialFiles = resourceLib!.getResource(type: .notenikFiles)
+        }
         let dict = collection.dict
         titleLabel = collection.titleFieldDef.fieldLabel.commonForm
         tagsLabel = collection.tagsFieldDef.fieldLabel.commonForm
@@ -96,8 +100,8 @@ public class NoteDisplaySample {
         if displayPrefs.displayCSS != nil {
             css = displayPrefs.displayCSS!
         }
-        let cssFile = ResourceFileSys(parent: notes,
-                                      fileName: ResourceFileSys.displayCSSFileName,
+        let cssFile = ResourceFileSys(parent: specialFiles,
+                                      fileName: NotenikConstants.displayCSSFileName,
                                       type: .displayCSS)
         ok = cssFile.write(str: css)
         guard ok else { return false }
@@ -169,8 +173,8 @@ public class NoteDisplaySample {
         code.templateLoop()
         
         // Save it to disk.
-        let templateFile = ResourceFileSys(parent: notes,
-                                           fileName: ResourceFileSys.displayHTMLFileName,
+        let templateFile = ResourceFileSys(parent: specialFiles,
+                                           fileName: NotenikConstants.displayHTMLFileName,
                                            type: .display)
         ok = templateFile.write(str: code.code)
         

@@ -253,12 +253,12 @@ public class MultiFileIO {
             for itemPath in dirContents {
                 let itemFullPath = FileUtils.joinPaths(path1: folderPath,
                                                        path2: itemPath)
-                if itemPath == ResourceFileSys.infoFileName {
+                if itemPath == NotenikConstants.infoFileName {
                     shortcutFound = infoFileFound(shortcut: shortcut, folderPath: folderPath, itemFullPath: itemFullPath, realm: realm)
                     if shortcutFound {
                         break
                     }
-                } else if itemPath == ResourceFileSys.infoParentFileName {
+                } else if itemPath == NotenikConstants.infoParentFileName {
                     // No action needed
                 } else if itemPath.hasPrefix(".") {
                     // Ignore invisible files

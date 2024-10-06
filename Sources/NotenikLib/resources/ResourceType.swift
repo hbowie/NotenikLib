@@ -31,7 +31,9 @@ public enum ResourceType {
     case license
     case mirror
     case noise
-    case note 
+    case note
+    case notenikFiles
+    case notenikFilesSubfolder
     case notes
     case notesSubfolder
     case robots

@@ -645,6 +645,11 @@ class BunchIO: NotenikIO, RowConsumer  {
         }
     }
     
+    /// Stash Notenik special files into a special subfolder.
+    func stashNotenikFilesInSubfolder()  {
+        // Does nothing for this particular implementation of NotenikIO
+    }
+    
     /// Save some of the collection info to make it persistent
     func persistCollectionInfo() {
         // Does nothing for this particular implementation of NotenikIO

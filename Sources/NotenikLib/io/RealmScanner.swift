@@ -69,9 +69,9 @@ public class RealmScanner {
             for itemPath in dirContents {
                 let itemFullPath = FileUtils.joinPaths(path1: folderPath,
                                                        path2: itemPath)
-                if itemPath == ResourceFileSys.infoFileName {
+                if itemPath == NotenikConstants.infoFileName {
                     infoFileFound(folderPath: folderPath, realm: realm, itemFullPath: itemFullPath)
-                } else if itemPath == ResourceFileSys.infoParentFileName {
+                } else if itemPath == NotenikConstants.infoParentFileName {
                     infoParentFileFound(folderPath: folderPath, realm: realm, itemPath: itemPath)
                 } else if itemPath.hasPrefix(".") {
                     // Ignore invisible files
@@ -86,7 +86,9 @@ public class RealmScanner {
                 } else if itemPath.hasSuffix(".webloc") {
                     webLocationFileFound(folderPath: folderPath, realm: realm, itemFullPath: itemFullPath)
                 } else if FileUtils.isDir(itemFullPath) {
-                    if !foldersToSkip.contains(itemPath) {
+                    if itemPath == NotenikConstants.notenikFiles {
+                        infoFileFound(folderPath: folderPath, realm: realm, itemFullPath: itemFullPath)
+                    } else if !foldersToSkip.contains(itemPath) {
                         scanFolder(folderPath: itemFullPath, realm: realm)
                     }
                 }
@@ -113,7 +115,7 @@ public class RealmScanner {
                     logError("Unable to find a Title for Collection located at \(folderPath)")
                 }
                 var link = folderURL.absoluteString
-                if folderURL.lastPathComponent == ResourceFileSys.notesFolderName {
+                if folderURL.lastPathComponent == NotenikConstants.notesFolderName {
                     link = folderURL.deletingLastPathComponent().absoluteString
                 }
                 let linkOK = realmNote.setLink(link)

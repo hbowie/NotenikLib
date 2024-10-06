@@ -227,6 +227,90 @@ public class FileIO: NotenikIO, RowConsumer {
         return ok
     }
     
+    /// Stash Notenik special files into a special subfolder.
+    public func stashNotenikFilesInSubfolder() {
+        logInfo("Stashing special Notenik file in subfolder named '\(NotenikConstants.notenikFiles)'")
+        guard let lib = collection?.lib else { return }
+        
+        // Delete files from Collection folder
+        
+        let infoResource = lib.getResource(type: .info)
+        var ok = infoResource.remove()
+        if !ok {
+            logError("Info file could not be removed")
+        }
+        
+        let readmeResource = lib.getResource(type: .readme)
+        ok = readmeResource.remove()
+        if !ok {
+            logError("Readme file could not be removed")
+        }
+        
+        let templateResource = lib.getResource(type: .template)
+        ok = templateResource.remove()
+        if !ok {
+            logError("Template file could not be removed")
+        }
+        
+        let aliasResource = lib.getResource(type: .alias)
+        ok = aliasResource.remove()
+        if !ok {
+            logError("Alias file could not be removed")
+        }
+        
+        // Create the subfolder
+        
+        let notenikFilesFolder = lib.ensureResource(type: .notenikFilesSubfolder)
+        guard notenikFilesFolder.isAvailable else {
+            logError("Notenik Files Folder is not available")
+            return
+        }
+        let notenikFilesPath = notenikFilesFolder.actualPath
+        
+        // Stash the files in the subfolder
+        
+        ok = saveInfoFile()
+        if !ok {
+            logError("Info file could not be stashed in subfolder")
+        }
+        
+        ok = lib.saveReadMe()
+        if !ok {
+            logError("Readme file could not be stashed in subfolder")
+        }
+        
+        ok = saveTemplateFile()
+        if !ok {
+            logError("Template file could not be stashed in subfolder")
+        }
+        
+        lib.initResource(type: .alias)
+        ok = aliasList.saveToDisk()
+        if !ok {
+            logError("Alias file could not be stashed in subfolder")
+        }
+        
+        // Rename display files, if found
+        
+        let displayResource = lib.getResource(type: .display)
+        if displayResource.isAvailable {
+            let newPath = FileUtils.joinPaths(path1: notenikFilesPath, path2: NotenikConstants.displayHTMLFileName)
+            ok = displayResource.rename(to: newPath)
+            if !ok {
+                logError("File named \(NotenikConstants.displayHTMLFileName) could not be stashed in subfolder")
+            }
+        }
+        
+        let displayCssResource = lib.getResource(type: .displayCSS)
+        if displayCssResource.isAvailable {
+            let newPath = FileUtils.joinPaths(path1: notenikFilesPath, path2: NotenikConstants.displayCSSFileName)
+            ok = displayCssResource.rename(to: newPath)
+            if !ok {
+                logError("File named \(NotenikConstants.displayCSSFileName) could not be stashed in subfolder")
+            }
+        }
+    }
+    
     /// Save some of the collection info to make it persistent
     public func persistCollectionInfo() {
         guard collection != nil else { return }
@@ -365,9 +449,9 @@ public class FileIO: NotenikIO, RowConsumer {
         loadDisplayTemplate()
         loadDisplayCSS()
         if collection!.displayTemplate.count > 0 {
-            logInfo("Display tab will be formatted using HTML template named \(ResourceFileSys.displayHTMLFileName)")
+            logInfo("Display tab will be formatted using HTML template named \(NotenikConstants.displayHTMLFileName)")
         } else if collection!.displayCSS.count > 0 {
-            logInfo("Display Template will be formatted using CSS file named \(ResourceFileSys.displayCSSFileName)")
+            logInfo("Display Template will be formatted using CSS file named \(NotenikConstants.displayCSSFileName)")
         }
         if resourceLib.reportsFolder.isAvailable {
             loadReports()
@@ -1053,6 +1137,15 @@ public class FileIO: NotenikIO, RowConsumer {
                 try FileManager.default.removeItem(at: tempURL)
             } catch {
                 // no need to report a failure
+            }
+            let nnkfiles = lib.getResource(type: .notenikFiles)
+            if nnkfiles.exists && nnkfiles.isReadable {
+                let tempURL = nnkfiles.url!.appendingPathComponent(NotenikConstants.tempDisplayBase).appendingPathExtension(NotenikConstants.tempDisplayExt)
+                do {
+                    try FileManager.default.removeItem(at: tempURL)
+                } catch {
+                    // no need to report a failure
+                }
             }
         }
 

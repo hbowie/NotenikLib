@@ -242,7 +242,7 @@ public class NoteTransformer {
         var downToNotesFolder = ""
         if collection.lib.hasAvailable(type: .notesSubfolder) {
             upToWebFolder = "../"
-            downToNotesFolder = "\(ResourceFileSys.notesFolderName)/"
+            downToNotesFolder = "\(NotenikConstants.notesFolderName)/"
         }
         
         // First let's create a css styles file.

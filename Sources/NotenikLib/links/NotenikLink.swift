@@ -434,7 +434,7 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
             type = .infoFile
         } else if infoParentFile {
             type = .infoParentFile
-        } else if name == ResourceFileSys.aliasFileName {
+        } else if name == NotenikConstants.aliasFileName {
             type = .aliasFile
         } else if isNoteExt {
             type = .noteFile
@@ -449,10 +449,12 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
             type = .package
         } else if url != nil && url! == FileManager.default.homeDirectoryForCurrentUser {
             type = .accessFolder
-        } else if name == ResourceFileSys.reportsFolderName {
+        } else if name == NotenikConstants.reportsFolderName {
             type = .reportsFolder
-        } else if name == ResourceFileSys.mirrorFolderName {
+        } else if name == NotenikConstants.mirrorFolderName {
             type = .mirrorFolder
+        } else if name == NotenikConstants.notenikFiles {
+            type = .notenikFiles
         }
     }
     
@@ -471,7 +473,7 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
         let folderPath = path
         
         // See if this points to an existing Collection.
-        let infoFile = ResourceFileSys(folderPath: folderPath, fileName: ResourceFileSys.infoFileName)
+        let infoFile = ResourceFileSys(folderPath: folderPath, fileName: NotenikConstants.infoFileName)
         if infoFile.exists && infoFile.isReadable {
             type = .ordinaryCollection
             collectionTypeDetermined = true
@@ -479,7 +481,7 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
             return
         }
         
-        let infoParentFile = ResourceFileSys(folderPath: folderPath, fileName: ResourceFileSys.infoParentFileName)
+        let infoParentFile = ResourceFileSys(folderPath: folderPath, fileName: NotenikConstants.infoParentFileName)
         if infoParentFile.exists && infoParentFile.isReadable {
             type = .parentRealm
             collectionTypeDetermined = true
@@ -487,7 +489,7 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
         }
         
         // See if there is a sub-folder containing the notes.
-        let notesPath = FileUtils.joinPaths(path1: folderPath, path2: ResourceFileSys.notesFolderName)
+        let notesPath = FileUtils.joinPaths(path1: folderPath, path2: NotenikConstants.notesFolderName)
         if fm.fileExists(atPath: notesPath)
             && fm.isReadableFile(atPath: notesPath) {
             type = .webCollection
@@ -563,7 +565,7 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
             return
         }
         
-        let infoFile = ResourceFileSys(folderPath: path, fileName: ResourceFileSys.infoFileName)
+        let infoFile = ResourceFileSys(folderPath: path, fileName: NotenikConstants.infoFileName)
         guard infoFile.exists && infoFile.isReadable else {
             return
         }

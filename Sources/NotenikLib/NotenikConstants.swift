@@ -316,11 +316,33 @@ public struct NotenikConstants {
     //
     //-------------------------------------------------------------
     
+    public static let aliasFileName     = "alias.txt"
+    
+    public static let displayCSSFileName = "display.css"
+    
+    public static let displayHTMLFileName = "display.html"
+    
+    public static let exportFolderName  = "export"
+    
+    public static let klassFolderName   = "class"
+    
+    public static let notenikFiles      = "- notenik_files"
+    
     public static let indexFileName     = "index.html"
     
     public static let urlNavPrefix      = "https://ntnk.app/"
     
+    public static let mirrorFolderName  = "mirror"
+    
     public static let notenikURLScheme  = "notenik"
+    
+    public static let notesFolderName   = "notes"
+    
+    public static let readmeFileName    = "- README.txt"
+    
+    public static let reportsFolderName = "reports"
+    
+    public static let templateFileName  = "template"
     
     public static let tempDisplayBase   = "temp_display"
     
@@ -329,6 +351,10 @@ public struct NotenikConstants {
     public static let filesFolderName   = "files"
     
     public static let infoFileExt       = "nnk"
+    
+    public static let infoFileName      = "- INFO.nnk"
+    
+    public static let infoParentFileName = "- INFO-parent-realm.nnk"
     
     //-------------------------------------------------------------
     //

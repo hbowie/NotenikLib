@@ -52,7 +52,7 @@ public class AliasList: RowConsumer {
             loaded = lib.getDelimited(type: .alias, consumer: self)
         }
         if loaded {
-            logInfo("Loaded \(rowsLoaded) alias entries from \(ResourceFileSys.aliasFileName)")
+            logInfo("Loaded \(rowsLoaded) alias entries from \(NotenikConstants.aliasFileName)")
         } else {
             initFromExistingNotes()
         }
@@ -126,7 +126,7 @@ public class AliasList: RowConsumer {
         }
         let ok = writer.close()
         if ok {
-            logInfo("Saved \(rowsSaved) alias entries to \(ResourceFileSys.aliasFileName)")
+            logInfo("Saved \(rowsSaved) alias entries to \(NotenikConstants.aliasFileName)")
         }
         return ok
     }

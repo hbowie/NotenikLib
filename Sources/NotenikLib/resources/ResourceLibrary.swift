@@ -47,6 +47,8 @@ public class ResourceLibrary: Equatable {
     var aliasFile         = ResourceFileSys()
     var attachmentsFolder = ResourceFileSys()
     var mirrorFolder      = ResourceFileSys()
+    var notenikFiles      = ResourceFileSys()
+    var notenikFilesSubfolder = ResourceFileSys()
     var reportsFolder     = ResourceFileSys()
     var klassFolder       = ResourceFileSys()
     var exportFolder      = ResourceFileSys()
@@ -72,6 +74,8 @@ public class ResourceLibrary: Equatable {
         aliasFile       = ResourceFileSys()
         attachmentsFolder = ResourceFileSys()
         mirrorFolder    = ResourceFileSys()
+        notenikFiles    = ResourceFileSys()
+        notenikFilesSubfolder = ResourceFileSys()
         reportsFolder   = ResourceFileSys()
         klassFolder     = ResourceFileSys()
         exportFolder    = ResourceFileSys()
@@ -109,6 +113,26 @@ public class ResourceLibrary: Equatable {
         }
     }
     
+    public func initResource(type: ResourceType, ext: String = "txt") {
+        switch type {
+        case .alias:
+            aliasFile = ResourceFileSys(parent: notenikFiles, fileName: NotenikConstants.aliasFileName, type: .alias)
+        case .info:
+            infoFile = ResourceFileSys(parent: notenikFiles, fileName: NotenikConstants.infoFileName, type: .info)
+        case .notenikFilesSubfolder:
+            notenikFilesSubfolder = ResourceFileSys(parent: collection,
+                                                    fileName: NotenikConstants.notenikFiles,
+                                                    type: .notenikFilesSubfolder)
+        case .template:
+            templateFile = ResourceFileSys(parent: notenikFiles,
+                                           fileName: NotenikConstants.templateFileName + "." + ext,
+                                           type: .template,
+                                           preferredNoteExt: ext)
+        default:
+            break
+        }
+    }
+    
     // -----------------------------------------------------------
     //
     // MARK: Accessors for various sorts of Collection Resources
@@ -137,6 +161,10 @@ public class ResourceLibrary: Equatable {
             return klassFolder.isAvailable
         case .mirror:
             return mirrorFolder.isAvailable
+        case .notenikFiles:
+            return notenikFiles.isAvailable
+        case .notenikFilesSubfolder:
+            return notenikFilesSubfolder.isAvailable
         case .notes:
             return notesFolder.isAvailable
         case .notesSubfolder:
@@ -176,6 +204,10 @@ public class ResourceLibrary: Equatable {
             return klassFolder.actualPath
         case .mirror:
             return mirrorFolder.actualPath
+        case .notenikFiles:
+            return notenikFiles.actualPath
+        case .notenikFilesSubfolder:
+            return notenikFilesSubfolder.actualPath
         case .notes:
             return notesFolder.actualPath
         case .notesSubfolder:
@@ -215,6 +247,10 @@ public class ResourceLibrary: Equatable {
             return klassFolder.url
         case .mirror:
             return mirrorFolder.url
+        case .notenikFiles:
+            return notenikFiles.url
+        case .notenikFilesSubfolder:
+            return notenikFilesSubfolder.url
         case .notes:
             return notesFolder.url
         case .notesSubfolder:
@@ -254,6 +290,10 @@ public class ResourceLibrary: Equatable {
             return klassFolder
         case .mirror:
             return mirrorFolder
+        case .notenikFiles:
+            return notenikFiles
+        case .notenikFilesSubfolder:
+            return notenikFilesSubfolder
         case .notes:
             return notesFolder
         case .notesSubfolder:
@@ -284,9 +324,17 @@ public class ResourceLibrary: Equatable {
             if klassFolder.isAvailable {
                 return klassFolder
             }
-            klassFolder = ResourceFileSys(parent: notesFolder, fileName: ResourceFileSys.klassFolderName, type: .klassFolder)
+            klassFolder = ResourceFileSys(parent: notesFolder, fileName: NotenikConstants.klassFolderName, type: .klassFolder)
             _ = klassFolder.ensureExistence()
             return klassFolder
+        case .notenikFilesSubfolder:
+            if notenikFilesSubfolder.isAvailable {
+                return notenikFilesSubfolder
+            }
+            notenikFilesSubfolder = ResourceFileSys(parent: collection, fileName: NotenikConstants.notenikFiles, type: .notenikFilesSubfolder)
+            _ = notenikFilesSubfolder.ensureExistence()
+            notenikFiles = ResourceFileSys(parent: collection, fileName: NotenikConstants.notenikFiles, type: .notenikFiles)
+            return notenikFilesSubfolder
         default:
             return ResourceFileSys()
         }
@@ -314,6 +362,10 @@ public class ResourceLibrary: Equatable {
             return klassFolder.getResourceContents()
         case .mirror:
             return mirrorFolder.getResourceContents()
+        case .notenikFiles:
+            return notenikFiles.getResourceContents()
+        case .notenikFilesSubfolder:
+            return notenikFilesSubfolder.getResourceContents()
         case .notes:
             return notesFolder.getResourceContents()
         case .parent:
@@ -329,6 +381,8 @@ public class ResourceLibrary: Equatable {
         
         switch type {
         case .info:
+            // print("ResourceLibrary.getNote of type \(type)")
+            // infoFile.display()
             guard infoFile.isAvailable else { return nil }
             let infoCollection = NoteCollection(realm: realm)
             infoCollection.path = notesFolder.actualPath
@@ -449,8 +503,8 @@ public class ResourceLibrary: Equatable {
     /// Save a README file into the current collection
     func saveReadMe() -> Bool {
         guard !readmeFile.exists else { return true }
-        readmeFile = ResourceFileSys(parent: notesFolder, fileName: ResourceFileSys.readmeFileName, type: .readme)
-        var str = "This folder contains a collection of notes created by the Notenik application."
+        readmeFile = ResourceFileSys(parent: notenikFiles, fileName: NotenikConstants.readmeFileName, type: .readme)
+        var str = "This folder contains files created by the Notenik application."
         str.append("\n\n")
         str.append("Learn more at https://Notenik.app")
         str.append("\n")
@@ -458,21 +512,18 @@ public class ResourceLibrary: Equatable {
     }
     
     func saveInfo(str: String) -> Bool {
-        infoFile = ResourceFileSys(parent: notesFolder, fileName: ResourceFileSys.infoFileName, type: .info)
+        initResource(type: .info)
         return infoFile.write(str: str)
     }
     
     func saveInfoParent(str: String) -> Bool {
-        infoParentFile = ResourceFileSys(parent: collection, fileName: ResourceFileSys.infoParentFileName, type: .infoParent)
+        infoParentFile = ResourceFileSys(parent: collection, fileName: NotenikConstants.infoParentFileName, type: .infoParent)
         return infoParentFile.write(str: str)
     }
     
     func saveTemplate(str: String, ext: String) -> Bool {
         if !templateFile.exists {
-            templateFile = ResourceFileSys(parent: notesFolder,
-                                           fileName: ResourceFileSys.templateFileName + "." + ext,
-                                           type: .template,
-                                           preferredNoteExt: ext)
+            initResource(type: .template, ext: ext)
         }
         return templateFile.write(str: str)
     }
@@ -532,49 +583,63 @@ public class ResourceLibrary: Equatable {
         let parentPath = parentURL.path
         parentFolder = ResourceFileSys(folderPath: parentPath, fileName: "", type: .parent)
         
+        // See if Notenik special files are being stashed in a subfolder.
+        
+        notenikFiles = ResourceFileSys(folderPath: collectionPath, fileName: "", type: .notenikFiles)
+        notenikFilesSubfolder = ResourceFileSys(folderPath: collectionPath, fileName: NotenikConstants.notenikFiles, type: .notenikFilesSubfolder)
+        if notenikFilesSubfolder.exists && notenikFilesSubfolder.isReadable {
+            notenikFiles = ResourceFileSys(folderPath: collectionPath, fileName: NotenikConstants.notenikFiles, type: .notenikFiles)
+        }
+        
         // The info file identifies this as a Notenik Collection, and stores the
         // preferences that are particular to this Collection.
         
-        infoFile = ResourceFileSys(folderPath: collectionPath, fileName: ResourceFileSys.infoFileName)
+        infoFile = ResourceFileSys(folderPath: collectionPath, fileName: NotenikConstants.infoFileName)
         
         if !infoFile.exists {
-            notesSubFolder = ResourceFileSys(folderPath: collectionPath, fileName: ResourceFileSys.notesFolderName)
-            if notesSubFolder.exists && notesSubFolder.isReadable {
-                infoFile = ResourceFileSys(folderPath: notesSubFolder.actualPath, fileName: ResourceFileSys.infoFileName)
+            if notenikFilesSubfolder.exists && notenikFilesSubfolder.isReadable {
+                initResource(type: .info)
+            } else {
+                notesSubFolder = ResourceFileSys(folderPath: collectionPath, fileName: NotenikConstants.notesFolderName)
+                if notesSubFolder.exists && notesSubFolder.isReadable {
+                    infoFile = ResourceFileSys(folderPath: notesSubFolder.actualPath, fileName: NotenikConstants.infoFileName)
+                }
             }
         }
         
-        infoParentFile = ResourceFileSys(folderPath: parentPath, fileName: ResourceFileSys.infoParentFileName)
+        // An info parent file identifies a parent realm folder
+        
+        infoParentFile = ResourceFileSys(folderPath: parentPath, fileName: NotenikConstants.infoParentFileName)
         
         // Determine which folder actually contains the Notes.
         if notesSubFolder.isAvailable {
-            notesFolder = ResourceFileSys(folderPath: notesSubFolder.actualPath, fileName: "")
+            notesFolder = ResourceFileSys(folderPath: notesSubFolder.actualPath, fileName: "", type: .notes)
         } else {
-            notesFolder = ResourceFileSys(folderPath: collection.actualPath, fileName: "")
+            notesFolder = ResourceFileSys(folderPath: collection.actualPath, fileName: "", type: .notes)
         }
         
         // Set the location for a possible reports folder. 
-        reportsFolder = ResourceFileSys(folderPath: notesFolder.actualPath, fileName: ResourceFileSys.reportsFolderName)
+        reportsFolder = ResourceFileSys(folderPath: notesFolder.actualPath, fileName: NotenikConstants.reportsFolderName, type: .reports)
         
         // Set the location for a possible export folder.
-        exportFolder = ResourceFileSys(folderPath: notesFolder.actualPath, fileName: ResourceFileSys.exportFolderName)
+        exportFolder = ResourceFileSys(folderPath: notesFolder.actualPath, fileName: NotenikConstants.exportFolderName, type: .exportFolder)
         
         // Set the location for a possible attachments folder.
-        attachmentsFolder = ResourceFileSys(folderPath:notesFolder.actualPath, fileName: NotenikConstants.filesFolderName)
+        attachmentsFolder = ResourceFileSys(folderPath:notesFolder.actualPath, fileName: NotenikConstants.filesFolderName, type: .attachments)
         
         // Set the location for a possible mirror folder.
-        mirrorFolder = ResourceFileSys(parent: notesFolder, fileName: ResourceFileSys.mirrorFolderName)
+        mirrorFolder = ResourceFileSys(parent: notesFolder, fileName: NotenikConstants.mirrorFolderName, type: .mirror)
         
         // Set the location for a possible alias file.
-        aliasFile = ResourceFileSys(parent: notesFolder, fileName: ResourceFileSys.aliasFileName, type: .alias)
+        initResource(type: .alias)
         
         // Set the location for a possible class folder.
-        klassFolder = ResourceFileSys(parent: notesFolder, fileName: ResourceFileSys.klassFolderName)
+        klassFolder = ResourceFileSys(parent: notesFolder, fileName: NotenikConstants.klassFolderName, type: .klassFolder)
         
         // See if we can find a template file.
-        templateFile = ResourceFileSys(folderPath: notesFolder.actualPath, fileName: ResourceFileSys.templateFileName + ".txt")
+        templateFile = ResourceFileSys(parent: notenikFiles, fileName: NotenikConstants.templateFileName + ".txt")
         if !templateFile.isAvailable {
-            templateFile = ResourceFileSys(folderPath: notesFolder.actualPath, fileName: ResourceFileSys.templateFileName + ".md")
+            templateFile = ResourceFileSys(parent: notenikFiles, fileName: NotenikConstants.templateFileName + ".md")
         }
         
         if !(infoFile.isAvailable && templateFile.isAvailable) {
@@ -583,11 +648,20 @@ public class ResourceLibrary: Equatable {
     }
     
     func scanForResources() {
-        guard notesFolder.isAvailable else { return }
-        let notesContents = notesFolder.getResourceContents(preferredNoteExt: templateExt)
-        guard notesContents != nil else { return }
         
-        for resource in notesContents! {
+        if notenikFiles.isAvailable {
+            scanForResources(folder: notenikFiles)
+        }
+        scanForResources(folder: notesFolder)
+        readyForUse = true
+    }
+    
+    func scanForResources(folder: ResourceFileSys) {
+        guard folder.isAvailable else { return }
+        let folderContents = folder.getResourceContents(preferredNoteExt: templateExt)
+        guard folderContents != nil else { return }
+        
+        for resource in folderContents! {
             if resource.isDirectory {
                 subFoldersFound += 1
                 itemsFound += 1
