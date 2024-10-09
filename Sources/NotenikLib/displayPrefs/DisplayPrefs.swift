@@ -161,7 +161,7 @@ public class DisplayPrefs {
             margin-block-start: 0.1rem;
             margin-block-end: 0.5rem;
             margin: 0.1rem 0 0.5rem 0;
-            padding: 0.25rem 2.4em;
+            padding: 0.25rem 2.6em;
             line-height: 1.45;
             position: relative;
         }

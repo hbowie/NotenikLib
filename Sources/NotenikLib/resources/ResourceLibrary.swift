@@ -327,6 +327,13 @@ public class ResourceLibrary: Equatable {
             klassFolder = ResourceFileSys(parent: notesFolder, fileName: NotenikConstants.klassFolderName, type: .klassFolder)
             _ = klassFolder.ensureExistence()
             return klassFolder
+        case .mirror:
+            if mirrorFolder.isAvailable {
+                return mirrorFolder
+            }
+            mirrorFolder = ResourceFileSys(parent: notesFolder, fileName: NotenikConstants.mirrorFolderName, type: .mirror)
+            _ = mirrorFolder.ensureExistence()
+            return mirrorFolder
         case .notenikFilesSubfolder:
             if notenikFilesSubfolder.isAvailable {
                 return notenikFilesSubfolder

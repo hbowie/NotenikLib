@@ -174,6 +174,8 @@ public class NotesMkdownContext: MkdownContext {
             return resolution.resolvedNote!.body.value
         case "note":
             return includeTextFromNote(note: resolution.resolvedNote!)
+        case "quotebiblio", "quote-biblio":
+            return includeQuoteFromBiblio(note: resolution.resolvedNote!)
         case "quotebody", "quote-body":
             return includeQuoteFromNote(note: resolution.resolvedNote!, withAttrib: false)
         case "quote":
@@ -204,6 +206,76 @@ public class NotesMkdownContext: MkdownContext {
                                                 io: io,
                                                 bodyHTML: nil,
                                                 withAttrib: withAttrib)
+        return markedUp.code
+    }
+    
+    func includeQuoteFromBiblio(note: Note) -> String? {
+        
+        // See if we have what we need to find this note's parents.
+        guard let collection = io.collection else {
+            return includeQuoteFromNote(note: note)
+        }
+        guard io.collectionOpen else {
+            return includeQuoteFromNote(note: note)
+        }
+        guard collection.seqFieldDef != nil else {
+            return includeQuoteFromNote(note: note)
+        }
+        guard collection.levelFieldDef != nil else {
+            return includeQuoteFromNote(note: note)
+        }
+        let sortParm = collection.sortParm
+        guard sortParm == .seqPlusTitle || sortParm == .custom else {
+            return includeQuoteFromNote(note: note)
+        }
+        
+        hasLevel = (collection.levelFieldDef != nil)
+        hasSeq = (collection.seqFieldDef != nil)
+        
+        let currentPosition = io.positionOfNote(note)
+        var (priorNote, priorPosition) = io.priorNote(currentPosition)
+        guard priorPosition.valid && priorNote != nil else {
+            return includeQuoteFromNote(note: note)
+        }
+        
+        var workNote: Note?
+        var authorNote: Note?
+        
+        var priorLevel = priorNote!.level
+        var navDone = false
+        
+        while priorNote != nil && !navDone {
+            let klass = priorNote!.klass.value
+            if priorNote!.level > priorLevel || klass == NotenikConstants.biblioKlass {
+                navDone = true
+            } else if klass == NotenikConstants.workKlass {
+                workNote = priorNote
+            } else if klass == NotenikConstants.authorKlass {
+                authorNote = priorNote
+                navDone = true
+            }
+            priorLevel = priorNote!.level
+            (priorNote, priorPosition) = io.priorNote(priorPosition)
+        }
+        
+        let link = displayParms.wikiLinks.assembleWikiLink(idBasis: author)
+        let text = htmlConverter.convert(from: author)
+        
+        guard workNote != nil || authorNote != nil else {
+            return includeQuoteFromNote(note: note)
+        }
+        
+        let markedUp = Markedup(format: .htmlFragment)
+        markedUp.newLine()
+        markedUp.newLine()
+        markedUp.startCompacting()
+        let fieldsToHTML = NoteFieldsToHTML()
+        fieldsToHTML.formatQuoteFromBiblio(note: note,
+                                           authorNote: authorNote,
+                                           workNote: workNote,
+                                           markedup: markedUp,
+                                           parms: displayParms,
+                                           io: io)
         return markedUp.code
     }
     

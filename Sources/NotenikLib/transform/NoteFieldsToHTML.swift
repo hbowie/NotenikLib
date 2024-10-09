@@ -1059,6 +1059,48 @@ public class NoteFieldsToHTML {
         }
     }
     
+    /// Format a quotation using HTML figure and figcaption tags.
+    public func formatQuoteFromBiblio(note: Note,
+                                      authorNote: Note?,
+                                      workNote: Note?,
+                                      markedup: Markedup,
+                                      parms: DisplayParms,
+                                      io: NotenikIO?) {
+        
+        self.io = io
+        
+        markedup.startBlockQuote()
+        
+        transformMarkdown(markdown: note.body.value,
+                          fieldType: NotenikConstants.bodyCommon,
+                          writer: markedup,
+                          noteTitle: note.title.value,
+                          shortID: note.shortID.value)
+        
+        markedup.finishBlockQuote()
+        
+        let quoteFrom = QuoteFrom()
+        
+        if authorNote != nil {
+            quoteFrom.author = authorNote!.title.value
+            if authorNote!.hasAKA() {
+                quoteFrom.author = authorNote!.aka.value
+            }
+            quoteFrom.authorLink = parms.wikiLinks.assembleWikiLink(idBasis: authorNote!.title.value)
+        }
+        
+        if workNote != nil {
+            quoteFrom.workTitle = workNote!.title.value
+            if workNote!.hasDate() {
+                quoteFrom.pubDate = workNote!.date.value
+            }
+            quoteFrom.workType = workNote!.getFieldAsString(label: NotenikConstants.workTypeCommon)
+            quoteFrom.workLink = parms.wikiLinks.assembleWikiLink(idBasis: workNote!.title.value)
+        }
+        
+        quoteFrom.formatFrom(writer: markedup)
+    }
+    
     /// Convert Markdown to HTML.
     /* func markdownToMarkedup(markdown: String,
                             context: MkdownContext?,
@@ -1077,4 +1119,9 @@ public class NoteFieldsToHTML {
         writer.append(results.html)
     }
     
+    enum CiteType {
+        case none
+        case minor
+        case major
+    }
 }

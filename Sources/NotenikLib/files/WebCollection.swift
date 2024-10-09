@@ -82,13 +82,14 @@ public class WebCollection {
         logInfo("New Collection successfully initialized at \(collection!.lib.getPath(type: .collection))")
         collection!.path = webFolderURL.path
         
+        var mirrorMsg = ""
         if collection!.mirror != nil {
             communicateError("This Collection already has a functioning mirror folder")
         } else {
-            collection!.mirror = NoteTransformer.genSampleMirrorFolder(io: io)
+            (collection!.mirror, mirrorMsg) = NoteTransformer.genSampleMirrorFolder(io: io)
         }
         if collection!.mirror == nil {
-            communicateError("Problems encountered trying to generate sample mirror folder")
+            communicateError(mirrorMsg)
             return false
         }
         

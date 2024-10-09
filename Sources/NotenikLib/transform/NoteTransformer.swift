@@ -21,7 +21,6 @@ public class NoteTransformer {
     
     static let cssFolderName        = "css"
     static let cssFileName          = "styles.css"
-    static let mirrorFolderName     = "mirror"
     static let templatesFolderName  = "templates"
     static let scriptsFolderName    = "scripts"
     static let noteMirrorWords      = ["note", "mirror"]
@@ -60,31 +59,52 @@ public class NoteTransformer {
         if io is FileIO {
             self.io = io as? FileIO
         } else {
+            print("Note Transformer init failed because the provided I/O object is not a FileIO instance.")
             return nil
         }
         
-        guard self.io!.collectionOpen else { return nil }
+        guard self.io!.collectionOpen else {
+            print("Note Transformer init failed because the I/O module is not open.")
+            return nil
+        }
         
-        guard let lib = self.io.collection?.lib else { return nil }
-        guard lib.hasAvailable(type: .mirror) else { return nil }
+        guard let lib = self.io.collection?.lib else {
+            print("Note Transformer init failed because the I/O module does not contain a library.")
+            return nil
+        }
+        
+        guard lib.hasAvailable(type: .mirror) else {
+            print("Note Transformer init failed because the Collection does not contain a mirror folder.")
+            return nil
+        }
         
         let mirrorPath = lib.getPath(type: .mirror)
         
         // See if we can get a list of the contents of the mirror folder.
-        guard let contents1 = DirContents(path: mirrorPath) else { return nil }
+        guard let contents1 = DirContents(path: mirrorPath) else {
+            print("Note Transformer init failed because the mirror folder is empty.")
+            return nil
+        }
         mirrorContents = contents1
         
         // Now see if we can get a list of the contents of the mirror/templates folder.
         guard let contents2 = DirContents(path1: mirrorContents.dirPath,
                                           path2: NoteTransformer.templatesFolderName) else {
+            print("Note Transformer init failed because there are no mirror templates.")
             return nil
         }
         templatesContents = contents2
         
         let (mirrorName, _) = templatesContents.firstContaining(words: NoteTransformer.noteMirrorWords)
-        guard mirrorName != nil else { return nil }
+        guard mirrorName != nil else {
+            print("Note Transformer init failed because there was no note mirror template.")
+            return nil
+        }
         noteMirrorFileName = mirrorName!
-        guard let mirrorURL = noteMirrorFileName.url else { return nil }
+        guard let mirrorURL = noteMirrorFileName.url else {
+            print("Note Transformer init failed a URL could not be obtained for the note mirror template.")
+            return nil
+        }
         noteMirrorURL = mirrorURL
     
         var (indexName, index) = templatesContents.firstContaining(words: NoteTransformer.indexMirrorWords)
@@ -220,8 +240,8 @@ public class NoteTransformer {
     
     /// Generate sample mirror folders and files. Note that this is sort of a
     /// factory method since, when successful, it returns a good instance
-    /// of NoteMirror.
-    public static func genSampleMirrorFolder(io: NotenikIO) -> NoteTransformer? {
+    /// of NoteTransformer..
+    public static func genSampleMirrorFolder(io: NotenikIO) -> (NoteTransformer?, String) {
         
         let displayPrefs = DisplayPrefs.shared
         
@@ -232,9 +252,11 @@ public class NoteTransformer {
         if io is FileIO {
             fileIO = io as! FileIO
         } else {
-            return nil
+            return (nil, "I/O Module not a FileIO")
         }
-        guard fileIO.collectionOpen else { return nil }
+        guard fileIO.collectionOpen else {
+            return (nil, "No collection open")
+        }
         let collection = io.collection!
         let collectionPath = collection.lib.getPath(type: .notes)
         let dict = collection.dict
@@ -245,6 +267,8 @@ public class NoteTransformer {
             downToNotesFolder = "\(NotenikConstants.notesFolderName)/"
         }
         
+        let mirrorResource = collection.lib.ensureResource(type: .mirror)
+        
         // First let's create a css styles file.
         var css = ""
         if displayPrefs.displayCSS != nil {
@@ -252,10 +276,12 @@ public class NoteTransformer {
         }
         ok = NoteTransformer.writeSampleFile(contents: css,
                                              collectionPath: collectionPath,
-                                             folder1: mirrorFolderName,
+                                             folder1: NotenikConstants.mirrorFolderName,
                                              folder2: cssFolderName,
                                              fileName: cssFileName)
-        guard ok else { return nil }
+        guard ok else {
+            return (nil, "Failed to write Sample CSS file")
+        }
         
         // Now let's create a sample mirror template.
         var markedup = Markedup(format: .htmlDoc)
@@ -263,7 +289,7 @@ public class NoteTransformer {
         markedup.templateNextRec()
         markedup.templateOutput(filename: "\(upToWebFolder)../../=$title&f$=.html")
         markedup.startDoc(withTitle: "=$title$=",
-                          withCSS: "\(downToNotesFolder)\(mirrorFolderName)/\(cssFolderName)/\(cssFileName)",
+                          withCSS: "\(downToNotesFolder)\(NotenikConstants.mirrorFolderName)/\(cssFolderName)/\(cssFileName)",
                           linkToFile: true)
         markedup.heading(level: 1, text: "=$title$=")
         
@@ -291,16 +317,18 @@ public class NoteTransformer {
         
         ok = NoteTransformer.writeSampleFile(contents: markedup.code,
                                              collectionPath: collectionPath,
-                                             folder1: mirrorFolderName,
+                                             folder1: NotenikConstants.mirrorFolderName,
                                              folder2: templatesFolderName,
                                              fileName: sampleMirrorTemplate)
-        guard ok else { return nil }
+        guard ok else {
+            return (nil, "Failed to write sample mirror template")
+        }
         
         // Now let's create a sample index template.
         markedup = Markedup(format: .htmlDoc)
         markedup.templateOutput(filename: "\(upToWebFolder)../../index.html")
         markedup.startDoc(withTitle: collection.title,
-                          withCSS: "\(downToNotesFolder)\(mirrorFolderName)/\(cssFolderName)/\(cssFileName)",
+                          withCSS: "\(downToNotesFolder)\(NotenikConstants.mirrorFolderName)/\(cssFolderName)/\(cssFileName)",
         linkToFile: true)
         markedup.heading(level: 1, text: "Index for \(collection.title)")
         markedup.startUnorderedList(klass: nil)
@@ -317,12 +345,18 @@ public class NoteTransformer {
 
         ok = NoteTransformer.writeSampleFile(contents: markedup.code,
                                              collectionPath: collectionPath,
-                                             folder1: mirrorFolderName,
+                                             folder1: NotenikConstants.mirrorFolderName,
                                              folder2: templatesFolderName,
                                              fileName: indexMirrorTemplate)
-        guard ok else { return nil }
+        guard ok else {
+            return (nil, "Could not write sample index template")
+        }
         
-        return NoteTransformer(io: fileIO)
+        let transformer = NoteTransformer(io: fileIO)
+        if transformer == nil {
+            return (nil, "Could not create NoteTransformer")
+        }
+        return (transformer, "")
     }
     
     /// Get the markedup used to display this field
