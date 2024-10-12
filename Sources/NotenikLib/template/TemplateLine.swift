@@ -187,8 +187,11 @@ class TemplateLine {
     func processCopyFileCommand(note: Note) {
         guard !util.skippingData else { return }
         guard tokens.count > 2 else { return }
-        let copyFromPath = util.replaceVariables(str: String(tokens[1]), note: note).line
-        let copyToPath   = util.replaceVariables(str: String(tokens[2]), note: note).line
+        let copyFromLine = util.replaceVariables(str: String(tokens[1]), note: note)
+        let copyToLine = util.replaceVariables(str: String(tokens[2]), note: note)
+        guard copyFromLine.missingVariables == 0 && copyToLine.missingVariables == 0 else { return }
+        let copyFromPath = copyFromLine.line
+        let copyToPath   = copyToLine.line
         util.copyFile(fromPath: copyFromPath, toPath: copyToPath)
     }
     

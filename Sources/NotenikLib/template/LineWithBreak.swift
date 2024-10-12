@@ -17,6 +17,7 @@ class LineWithBreak {
     
     var line = ""
     var lineBreak = true
+    var missingVariables = 0
     
     convenience init(_ line: String) {
         self.init()

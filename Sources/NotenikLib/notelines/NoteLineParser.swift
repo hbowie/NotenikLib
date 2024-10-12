@@ -21,6 +21,7 @@ public class NoteLineParser {
     var reader:         BigStringReader
     
     var allowDictAdds = true
+    var flexibleFieldAssignment = false
     
     var note:           Note
     
@@ -62,9 +63,15 @@ public class NoteLineParser {
     /// Get the Note from the input lines
     public func getNote(defaultTitle: String,
                         template: Bool = false,
-                        allowDictAdds: Bool = true) -> Note {
+                        allowDictAdds: Bool = true,
+                        flexibleFieldAssignment: Bool = false) -> Note {
+        
+        // print("NoteLineParser.getNote")
+        // print("  - allow dict adds? \(allowDictAdds)")
+        // print("  - flexible field assignment? \(flexibleFieldAssignment)")
         
         self.allowDictAdds = allowDictAdds
+        self.flexibleFieldAssignment = flexibleFieldAssignment
         note = Note(collection: collection)
         possibleParentLabel = ""
         label = FieldLabel()
@@ -252,13 +259,36 @@ public class NoteLineParser {
     /// Add the last field found to the note.
     func captureLastField(template: Bool) {
         
+        // print("  - captureLastField)")
+        // print("    - field def: \(def)")
+        
         pendingBlankLines = 0
         guard label.validLabel && value.count > 0 else { return }
         let fieldInDict = collection.dict.contains(def)
-        if fieldInDict || allowDictAdds {
-            let field = NoteField(def: def,
+        var field = NoteField()
+        
+        // See which field definition we want to use.
+        if !fieldInDict && flexibleFieldAssignment {
+            if fieldNumber == 1 {
+                field = NoteField(def: collection.titleFieldDef,
                                   statusConfig: collection.statusConfig,
                                   levelConfig: collection.levelConfig)
+            } else if def.fieldLabel.commonForm.contains("date") && collection.dateCount == 1 {
+                field = NoteField(def: collection.dateFieldDef,
+                                  statusConfig: collection.statusConfig,
+                                  levelConfig: collection.levelConfig)
+            }
+        }
+        
+        if field.def.fieldLabel.isEmpty {
+            if fieldInDict || allowDictAdds {
+                field = NoteField(def: def,
+                                  statusConfig: collection.statusConfig,
+                                  levelConfig: collection.levelConfig)
+            }
+        }
+        
+        if !field.def.fieldLabel.isEmpty {
             if template {
                 field.value = StringValue(value)
             } else {

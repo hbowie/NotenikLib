@@ -661,6 +661,8 @@ public class TemplateUtil {
                                               replacementValue: replacementValue!,
                                               mods: mods)
             toLine.line.append(replacementValue!)
+        } else {
+            toLine.missingVariables += 1
         }
         
     }
