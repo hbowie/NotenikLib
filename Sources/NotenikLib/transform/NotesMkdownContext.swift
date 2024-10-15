@@ -258,9 +258,6 @@ public class NotesMkdownContext: MkdownContext {
             (priorNote, priorPosition) = io.priorNote(priorPosition)
         }
         
-        let link = displayParms.wikiLinks.assembleWikiLink(idBasis: author)
-        let text = htmlConverter.convert(from: author)
-        
         guard workNote != nil || authorNote != nil else {
             return includeQuoteFromNote(note: note)
         }
