@@ -709,6 +709,16 @@ public class TemplateUtil {
         
         var summarizePending = false
         
+        let shiftChar: Character = "^"
+        var shiftEngaged = false
+        let repeatSep: Character = ","
+        var repeatSepCount = 0
+        var repeatPlusMinus = 0
+        var repeatTimes = 1
+        var repeatStarted = false
+        var repeatString = ""
+        
+        
         var formatString = ""
         
         wikiStyle = "0"
@@ -767,6 +777,37 @@ public class TemplateUtil {
                     }
                 } else {
                     wordDelimiter.append(char)
+                }
+            } else if char == shiftChar {
+                shiftEngaged = !shiftEngaged
+                if !shiftEngaged {
+                    repeatStarted = false
+                }
+            } else if shiftEngaged && charLower == "r" {
+                repeatSepCount = 0
+                repeatPlusMinus = 0
+                repeatTimes = 1
+                repeatString = ""
+                repeatStarted = true
+            } else if shiftEngaged && repeatStarted {
+                if repeatString.isEmpty && (char == "+" || char == "-") && repeatPlusMinus == 0 {
+                    if char == "+" {
+                        repeatPlusMinus = 1
+                    } else {
+                        repeatPlusMinus = -1
+                    }
+                } else if char == repeatSep {
+                    repeatSepCount += 1
+                } else if char.isASCII && char.isNumber && repeatSepCount == 0 {
+                    if let n = char.wholeNumberValue {
+                        repeatPlusMinus *= n
+                    }
+                } else if char.isASCII && char.isNumber && repeatSepCount == 1 {
+                    if let n = char.wholeNumberValue {
+                        repeatTimes = n
+                    }
+                } else {
+                    repeatString.append(char)
                 }
             } else if char == "_" {
                 modifiedValue = StringUtils.underscoresForSpaces(modifiedValue)
@@ -969,6 +1010,18 @@ public class TemplateUtil {
                     let date = DateValue(modifiedValue)
                     modifiedValue = date.format(with: formatString)
                 }
+            }
+        }
+        
+        if !repeatString.isEmpty {
+            if let r = Int(modifiedValue) {
+                var repeatCount = r + repeatPlusMinus
+                if repeatCount < 0 {
+                    repeatCount = 0
+                }
+                repeatCount *= repeatTimes
+                let repeated = String(repeating: repeatString, count: repeatCount)
+                modifiedValue = repeated
             }
         }
         
