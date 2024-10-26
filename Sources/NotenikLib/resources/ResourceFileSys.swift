@@ -340,7 +340,7 @@ public class ResourceFileSys: CustomStringConvertible, Comparable, Equatable {
         return contents
     }
     
-    /// See if the specified folder is empty (ignoring hidded macOS trickery). .
+    /// See if the specified folder is empty (ignoring hidden macOS trickery). .
     public func isEmpty() -> Bool {
         guard isAvailable && isDirectory else { return true }
         guard let items = getFolderContents() else { return false }
@@ -607,6 +607,10 @@ public class ResourceFileSys: CustomStringConvertible, Comparable, Equatable {
                           category: "ResourceFileSys",
                           level: .error,
                           message: msg)
+    }
+    
+    public func displayShort() {
+        print("  - ResourceFileSys type: \(type), folder: \(folderPath), file name: \(fileName)")
     }
     
     public func display() {

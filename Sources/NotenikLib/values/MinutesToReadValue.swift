@@ -26,7 +26,10 @@ public class MinutesToReadValue: StringValue {
     func calculate(with counts: MkdownCounts) {
         let exactMinutes: Double = Double(counts.words) / Double(wordsPerMinute)
         let rounded: Double = exactMinutes.rounded()
-        let roundedInt = Int(rounded)
+        var roundedInt = Int(rounded)
+        if roundedInt == 0 && counts.words > 0 {
+            roundedInt = 1
+        }
         set("\(roundedInt)")
     }
     

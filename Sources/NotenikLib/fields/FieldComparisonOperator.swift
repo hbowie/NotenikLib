@@ -47,6 +47,10 @@ class FieldComparisonOperator: CustomStringConvertible {
             op = .endsWith
         case "!(>)", "![>]", "nf", "does not end with":
             op = .doesNotEndWith
+        case "wi", "within", "is within":
+            op = .within
+        case "nw", "not within", "is not within":
+            op = .notWithin
         default:
             op = .undefined
         }
@@ -87,6 +91,10 @@ class FieldComparisonOperator: CustomStringConvertible {
             return value1.hasSuffix(value2)
         case .doesNotEndWith:
             return !(value1.hasSuffix(value2))
+        case .within:
+            return value2.contains(value1)
+        case .notWithin:
+            return !value2.contains(value1)
         default:
             return true
         }
@@ -132,6 +140,10 @@ class FieldComparisonOperator: CustomStringConvertible {
             return value1Lower.hasSuffix(value2)
         case .doesNotEndWith:
             return !(value1Lower.hasSuffix(value2))
+        case .within:
+            return value2.contains(value1Lower)
+        case .notWithin:
+            return !value2.contains(value1Lower)
         default:
             return true
         }
@@ -140,7 +152,7 @@ class FieldComparisonOperator: CustomStringConvertible {
     
     var compareLowercase: Bool {
         switch op {
-        case .contains, .doesNotContaIn, .startsWith, .doesNotStartWith, .endsWith, .doesNotEndWith:
+        case .contains, .doesNotContaIn, .startsWith, .doesNotStartWith, .endsWith, .doesNotEndWith, .within, .notWithin:
             return true
         default:
             return false
@@ -189,6 +201,8 @@ enum ComparisonOperator {
     case lessThanOrEqualTo
     case notEqualTo
     case contains
+    case within
+    case notWithin
     case doesNotContaIn
     case startsWith
     case doesNotStartWith
