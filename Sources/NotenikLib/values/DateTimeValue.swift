@@ -3,7 +3,7 @@
 //
 //  Created by Herb Bowie on 12/23/20.
 
-//  Copyright © 2020 - 2023 Herb Bowie (https://hbowie.net)
+//  Copyright © 2020 - 2024 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -144,6 +144,21 @@ public class DateTimeValue: StringValue {
         
         if word.hasData {
             processWord(context: parseContext, word: word)
+        }
+        
+        if hours.isEmpty {
+            hours = "00"
+        }
+        if minutes.isEmpty {
+            minutes = "00"
+        }
+        
+        if seconds.isEmpty {
+            seconds = "00"
+        }
+        
+        if timeZone.isEmpty {
+            timeZone = "Z"
         }
         
         let dateStr = "\(yyyy)-\(mm)-\(dd) \(hours):\(minutes):\(seconds) \(timeZone)"

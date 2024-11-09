@@ -718,7 +718,6 @@ public class TemplateUtil {
         var repeatStarted = false
         var repeatString = ""
         
-        
         var formatString = ""
         
         wikiStyle = "0"
