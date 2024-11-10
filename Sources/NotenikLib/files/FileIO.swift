@@ -1268,6 +1268,8 @@ public class FileIO: NotenikIO, RowConsumer {
         let toAttachmentsPath = toLib.getPath(type: .attachments)
         to.attachments = []
         var allOK = true
+        var toBody = to.body.value
+        var bodyUpdates = 0
         for attachment in from.attachments {
             let newAttachmentName = attachment.copy() as! AttachmentName
             newAttachmentName.changeNote(note: to)
@@ -1296,6 +1298,15 @@ public class FileIO: NotenikIO, RowConsumer {
             }
             
             to.attachments.append(newAttachmentName)
+            
+            // Update attachment references in body.
+            if toBody.contains(attachment.fullName) {
+                toBody = toBody.replacingOccurrences(of: attachment.fullName, with: newAttachmentName.fullName)
+                bodyUpdates += 1
+            }
+        }
+        if bodyUpdates > 0 {
+            _ = to.setBody(toBody)
         }
         return allOK
     }
