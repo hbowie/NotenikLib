@@ -263,8 +263,8 @@ public class NoteDisplay {
         var nextSeq = nextNote!.seq
         var nextDepth = nextNote!.depth
         
-        var skipTitleWithSeq = ""
-        var skipTitle = ""
+        var skipIdText = ""
+        var skipIdBasis = ""
         
         if note.collection.levelFieldDef != nil {
             let includeChildren = note.includeChildren
@@ -301,7 +301,7 @@ public class NoteDisplay {
         }
         
         if parms.displayMode == .streamlinedReading && nextNote != nil && !nextBasis.isEmpty && nextDepth > currDepth {
-            (skipTitleWithSeq, skipTitle) = skipDetails(note, io: io, nextNote: nextNote!, nextPosition: nextPosition)
+            (skipIdText, skipIdBasis) = skipDetails(note, io: io, nextNote: nextNote!, nextPosition: nextPosition)
         }
         
         if !parms.epub3 {
@@ -327,7 +327,7 @@ public class NoteDisplay {
                 backToTop(io: io, bottomHTML: bottomHTML)
             } else if parms.displayMode == .streamlinedReading {
                 bottomHTML.startDiv(klass: nil)
-                if !skipTitle.isEmpty {
+                if !skipIdBasis.isEmpty {
                     bottomHTML.startParagraph(klass: "float-left")
                 } else {
                     bottomHTML.startParagraph()
@@ -335,11 +335,11 @@ public class NoteDisplay {
                 bottomHTML.append("Next: ")
                 bottomHTML.link(text: nextText, path: parms.wikiLinks.assembleWikiLink(idBasis: nextBasis), klass: Markedup.htmlClassNavLink)
                 bottomHTML.finishParagraph()
-                if !skipTitle.isEmpty {
+                if !skipIdBasis.isEmpty {
                     bottomHTML.startParagraph(klass: "float-right")
                     bottomHTML.append("Skip to: ")
-                    bottomHTML.link(text: skipTitleWithSeq,
-                                    path: parms.wikiLinks.assembleWikiLink(idBasis: skipTitle),
+                    bottomHTML.link(text: skipIdText,
+                                    path: parms.wikiLinks.assembleWikiLink(idBasis: skipIdBasis),
                                     klass: Markedup.htmlClassNavLink)
                     bottomHTML.finishParagraph()
                 }
@@ -402,7 +402,7 @@ public class NoteDisplay {
             }
         }
         if followingNote != nil {
-            return (followingNote!.getTitle(withSeq: true, formattedSeq: true), followingNote!.title.value)
+            return (followingNote!.noteID.text, followingNote!.noteID.basis)
         } else {
             return ("", "")
         }
