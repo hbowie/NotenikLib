@@ -267,7 +267,7 @@ public class NoteTransformer {
             downToNotesFolder = "\(NotenikConstants.notesFolderName)/"
         }
         
-        let mirrorResource = collection.lib.ensureResource(type: .mirror)
+        _ = collection.lib.ensureResource(type: .mirror)
         
         // First let's create a css styles file.
         var css = ""

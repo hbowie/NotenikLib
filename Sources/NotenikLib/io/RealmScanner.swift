@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 5/16/19.
-//  Copyright © 2019 - 2023 Herb Bowie (https://hbowie.net)
+//  Copyright © 2019 - 2024 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -13,7 +13,7 @@ import Foundation
 
 import NotenikUtils
 
-/// Scan a folder looking for possible Notenik Collections that might be contained within.
+/// Scan a folder looking for possible Notenik Collections and associateed resourcesthat might be contained within.
 public class RealmScanner {
     
     let fileManager = FileManager.default
@@ -44,7 +44,7 @@ public class RealmScanner {
         realmCollection = realmIO.openCollection(realm: realm, collectionPath: "", readOnly: true, multiRequests: nil)
         
         if realmCollection != nil {
-            scanFolder(folderPath: path, realm: realm)
+            scanFolder(folderPath: path, realm: realm, depth: 0)
             realmCollection!.readOnly = true
             realmCollection!.isRealmCollection = true
         } else {
@@ -63,7 +63,7 @@ public class RealmScanner {
     }
     
     /// Scan folders recursively looking for signs that they are Notenik Collections
-    func scanFolder(folderPath: String, realm: Realm) {
+    func scanFolder(folderPath: String, realm: Realm, depth: Int) {
         do {
             let dirContents = try fileManager.contentsOfDirectory(atPath: folderPath)
             for itemPath in dirContents {
@@ -85,11 +85,17 @@ public class RealmScanner {
                     bbEditProjectFileFound(folderPath: folderPath, realm: realm, itemFullPath: itemFullPath)
                 } else if itemPath.hasSuffix(".webloc") {
                     webLocationFileFound(folderPath: folderPath, realm: realm, itemFullPath: itemFullPath)
+                } else if depth == 0 && (itemPath.hasSuffix((".txt"))
+                            || itemPath.hasSuffix(".md")
+                            || itemPath.hasSuffix(".text")
+                            || itemPath.hasSuffix(".mdtext")
+                            || itemPath.hasSuffix(".mkdown")) {
+                    textFileFound(folderPath: folderPath, realm: realm, itemFullPath: itemFullPath)
                 } else if FileUtils.isDir(itemFullPath) {
                     if itemPath == NotenikConstants.notenikFiles {
                         infoFileFound(folderPath: folderPath, realm: realm, itemFullPath: itemFullPath)
                     } else if !foldersToSkip.contains(itemPath) {
-                        scanFolder(folderPath: itemFullPath, realm: realm)
+                        scanFolder(folderPath: itemFullPath, realm: realm, depth: depth + 1)
                     }
                 }
             }
@@ -253,10 +259,10 @@ public class RealmScanner {
         let fileURL = URL(fileURLWithPath: itemFullPath)
         let fileNote = Note(collection: realmCollection!)
         let fileName = FileName(itemFullPath)
-        var folderIndex = fileName.folders.count - 1
-        if fileName.folders[folderIndex] == "reports" || fileName.folders[folderIndex] == "scripts" {
-            folderIndex -= 1
-        }
+        // var folderIndex = fileName.folders.count - 1
+        // if fileName.folders[folderIndex] == "reports" || fileName.folders[folderIndex] == "scripts" {
+         //   folderIndex -= 1
+        // }
         let title = AppPrefs.shared.idFolderFrom(url: fileURL, below: realmURL)
         let titleOK = fileNote.setTitle(title)
         if !titleOK {
@@ -286,6 +292,39 @@ public class RealmScanner {
         }
         if titleOK && linkOK && tagsOK && (addedNote != nil) { return }
         logError("Couldn't record Special File Project file at \(itemFullPath)")
+    }
+    
+    /// Add the BBEdit Project  file to the Realm Collection.
+    func textFileFound(folderPath: String, realm: Realm, itemFullPath: String) {
+        let tfURL = URL(fileURLWithPath: itemFullPath)
+        let tfNote = Note(collection: realmCollection!)
+        let tfFileName = FileName(itemFullPath)
+        /* var folderIndex = tfFileName.folders.count - 1
+        if tfFileName.folders[folderIndex] == "reports" || tfFileName.folders[folderIndex] == "scripts" {
+            folderIndex -= 1
+        } */
+        // var title = ""
+        let title = AppPrefs.shared.idFolderFrom(url: tfURL, below: realmURL)
+        let titleOK = tfNote.setTitle(title)
+        if !titleOK {
+            print("Text File Note Title could not be set to \(title)")
+        }
+        let linkOK = tfNote.setLink(tfURL.absoluteString)
+        if !linkOK {
+            print("Text File Link could not be set to \(tfURL.absoluteString)")
+        }
+        var tags = "Text Files"
+        let tagsOK = tfNote.setTags(tags)
+        if !tagsOK {
+            print("Text File Note Tags could not be set to \(tags)")
+        }
+        tfNote.identify()
+        let (addedNote, _) = realmIO.addNote(newNote: tfNote)
+        if addedNote == nil {
+            print("Text File Note titled \(tfNote.title.value) could not be added")
+        }
+        if titleOK && linkOK && tagsOK && (addedNote != nil) { return }
+        logError("Couldn't record Text File Project file at \(itemFullPath)")
     }
     
     /// Send an error message to the log.
