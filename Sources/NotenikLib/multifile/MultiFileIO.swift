@@ -260,6 +260,8 @@ public class MultiFileIO {
                     }
                 } else if itemPath == NotenikConstants.infoParentFileName {
                     // No action needed
+                } else if itemPath == NotenikConstants.infoProjectFileName {
+                    // no action needed
                 } else if itemPath.hasPrefix(".") {
                     // Ignore invisible files
                 } else if itemPath.hasSuffix(".app") {

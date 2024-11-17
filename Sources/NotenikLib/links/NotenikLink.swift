@@ -488,6 +488,13 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
             return
         }
         
+        let infoProjectFile = ResourceFileSys(folderPath: folderPath, fileName: NotenikConstants.infoProjectFileName)
+        if infoProjectFile.exists && infoProjectFile.isReadable {
+            type = .parentRealm
+            collectionTypeDetermined = true
+            return
+        }
+        
         // See if there is a sub-folder containing the notes.
         let notesPath = FileUtils.joinPaths(path1: folderPath, path2: NotenikConstants.notesFolderName)
         if fm.fileExists(atPath: notesPath)

@@ -356,6 +356,8 @@ public struct NotenikConstants {
     
     public static let infoParentFileName = "- INFO-parent-realm.nnk"
     
+    public static let infoProjectFileName = "- project-INFO.nnk"
+    
     //-------------------------------------------------------------
     //
     // Paths and Labels for Collections of Help Notes

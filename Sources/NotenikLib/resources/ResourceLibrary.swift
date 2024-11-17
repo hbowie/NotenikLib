@@ -522,8 +522,17 @@ public class ResourceLibrary: Equatable {
     }
     
     func saveInfoParent(str: String) -> Bool {
-        infoParentFile = ResourceFileSys(parent: collection, fileName: NotenikConstants.infoParentFileName, type: .infoParent)
-        return infoParentFile.write(str: str)
+        infoParentFile = ResourceFileSys(parent: collection, fileName: NotenikConstants.infoProjectFileName, type: .infoParent)
+        // infoParentFile = ResourceFileSys(parent: collection, fileName: NotenikConstants.infoParentFileName, type: .infoParent)
+        let ok = infoParentFile.write(str: str)
+        if ok {
+            let oldInfoFile = ResourceFileSys(parent: collection, fileName: NotenikConstants.infoParentFileName, type: .infoParent)
+            if oldInfoFile.isAvailable {
+                _ = oldInfoFile.remove()
+            }
+        }
+        return ok
+        
     }
     
     func saveTemplate(str: String, ext: String) -> Bool {

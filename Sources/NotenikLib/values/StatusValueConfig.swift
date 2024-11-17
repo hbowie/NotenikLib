@@ -20,6 +20,8 @@ public class StatusValueConfig {
     
     public var freeformValues: [String] = []
     
+    public var defaultIndex = -1
+    
     public var doneThreshold = 6
     
     // -----------------------------------------------------------
@@ -77,16 +79,20 @@ public class StatusValueConfig {
         clear()
         var i = -1
         var label = ""
+        var defaultTag = false
         for c in options {
             if StringUtils.isDigit(c) {
-                set(i: i, label: label)
+                set(i: i, label: label, defaultTag: defaultTag)
                 label = ""
+                defaultTag = false
                 i = Int(String(c))!
             } else if StringUtils.isAlpha(c) || StringUtils.isWhitespace(c) {
                 label.append(c)
+            } else if c == "*" {
+                defaultTag = true
             }
         }
-        set(i: i, label: label)
+        set(i: i, label: label, defaultTag: defaultTag)
     }
     
     /// Clear all of the status values
@@ -97,12 +103,16 @@ public class StatusValueConfig {
             i += 1
         }
         freeformValues = []
+        defaultIndex = -1
     }
     
     /// Set the label for a given index
-    func set (i : Int, label: String) {
+    func set (i : Int, label: String, defaultTag: Bool) {
         if i >= 0 && i <= 9 {
             statusOptions[i] = StringUtils.trim(label)
+            if defaultTag {
+                defaultIndex = i
+            }
         }
     }
     
@@ -110,8 +120,12 @@ public class StatusValueConfig {
         var opts = ""
         var i = 0
         for statusOpt in statusOptions {
+            var defaultFlag = ""
+            if defaultIndex == i {
+                defaultFlag = "*"
+            }
             if statusOpt.count > 0 && statusOpt != " " {
-                opts.append("\(i) - \(statusOpt); ")
+                opts.append("\(i) - \(statusOpt)\(defaultFlag); ")
             }
             i += 1
         }

@@ -20,6 +20,8 @@ public class PickList {
     
     public var values: [StringValue] = []
     
+    public var defaultValue = ""
+    
     public var count: Int {
         return values.count
     }
@@ -47,9 +49,12 @@ public class PickList {
         var nextValue = ""
         while i < values.endIndex {
             let c = values[i]
-            if c == "," || c == ";" || c == ">" {
+            if c == "," || c == ";" || c == ">" || c == "*" {
                 if nextValue.count > 0 {
                     registerValue(nextValue)
+                    if c == "*" {
+                        defaultValue = nextValue
+                    }
                     nextValue = ""
                 }
             } else if c.isWhitespace {
@@ -153,6 +158,9 @@ public class PickList {
                 str.append(", ")
             }
             str.append(String(describing: value))
+            if value.value == defaultValue {
+                str.append("*")
+            }
             valueIndex += 1
         }
         str.append(" >")
@@ -167,6 +175,9 @@ public class PickList {
                 str.append(", ")
             }
             str.append(String(describing: value))
+            if value.value == defaultValue {
+                str.append("*")
+            }
             valueIndex += 1
         }
         return str

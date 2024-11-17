@@ -578,6 +578,8 @@ public class ResourceFileSys: CustomStringConvertible, Comparable, Equatable {
             type = .info
         } else if (_fName == NotenikConstants.infoParentFileName) {
             type = .infoParent
+        } else if (_fName == NotenikConstants.infoProjectFileName) {
+            type = .infoParent
         } else if (_fName.starts(with: "- INFO") && extLower == "nnk" && _fName.contains("conflicted copy")) {
             type = .infoConflicted
         } else if (_fName == NotenikConstants.displayHTMLFileName) {

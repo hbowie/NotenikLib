@@ -73,6 +73,8 @@ public class RealmScanner {
                     infoFileFound(folderPath: folderPath, realm: realm, itemFullPath: itemFullPath)
                 } else if itemPath == NotenikConstants.infoParentFileName {
                     infoParentFileFound(folderPath: folderPath, realm: realm, itemPath: itemPath)
+                } else if itemPath == NotenikConstants.infoProjectFileName {
+                    infoParentFileFound(folderPath: folderPath, realm: realm, itemPath: itemPath)
                 } else if itemPath.hasPrefix(".") {
                     // Ignore invisible files
                 } else if itemPath.hasSuffix(".app") {
@@ -294,36 +296,51 @@ public class RealmScanner {
         logError("Couldn't record Special File Project file at \(itemFullPath)")
     }
     
-    /// Add the BBEdit Project  file to the Realm Collection.
+    /// Add the text file to the Realm Collection.
     func textFileFound(folderPath: String, realm: Realm, itemFullPath: String) {
         let tfURL = URL(fileURLWithPath: itemFullPath)
         let tfNote = Note(collection: realmCollection!)
-        let tfFileName = FileName(itemFullPath)
-        /* var folderIndex = tfFileName.folders.count - 1
-        if tfFileName.folders[folderIndex] == "reports" || tfFileName.folders[folderIndex] == "scripts" {
-            folderIndex -= 1
-        } */
-        // var title = ""
         let title = AppPrefs.shared.idFolderFrom(url: tfURL, below: realmURL)
+        
+        // Set the title of the note.
         let titleOK = tfNote.setTitle(title)
         if !titleOK {
             print("Text File Note Title could not be set to \(title)")
         }
+        
+        // Set the link for the note.
         let linkOK = tfNote.setLink(tfURL.absoluteString)
         if !linkOK {
             print("Text File Link could not be set to \(tfURL.absoluteString)")
         }
-        var tags = "Text Files"
+        // Set the tags for the note.
+        let tags = "Text Files"
         let tagsOK = tfNote.setTags(tags)
         if !tagsOK {
             print("Text File Note Tags could not be set to \(tags)")
         }
+        
+        // Set the body of the note.
+        var bodyOK = false
+        do {
+            let body = try String(contentsOf: tfURL)
+            bodyOK = tfNote.setBody(body)
+            if !bodyOK {
+                print("Text File Note Body could not be set to \(body)")
+            }
+        } catch {
+            logError("Couldn't read Text File Project file at \(itemFullPath)")
+        }
+        
+        // Now stash the note into memory.
         tfNote.identify()
         let (addedNote, _) = realmIO.addNote(newNote: tfNote)
         if addedNote == nil {
             print("Text File Note titled \(tfNote.title.value) could not be added")
         }
-        if titleOK && linkOK && tagsOK && (addedNote != nil) { return }
+        if titleOK && linkOK && tagsOK && bodyOK && (addedNote != nil) { return }
+        
+        // Log an error if any occurred.
         logError("Couldn't record Text File Project file at \(itemFullPath)")
     }
     
