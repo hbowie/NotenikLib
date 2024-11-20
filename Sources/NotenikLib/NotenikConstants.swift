@@ -11,6 +11,8 @@
 
 import Foundation
 
+import NotenikUtils
+
 /// Various constants used throughout Notenik.
 public struct NotenikConstants {
     
@@ -341,6 +343,14 @@ public struct NotenikConstants {
     public static let readmeFileName    = "- README.txt"
     
     public static let reportsFolderName = "reports"
+    
+    public static let scriptsFolderName = "scripts"
+    
+    public static let scriptExt         = FileExtension("tcz")
+    public static let scriptExtAlt      = FileExtension("tsv")
+    
+    public static let BBEditProjectExt  = FileExtension(".bbprojectd")
+    public static let webLocExt         = FileExtension(".webloc")
     
     public static let templateFileName  = "template"
     

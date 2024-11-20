@@ -29,7 +29,6 @@ public class ResourceFileSys: CustomStringConvertible, Comparable, Equatable {
     static let cloudySuffix      = ".icloud"
     static let dsstoreFileName   = ".DS_Store"
     static let oldSourceParms    = "pspub_source_parms.xml"
-    static let scriptExt         = ".tcz"
     
     public var isAvailable: Bool { return exists && isReadable }
     public var exists = false
@@ -326,9 +325,9 @@ public class ResourceFileSys: CustomStringConvertible, Comparable, Equatable {
         }
         for item in items {
             var itemType = contentType
-            if contentType == .report && item.hasSuffix(ResourceFileSys.scriptExt) {
+            if contentType == .report && item.hasSuffix(NotenikConstants.scriptExt.withDot) {
                 itemType = .script
-            } else if type == .exportFolder && item.hasSuffix(ResourceFileSys.scriptExt) {
+            } else if type == .exportFolder && item.hasSuffix(NotenikConstants.scriptExt.withDot) {
                 itemType = .exportScript
             }
             let resource = ResourceFileSys(folderPath: actualPath, 
@@ -558,7 +557,7 @@ public class ResourceFileSys: CustomStringConvertible, Comparable, Equatable {
     }
         
     func examineFileName(preferredNoteExt: String = "txt") {
-        if extLower == ResourceFileSys.scriptExt {
+        if extLower == NotenikConstants.scriptExt.withoutDot {
             type = .script
         }
         guard type == .unknown else { return }
@@ -592,7 +591,7 @@ public class ResourceFileSys: CustomStringConvertible, Comparable, Equatable {
             type = .tempDisplay
         } else if ResourceFileSys.isLikelyNoteFile(fileExt: extLower, preferredNoteExt: preferredNoteExt) {
             type = .note
-        } else if extLower == ResourceFileSys.scriptExt {
+        } else if extLower == NotenikConstants.scriptExt.withoutDot {
             type = .script
         } 
     }

@@ -63,41 +63,34 @@ public class RealmScanner {
     }
     
     /// Scan folders recursively looking for signs that they are Notenik Collections
-    func scanFolder(folderPath: String, realm: Realm, depth: Int) {
+    func scanFolder(folderPath: String, realm: Realm, depth: Int, folderName: String = "") {
         do {
             let dirContents = try fileManager.contentsOfDirectory(atPath: folderPath)
             for itemPath in dirContents {
-                let itemFullPath = FileUtils.joinPaths(path1: folderPath,
-                                                       path2: itemPath)
-                if itemPath == NotenikConstants.infoFileName {
-                    infoFileFound(folderPath: folderPath, realm: realm, itemFullPath: itemFullPath)
-                } else if itemPath == NotenikConstants.infoParentFileName {
+                let fileInfo = NotenikFileInfo(path1: folderPath, path2: itemPath)
+                if fileInfo.isInfoFile {
+                    infoFileFound(folderPath: folderPath, realm: realm, itemFullPath: fileInfo.filePath)
+                } else if fileInfo.isInfoParent {
                     infoParentFileFound(folderPath: folderPath, realm: realm, itemPath: itemPath)
-                } else if itemPath == NotenikConstants.infoProjectFileName {
-                    infoParentFileFound(folderPath: folderPath, realm: realm, itemPath: itemPath)
-                } else if itemPath.hasPrefix(".") {
+                } else if fileInfo.isHidden {
                     // Ignore invisible files
-                } else if itemPath.hasSuffix(".app") {
+                } else if fileInfo.isAppBundle {
                     // Ignore application bundles
-                } else if itemPath.hasSuffix(".dmg") {
+                } else if fileInfo.isDiskImage {
                     // Ignore disk image bundles
-                } else if itemPath.hasSuffix(ResourceFileSys.scriptExt) {
-                    scriptFileFound(folderPath: folderPath, realm: realm, itemFullPath: itemFullPath)
-                } else if itemPath.hasSuffix(".bbprojectd") {
-                    bbEditProjectFileFound(folderPath: folderPath, realm: realm, itemFullPath: itemFullPath)
-                } else if itemPath.hasSuffix(".webloc") {
-                    webLocationFileFound(folderPath: folderPath, realm: realm, itemFullPath: itemFullPath)
-                } else if depth == 0 && (itemPath.hasSuffix((".txt"))
-                            || itemPath.hasSuffix(".md")
-                            || itemPath.hasSuffix(".text")
-                            || itemPath.hasSuffix(".mdtext")
-                            || itemPath.hasSuffix(".mkdown")) {
-                    textFileFound(folderPath: folderPath, realm: realm, itemFullPath: itemFullPath)
-                } else if FileUtils.isDir(itemFullPath) {
-                    if itemPath == NotenikConstants.notenikFiles {
-                        infoFileFound(folderPath: folderPath, realm: realm, itemFullPath: itemFullPath)
-                    } else if !foldersToSkip.contains(itemPath) {
-                        scanFolder(folderPath: itemFullPath, realm: realm, depth: depth + 1)
+                } else if fileInfo.isScript {
+                    scriptFileFound(folderPath: folderPath, realm: realm, itemFullPath: fileInfo.filePath)
+                } else if fileInfo.isBBEditProject {
+                    bbEditProjectFileFound(folderPath: folderPath, realm: realm, itemFullPath: fileInfo.filePath)
+                } else if fileInfo.isWebLocation {
+                    webLocationFileFound(folderPath: folderPath, realm: realm, itemFullPath: fileInfo.filePath)
+                } else if depth == 0 && fileInfo.isPlainText {
+                    textFileFound(folderPath: folderPath, realm: realm, itemFullPath: fileInfo.filePath)
+                } else if fileInfo.isDir {
+                    if fileInfo.isNotenikFilesFolder {
+                        infoFileFound(folderPath: folderPath, realm: realm, itemFullPath: fileInfo.filePath)
+                    } else if !foldersToSkip.contains(fileInfo.folder) {
+                        scanFolder(folderPath: fileInfo.filePath, realm: realm, depth: depth + 1, folderName: fileInfo.folder)
                     }
                 }
             }

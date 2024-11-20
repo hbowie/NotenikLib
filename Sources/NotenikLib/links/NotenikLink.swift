@@ -3,7 +3,7 @@
 //
 //  Created by Herb Bowie on 12/14/20.
 
-//  Copyright © 2020 - 2023 Herb Bowie (https://hbowie.net)
+//  Copyright © 2020 - 2024 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -436,6 +436,8 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
             type = .infoParentFile
         } else if name == NotenikConstants.aliasFileName {
             type = .aliasFile
+        } else if extLower == NotenikConstants.scriptExtAlt.withoutDot && folder == NotenikConstants.scriptsFolderName {
+            type = .script
         } else if isNoteExt {
             type = .noteFile
         } else if hasScriptExt {
@@ -660,9 +662,9 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
     
     var hasScriptExt: Bool {
         if let defURL = url {
-            return defURL.lastPathComponent.hasSuffix(ResourceFileSys.scriptExt)
+            return defURL.lastPathComponent.hasSuffix(NotenikConstants.scriptExt.withDot)
         } else {
-            return str.hasSuffix(ResourceFileSys.scriptExt)
+            return str.hasSuffix(NotenikConstants.scriptExt.withDot)
         }
     }
     

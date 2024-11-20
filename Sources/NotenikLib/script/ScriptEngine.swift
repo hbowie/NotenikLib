@@ -256,12 +256,15 @@ public class ScriptEngine: RowConsumer {
         }
         
         var includeURL = scriptURL
+        let ext = FileExtension(includeURL.pathExtension)
+        
         includeURL.deletePathExtension()
         includeURL.deleteLastPathComponent()
         let fileName = command.value
         includeURL.appendPathComponent(fileName)
-        if !fileName.hasSuffix(".tcz") {
-            includeURL.appendPathExtension("tcz")
+        let includeExt = FileExtension(fileName: fileName)
+        if includeExt.isEmpty {
+            includeURL.appendPathExtension(ext.withoutDot)
         }
         
         logInfo("Starting to include script located at \(includeURL.path) on \(DateUtils.shared.dateTimeToday)")
