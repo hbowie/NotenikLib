@@ -436,7 +436,9 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
             type = .infoParentFile
         } else if name == NotenikConstants.aliasFileName {
             type = .aliasFile
-        } else if extLower == NotenikConstants.scriptExtAlt.withoutDot && folder == NotenikConstants.scriptsFolderName {
+        } else if (extLower == NotenikConstants.scriptExtAlt1.withoutDot
+                   || extLower == NotenikConstants.scriptExtAlt2.withoutDot)
+                    && folder == NotenikConstants.scriptsFolderName {
             type = .script
         } else if isNoteExt {
             type = .noteFile

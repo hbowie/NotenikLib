@@ -15,6 +15,7 @@ enum TemplateCommand: String {
     case comment     = "*"
     case allFields   = "allfields"
     case copyfile    = "copyfile"
+    case copyImages  = "copyimages"
     case debug       = "debug"
     case definegroup = "definegroup"
     case delims      = "delims"

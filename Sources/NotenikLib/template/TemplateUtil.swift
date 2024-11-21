@@ -721,6 +721,7 @@ public class TemplateUtil {
         var formatString = ""
         
         wikiStyle = "0"
+        mkdownOptions.flattenImageLinks = false
         
         // See what modifiers we have
         var i = mods.startIndex
@@ -882,7 +883,12 @@ public class TemplateUtil {
                 } else if varNameCommon == NotenikConstants.backlinksCommon {
                     modifiedValue = convertWikilinksToHTML(modifiedValue, backLinks: true)
                 } else {
-                    modifiedValue = convertMarkdownToHTML(modifiedValue)
+                    var flattenImageLinks = false
+                    if formatFileName {
+                        flattenImageLinks = true
+                        formatFileName = false
+                    }
+                    modifiedValue = convertMarkdownToHTML(modifiedValue, flattenImageLinks: flattenImageLinks)
                 }
                 if nextChar == "-" {
                     modifiedValue = removeParagraphTags(modifiedValue)
@@ -1099,7 +1105,8 @@ public class TemplateUtil {
     }
     
     /// Convert Markdown to HTML
-    func convertMarkdownToHTML(_ markdown: String) -> String {
+    func convertMarkdownToHTML(_ markdown: String, flattenImageLinks: Bool = false) -> String {
+        mkdownOptions.flattenImageLinks = flattenImageLinks
         switch wikiStyle {
         case "1":
             if workspace != nil {

@@ -140,6 +140,8 @@ class TemplateLine {
             processAllFieldsCommand(note: note)
         case .copyfile:
             processCopyFileCommand(note: note)
+        case .copyImages:
+            processCopyImagesCommand()
         case .delims:
             processDelimsCommand()
         case .debug:
@@ -193,6 +195,21 @@ class TemplateLine {
         let copyFromPath = copyFromLine.line
         let copyToPath   = copyToLine.line
         util.copyFile(fromPath: copyFromPath, toPath: copyToPath)
+    }
+    
+    func processCopyImagesCommand() {
+        guard !util.skippingData else { return }
+        guard let context = util.workspace?.mkdownContext else { return }
+        guard !context.localImages.isEmpty else { return }
+        guard !util.dataFileName.isEmpty else { return }
+        guard !util.webRootFileName.isEmpty else { return }
+        for linkPair in context.localImages {
+            let copyFromPath = FileUtils.joinPaths(path1: util.dataFileName.fileNameStr,
+                                                   path2: linkPair.original)
+            let copyToPath = FileUtils.joinPaths(path1: util.webRootFileName.fileNameStr,
+                                                 path2: linkPair.modified)
+            util.copyFile(fromPath: copyFromPath, toPath: copyToPath)
+        }
     }
     
     /// Process a Delims (delimiters) Command

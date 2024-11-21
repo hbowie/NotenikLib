@@ -82,7 +82,8 @@ public class NotenikFileInfo {
     public var isScript: Bool {
         return extLower == NotenikConstants.scriptExt.withoutDot
                     || (folder == NotenikConstants.scriptsFolderName
-                        && extLower == NotenikConstants.scriptExtAlt.withoutDot)
+                        && (extLower == NotenikConstants.scriptExtAlt1.withoutDot
+                            || extLower == NotenikConstants.scriptExtAlt2.withoutDot))
     }
     
     public var isBBEditProject: Bool {

@@ -36,6 +36,7 @@ public class NotesMkdownContext: MkdownContext {
     public var includedNotes: [String] = []
     public var javaScript = ""
     public var hashTags: [String] = []
+    public var localImages: [LinkPair] = []
     
     // Utility.
     let htmlConverter = StringConverter()
@@ -71,13 +72,14 @@ public class NotesMkdownContext: MkdownContext {
         collection.fileNameToParse = fileName
         collection.shortID = shortID
         mkdownCommandList = MkdownCommandList(collectionLevel: false)
+        localImages = []
         javaScript = ""
         hashTags = []
     }
     
     // -----------------------------------------------------------
     //
-    // MARK: Expose the usage of a Markdown command. 
+    // MARK: Expose the usage of interesting Markdown.
     //
     // -----------------------------------------------------------
     
@@ -86,6 +88,16 @@ public class NotesMkdownContext: MkdownContext {
         guard let collection = io.collection else { return }
         guard !collection.idToParse.isEmpty else { return }
         mkdownCommandList.updateWith(command: command, noteTitle: collection.idToParse, code: nil)
+    }
+    
+    /// Expose the usage of an image link.
+    public func exposeImageLink(original: String, modified: String) {
+        guard !original.isEmpty else { return }
+        guard let collection = io.collection else { return }
+        guard !collection.idToParse.isEmpty else { return }
+        if !original.contains("://") {
+            localImages.append(LinkPair(original: original, modified: modified))
+        }
     }
     
     // -----------------------------------------------------------

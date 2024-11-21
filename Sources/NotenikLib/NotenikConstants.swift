@@ -347,7 +347,8 @@ public struct NotenikConstants {
     public static let scriptsFolderName = "scripts"
     
     public static let scriptExt         = FileExtension("tcz")
-    public static let scriptExtAlt      = FileExtension("tsv")
+    public static let scriptExtAlt1      = FileExtension("tsv")
+    public static let scriptExtAlt2      = FileExtension("csv")
     
     public static let BBEditProjectExt  = FileExtension(".bbprojectd")
     public static let webLocExt         = FileExtension(".webloc")

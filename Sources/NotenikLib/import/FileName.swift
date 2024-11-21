@@ -56,6 +56,10 @@ public class FileName: CustomStringConvertible {
         return fileNameStr
     }
     
+    public var isEmpty: Bool {
+        return fileNameStr.isEmpty
+    }
+    
     public var url: URL? {
         let link = NotenikLink()
         link.set(with: fileNameStr, assume: .assumeFile)
