@@ -55,6 +55,8 @@ public class NoteCollection {
     public  var overrideCustomDisplay = false
     public  var displayTemplate = ""
     public  var displayCSS = ""
+    public  var cssFiles: [String] = []
+    public  var selCSSfile = ""
     
     public  var mathJax = false
     public  var imgLocal = false

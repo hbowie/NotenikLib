@@ -458,6 +458,7 @@ public class FileIO: NotenikIO, RowConsumer {
         }
         loadExportScripts()
         loadKlassDefs()
+        loadCSSfiles()
         
         let notesContents = collection!.lib.notesFolder.getResourceContents(preferredNoteExt: collection!.preferredExt)
         guard notesContents != nil else { return nil }
@@ -1065,6 +1066,11 @@ public class FileIO: NotenikIO, RowConsumer {
             collection!.noteIdentifier.textIdSep = sep
         }
         
+        let selCSSfileField = infoNote.getField(label: NotenikConstants.selCSSfileCommon)
+        if selCSSfileField != nil && !selCSSfileField!.value.isEmpty {
+            collection!.selCSSfile = selCSSfileField!.value.value
+        }
+        
         infoFound = true
         return infoNote
     }
@@ -1097,7 +1103,7 @@ public class FileIO: NotenikIO, RowConsumer {
         return templateNote
     }
     
-    func loadDisplayCSS() {
+    public func loadDisplayCSS() {
         collection!.displayCSS = ""
         guard collection!.lib.hasAvailable(type: .displayCSS) else { return }
         collection!.displayCSS = collection!.lib.displayCSSFile.getText()
@@ -1433,6 +1439,49 @@ public class FileIO: NotenikIO, RowConsumer {
         collection!.klassDefs.sort()
         logInfo("\(collection!.klassDefs.count) Class Template(s) Loaded from the class folder")
 
+    }
+    
+    // -----------------------------------------------------------
+    //
+    // MARK: Load CSS FIles.
+    //
+    // -----------------------------------------------------------
+    
+    /// Load A list of available reports from the reports folder.
+    public func loadCSSfiles() {
+        
+        print("FileIO.loadCSSfiles")
+        
+        collection!.cssFiles = []
+        
+        guard let lib = collection?.lib else { return }
+        guard lib.hasAvailable(type: .cssFolder) else {
+            return
+        }
+        
+        print("  - css folder found")
+        
+        var selCSSfileFound = false
+        
+        guard let contents = lib.getContents(type: .cssFolder) else { return }
+        
+        print("  - folder contains \(contents.count) items")
+        
+        for content in contents {
+            print("    - item named \(content.fileName)")
+            guard content.isAvailable else { continue }
+            guard !content.fileName.starts(with: ".") else { continue }
+            guard content.extLower == "css" else { continue }
+            collection!.cssFiles.append(content.base)
+            if collection!.selCSSfile == content.base {
+                selCSSfileFound = true
+            }
+        }
+        collection!.cssFiles.sort()
+        logInfo("\(collection!.cssFiles.count) CSS file(s) Loaded from the css folder")
+        if !selCSSfileFound {
+            collection!.selCSSfile = ""
+        }
     }
     
     // -----------------------------------------------------------

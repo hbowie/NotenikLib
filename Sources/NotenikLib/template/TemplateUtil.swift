@@ -230,6 +230,57 @@ public class TemplateUtil {
         outputOnlyIfNew = (StringUtils.toCommon(operand2) == "ifnew")
     }
     
+    /// Create a CSS output file.
+    /// - Parameter to: A relative path from the top of the website to the CSS file to be created.
+    func copyCSS(to: String) {
+        
+        guard !dataFileName.isEmpty else {
+            return
+        }
+        guard !webRootFileName.isEmpty else {
+            return
+        }
+        guard let collection = workspace?.collection else {
+            return
+        }
+        
+        let copyToFullPath = FileUtils.joinPaths(path1: webRootFileName.fileNameStr,
+                                                 path2: to)
+        let copyToFileName = FileName(copyToFullPath)
+        let copyToUrl = URL(fileURLWithPath: copyToFullPath)
+        
+        let displayParms = DisplayParms()
+        displayParms.setFrom(collection: collection)
+        
+        var css = ""
+        var infoMsgSource = "CSS file named \(collection.selCSSfile)"
+
+        if displayParms.cssLinkToFile {
+            let cssFilePath = FileUtils.joinPaths(path1: dataFileName.fileNameStr,
+                                                  path2: displayParms.cssString)
+            let selCssFileUrl = URL(fileURLWithPath: cssFilePath)
+            if let cssFromFile = try? String(contentsOf: selCssFileUrl) {
+                css = cssFromFile
+            }
+        }
+        if css.isEmpty {
+            css = displayParms.cssString
+            infoMsgSource = "Notenik default CSS"
+        }
+        
+        let copyToFolder = copyToFileName.path
+        let folderResource = ResourceFileSys(folderPath: copyToFolder, fileName: "")
+        _ = folderResource.ensureExistence()
+        do {
+            try css.write(to: copyToUrl,
+                          atomically: true,
+                          encoding: String.Encoding.utf8)
+            logInfo("CSS file created at \(to) from \(infoMsgSource)")
+        } catch {
+            logError("Could not write the CSS file to \(copyToUrl)")
+        }
+    }
+    
     /// Copy a file from one location to another. 
     func copyFile(fromPath: String, toPath: String) {
         let absFromPath = templateFileName.resolveRelative(path: fromPath)

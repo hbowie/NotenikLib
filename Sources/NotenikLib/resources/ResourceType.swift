@@ -19,6 +19,7 @@ public enum ResourceType {
     case attachments
     case collection
     case collectionParms
+    case cssFolder
     case display
     case displayCSS
     case exportFolder

@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 7/7/21.
 //
-//  Copyright © 2021 Herb Bowie (https://hbowie.net)
+//  Copyright © 2021 - 2024 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -50,7 +50,15 @@ public class DisplayParms {
     
     /// Set various values that are taken from metadata about the Collection.
     public func setFrom(collection: NoteCollection) {
-        setCSS(useFirst: collection.displayCSS, useSecond: DisplayPrefs.shared.displayCSS)
+        // print("DisplayParms.setFrom collection")
+        // print("  - selected CSS file = '\(collection.selCSSfile)'")
+        // print("  - collection displayCSS = '\(collection.displayCSS)'")
+        if !collection.selCSSfile.isEmpty {
+            cssLinkToFile = true
+            cssString = NotenikConstants.cssFolderName + "/" + collection.selCSSfile + ".css"
+        } else {
+            setCSS(useFirst: collection.displayCSS, useSecond: DisplayPrefs.shared.displayCSS)
+        }
         displayTemplate = collection.displayTemplate
         format = .htmlDoc
         sortParm = collection.sortParm
@@ -199,6 +207,7 @@ public class DisplayParms {
     public func display(by: String) {
         print ("DisplayParms.display requested by \(by)")
         print("  - css string = \(cssString)")
+        print("  - css link to file = \(cssLinkToFile)")
         print("  - display template = \(displayTemplate)")
         print("  - marked up format = \(format)")
         print("  - sort parm = \(sortParm)")

@@ -308,6 +308,8 @@ public struct NotenikConstants {
     static let lastImportParentCommon   = "lastimportparent"
     static let outlineTab               = "Outline Tab"
     static let outlineTabCommon         = "outlinetab"
+    static let selCSSFile               = "Selected CSS File"
+    static let selCSSfileCommon         = "selectedcssfile"
     
     public static let listDisplayFont   = "list-display-font"
     public static let listDisplaySize   = "list-display-size"
@@ -327,6 +329,8 @@ public struct NotenikConstants {
     public static let exportFolderName  = "export"
     
     public static let klassFolderName   = "class"
+    
+    public static let cssFolderName     = "css"
     
     public static let notenikFiles      = "- notenik_files"
     

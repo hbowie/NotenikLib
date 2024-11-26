@@ -138,9 +138,11 @@ class TemplateLine {
         switch command! {
         case .allFields:
             processAllFieldsCommand(note: note)
+        case .copycss:
+            processCopyCssCommand()
         case .copyfile:
             processCopyFileCommand(note: note)
-        case .copyImages:
+        case .copyimages:
             processCopyImagesCommand()
         case .delims:
             processDelimsCommand()
@@ -183,6 +185,18 @@ class TemplateLine {
     
     func processAllFieldsCommand(note: Note) {
         util.allFieldsToHTML(note: note)
+    }
+    
+    func processCopyCssCommand() {
+        print("TemplateLine.processCopyCssCommand")
+        guard !util.skippingData else { return }
+        
+        var copyToRelPath = "css/styles.css"
+        if tokens.count > 1 {
+            copyToRelPath = String(tokens[1])
+        }
+        
+        util.copyCSS(to: copyToRelPath)
     }
     
     /// Process a command to copy a file.

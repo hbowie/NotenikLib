@@ -52,6 +52,7 @@ public class ResourceLibrary: Equatable {
     var reportsFolder     = ResourceFileSys()
     var klassFolder       = ResourceFileSys()
     var exportFolder      = ResourceFileSys()
+    var cssFolder         = ResourceFileSys()
     
     var infoCollection:   NoteCollection?
     
@@ -79,6 +80,7 @@ public class ResourceLibrary: Equatable {
         reportsFolder   = ResourceFileSys()
         klassFolder     = ResourceFileSys()
         exportFolder    = ResourceFileSys()
+        cssFolder       = ResourceFileSys()
         
         infoCollection  = NoteCollection()
     }
@@ -147,6 +149,8 @@ public class ResourceLibrary: Equatable {
             return attachmentsFolder.isAvailable
         case .collection:
             return collection.isAvailable
+        case .cssFolder:
+            return cssFolder.isAvailable
         case .display:
             return displayFile.isAvailable
         case .displayCSS:
@@ -190,6 +194,8 @@ public class ResourceLibrary: Equatable {
             return attachmentsFolder.actualPath
         case .collection:
             return collection.actualPath
+        case .cssFolder:
+            return cssFolder.actualPath
         case .display:
             return displayFile.actualPath
         case .displayCSS:
@@ -233,6 +239,8 @@ public class ResourceLibrary: Equatable {
             return attachmentsFolder.url
         case .collection:
             return collection.url
+        case .cssFolder:
+            return cssFolder.url
         case .display:
             return displayFile.url
         case .displayCSS:
@@ -276,6 +284,8 @@ public class ResourceLibrary: Equatable {
             return attachmentsFolder
         case .collection:
             return collection
+        case .cssFolder:
+            return cssFolder
         case .display:
             return displayFile
         case .displayCSS:
@@ -320,6 +330,13 @@ public class ResourceLibrary: Equatable {
             attachmentsFolder = ResourceFileSys(parent: notesFolder, fileName: NotenikConstants.filesFolderName, type: .attachments)
             _ = attachmentsFolder.ensureExistence()
             return attachmentsFolder
+        case .cssFolder:
+            if cssFolder.isAvailable {
+                return cssFolder
+            }
+            cssFolder = ResourceFileSys(parent: notesFolder, fileName: NotenikConstants.cssFolderName, type: .cssFolder)
+            _ = cssFolder.ensureExistence()
+            return cssFolder
         case .klassFolder:
             if klassFolder.isAvailable {
                 return klassFolder
@@ -363,6 +380,8 @@ public class ResourceLibrary: Equatable {
         switch type {
         case .attachments:
             return attachmentsFolder.getResourceContents()
+        case .cssFolder:
+            return cssFolder.getResourceContents()
         case .exportFolder:
             return exportFolder.getResourceContents()
         case .klassFolder:
@@ -646,6 +665,9 @@ public class ResourceLibrary: Equatable {
         
         // Set the location for a possible class folder.
         klassFolder = ResourceFileSys(parent: notesFolder, fileName: NotenikConstants.klassFolderName, type: .klassFolder)
+        
+        // Set the location for a possible css folder.
+        cssFolder = ResourceFileSys(parent: notesFolder, fileName: NotenikConstants.cssFolderName, type: .cssFolder)
         
         // See if we can find a template file.
         templateFile = ResourceFileSys(parent: notenikFiles, fileName: NotenikConstants.templateFileName + ".txt")

@@ -164,7 +164,8 @@ public class NoteTransformer {
             return errors
         }
         
-        template.supplyData(notesList: list, dataSource: io.collection!.lib.getPath(type: .notes))
+        template.supplyData(notesList: list,
+                            dataSource: io.collection!.lib.getPath(type: .notes))
         
         ok = template.generateOutput()
         guard ok else {
@@ -203,7 +204,8 @@ public class NoteTransformer {
                 return errors
             }
             
-            template.supplyData(notesList: io.notesList, dataSource: collection.lib.getPath(type: .notes))
+            template.supplyData(notesList: io.notesList,
+                                dataSource: collection.lib.getPath(type: .notes))
             
             ok = template.generateOutput()
             guard ok else {
