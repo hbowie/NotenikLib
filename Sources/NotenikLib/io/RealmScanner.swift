@@ -27,12 +27,15 @@ public class RealmScanner {
     var collectionPath = ""
     var collectionTag  = ""
     
+    var readmeNote: Note?
+    
     public init() {
         
     }
     
     /// Open a realm, looking for its collections
     public func openRealm(path: String) -> Bool {
+        readmeNote = nil
         var ok = true
         let provider = Provider()
         let realm = Realm(provider: provider)
@@ -58,6 +61,19 @@ public class RealmScanner {
                               level: .info,
                               message: "No Notenik Collections found within \(path)")
             ok = false
+        }
+        
+        var positioned = false
+        if ok {
+            if let readme = readmeNote {
+                if let io = realmIO as? BunchIO {
+                    _ = io.selectNote(note: readme)
+                    positioned = true
+                }
+            }
+        }
+        if !positioned {
+            _ = realmIO.firstNote()
         }
         return ok
     }
@@ -163,178 +179,83 @@ public class RealmScanner {
     
     /// Add the script file to the Realm Collection. 
     func scriptFileFound(folderPath: String, realm: Realm, itemFullPath: String) {
-        let scriptURL = URL(fileURLWithPath: itemFullPath)
-        let scriptNote = Note(collection: realmCollection!)
-        let scriptFileName = FileName(itemFullPath)
-        var folderIndex = scriptFileName.folders.count - 1
-        if scriptFileName.folders[folderIndex] == "reports" || scriptFileName.folders[folderIndex] == "scripts" {
-            folderIndex -= 1
-        }
-        // var title = ""
-        /* while folderIndex < scriptFileName.folders.count {
-            title.append(String(scriptFileName.folders[folderIndex]))
-            title.append(" ")
-            folderIndex += 1
-        } */
-        let scriptTitle = AppPrefs.shared.idFolderFrom(url: scriptURL, below: realmURL)
-        // title.append(scriptFileName.fileName)
-        let titleOK = scriptNote.setTitle(scriptTitle)
-        if !titleOK {
-            print("Title could not be set to \(scriptTitle)")
-        }
-        let linkOK = scriptNote.setLink(scriptURL.absoluteString)
-        if !linkOK {
-            print("Link could not be set to \(scriptURL.absoluteString)")
-        }
-        var tags = "Scripts"
-        if itemFullPath.hasPrefix(collectionPath) {
-            tags.append(", ")
-            tags.append(collectionTag)
-            tags.append(".scripts")
-        } else {
-            tags.append(", ")
-            tags.append(TagsValue.tagify(scriptFileName.folder))
-        }
-        let tagsOK = scriptNote.setTags(tags)
-        if !tagsOK {
-            print("Tags could not be set to \(tags)")
-        }
-        scriptNote.identify()
-        let (addedNote, _) = realmIO.addNote(newNote: scriptNote)
-        if addedNote == nil {
-            print("Note titled \(scriptNote.title.value) could not be added")
-        }
-        if titleOK && linkOK && tagsOK && (addedNote != nil) { return }
-        logError("Couldn't record script file at \(itemFullPath)")
+        addNote(itemFullPath: itemFullPath, category: "Scripts")
     }
     
     /// Add the BBEdit Project  file to the Realm Collection.
     func bbEditProjectFileFound(folderPath: String, realm: Realm, itemFullPath: String) {
-        let bbURL = URL(fileURLWithPath: itemFullPath)
-        let bbNote = Note(collection: realmCollection!)
-        let bbFileName = FileName(itemFullPath)
-        var folderIndex = bbFileName.folders.count - 1
-        if bbFileName.folders[folderIndex] == "reports" || bbFileName.folders[folderIndex] == "scripts" {
-            folderIndex -= 1
-        }
-        // var title = ""
-        let title = AppPrefs.shared.idFolderFrom(url: bbURL, below: realmURL)
-        let titleOK = bbNote.setTitle(title)
-        if !titleOK {
-            print("BBEdit Note Title could not be set to \(title)")
-        }
-        let linkOK = bbNote.setLink(bbURL.absoluteString)
-        if !linkOK {
-            print("BBEdit Link could not be set to \(bbURL.absoluteString)")
-        }
-        var tags = "BBEdit Projects"
-        if itemFullPath.hasPrefix(collectionPath) {
-            tags.append(", ")
-            tags.append(collectionTag)
-            tags.append(".scripts")
-        } else {
-            tags.append(", ")
-            tags.append(TagsValue.tagify(bbFileName.folder))
-        }
-        let tagsOK = bbNote.setTags(tags)
-        if !tagsOK {
-            print("BBEdit Note Tags could not be set to \(tags)")
-        }
-        bbNote.identify()
-        let (addedNote, _) = realmIO.addNote(newNote: bbNote)
-        if addedNote == nil {
-            print("BBEdit Note titled \(bbNote.title.value) could not be added")
-        }
-        if titleOK && linkOK && tagsOK && (addedNote != nil) { return }
-        logError("Couldn't record BBEdit Project file at \(itemFullPath)")
+        addNote(itemFullPath: itemFullPath, category: "BBEdit Projects")
     }
     
     /// Add the Web Location  file to the Realm Collection.
     func webLocationFileFound(folderPath: String, realm: Realm, itemFullPath: String) {
-        let fileURL = URL(fileURLWithPath: itemFullPath)
-        let fileNote = Note(collection: realmCollection!)
-        let fileName = FileName(itemFullPath)
-        // var folderIndex = fileName.folders.count - 1
-        // if fileName.folders[folderIndex] == "reports" || fileName.folders[folderIndex] == "scripts" {
-         //   folderIndex -= 1
-        // }
-        let title = AppPrefs.shared.idFolderFrom(url: fileURL, below: realmURL)
-        let titleOK = fileNote.setTitle(title)
-        if !titleOK {
-            print("Special File Note Title could not be set to \(title)")
-        }
-        let linkOK = fileNote.setLink(fileURL.absoluteString)
-        if !linkOK {
-            print("Special File Link could not be set to \(fileURL.absoluteString)")
-        }
-        var tags = "Web Locations"
-        if itemFullPath.hasPrefix(collectionPath) {
-            tags.append(", ")
-            tags.append(collectionTag)
-            tags.append(".scripts")
-        } else {
-            tags.append(", ")
-            tags.append(TagsValue.tagify(fileName.folder))
-        }
-        let tagsOK = fileNote.setTags(tags)
-        if !tagsOK {
-            print("Special File Note Tags could not be set to \(tags)")
-        }
-        fileNote.identify()
-        let (addedNote, _) = realmIO.addNote(newNote: fileNote)
-        if addedNote == nil {
-            print("Special File Note titled \(fileNote.title.value) could not be added")
-        }
-        if titleOK && linkOK && tagsOK && (addedNote != nil) { return }
-        logError("Couldn't record Special File Project file at \(itemFullPath)")
+        addNote(itemFullPath: itemFullPath, category: "Web Locations")
     }
     
     /// Add the text file to the Realm Collection.
     func textFileFound(folderPath: String, realm: Realm, itemFullPath: String) {
-        let tfURL = URL(fileURLWithPath: itemFullPath)
-        let tfNote = Note(collection: realmCollection!)
-        let title = AppPrefs.shared.idFolderFrom(url: tfURL, below: realmURL)
+        addNote(itemFullPath: itemFullPath, category: "Text Files", setBody: true, readmeCandidate: true)
+    }
+    
+    func addNote(itemFullPath: String, category: String, setBody: Bool = false, readmeCandidate: Bool = false) {
         
-        // Set the title of the note.
-        let titleOK = tfNote.setTitle(title)
+        let itemURL = URL(fileURLWithPath: itemFullPath)
+        
+        let newNote = Note(collection: realmCollection!)
+        let itemFileName = FileName(itemFullPath)
+
+        var folderIndex = itemFileName.folders.count - 1
+        if itemFileName.folders[folderIndex] == "reports" || itemFileName.folders[folderIndex] == "scripts" {
+            folderIndex -= 1
+        }
+        let itemTitle = AppPrefs.shared.idFolderFrom(url: itemURL, below: realmURL)
+        
+        let titleOK = newNote.setTitle(itemTitle)
         if !titleOK {
-            print("Text File Note Title could not be set to \(title)")
+            logError("Title could not be set to \(itemTitle)")
         }
-        
-        // Set the link for the note.
-        let linkOK = tfNote.setLink(tfURL.absoluteString)
+        let linkOK = newNote.setLink(itemURL.absoluteString)
         if !linkOK {
-            print("Text File Link could not be set to \(tfURL.absoluteString)")
+            logError("Link could not be set to \(itemURL.absoluteString)")
         }
-        // Set the tags for the note.
-        let tags = "Text Files"
-        let tagsOK = tfNote.setTags(tags)
+        var tags = category
+        if itemFullPath.hasPrefix(collectionPath) {
+            tags.append(", ")
+            tags.append(collectionTag)
+            tags.append(".\(category.lowercased())")
+        } else {
+            tags.append(", ")
+            tags.append(TagsValue.tagify(itemFileName.folder))
+        }
+        let tagsOK = newNote.setTags(tags)
         if !tagsOK {
-            print("Text File Note Tags could not be set to \(tags)")
+            logError("Tags could not be set to \(tags)")
         }
         
         // Set the body of the note.
-        var bodyOK = false
-        do {
-            let body = try String(contentsOf: tfURL)
-            bodyOK = tfNote.setBody(body)
-            if !bodyOK {
-                print("Text File Note Body could not be set to \(body)")
+        if setBody {
+            var bodyOK = false
+            do {
+                let body = try String(contentsOf: itemURL)
+                bodyOK = newNote.setBody(body)
+                if !bodyOK {
+                    logError("Note Body could not be set to \(body)")
+                }
+            } catch {
+                logError("Couldn't read Text File Project file at \(itemFullPath)")
             }
-        } catch {
-            logError("Couldn't read Text File Project file at \(itemFullPath)")
         }
         
         // Now stash the note into memory.
-        tfNote.identify()
-        let (addedNote, _) = realmIO.addNote(newNote: tfNote)
+        newNote.identify()
+        let (addedNote, _) = realmIO.addNote(newNote: newNote)
         if addedNote == nil {
-            print("Text File Note titled \(tfNote.title.value) could not be added")
+            logError("Note titled \(newNote.title.value) could not be added")
+        } else {
+            if readmeCandidate && itemFileName.baseLower.contains("readme") {
+                readmeNote = addedNote
+            }
         }
-        if titleOK && linkOK && tagsOK && bodyOK && (addedNote != nil) { return }
-        
-        // Log an error if any occurred.
-        logError("Couldn't record Text File Project file at \(itemFullPath)")
     }
     
     /// Send an error message to the log.

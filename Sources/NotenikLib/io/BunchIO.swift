@@ -396,6 +396,15 @@ class BunchIO: NotenikIO, RowConsumer  {
         bunch!.registerComboValue(comboDef: comboDef, value: value)
     }
     
+    /// Select the given note and return its index, if it can be found in the sorted list, using its current sort key.
+    ///
+    /// - Parameter note: The note we're looking for.
+    /// - Returns: The note as it was found in the list, along with its position.
+    ///            If not found, return nil and -1.
+    func selectNote(note: Note) -> (Note?, NotePosition) {
+        return bunch!.selectNote(note)
+    }
+    
     /// Select the note at the given position in the sorted list.
     ///
     /// - Parameter index: An index value pointing to a position in the list.
