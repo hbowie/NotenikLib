@@ -57,6 +57,7 @@ public class DisplayParms {
             cssLinkToFile = true
             cssString = NotenikConstants.cssFolderName + "/" + collection.selCSSfile + ".css"
         } else {
+            cssLinkToFile = false
             setCSS(useFirst: collection.displayCSS, useSecond: DisplayPrefs.shared.displayCSS)
         }
         displayTemplate = collection.displayTemplate

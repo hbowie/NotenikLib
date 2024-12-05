@@ -656,7 +656,22 @@ public class TemplateUtil {
         var i = str.startIndex
         while i < str.endIndex {
             let char = str[i]
-            if lookingForStartVar && str.indexedEquals(index: i, str2: startVar) {
+            if char == "\\" && str.indexedEquals(index: i, str2: "\\=") {
+                out.line.append("=")
+                i = str.index(i, offsetBy: 2)
+            } else if char == "\\" && str.indexedEquals(index: i, str2: "\\$") {
+                out.line.append("$")
+                i = str.index(i, offsetBy: 2)
+            } else if char == "\\" && str.indexedEquals(index: i, str2: "\\<") {
+                out.line.append("<")
+                i = str.index(i, offsetBy: 2)
+            } else if char == "\\" && str.indexedEquals(index: i, str2: "\\>") {
+                out.line.append(">")
+                i = str.index(i, offsetBy: 2)
+            } else if char == "\\" && str.indexedEquals(index: i, str2: "\\?") {
+                out.line.append("?")
+                i = str.index(i, offsetBy: 2)
+            } else if lookingForStartVar && str.indexedEquals(index: i, str2: startVar) {
                 startPastDelim = str.index(i, offsetBy: startVar.count)
                 i = startPastDelim
                 lookingForStartVar = false

@@ -141,6 +141,15 @@ public class ResourceLibrary: Equatable {
     //
     // -----------------------------------------------------------
     
+    public func checkStatus(type: ResourceType) {
+        switch type {
+        case .cssFolder:
+            cssFolder.checkStatus()
+        default:
+            return
+        }
+    }
+    
     public func hasAvailable(type: ResourceType) -> Bool {
         switch type {
         case .alias:

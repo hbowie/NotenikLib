@@ -1450,8 +1450,6 @@ public class FileIO: NotenikIO, RowConsumer {
     /// Load A list of available reports from the reports folder.
     public func loadCSSfiles() {
         
-        print("FileIO.loadCSSfiles")
-        
         collection!.cssFiles = []
         
         guard let lib = collection?.lib else { return }
@@ -1459,16 +1457,11 @@ public class FileIO: NotenikIO, RowConsumer {
             return
         }
         
-        print("  - css folder found")
-        
         var selCSSfileFound = false
         
         guard let contents = lib.getContents(type: .cssFolder) else { return }
         
-        print("  - folder contains \(contents.count) items")
-        
         for content in contents {
-            print("    - item named \(content.fileName)")
             guard content.isAvailable else { continue }
             guard !content.fileName.starts(with: ".") else { continue }
             guard content.extLower == "css" else { continue }
