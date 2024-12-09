@@ -50,9 +50,6 @@ public class DisplayParms {
     
     /// Set various values that are taken from metadata about the Collection.
     public func setFrom(collection: NoteCollection) {
-        // print("DisplayParms.setFrom collection")
-        // print("  - selected CSS file = '\(collection.selCSSfile)'")
-        // print("  - collection displayCSS = '\(collection.displayCSS)'")
         if !collection.selCSSfile.isEmpty {
             cssLinkToFile = true
             cssString = NotenikConstants.cssFolderName + "/" + collection.selCSSfile + ".css"
@@ -174,8 +171,12 @@ public class DisplayParms {
         } else {
             idToUse = idBasis
         }
+        var text = note.noteID.text
+        if note.noteID.seqBeforeTitle {
+            text = note.title.value
+        }
         let wikiLink = wikiLinks.assembleWikiLink(idBasis: idToUse)
-        markedup.link(text: note.noteID.text,
+        markedup.link(text: text,
                       path: wikiLink,
                       klass: klass)
     }

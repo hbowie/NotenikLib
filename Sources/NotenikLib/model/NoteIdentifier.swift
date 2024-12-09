@@ -28,11 +28,18 @@ public class NoteIdentifier {
     
     public func identify(note: Note, noteID: NoteIdentification) {
         
+        noteID.seqBeforeTitle = false
+        
+        var seqFieldFirst = false
+        
         // Get the auxiliary field value, if one has been identified.
         var aux = ""
         if !noteIdAuxField.isEmpty {
             if let field = note.getField(label: noteIdAuxField) {
                 aux = field.value.valueToWrite()
+                if field.def.fieldType.typeString == NotenikConstants.seqCommon {
+                    seqFieldFirst = true
+                }
             }
         }
         
@@ -71,10 +78,15 @@ public class NoteIdentifier {
         case .titleAfterAux:
             if aux.isEmpty {
                 noteID.text = note.title.value
-            } else if textIdSep.isEmpty {
-                noteID.text = aux + " " + note.title.value
             } else {
-                noteID.text = aux + textIdSep + note.title.value
+                if textIdSep.isEmpty {
+                    noteID.text = aux + " " + note.title.value
+                } else {
+                    noteID.text = aux + textIdSep + note.title.value
+                }
+                if seqFieldFirst {
+                    noteID.seqBeforeTitle = true
+                }
             }
         case .auxOnly:
             noteID.text = aux

@@ -34,6 +34,7 @@ public class NoteIdentification: Identifiable, Comparable, Equatable {
     var mmdMetaStartLine = ""
     var mmdMetaEndLine = ""
     
+    var seqBeforeTitle   = false
     var basis            = ""
     var text             = ""
     
