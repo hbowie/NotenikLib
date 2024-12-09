@@ -333,7 +333,7 @@ public class NoteDisplay {
                     bottomHTML.startParagraph()
                 }
                 bottomHTML.append("Next: ")
-                bottomHTML.link(text: nextText, path: parms.wikiLinks.assembleWikiLink(idBasis: nextBasis), klass: Markedup.htmlClassNavLink)
+                parms.streamlinedTitleWithLink(markedup: bottomHTML, note: nextNote!, klass: Markedup.htmlClassNavLink)
                 bottomHTML.finishParagraph()
                 if !skipIdBasis.isEmpty {
                     bottomHTML.startParagraph(klass: "float-right")

@@ -64,6 +64,7 @@ public class TemplateUtil {
     var endVar       = ">>"
     var startMods    = "&"
     
+    var globalsCollection: NoteCollection = NoteCollection()
     var globals: Note
     
     var outputStage = OutputStage.front
@@ -103,7 +104,6 @@ public class TemplateUtil {
     
     /// Initialize things.
     public init() {
-        let globalsCollection = NoteCollection()
         globals = Note(collection: globalsCollection)
         xmlConverter.addXML()
         emailSingleQuoteConverter.addEmailQuotes()

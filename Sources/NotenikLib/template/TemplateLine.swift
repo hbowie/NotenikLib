@@ -138,6 +138,8 @@ class TemplateLine {
         switch command! {
         case .allFields:
             processAllFieldsCommand(note: note)
+        case .clearGlobals:
+            processClearGlobalsCommand()
         case .copycss:
             processCopyCssCommand()
         case .copyfile:
@@ -185,6 +187,10 @@ class TemplateLine {
     
     func processAllFieldsCommand(note: Note) {
         util.allFieldsToHTML(note: note)
+    }
+    
+    func processClearGlobalsCommand() {
+        util.globals = Note(collection: util.globalsCollection)
     }
     
     func processCopyCssCommand() {

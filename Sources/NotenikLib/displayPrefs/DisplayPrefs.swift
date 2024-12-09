@@ -133,6 +133,10 @@ public class DisplayPrefs {
         tempCSS.append("""
         /* The following CSS comes from the displayCSS method of the
            DisplayPrefs class within Notenik.                        */
+        :root {
+            --mono-font: Consolas, Menlo, Monaco, "Andale Mono", "Ubuntu Mono", monospace;
+            --standard-border-radius: 5px;
+        }
         body {
           tab-size: 4;
           margin: 1em;
@@ -151,6 +155,13 @@ public class DisplayPrefs {
         p {
             margin-top: 0.2em;
             margin-bottom: 0.7em;
+        }
+        /* Consolidate box styling */
+        aside, details, pre, progress {
+          background-color: var(--accent-bg);
+          border: 1px solid var(--border);
+          border-radius: var(--standard-border-radius);
+          margin-bottom: 1rem;
         }
         blockquote {
           border-left: 0.4em solid #999;
@@ -415,7 +426,25 @@ public class DisplayPrefs {
             margin-bottom: 0.5em;
         }
         pre {
-            overflow-x: auto;
+            
+        }
+        code {
+            font-family: var(--mono-font);
+            color: var(--code-color);
+        }
+        pre {
+          padding: 1rem 1.4rem;
+          max-width: 100%;
+          overflow-x: auto;
+          color: var(--preformatted-color);
+        }
+
+        /* Fix embedded code within pre */
+        pre code {
+          color: var(--preformatted-color);
+          background: none;
+          margin: 0;
+          padding: 0;
         }
         
         """)
@@ -506,6 +535,10 @@ public class DisplayPrefs {
             --link-visited-color: Purple;
             --link-active-color: Red;
             --background-active-color: #e0e0e0;
+            --code-color: #d81b60;
+            --preformatted-color: #444;
+            --accent-bg: #f5f7ff;
+            --border: #898EA4;
             --highlight-color: Gainsboro
         }
         a.ext-link::after {
@@ -538,6 +571,9 @@ public class DisplayPrefs {
             --link-visited-color: #cab7ff;
             --link-active-color: #94d8ff;
             --background-active-color: #363636;
+            --code-color: #f06292;
+            --preformatted-color: #ccc;
+            --accent-bg: #2b2b2b;
             --highlight-color: DimGray
           }
             a.ext-link::after {
