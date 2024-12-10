@@ -447,6 +447,15 @@ public class DisplayPrefs {
           padding: 0;
         }
         
+        /* Classes for notices */
+        .notice {
+          background: var(--accent-bg);
+          border: 2px solid var(--border);
+          border-radius: var(--standard-border-radius);
+          padding: 1.5rem;
+          margin: 2rem 0;
+        }
+        
         """)
         tempCSS.append(buildHeadingsCSS())
         
@@ -539,7 +548,9 @@ public class DisplayPrefs {
             --preformatted-color: #444;
             --accent-bg: #f5f7ff;
             --border: #898EA4;
-            --highlight-color: Gainsboro
+            --highlight-color: Gainsboro;
+            --bg: #fff;
+            --accent-bg: #f5f7ff;
         }
         a.ext-link::after {
             content: "";
@@ -574,7 +585,9 @@ public class DisplayPrefs {
             --code-color: #f06292;
             --preformatted-color: #ccc;
             --accent-bg: #2b2b2b;
-            --highlight-color: DimGray
+            --highlight-color: DimGray;
+            --bg: #212121;
+            --accent-bg: #2b2b2b;
           }
             a.ext-link::after {
                 content: "";
