@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 7/6/21.
 //
-//  Copyright © 2021 - 2023 Herb Bowie (https://hbowie.net)
+//  Copyright © 2021 - 2024 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -489,7 +489,7 @@ public class WebBookMaker {
                                                       includingPropertiesForKeys: nil,
                                                       options: .skipsHiddenFiles)
             for entry in contents {
-                let toName = entry.lastPathComponent + "." + entry.pathExtension
+                let toName = entry.lastPathComponent
                 let img = ImageFile(originalLocation: entry, toName: toName)
                 images.append(img)
             }
@@ -567,7 +567,7 @@ public class WebBookMaker {
             levelText = "2"
             levelInt = 2
         }
-        let fileName = StringUtils.toCommonFileName(title)
+        let fileName = note.noteID.commonFileName
         
         if bookTitle.isEmpty {
             bookTitle = title

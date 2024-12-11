@@ -157,7 +157,7 @@ public class DisplayPrefs {
             margin-bottom: 0.7em;
         }
         /* Consolidate box styling */
-        aside, details, pre, progress {
+        aside, pre, progress {
           background-color: var(--accent-bg);
           border: 1px solid var(--border);
           border-radius: var(--standard-border-radius);
