@@ -196,7 +196,7 @@ public class AppPrefs {
         }
     }
     
-    func resetDefaults() {
+    public func resetDefaults() {
         confirmDeletes = true
         tipsAtStartup = true
         parentRealmParent = ""
@@ -205,6 +205,7 @@ public class AppPrefs {
         favoritesRows = 32
         favoritesColumnWidth = "250px"
         markdownParser = "notenik"
+        essentialURL = nil
     }
     
     func loadDefaults() {

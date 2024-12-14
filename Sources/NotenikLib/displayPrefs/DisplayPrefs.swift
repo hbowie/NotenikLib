@@ -163,6 +163,25 @@ public class DisplayPrefs {
           border-radius: var(--standard-border-radius);
           margin-bottom: 1rem;
         }
+        aside {
+          font-size: 1rem;
+          width: 30%;
+          padding: 0 15px;
+          margin-inline-start: 15px;
+          float: right;
+        }
+        *[dir="rtl"] aside {
+          float: left;
+        }
+
+        /* Make aside full-width on mobile */
+        @media only screen and (max-width: 720px) {
+          aside {
+            width: 100%;
+            float: none;
+            margin-inline-start: 0;
+          }
+        }
         blockquote {
           border-left: 0.4em solid #999;
           margin-left: 0;

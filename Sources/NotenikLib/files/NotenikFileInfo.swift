@@ -26,10 +26,26 @@ public class NotenikFileInfo {
     public var extLower = ""
     public var fileName = ""
     public var folder = ""
+    var infoFile = false
+    var infoParent = false
     
     public init(path1: String, path2: String) {
+        
         filePath = FileUtils.joinPaths(path1: path1, path2: path2)
+        
         scanPath()
+        
+        if extLower == "nnk" {
+            if fileName.starts(with: "- project-INFO") {
+                infoParent = true
+            } else if fileName.starts(with: "- INFO") {
+                if fileName.contains("parent") {
+                    infoParent = true
+                } else {
+                    infoFile = true
+                }
+            }
+        }
     }
     
     public var fullFileName: String {
@@ -41,12 +57,11 @@ public class NotenikFileInfo {
     }
     
     public var isInfoFile: Bool {
-        return fullFileName == NotenikConstants.infoFileName
+        return infoFile
     }
     
     public var isInfoParent: Bool {
-        return fullFileName == NotenikConstants.infoParentFileName
-            || fullFileName == NotenikConstants.infoProjectFileName
+        return infoParent
     }
     
     public var isHidden: Bool {

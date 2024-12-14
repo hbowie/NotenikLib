@@ -258,7 +258,6 @@ public class NoteDisplay {
         }
         
         var nextBasis = nextNote!.noteID.getBasis()
-        var nextText  = nextNote!.noteID.text
         var nextLevel = nextNote!.level
         var nextSeq = nextNote!.seq
         var nextDepth = nextNote!.depth
@@ -280,7 +279,6 @@ public class NoteDisplay {
             (nextNote, nextPosition) = skipNonMainPageTypes(startingPosition: nextPosition, startingNote: nextNote, passedIO: io)
             if nextNote != nil && nextPosition.valid {
                 nextBasis = nextNote!.noteID.getBasis()
-                nextText  = nextNote!.noteID.text
                 nextLevel = nextNote!.level
                 nextSeq = nextNote!.seq
                 nextDepth = nextNote!.depth
@@ -296,7 +294,6 @@ public class NoteDisplay {
                 }
             } else {
                 nextBasis = ""
-                nextText  = ""
             }
         }
         
