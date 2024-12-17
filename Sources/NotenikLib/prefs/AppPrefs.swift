@@ -107,6 +107,9 @@ public class AppPrefs {
     let auxLongTextKey = "aux-long-text"
     var _auxLongText = false
     
+    let openInNovaKey = "open-in-nova"
+    var _openInNova = false
+    
     let scriptFolderKey = "script-folder"
     var _scriptFolder = ""
     
@@ -317,6 +320,8 @@ public class AppPrefs {
         
         _auxLongText = defaults.bool(forKey: auxLongTextKey)
         
+        _openInNova = defaults.bool(forKey: openInNovaKey)
+        
         let sf = defaults.string(forKey: scriptFolderKey)
         if sf != nil && !sf!.isEmpty {
             _scriptFolder = sf!
@@ -493,6 +498,16 @@ public class AppPrefs {
         set {
             _auxLongText = newValue
             defaults.set(_auxLongText, forKey: auxLongTextKey)
+        }
+    }
+    
+    public var openInNova: Bool {
+        get {
+            return _openInNova
+        }
+        set {
+            _openInNova = newValue
+            defaults.set(_openInNova, forKey: openInNovaKey)
         }
     }
     

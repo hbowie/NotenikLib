@@ -47,6 +47,15 @@ public class RealmScanner {
         realmCollection = realmIO.openCollection(realm: realm, collectionPath: "", readOnly: true, multiRequests: nil)
         
         if realmCollection != nil {
+            if AppPrefs.shared.openInNova {
+                let novaPath = "nova://open?path=\(path)"
+                addNote(itemFullPath: novaPath,
+                        category: "text editors",
+                        title: "Open in Nova",
+                        filePath: false,
+                        setBody: false,
+                        readmeCandidate: false)
+            }
             scanFolder(folderPath: path, realm: realm, depth: 0)
             realmCollection!.readOnly = true
             realmCollection!.isRealmCollection = true
@@ -179,27 +188,40 @@ public class RealmScanner {
     
     /// Add the script file to the Realm Collection. 
     func scriptFileFound(folderPath: String, realm: Realm, itemFullPath: String) {
-        addNote(itemFullPath: itemFullPath, category: "Scripts")
+        addNote(itemFullPath: itemFullPath, category: "scripts")
     }
     
     /// Add the BBEdit Project  file to the Realm Collection.
     func bbEditProjectFileFound(folderPath: String, realm: Realm, itemFullPath: String) {
-        addNote(itemFullPath: itemFullPath, category: "BBEdit Projects")
+        addNote(itemFullPath: itemFullPath, category: "text editors")
     }
     
     /// Add the Web Location  file to the Realm Collection.
     func webLocationFileFound(folderPath: String, realm: Realm, itemFullPath: String) {
-        addNote(itemFullPath: itemFullPath, category: "Web Locations")
+        addNote(itemFullPath: itemFullPath, category: "web locations")
     }
     
     /// Add the text file to the Realm Collection.
     func textFileFound(folderPath: String, realm: Realm, itemFullPath: String) {
-        addNote(itemFullPath: itemFullPath, category: "Text Files", setBody: true, readmeCandidate: true)
+        addNote(itemFullPath: itemFullPath, category: "text files", setBody: true, readmeCandidate: true)
     }
     
-    func addNote(itemFullPath: String, category: String, setBody: Bool = false, readmeCandidate: Bool = false) {
+    func addNote(itemFullPath: String,
+                 category: String,
+                 title: String? = nil,
+                 filePath: Bool = true,
+                 setBody: Bool = false,
+                 readmeCandidate: Bool = false) {
         
-        let itemURL = URL(fileURLWithPath: itemFullPath)
+        var possibleURL: URL?
+        if filePath {
+            possibleURL = URL(fileURLWithPath: itemFullPath)
+        } else {
+            possibleURL = URL(string: itemFullPath)
+        }
+        guard let itemURL = possibleURL else {
+            return
+        }
         
         let newNote = Note(collection: realmCollection!)
         let itemFileName = FileName(itemFullPath)
@@ -208,12 +230,18 @@ public class RealmScanner {
         if itemFileName.folders[folderIndex] == "reports" || itemFileName.folders[folderIndex] == "scripts" {
             folderIndex -= 1
         }
-        let itemTitle = AppPrefs.shared.idFolderFrom(url: itemURL, below: realmURL)
-        
-        let titleOK = newNote.setTitle(itemTitle)
-        if !titleOK {
-            logError("Title could not be set to \(itemTitle)")
+        var titleOK = false
+        if title != nil && !title!.isEmpty {
+            titleOK = newNote.setTitle(title!)
         }
+        if !titleOK {
+            let itemTitle = AppPrefs.shared.idFolderFrom(url: itemURL, below: realmURL)
+            titleOK = newNote.setTitle(itemTitle)
+        }
+        if !titleOK {
+            logError("Title could not be set")
+        }
+        
         let linkOK = newNote.setLink(itemURL.absoluteString)
         if !linkOK {
             logError("Link could not be set to \(itemURL.absoluteString)")

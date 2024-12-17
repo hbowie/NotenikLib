@@ -156,6 +156,10 @@ public class DisplayPrefs {
             margin-top: 0.2em;
             margin-bottom: 0.7em;
         }
+        body > footer {
+            margin-top: 4rem;
+            text-align: center;
+        }
         /* Consolidate box styling */
         aside, pre, progress {
           background-color: var(--accent-bg);
@@ -336,6 +340,7 @@ public class DisplayPrefs {
             text-align: center;
         }
         
+        /*
         nav {
             float: right;
             font-style: italic;
@@ -353,6 +358,7 @@ public class DisplayPrefs {
             text-decoration: none;
             border-bottom: none;
         }
+        */
         
         nav ul li a.wiki-link {
             text-decoration: none;
@@ -473,6 +479,86 @@ public class DisplayPrefs {
           border-radius: var(--standard-border-radius);
           padding: 1.5rem;
           margin: 2rem 0;
+        }
+        
+        /* Make the header bg full width, but the content inline with body */
+        body > header {
+          background-color: var(--accent-bg);
+          border-bottom: 1px solid var(--border);
+          text-align: center;
+          padding: 0 0.5rem 2rem 0.5rem;
+          grid-column: 1 / -1;
+        }
+
+        body > header > *:only-child {
+          margin-block-start: 2rem;
+        }
+
+        body > header h1 {
+          max-width: 1200px;
+          margin: 1rem auto;
+        }
+
+        body > header p {
+          max-width: 40rem;
+          margin: 1rem auto;
+        }
+        
+        /* Format navigation */
+        header > nav {
+          font-size: 1rem;
+          line-height: 2;
+          padding: 1rem 0 0 0;
+        }
+
+        /* Use flexbox to allow items to wrap, as needed */
+        header > nav ul,
+        header > nav ol {
+          align-content: space-around;
+          align-items: center;
+          display: flex;
+          flex-direction: row;
+          flex-wrap: wrap;
+          justify-content: center;
+          list-style-type: none;
+          margin: 0;
+          padding: 0;
+        }
+
+        /* List items are inline elements, make them behave more like blocks */
+        header > nav ul li,
+        header > nav ol li {
+          display: inline-block;
+        }
+
+        header > nav a,
+        header > nav a:visited {
+          margin: 0 0.5rem 1rem 0.5rem;
+          border: 1px solid var(--border);
+          border-radius: var(--standard-border-radius);
+          color: var(--text);
+          display: inline-block;
+          padding: 0.1rem 1rem;
+          text-decoration: none;
+        }
+
+        header > nav a:hover,
+        header > nav a.current,
+        header > nav a[aria-current="page"],
+        header > nav a[aria-current="true"] {
+          border-color: var(--accent);
+          color: var(--accent);
+          cursor: pointer;
+        }
+
+        /* Reduce nav side on mobile */
+        @media only screen and (max-width: 720px) {
+          header > nav a {
+            border: none;
+            padding: 0;
+            text-decoration: underline;
+            line-height: 1;
+          }
         }
         
         """)
