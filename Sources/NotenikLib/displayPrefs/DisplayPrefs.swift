@@ -336,36 +336,12 @@ public class DisplayPrefs {
             border-bottom: none;
         }
         
-        header {
-            text-align: center;
-        }
-        
-        /*
-        nav {
-            float: right;
-            font-style: italic;
-        }
-        
-        nav ul {
-            margin-top: 0;
-        }
-        
-        nav ul li {
-            display: inline;
-        }
-        
-        nav ul li a {
-            text-decoration: none;
-            border-bottom: none;
-        }
-        */
-        
         nav ul li a.wiki-link {
             text-decoration: none;
             border-bottom: none;
         }
         
-        footer {
+        footer.nnk-footer {
             clear: both;
             border-top: 1px dashed var(--text-color);
             margin-top: 1em;
@@ -374,7 +350,7 @@ public class DisplayPrefs {
             text-align: right;
         }
         
-        footer p {
+        footer.nnk-footer p {
             padding-top: 0.5em;
         }
         
@@ -504,6 +480,14 @@ public class DisplayPrefs {
           margin: 1rem auto;
         }
         
+        header.nnk-header {
+            background-color: var(--background-color);
+            text-align: center;
+            border-bottom: none;
+            max-width: none;
+            padding: 0 0 0 0;
+        }
+        
         /* Format navigation */
         header > nav {
           font-size: 1rem;
@@ -559,6 +543,24 @@ public class DisplayPrefs {
             text-decoration: underline;
             line-height: 1;
           }
+        }
+        
+        nav.nnk-nav {
+            float: right;
+            font-style: italic;
+        }
+        
+        nav.nnk-nav ul {
+            margin-top: 0;
+        }
+        
+        nav.nnk-nav ul li {
+            display: inline;
+        }
+        
+        nav.nnk-nav ul li a {
+            text-decoration: none;
+            border-bottom: none;
         }
         
         """)

@@ -110,11 +110,11 @@ public class NoteFieldsToHTML {
                 // && note.klass.value != NotenikConstants.titleKlass
                 {
                 if !headerContents.isEmpty {
-                    code.header(headerContents)
+                    code.header(headerContents, klass: "nnk-header")
                 }
                 let navCode = collection.mkdownCommandList.getCodeFor(MkdownConstants.navCmd)
                 if !navCode.isEmpty && note.klass.value != NotenikConstants.titleKlass {
-                    code.nav(navCode)
+                    code.nav(navCode, klass: "nnk-nav")
                 }
             }
         }
@@ -233,7 +233,7 @@ public class NoteFieldsToHTML {
         if !parms.epub3 {
             let footerCode = collection.mkdownCommandList.getCodeFor(MkdownConstants.footerCmd)
             if note.includeInBook(epub: parms.epub3) && !footerCode.isEmpty {
-                code.footer(footerCode)
+                code.footer(footerCode, klass: "nnk-footer")
             }
         }
         
@@ -276,11 +276,11 @@ public class NoteFieldsToHTML {
             // && note.klass.value != NotenikConstants.titleKlass
             {
             if !headerContents.isEmpty {
-                code.header(headerContents)
+                code.header(headerContents, klass: "nnk-header")
             }
             let navCode = collection.mkdownCommandList.getCodeFor(MkdownConstants.navCmd)
             if !navCode.isEmpty && note.klass.value != NotenikConstants.titleKlass {
-                code.nav(navCode)
+                code.nav(navCode, klass: "nnk-nav")
             }
         }
         
@@ -336,7 +336,7 @@ public class NoteFieldsToHTML {
         
         let footerCode = collection.mkdownCommandList.getCodeFor(MkdownConstants.footerCmd)
         if note.includeInBook(epub: parms.epub3) && !footerCode.isEmpty {
-            code.footer(footerCode)
+            code.footer(footerCode, klass: "nnk-footer")
         }
         
         // Finish off the entire document.
