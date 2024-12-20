@@ -457,6 +457,20 @@ public class DisplayPrefs {
           margin: 2rem 0;
         }
         
+        article, fieldset, dialog {
+          border: 1px solid var(--border);
+          padding: 1rem;
+          border-radius: var(--standard-border-radius);
+          margin-bottom: 1rem;
+        }
+
+        article h2:first-child,
+        section h2:first-child,
+        article h3:first-child,
+        section h3:first-child {
+          margin-top: 1rem;
+        }
+        
         /* Make the header bg full width, but the content inline with body */
         body > header {
           background-color: var(--accent-bg);
