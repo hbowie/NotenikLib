@@ -56,6 +56,14 @@ public class RealmScanner {
                         setBody: false,
                         readmeCandidate: false)
             }
+            
+            addNote(itemFullPath: "file://" + path,
+                    category: "finder",
+                    title: "Open in Finder",
+                    filePath: false,
+                    setBody: false,
+                    readmeCandidate: false)
+                    
             scanFolder(folderPath: path, realm: realm, depth: 0)
             realmCollection!.readOnly = true
             realmCollection!.isRealmCollection = true
@@ -106,7 +114,7 @@ public class RealmScanner {
                 } else if fileInfo.isScript {
                     scriptFileFound(folderPath: folderPath, realm: realm, itemFullPath: fileInfo.filePath)
                 } else if fileInfo.isBBEditProject {
-                    bbEditProjectFileFound(folderPath: folderPath, realm: realm, itemFullPath: fileInfo.filePath)
+                    bbEditProjectFileFound(folderPath: folderPath, realm: realm, itemFullPath: fileInfo.filePath, depth: depth)
                 } else if fileInfo.isWebLocation {
                     webLocationFileFound(folderPath: folderPath, realm: realm, itemFullPath: fileInfo.filePath)
                 } else if depth == 0 && fileInfo.isPlainText {
@@ -192,8 +200,17 @@ public class RealmScanner {
     }
     
     /// Add the BBEdit Project  file to the Realm Collection.
-    func bbEditProjectFileFound(folderPath: String, realm: Realm, itemFullPath: String) {
-        addNote(itemFullPath: itemFullPath, category: "text editors")
+    func bbEditProjectFileFound(folderPath: String, realm: Realm, itemFullPath: String, depth: Int) {
+        if depth == 0 {
+            addNote(itemFullPath: itemFullPath,
+                    category: "text editors",
+                    title: "Open in BBEdit",
+                    filePath: true,
+                    setBody: false,
+                    readmeCandidate: false)
+        } else {
+            addNote(itemFullPath: itemFullPath, category: "text editors")
+        }
     }
     
     /// Add the Web Location  file to the Realm Collection.

@@ -49,6 +49,10 @@ public class DelimitedReader: RowImporter {
         self.consumer = consumer
     }
     
+    public func read(str: String) {
+        self.stringToRead = str
+        scanString()
+    }
     
     /// Read the file and break it down into fields and rows, returning each
     /// to the consumer, one at a time.
