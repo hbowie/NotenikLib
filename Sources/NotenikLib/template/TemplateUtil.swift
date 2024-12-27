@@ -1293,7 +1293,7 @@ public class TemplateUtil {
 
         var value: String?
         
-        value = replaceSpecialVarWithValue(inLine: inLine, varNameCommon: varName)
+        value = replaceSpecialVarWithValue(inLine: inLine, varNameCommon: varName, note: note)
         
         if value == nil {
             value = replaceVarWithGlobalValue(varName: varName, fromNote: globals)
@@ -1312,7 +1312,7 @@ public class TemplateUtil {
         return value
     }
     
-    func replaceSpecialVarWithValue(inLine: LineWithBreak, varNameCommon: String) -> String? {
+    func replaceSpecialVarWithValue(inLine: LineWithBreak, varNameCommon: String, note: Note) -> String? {
         switch varNameCommon {
         case "nobr":
             inLine.lineBreak = false
@@ -1333,6 +1333,8 @@ public class TemplateUtil {
             } else {
                 return workspace!.exportPath
             }
+        case "notefilename":
+            return note.noteID.getBaseDotExtForWrite()
         case "parentfolder":
             return dataFileName.folder
         case "today":
