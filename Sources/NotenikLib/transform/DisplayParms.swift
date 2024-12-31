@@ -38,6 +38,7 @@ public class DisplayParms {
     public var includedList = ""
     public var checkBoxMessageHandlerName = ""
     public var inlineHashtags = false
+    public var addins: [String] = []
     
     public init() {
         
@@ -66,6 +67,9 @@ public class DisplayParms {
         extLinksOpenInNewWindows = collection.extLinksOpenInNewWindows
         if collection.hashTagsOption == .inlineHashtags {
             inlineHashtags = true
+        }
+        for addInURL in collection.addins {
+            addins.append(NotenikConstants.addinsFolderName + "/" + addInURL.lastPathComponent)
         }
     }
     

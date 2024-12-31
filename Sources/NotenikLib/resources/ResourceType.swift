@@ -14,6 +14,7 @@ import Foundation
 
 /// Identifies the various types of resources available within a particular Notenik Collection.
 public enum ResourceType {
+    case addinsFolder
     case alias
     case attachment
     case attachments

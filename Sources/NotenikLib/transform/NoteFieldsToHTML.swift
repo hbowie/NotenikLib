@@ -93,7 +93,8 @@ public class NoteFieldsToHTML {
                       withCSS: note.getCombinedCSS(cssString: parms.cssString),
                       linkToFile: parms.cssLinkToFile,
                       withJS: mkdownOptions.getHtmlScript(),
-                      epub3: parms.epub3)
+                      epub3: parms.epub3,
+                      addins: parms.addins)
         
         // See if we need to start a list of included children.
         startListOfChildren(code: code)
@@ -263,7 +264,8 @@ public class NoteFieldsToHTML {
                       withCSS: note.getCombinedCSS(cssString: parms.cssString),
                       linkToFile: parms.cssLinkToFile,
                       withJS: mkdownOptions.getHtmlScript(),
-                      epub3: parms.epub3)
+                      epub3: parms.epub3,
+                      addins: parms.addins)
         
         var headerContents = ""
         if note.treatAsTitlePage {

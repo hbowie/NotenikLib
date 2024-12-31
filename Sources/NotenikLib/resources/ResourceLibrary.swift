@@ -53,6 +53,7 @@ public class ResourceLibrary: Equatable {
     var klassFolder       = ResourceFileSys()
     var exportFolder      = ResourceFileSys()
     var cssFolder         = ResourceFileSys()
+    var addinsFolder      = ResourceFileSys()
     
     var infoCollection:   NoteCollection?
     
@@ -81,6 +82,7 @@ public class ResourceLibrary: Equatable {
         klassFolder     = ResourceFileSys()
         exportFolder    = ResourceFileSys()
         cssFolder       = ResourceFileSys()
+        addinsFolder    = ResourceFileSys()
         
         infoCollection  = NoteCollection()
     }
@@ -143,6 +145,8 @@ public class ResourceLibrary: Equatable {
     
     public func checkStatus(type: ResourceType) {
         switch type {
+        case .addinsFolder:
+            addinsFolder.checkStatus()
         case .cssFolder:
             cssFolder.checkStatus()
         default:
@@ -152,6 +156,8 @@ public class ResourceLibrary: Equatable {
     
     public func hasAvailable(type: ResourceType) -> Bool {
         switch type {
+        case .addinsFolder:
+            return addinsFolder.isAvailable
         case .alias:
             return aliasFile.isAvailable
         case .attachments:
@@ -197,6 +203,8 @@ public class ResourceLibrary: Equatable {
     
     public func getPath(type: ResourceType) -> String {
         switch type {
+        case .addinsFolder:
+            return addinsFolder.actualPath
         case .alias:
             return aliasFile.actualPath
         case .attachments:
@@ -242,6 +250,8 @@ public class ResourceLibrary: Equatable {
     
     public func getURL(type: ResourceType) -> URL? {
         switch type {
+        case .addinsFolder:
+            return addinsFolder.url
         case .alias:
             return aliasFile.url
         case .attachments:
@@ -287,6 +297,8 @@ public class ResourceLibrary: Equatable {
     
     public func getResource(type: ResourceType) -> ResourceFileSys {
         switch type {
+        case .addinsFolder:
+            return addinsFolder
         case .alias:
             return aliasFile
         case .attachments:
@@ -332,6 +344,13 @@ public class ResourceLibrary: Equatable {
     
     public func ensureResource(type: ResourceType) -> ResourceFileSys {
         switch type {
+        case .addinsFolder:
+            if addinsFolder.isAvailable {
+                return addinsFolder
+            }
+            addinsFolder = ResourceFileSys(parent: notesFolder, fileName: NotenikConstants.addinsFolderName, type: .addinsFolder)
+            _ = addinsFolder.ensureExistence()
+            return addinsFolder
         case .attachments:
             if attachmentsFolder.isAvailable {
                 return attachmentsFolder
@@ -387,6 +406,8 @@ public class ResourceLibrary: Equatable {
     
     func getContents(type: ResourceType) -> [ResourceFileSys]? {
         switch type {
+        case .addinsFolder:
+            return addinsFolder.getResourceContents()
         case .attachments:
             return attachmentsFolder.getResourceContents()
         case .cssFolder:
@@ -677,6 +698,9 @@ public class ResourceLibrary: Equatable {
         
         // Set the location for a possible css folder.
         cssFolder = ResourceFileSys(parent: notesFolder, fileName: NotenikConstants.cssFolderName, type: .cssFolder)
+        
+        // Set the location for a possible add-ins folder.
+        addinsFolder = ResourceFileSys(parent: notesFolder, fileName: NotenikConstants.addinsFolderName, type: .addinsFolder)
         
         // See if we can find a template file.
         templateFile = ResourceFileSys(parent: notenikFiles, fileName: NotenikConstants.templateFileName + ".txt")

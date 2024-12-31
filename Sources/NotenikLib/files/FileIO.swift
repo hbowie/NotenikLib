@@ -459,6 +459,7 @@ public class FileIO: NotenikIO, RowConsumer {
         loadExportScripts()
         loadKlassDefs()
         loadCSSfiles()
+        loadAddins()
         
         let notesContents = collection!.lib.notesFolder.getResourceContents(preferredNoteExt: collection!.preferredExt)
         guard notesContents != nil else { return nil }
@@ -1443,11 +1444,11 @@ public class FileIO: NotenikIO, RowConsumer {
     
     // -----------------------------------------------------------
     //
-    // MARK: Load CSS FIles.
+    // MARK: Load CSS Files.
     //
     // -----------------------------------------------------------
     
-    /// Load A list of available reports from the reports folder.
+    /// Load A list of available CSS files from the css folder.
     public func loadCSSfiles() {
         
         collection!.cssFiles = []
@@ -1474,6 +1475,33 @@ public class FileIO: NotenikIO, RowConsumer {
         logInfo("\(collection!.cssFiles.count) CSS file(s) Loaded from the css folder")
         if !selCSSfileFound {
             collection!.selCSSfile = ""
+        }
+    }
+    
+    // -----------------------------------------------------------
+    //
+    // MARK: Load CSS and javascript Files from the add-ins folder.
+    //
+    // -----------------------------------------------------------
+    
+    /// Load A list of available CSS files from the css folder.
+    public func loadAddins() {
+        
+        collection!.addins = []
+        
+        guard let lib = collection?.lib else { return }
+        guard lib.hasAvailable(type: .addinsFolder) else {
+            return
+        }
+        
+        guard let contents = lib.getContents(type: .addinsFolder) else { return }
+        
+        for content in contents {
+            guard content.isAvailable else { continue }
+            guard !content.fileName.starts(with: ".") else { continue }
+            if let url = content.url {
+                collection!.addins.append(url)
+            }
         }
     }
     

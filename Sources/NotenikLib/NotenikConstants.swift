@@ -320,6 +320,8 @@ public struct NotenikConstants {
     //
     //-------------------------------------------------------------
     
+    public static let addinsFolderName  = "add-ins"
+    
     public static let aliasFileName     = "alias.txt"
     
     public static let displayCSSFileName = "display.css"

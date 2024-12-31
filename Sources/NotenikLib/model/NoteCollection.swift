@@ -57,6 +57,7 @@ public class NoteCollection {
     public  var displayCSS = ""
     public  var cssFiles: [String] = []
     public  var selCSSfile = ""
+    public  var addins: [URL] = []
     
     public  var mathJax = false
     public  var imgLocal = false
