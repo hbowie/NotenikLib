@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 6/3/19.
-//  Copyright © 2019 - 2024 Herb Bowie (https://hbowie.net)
+//  Copyright © 2019 - 2025 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -142,7 +142,7 @@ public class TemplateUtil {
     /// Open a new template file.
     ///
     /// - Parameter templateURL: The location of the template file.
-    /// - Returns: True if opened ok, false if errors. 
+    /// - Returns: True if opened ok, false if errors.
     func openTemplate(templateURL: URL) -> Bool {
         
         resetGroupValues()
@@ -192,7 +192,7 @@ public class TemplateUtil {
         }
     }
     
-    /// Close the template. 
+    /// Close the template.
     func closeTemplate() {
         lineReader.close()
         logInfo("\(lineCount) lines read from template file")
@@ -203,11 +203,11 @@ public class TemplateUtil {
     /// - Parameter filePath: The complete path to the desired output file.
     func openOutput(filePath: String, operand2: String = "") {
         closeOutput()
-
+        
         let absFilePath = templateFileName.resolveRelative(path: filePath)
         textOutURL = URL(fileURLWithPath: absFilePath)
         textOutFileName = FileName(absFilePath)
-    
+        
         // If we have a web root, then figure out the relative path up to it
         // for possible later use.
         relativePathToRoot = ""
@@ -224,7 +224,7 @@ public class TemplateUtil {
         } else {
             relativePathToRoot = nil
         }
-
+        
         outputOpen = true
         
         outputOnlyIfNew = (StringUtils.toCommon(operand2) == "ifnew")
@@ -254,7 +254,7 @@ public class TemplateUtil {
         
         var css = ""
         var infoMsgSource = "CSS file named \(collection.selCSSfile)"
-
+        
         if displayParms.cssLinkToFile {
             let cssFilePath = FileUtils.joinPaths(path1: dataFileName.fileNameStr,
                                                   path2: displayParms.cssString)
@@ -281,7 +281,7 @@ public class TemplateUtil {
         }
     }
     
-    /// Copy a file from one location to another. 
+    /// Copy a file from one location to another.
     func copyFile(fromPath: String, toPath: String) {
         let absFromPath = templateFileName.resolveRelative(path: fromPath)
         let fromResource = ResourceFileSys(folderPath: absFromPath, fileName: "", type: .attachment)
@@ -306,6 +306,61 @@ public class TemplateUtil {
             logError("Could not complete copyfile command")
         }
         lastCopyToURL = toURL
+    }
+    
+    func copyAddIns(toPath: String) -> String? {
+        
+        logInfo("Template copyaddans to: \(toPath)")
+        // Collect necessary variables
+        guard let collection = workspace?.collection else {
+            return "Input collection could not be identified"
+        }
+        guard let lib = collection.lib else {
+            return "Resource library not available"
+        }
+        guard lib.hasAvailable(type: .addinsFolder) else {
+            return "No add-ins folder found"
+        }
+        guard let addIns = lib.getContents(type: .addinsFolder) else {
+            return "Could not retrieve contents of add-ins folder"
+        }
+        guard !addIns.isEmpty else {
+            return "add-ins folder is empty"
+        }
+        
+        // Make sure the target directory is available.
+        guard FileUtils.ensureFolder(forDir: toPath) else {
+            return "Could not create folder at \(toPath)"
+        }
+        
+        // Remove any files already in the target add-ins folder.
+        do {
+            let items = try fileManager.contentsOfDirectory(atPath: toPath)
+            for item in items {
+                if !item.hasPrefix(".") {
+                    let existingAddInPath = FileUtils.joinPaths(path1: toPath, path2: item)
+                    _ = FileUtils.removeItem(at: existingAddInPath)
+                }
+            }
+        } catch {
+            return("Could not access contents of directory at \(toPath)")
+        }
+        
+        logInfo("# of add-ins found = \(addIns.count)")
+        
+        // Now copy files from input folder to the output.
+        for addIn in addIns {
+            let copyFromPath = addIn.actualPath
+            let copyToPath = FileUtils.joinPaths(path1: toPath,
+                                                 path2: addIn.fileName)
+            do {
+                try fileManager.copyItem(atPath: copyFromPath, toPath: copyToPath)
+            } catch {
+                return "Could not copy file named \(addIn.fileName)"
+            }
+        }
+        
+        return nil
     }
     
     func allFieldsToHTML(note: Note) {

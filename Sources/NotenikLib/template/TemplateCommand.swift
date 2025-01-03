@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 6/6/19.
-//  Copyright © 2019 - 2024 Herb Bowie (https://hbowie.net)
+//  Copyright © 2019 - 2025 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -15,6 +15,7 @@ enum TemplateCommand: String {
     case comment      = "*"
     case allFields    = "allfields"
     case clearGlobals = "clearglobals"
+    case copyaddins   = "copyaddins"
     case copycss      = "copycss"
     case copyfile     = "copyfile"
     case copyimages   = "copyimages"

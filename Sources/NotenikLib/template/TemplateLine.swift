@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 6/4/19.
-//  Copyright © 2019 - 2024 Herb Bowie (https://hbowie.net)
+//  Copyright © 2019 - 2025 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -140,6 +140,8 @@ class TemplateLine {
             processAllFieldsCommand(note: note)
         case .clearGlobals:
             processClearGlobalsCommand()
+        case .copyaddins:
+            processCopyAddinsCommand(note: note)
         case .copycss:
             processCopyCssCommand()
         case .copyfile:
@@ -194,7 +196,6 @@ class TemplateLine {
     }
     
     func processCopyCssCommand() {
-        print("TemplateLine.processCopyCssCommand")
         guard !util.skippingData else { return }
         
         var copyToRelPath = "css/styles.css"
@@ -203,6 +204,23 @@ class TemplateLine {
         }
         
         util.copyCSS(to: copyToRelPath)
+    }
+    
+    func processCopyAddinsCommand(note: Note) {
+        guard !util.skippingData else { return }
+        var copyToFolderName = NotenikConstants.addinsFolderName
+        if tokens.count > 1  {
+            let copyToLine = util.replaceVariables(str: String(tokens[1]), note: note)
+            guard copyToLine.missingVariables == 0 else { return }
+            copyToFolderName = copyToLine.line
+        }
+        guard !util.webRootFileName.isEmpty else { return }
+        let copyToFolder = FileUtils.joinPaths(path1: util.webRootFileName.fileNameStr,
+                                               path2: copyToFolderName)
+        let errorMsg = util.copyAddIns(toPath: copyToFolder)
+        if errorMsg != nil && !errorMsg!.isEmpty {
+            util.logError("CopyAddIns error: \(errorMsg!)")
+        }
     }
     
     /// Process a command to copy a file.
