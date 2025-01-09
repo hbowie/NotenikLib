@@ -237,7 +237,7 @@ public class Template {
             util.dataCount = util.notesIndex + 1
             util.note = note
             if workspace != nil {
-                workspace!.mkdownContext?.setTitleToParse(id: note.noteID.commonID,
+                workspace!.mkdownContext?.identifyNoteToParse(id: note.noteID.commonID,
                                                           text: note.noteID.text,
                                                           fileName: note.noteID.commonFileName,
                                                           shortID: note.shortID.value)

@@ -49,7 +49,7 @@ public class NoteDisplay {
             let noteBody = noteWithCommand.body.value
             parms.setMkdownOptions(mkdownOptions)
             mkdownContext = NotesMkdownContext(io: io, displayParms: parms)
-            mkdownContext!.setTitleToParse(id: noteWithCommand.noteID.commonID,
+            mkdownContext!.identifyNoteToParse(id: noteWithCommand.noteID.commonID,
                                            text: noteWithCommand.noteID.text,
                                            fileName: noteWithCommand.noteID.commonFileName,
                                            shortID: noteWithCommand.shortID.value)
@@ -111,8 +111,10 @@ public class NoteDisplay {
                                        io: io,
                                        parms: parms,
                                        results: self.mdResults,
-                                       noteTitle: note.title.value,
-                                       shortID: shortID)
+                                       noteID: note.noteID.commonID,
+                                       noteText: note.noteID.text,
+                                       noteFileName: note.noteID.commonFileName,
+                                       noteShortID: shortID)
             
             if mdResults.mkdownContext != nil {
                 note.mkdownCommandList = mdResults.mkdownContext!.mkdownCommandList
@@ -565,7 +567,7 @@ public class NoteDisplay {
         mkdownContext = NotesMkdownContext(io: io, displayParms: parms)
         let code = Markedup(format: parms.format)
         if field.def == collection.titleFieldDef {
-            mkdownContext!.setTitleToParse(id: note.noteID.commonID,
+            mkdownContext!.identifyNoteToParse(id: note.noteID.commonID,
                                            text: note.noteID.text,
                                            fileName: note.noteID.commonFileName,
                                            shortID: note.shortID.value)

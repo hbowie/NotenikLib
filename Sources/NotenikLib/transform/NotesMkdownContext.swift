@@ -52,20 +52,17 @@ public class NotesMkdownContext: MkdownContext {
     
     // -----------------------------------------------------------
     //
-    // MARK: Set the title of the Note to be parsed.
+    // MARK: Identify the Note to be parsed.
     //
     // -----------------------------------------------------------
     
-    /// Let the context figure out the derived fields.
-    public func setTitleToParse(text: String, shortID: String) {
-        setTitleToParse(id: StringUtils.toCommon(text),
-                        text: text,
-                        fileName: StringUtils.toCommonFileName(text),
-                        shortID: shortID)
-    }
-    
-    /// Set the Title of the Note whose Markdown text is to be parsed.
-    public func setTitleToParse(id: String, text: String, fileName: String, shortID: String) {
+    /// Identify the note that is about to be parsed.
+    /// - Parameters:
+    ///   - id: The common ID for the note, to be used by Notenik.
+    ///   - text: A textual representation of the note ID, to be read by humans.
+    ///   - fileName: The common filename for the note.
+    ///   - shortID: The short, minimal, ID for the note.
+    public func identifyNoteToParse(id: String, text: String, fileName: String, shortID: String) {
         guard let collection = io.collection else { return }
         collection.idToParse = id
         collection.textToParse = text
@@ -85,8 +82,14 @@ public class NotesMkdownContext: MkdownContext {
     
     /// Expose the usage of a Markdown command found within the page.
     public func exposeMarkdownCommand(_ command: String) {
-        guard let collection = io.collection else { return }
-        guard !collection.idToParse.isEmpty else { return }
+        guard let collection = io.collection else {
+            // print("  - collection is missing!")
+            return
+        }
+        guard !collection.idToParse.isEmpty else {
+            // print("  - id to parse is missing!")
+            return
+        }
         mkdownCommandList.updateWith(command: command, noteTitle: collection.idToParse, code: nil)
     }
     
@@ -1443,10 +1446,6 @@ public class NotesMkdownContext: MkdownContext {
         }
         html.finishUnorderedList()
         return html.code
-    }
-    
-    func inPrint(_ msg: String, indent: Int) {
-        print(String(repeating: " ", count: indent) + "- " + msg)
     }
     
     /// Send an informational message to the log.

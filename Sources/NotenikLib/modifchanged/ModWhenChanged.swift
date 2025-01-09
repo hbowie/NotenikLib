@@ -140,7 +140,7 @@ public class ModWhenChanged {
                 // Parse the body field.
                 let body = modNote.body
                 let mdBodyParser = MkdownParser(body.value, options: mkdownOptions)
-                mkdownContext.setTitleToParse(id: modNote.noteID.commonID,
+                mkdownContext.identifyNoteToParse(id: modNote.noteID.commonID,
                                               text: modNote.noteID.text,
                                               fileName: modNote.noteID.commonFileName,
                                               shortID: modNote.shortID.value)

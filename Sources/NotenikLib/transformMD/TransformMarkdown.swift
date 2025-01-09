@@ -39,8 +39,10 @@ public class TransformMarkdown {
                                 io: NotenikIO,
                                 parms: DisplayParms,
                                 results: TransformMdResults,
-                                noteTitle: String = "",
-                                shortID: String = "") {
+                                noteID: String = "",
+                                noteText: String = "",
+                                noteFileName: String = "",
+                                noteShortID: String = "") {
                 
         if parserID == NotenikConstants.downParser {
             let down = Down(markdownString: markdown)
@@ -71,8 +73,11 @@ public class TransformMarkdown {
             mkdownOptions.checkBoxMessageHandlerName = ""
         }
         results.mkdownContext = NotesMkdownContext(io: io, displayParms: parms)
-        mkdownOptions.shortID = shortID
-        results.mkdownContext!.setTitleToParse(text: noteTitle, shortID: shortID)
+        mkdownOptions.shortID = noteShortID
+        results.mkdownContext!.identifyNoteToParse(id: noteID,
+                                                   text: noteText,
+                                                   fileName: noteFileName,
+                                                   shortID: noteShortID)
         let collection = io.collection!
         collection.skipContentsForParent = false
         
@@ -109,10 +114,10 @@ public class TransformMarkdown {
                     _ = newNote.setTitle(target.item)
                     newNote.identify()
                     if collection.backlinksDef == nil && !target.hasPath {
-                        _ = newNote.setBody("Created by Wiki-style Link found in the Markdown code for the Note titled [[\(noteTitle)]].")
+                        _ = newNote.setBody("Created by Wiki-style Link found in the Markdown code for the Note identified as [[\(noteID)]].")
                     } else {
-                        _ = newNote.setBacklinks(noteTitle)
-                        _ = newNote.setBody("Created by Wiki-style Link found in the Markdown code for the Note titled \(noteTitle).")
+                        _ = newNote.setBacklinks(noteID)
+                        _ = newNote.setBody("Created by Wiki-style Link found in the Markdown code for the Note identified as \(noteText).")
                     }
                     _ = targetIO.addNote(newNote: newNote)
                     results.wikiAdds = true

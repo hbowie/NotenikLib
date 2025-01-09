@@ -951,7 +951,7 @@ public class NotesExporter {
             mkdownOptions.shortID = ""
         }
 
-        mkdownContext.setTitleToParse(id: note.noteID.commonID,
+        mkdownContext.identifyNoteToParse(id: note.noteID.commonID,
                                       text: note.noteID.text,
                                       fileName: note.noteID.commonFileName,
                                       shortID: note.shortID.value)

@@ -463,7 +463,10 @@ public class NoteFieldsToHTML {
                          noteTitle: noteTitle,
                          markedup: code)
             if mkdownContext != nil {
-                mkdownContext!.setTitleToParse(id: note.noteID.commonID, text: note.noteID.text, fileName: note.noteID.commonFileName, shortID: note.shortID.value)
+                mkdownContext!.identifyNoteToParse(id: note.noteID.commonID,
+                                                   text: note.noteID.text,
+                                                   fileName: note.noteID.commonFileName,
+                                                   shortID: note.shortID.value)
             }
         // Format the tags field
         } else if field.def == collection.tagsFieldDef && parms.displayTags {
@@ -497,7 +500,7 @@ public class NoteFieldsToHTML {
             transformMarkdown(markdown: field.value.value,
                               fieldType: field.def.fieldType.typeString,
                               writer: code,
-                              noteTitle: noteTitle,
+                              note: note,
                               shortID: note.shortID.value)
         } else if parms.reducedDisplay && !field.def.fieldType.reducedDisplay {
             // no output
@@ -649,7 +652,7 @@ public class NoteFieldsToHTML {
                 transformMarkdown(markdown: field.value.value,
                                   fieldType: NotenikConstants.bodyCommon,
                                   writer: markedup,
-                                  noteTitle: note.title.value,
+                                  note: note,
                                   shortID: note.shortID.value)
                 
                 if let context = results.mkdownContext {
@@ -857,7 +860,7 @@ public class NoteFieldsToHTML {
             transformMarkdown(markdown: field.value.value,
                               fieldType: field.def.fieldType.typeString,
                               writer: markedup,
-                              noteTitle: noteTitle,
+                              note: note,
                               shortID: note.shortID.value)
         } else {
             markedup.append(field.value.value)
@@ -975,7 +978,7 @@ public class NoteFieldsToHTML {
             transformMarkdown(markdown: note.body.value,
                               fieldType: NotenikConstants.bodyCommon,
                               writer: markedup,
-                              noteTitle: note.title.value,
+                              note: note,
                               shortID: note.shortID.value)
             /* markdownToMarkedup(markdown: note.body.value,
                                context: nil,
@@ -992,7 +995,7 @@ public class NoteFieldsToHTML {
                 transformMarkdown(markdown: note.attribution.value,
                                   fieldType: NotenikConstants.attribCommon,
                                   writer: markedup,
-                                  noteTitle: note.title.value,
+                                  note: note,
                                   shortID: note.shortID.value)
                 /* markdownToMarkedup(markdown: note.attribution.value,
                                    context: mkdownContext,
@@ -1076,7 +1079,7 @@ public class NoteFieldsToHTML {
         transformMarkdown(markdown: note.body.value,
                           fieldType: NotenikConstants.bodyCommon,
                           writer: markedup,
-                          noteTitle: note.title.value,
+                          note: note,
                           shortID: note.shortID.value)
         
         markedup.finishBlockQuote()
@@ -1111,13 +1114,28 @@ public class NoteFieldsToHTML {
         writer.append(Markdown.parse(markdown: markdown, options: mkdownOptions, context: context))
     } */
     
-    func transformMarkdown(markdown: String, fieldType: String, writer: Markedup, noteTitle: String, shortID: String) {
+    func transformMarkdown(markdown: String,
+                           fieldType: String,
+                           writer: Markedup,
+                           note: Note,
+                           shortID: String) {
         let parserID = AppPrefs.shared.markdownParser
         guard io != nil else {
-            Logger.shared.log(subsystem: "NotenikLib", category: "NoteFieldsToHTML", level: .error, message: "I/O module is missing")
+            Logger.shared.log(subsystem: "NotenikLib",
+                              category: "NoteFieldsToHTML",
+                              level: .error, message: "I/O module is missing")
             return
         }
-        TransformMarkdown.mdToHtml(parserID: parserID, fieldType: fieldType, markdown: markdown, io: io!, parms: parms, results: results, noteTitle: noteTitle, shortID: shortID)
+        TransformMarkdown.mdToHtml(parserID: parserID,
+                                   fieldType: fieldType,
+                                   markdown: markdown,
+                                   io: io!,
+                                   parms: parms,
+                                   results: results,
+                                   noteID: note.noteID.commonID,
+                                   noteText: note.noteID.text,
+                                   noteFileName: note.noteID.commonFileName,
+                                   noteShortID: shortID)
         writer.append(results.html)
     }
     
