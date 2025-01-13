@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 7/6/21.
 //
-//  Copyright © 2021 - 2024 Herb Bowie (https://hbowie.net)
+//  Copyright © 2021 - 2025 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -93,6 +93,9 @@ public class WebBookMaker {
     let jsFileExt    = "js"
     var jsFolder:       URL!
     var jsRelPath    = ""
+    
+    // Add-Ins folder.
+    var addInsFolder:   URL?
     
     let opfFileName = "content"
     let opfFileExt = "opf"
@@ -252,6 +255,11 @@ public class WebBookMaker {
         }
         collection = possibleCollection
         
+        if webBookType == .website && !collection.addins.isEmpty {
+            addInsFolder = pubFolder.appendingPathComponent(NotenikConstants.addinsFolderName,
+                                                            isDirectory: true)
+        }
+        
         // Now set up the Display parameters.
         parms = DisplayParms()
         if webBookType == .epub {
@@ -272,6 +280,9 @@ public class WebBookMaker {
         parms.extLinksOpenInNewWindows = collection.extLinksOpenInNewWindows
         parms.imagesPath = imagesRelPath
         parms.header = header
+        for addInURL in collection.addins {
+            parms.addins.append(NotenikConstants.addinsFolderName + "/" + addInURL.lastPathComponent)
+        }
         // parms.cssString = cssRelPath
         
         htmlConverter.addHTML()
@@ -303,6 +314,8 @@ public class WebBookMaker {
         }
         
         generateCSS()
+        
+        copyAddIns()
         
         deleteOldFiles()
         
@@ -531,6 +544,68 @@ public class WebBookMaker {
             filesWritten += 1
         } catch {
             communicateError("Could not write CSS file to \(cssFile!)")
+        }
+    }
+    
+    // -----------------------------------------------------------
+    //
+    // MARK: Copy add-ins to the output folder.
+    //
+    // -----------------------------------------------------------
+    
+    func copyAddIns() {
+        
+        guard addInsFolder != nil else { return }
+        
+        // Remove any files already in the target add-ins folder.
+        do {
+            let items = try fm.contentsOfDirectory(at: addInsFolder!,
+                                                   includingPropertiesForKeys: nil,
+                                                   options: .skipsHiddenFiles)
+            for item in items {
+                if !item.lastPathComponent.hasPrefix(".") {
+                    _ = FileUtils.removeItem(at: item)
+                }
+            }
+        } catch {
+            communicateError("Could not access contents of directory at \(addInsFolder!)")
+            return
+        }
+
+        // Collect necessary variables
+        guard let lib = collection.lib else {
+            communicateError("Resource library not available")
+            return
+        }
+        guard lib.hasAvailable(type: .addinsFolder) else {
+            communicateError("No add-ins folder found")
+            return
+        }
+        guard let addIns = lib.getContents(type: .addinsFolder) else {
+            communicateError("Could not retrieve contents of add-ins folder")
+            return
+        }
+        guard !addIns.isEmpty else {
+            communicateError("add-ins folder is empty")
+            return
+        }
+        
+        // Make sure the target directory is available.
+        guard FileUtils.ensureFolder(forURL: addInsFolder!) else {
+            communicateError("Could not create folder at \(addInsFolder!)")
+            return
+        }
+        
+        logInfo(msg: "# of add-ins found = \(addIns.count)")
+        
+        // Now copy files from input folder to the output.
+        for addIn in addIns {
+            let copyTo = addInsFolder!.appendingPathComponent(addIn.fileName)
+            do {
+                try fm.copyItem(at: addIn.url!, to: copyTo)
+            } catch {
+                communicateError("Could not copy file named \(addIn)")
+            }
         }
     }
     
@@ -963,11 +1038,14 @@ public class WebBookMaker {
             }
         }
         
-        guard let archive = Archive(url: epubFile, accessMode: .create) else {
+        do {
+            let archive = try Archive(url: epubFile, accessMode: .create)
+            zipster = archive
+        } catch {
             communicateError("New EPUB archive could not be created at \(epubFile!)")
             return
         }
-        zipster = archive
+        
         addEpubEntry(relativePath: mimetypeFileName)
         addEpubFolder(relativePath: metaInfFolderName)
         addEpubFolder(relativePath: contentFolderName)

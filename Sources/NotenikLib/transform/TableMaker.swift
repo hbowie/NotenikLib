@@ -34,7 +34,7 @@ public class TableMaker: RowConsumer {
                 piped.append("| \(label)")
             }
             piped.append(" | \n")
-            for label in labels {
+            for _ in labels {
                 piped.append("| ---")
             }
             piped.append(" | \n")
