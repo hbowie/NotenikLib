@@ -407,6 +407,7 @@ public class NoteDisplay {
         }
     }
     
+    /// Include children on the parent's display.
     func formatIncludedChildren(_ note: Note,
                                 io: NotenikIO,
                                 nextNote: Note,

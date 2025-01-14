@@ -107,7 +107,7 @@ public class NoteFieldsToHTML {
         }
         
         if !parms.epub3 {
-            if note.mkdownCommandList.contentPage 
+            if note.mkdownCommandList.contentPage && !parms.included.hasData
                 // && note.klass.value != NotenikConstants.titleKlass
                 {
                 if !headerContents.isEmpty {
@@ -233,7 +233,7 @@ public class NoteFieldsToHTML {
         
         if !parms.epub3 {
             let footerCode = collection.mkdownCommandList.getCodeFor(MkdownConstants.footerCmd)
-            if note.includeInBook(epub: parms.epub3) && !footerCode.isEmpty {
+            if note.includeInBook(epub: parms.epub3) && !footerCode.isEmpty && !parms.included.hasData {
                 code.footer(footerCode, klass: "nnk-footer")
             }
         }
