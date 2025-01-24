@@ -503,7 +503,7 @@ public class NoteDisplay {
                 }
                 (anotherNote, anotherPosition) = io.nextNote(anotherPosition)
             }
-            if tocNotes.count > 1 {
+            if tocNotes.count > 0 {
                 bottomHTML.heading(level: 4, text: "Contents")
                 bottomHTML.startUnorderedList(klass: "notenik-toc")
                 for tocNote in tocNotes {

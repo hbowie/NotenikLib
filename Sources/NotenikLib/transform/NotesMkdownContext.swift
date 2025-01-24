@@ -758,7 +758,7 @@ public class NotesMkdownContext: MkdownContext {
             markup.writeLine("    { ")
             
             // Generate title
-            markup.writeLine("        title: \"\(note!.title.value)\", ")
+            markup.writeLine("        title: \"\(note!.noteID.text)\", ")
             
             // Generate date
             if note!.hasDate() {
@@ -768,7 +768,7 @@ public class NotesMkdownContext: MkdownContext {
             }
             
             // Generate URL
-            let resolution = NoteLinkResolution(io: io, linkText: note!.title.value)
+            let resolution = NoteLinkResolution(io: io, linkText: note!.noteID.commonID)
             NoteLinkResolver.resolve(resolution: resolution)
             if let target = resolution.genWikiLinkTarget() {
                 let url = displayParms.wikiLinks.assembleWikiLink(target: target)
@@ -1447,6 +1447,7 @@ public class NotesMkdownContext: MkdownContext {
         html.finishUnorderedList()
         return html.code
     }
+    
     
     /// Send an informational message to the log.
     func logInfo(msg: String) {
