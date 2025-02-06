@@ -1009,7 +1009,9 @@ public class TemplateUtil {
                         flattenImageLinks = true
                         formatFileName = false
                     }
-                    modifiedValue = convertMarkdownToHTML(modifiedValue, flattenImageLinks: flattenImageLinks)
+                    modifiedValue = convertMarkdownToHTML(modifiedValue,
+                                                          flattenImageLinks: flattenImageLinks,
+                                                          relativePathToRoot: relativePathToRoot)
                 }
                 if nextChar == "-" {
                     modifiedValue = removeParagraphTags(modifiedValue)
@@ -1226,8 +1228,13 @@ public class TemplateUtil {
     }
     
     /// Convert Markdown to HTML
-    func convertMarkdownToHTML(_ markdown: String, flattenImageLinks: Bool = false) -> String {
+    func convertMarkdownToHTML(_ markdown: String,
+                               flattenImageLinks: Bool = false,
+                               relativePathToRoot: String? = nil) -> String {
+        
         mkdownOptions.flattenImageLinks = flattenImageLinks
+        mkdownOptions.relativePathToRoot = relativePathToRoot
+        
         switch wikiStyle {
         case "1":
             if workspace != nil {
