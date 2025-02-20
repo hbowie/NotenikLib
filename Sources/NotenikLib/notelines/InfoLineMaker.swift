@@ -106,6 +106,10 @@ public class InfoLineMaker {
             writer.append(label: NotenikConstants.selCSSFile, value: collection.selCSSfile)
         }
         
+        if !collection.notePickerAction.isEmpty {
+            writer.append(label: NotenikConstants.notePickerAction, value: collection.notePickerAction)
+        }
+        
     }
     
     public var str: String {

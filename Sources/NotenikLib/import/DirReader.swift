@@ -239,7 +239,7 @@ public class DirReader: RowImporter {
     }
     
     func putField(_ val: String) {
-        consumer!.consumeField(label: labels[fields.count], value: val)
+        consumer!.consumeField(label: labels[fields.count], value: val, rule: .always)
         fields.append(val)
     }
     

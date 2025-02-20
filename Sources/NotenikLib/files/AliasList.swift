@@ -88,7 +88,7 @@ public class AliasList: RowConsumer {
     /// - Parameters:
     ///   - label: A string containing the column heading for the field.
     ///   - value: The actual value for the field.
-    public func consumeField(label: String, value: String) {
+    public func consumeField(label: String, value: String, rule: FieldUpdateRule = .always) {
         // Don't need to do anything here
     }
     

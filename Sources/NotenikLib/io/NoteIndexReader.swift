@@ -129,27 +129,27 @@ class NoteIndexReader: RowImporter {
             for ref in term.refs {
                 fields = []
                 
-                consumer!.consumeField(label: labels[0], value: initialLetter)
+                consumer!.consumeField(label: labels[0], value: initialLetter, rule: .always)
                 fields.append(initialLetter)
                 
-                consumer!.consumeField(label: labels[1], value: term.term)
+                consumer!.consumeField(label: labels[1], value: term.term, rule: .always)
                 fields.append(term.term)
                 
-                consumer!.consumeField(label: labels[2], value: lowerTerm)
+                consumer!.consumeField(label: labels[2], value: lowerTerm, rule: .always)
                 fields.append(lowerTerm)
                 
-                consumer!.consumeField(label: labels[3], value: term.link)
+                consumer!.consumeField(label: labels[3], value: term.link, rule: .always)
                 fields.append(term.link)
                 
-                consumer!.consumeField(label: labels[4], value: ref.page)
+                consumer!.consumeField(label: labels[4], value: ref.page, rule: .always)
                 fields.append(ref.page)
                 
-                consumer!.consumeField(label: labels[5], value: ref.pageType)
+                consumer!.consumeField(label: labels[5], value: ref.pageType, rule: .always)
                 fields.append(ref.pageType)
                 
-                consumer!.consumeField(label: labels[6], value: ref.pageStatus)
+                consumer!.consumeField(label: labels[6], value: ref.pageStatus, rule: .always)
                 
-                consumer!.consumeField(label: labels[7], value: ref.anchor)
+                consumer!.consumeField(label: labels[7], value: ref.anchor, rule: .always)
                 fields.append(ref.anchor)
                 
                 consumer!.consumeRow(labels: labels, fields: fields)

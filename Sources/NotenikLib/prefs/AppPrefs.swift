@@ -62,9 +62,6 @@ public class AppPrefs {
     let lastShortcutKey = "last-shortcut"
     var _lastShortcut = ""
     
-    let noteActionKey = "note-action"
-    var _noteAction = ""
-    
     let dateContentKey = "date-content"
     var _dateContent = ""
     
@@ -268,11 +265,6 @@ public class AppPrefs {
         let lcut = defaults.string(forKey: lastShortcutKey)
         if lcut != nil {
             _lastShortcut = lcut!
-        }
-        
-        let ntact = defaults.string(forKey: noteActionKey)
-        if ntact != nil {
-            _noteAction = ntact!
         }
         
         let dtcon = defaults.string(forKey: dateContentKey)
@@ -750,16 +742,6 @@ public class AppPrefs {
         set {
             _lastShortcut = newValue
             defaults.set(_lastShortcut, forKey: lastShortcutKey)
-        }
-    }
-    
-    public var noteAction: String {
-        get {
-            return _noteAction
-        }
-        set {
-            _noteAction = newValue
-            defaults.set(_noteAction, forKey: noteActionKey)
         }
     }
     

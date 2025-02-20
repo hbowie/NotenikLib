@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 4/24/19.
-//  Copyright © 2019 Herb Bowie (https://powersurgepub.com)
+//  Copyright © 2019 - 2025  Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -20,7 +20,7 @@ public protocol RowConsumer {
     /// - Parameters:
     ///   - label: A string containing the column heading for the field.
     ///   - value: The actual value for the field.
-    func consumeField(label: String, value: String)
+    func consumeField(label: String, value: String, rule: FieldUpdateRule)
     
 
     /// Do something with a completed row.

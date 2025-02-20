@@ -24,7 +24,7 @@ public class TableMaker: RowConsumer {
         return piped
     }
     
-    public func consumeField(label: String, value: String) {
+    public func consumeField(label: String, value: String, rule: FieldUpdateRule = .always) {
 
     }
     

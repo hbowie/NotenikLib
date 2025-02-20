@@ -13,6 +13,7 @@
 import Foundation
 
 public enum ImportFormat {
+    case apps
     case csv
     case delim
     case json

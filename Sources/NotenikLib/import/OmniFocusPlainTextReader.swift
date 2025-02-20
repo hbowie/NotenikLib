@@ -351,7 +351,7 @@ public class OmniFocusPlainTextReader: RowImporter {
     }
     
     func generateNoteField(_ value: String) {
-        consumer!.consumeField(label: noteLabels[noteValues.count], value: value)
+        consumer!.consumeField(label: noteLabels[noteValues.count], value: value, rule: .always)
         noteValues.append(value)
     }
     

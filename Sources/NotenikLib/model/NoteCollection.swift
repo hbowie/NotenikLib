@@ -147,6 +147,8 @@ public class NoteCollection {
     
     public  var minBodyEditViewHeight: Float = 5.0
     
+    public  var notePickerAction = ""
+    
     /// Default initialization of a new Collection.
     public init () {
         lib = ResourceLibrary()

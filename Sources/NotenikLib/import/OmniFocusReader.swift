@@ -59,7 +59,7 @@ public class OmniFocusReader: RowImporter, RowConsumer {
     /// - Parameters:
     ///   - label: A string containing the column heading for the field.
     ///   - value: The actual value for the field.
-    public func consumeField(label: String, value: String) {
+    public func consumeField(label: String, value: String, rule: FieldUpdateRule = .always) {
         switch label {
         case "Task ID":
             taskID = value
@@ -172,7 +172,7 @@ public class OmniFocusReader: RowImporter, RowConsumer {
         print("OmniFocusReader.generateNoteField with value of \(value)")
         print("  - note values count = \(noteValues.count)")
         print("  - Label = \(noteLabels[noteValues.count])")
-        consumer.consumeField(label: noteLabels[noteValues.count], value: value)
+        consumer.consumeField(label: noteLabels[noteValues.count], value: value, rule: .always)
         noteValues.append(value)
     }
 }

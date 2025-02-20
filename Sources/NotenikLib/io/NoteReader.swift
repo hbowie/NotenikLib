@@ -120,7 +120,7 @@ class NoteReader: RowImporter {
     }
     
     func anotherField(label: String, value: String) {
-        consumer!.consumeField(label: label, value: value)
+        consumer!.consumeField(label: label, value: value, rule: .always)
         fields.append(value)
     }
     

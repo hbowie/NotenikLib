@@ -116,13 +116,13 @@ public class XLSXReader: RowImporter {
                 } else {
                     while fieldCount < labels.count && column != columns[fieldCount] {
                         let label = labels[fieldCount]
-                        consumer!.consumeField(label: label, value: "")
+                        consumer!.consumeField(label: label, value: "", rule: .always)
                         fields.append("")
                         fieldCount += 1
                     }
                     if fieldCount < labels.count {
                         let label = labels[fieldCount]
-                        consumer!.consumeField(label: label, value: value)
+                        consumer!.consumeField(label: label, value: value, rule: .always)
                         fields.append(value)
                     }
                 }

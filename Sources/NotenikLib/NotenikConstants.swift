@@ -310,6 +310,8 @@ public struct NotenikConstants {
     static let outlineTabCommon         = "outlinetab"
     static let selCSSFile               = "Selected CSS File"
     static let selCSSfileCommon         = "selectedcssfile"
+    public static let notePickerAction       = "Note Picker Action"
+    public static let notePickerActionCommon = "notepickeraction"
     
     public static let listDisplayFont   = "list-display-font"
     public static let listDisplaySize   = "list-display-size"

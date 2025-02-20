@@ -55,7 +55,7 @@ public class ScriptEngine: RowConsumer {
     /// - Parameters:
     ///   - label: A string containing the column heading for the field.
     ///   - value: The actual value for the field.
-    public func consumeField(label: String, value: String) {
+    public func consumeField(label: String, value: String, rule: FieldUpdateRule = .always) {
         workspace.holdErrors()
         let labelLower = label.lowercased()
         let valueLower = value.lowercased()

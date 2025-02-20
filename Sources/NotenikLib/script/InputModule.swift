@@ -199,7 +199,7 @@ class InputModule: RowConsumer {
     /// - Parameters:
     ///   - label: A string containing the column heading for the field.
     ///   - value: The actual value for the field.
-    func consumeField(label: String, value: String) {
+    func consumeField(label: String, value: String, rule: FieldUpdateRule = .always) {
         _ = note.setField(label: label, value: value)
     }
     

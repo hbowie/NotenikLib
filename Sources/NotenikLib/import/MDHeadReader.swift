@@ -160,13 +160,13 @@ public class MDHeadReader: RowImporter {
             }
             
             fields.append(title)
-            consumer.consumeField(label: labels[0], value: fields[0])
+            consumer.consumeField(label: labels[0], value: fields[0], rule: .always)
             
             fields.append(level)
-            consumer.consumeField(label: labels[1], value: fields[1])
+            consumer.consumeField(label: labels[1], value: fields[1], rule: .always)
             
             fields.append(body)
-            consumer.consumeField(label: labels[2], value: fields[2])
+            consumer.consumeField(label: labels[2], value: fields[2], rule: .always)
             
             consumer.consumeRow(labels: labels, fields: fields)
         }

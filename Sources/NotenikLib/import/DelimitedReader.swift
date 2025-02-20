@@ -199,7 +199,7 @@ public class DelimitedReader: RowImporter {
     func endDataField() {
         if fieldCount < labels.count {
             let label = labels[fieldCount]
-            consumer.consumeField(label: label, value: field)
+            consumer.consumeField(label: label, value: field, rule: .always)
             fields.append(field)
         }
     }

@@ -1072,6 +1072,11 @@ public class FileIO: NotenikIO, RowConsumer {
             collection!.selCSSfile = selCSSfileField!.value.value
         }
         
+        let notePickerAction = infoNote.getField(label: NotenikConstants.notePickerActionCommon)
+        if notePickerAction != nil && !notePickerAction!.value.isEmpty {
+            collection!.notePickerAction = notePickerAction!.value.value
+        }
+        
         infoFound = true
         return infoNote
     }
@@ -2061,6 +2066,7 @@ public class FileIO: NotenikIO, RowConsumer {
     var notesModified = 0
     var noteToImport: Note?
     var importParms = ImportParms()
+    var fieldUpdateRules: [String : FieldUpdateRule] = [:]
     
     /// Import Notes from a CSV or tab-delimited file
     ///
@@ -2071,6 +2077,7 @@ public class FileIO: NotenikIO, RowConsumer {
         importer.setContext(consumer: self)
         self.importParms = importParms
         notesImported = 0
+        fieldUpdateRules = [:]
         guard collection != nil && collectionOpen else { return (0, 0) }
         noteToImport = Note(collection: collection!)
         importer.read(fileURL: fileURL)
@@ -2085,11 +2092,12 @@ public class FileIO: NotenikIO, RowConsumer {
     /// - Parameters:
     ///   - label: A string containing the column heading for the field.
     ///   - value: The actual value for the field.
-    public func consumeField(label: String, value: String) {
+    public func consumeField(label: String, value: String, rule: FieldUpdateRule) {
         
-        let labelLower = label.lowercased()
+        let labelCommon = StringUtils.toCommon(label)
+        fieldUpdateRules[labelCommon] = rule
         
-        if labelLower == NotenikConstants.titleCommon {
+        if labelCommon == NotenikConstants.titleCommon {
             importParms.titleFieldFound = true
         }
         
@@ -2100,7 +2108,7 @@ public class FileIO: NotenikIO, RowConsumer {
         let dict = collect.dict
         
         if importParms.columnParm == .replace {
-            if !importParms.titleFieldFound && (labelLower == "name" || labelLower == "full name") {
+            if !importParms.titleFieldFound && (labelCommon == "name" || labelCommon == "fullname") {
                 let titleDef = collect.titleFieldDef
                 titleDef.fieldLabel = FieldLabel(label)
                 _ = saveTemplateFile()
@@ -2136,8 +2144,38 @@ public class FileIO: NotenikIO, RowConsumer {
             if existingNote != nil {
                 let newNote = existingNote!.copy() as! Note
                 for (_, field) in noteToImport!.fields {
-                    if field.value.hasData {
-                        _ = newNote.setField(label: field.def.fieldLabel.properForm, value: field.value.value)
+                    var rule: FieldUpdateRule = .always
+                    if let r = fieldUpdateRules[field.def.fieldLabel.commonForm] {
+                        rule = r
+                    }
+                    let newValue = field.value.value
+                    var existingValue = ""
+                    if let ev = existingNote!.getField(label: field.def.fieldLabel.commonForm)?.value.value {
+                        existingValue = ev
+                    }
+                    
+                    var updateField = false
+                    
+                    switch rule {
+                    case .always:
+                        updateField = true
+                    case .ignoreBlankImport:
+                        if !newValue.isEmpty {
+                            updateField = true
+                        }
+                    case .onlyIfExistingBlank:
+                        if existingValue.isEmpty {
+                            updateField = true
+                        }
+                    case .onlyIfImportHigher:
+                        if newValue > existingValue {
+                            updateField = true
+                        }
+                    }
+                    
+                    if updateField {
+                        let updtOK = newNote.setField(label: field.def.fieldLabel.properForm,
+                                                      value: field.value.value)
                     }
                 }
                 (_, _) = modNote(oldNote: existingNote!, newNote: newNote)
