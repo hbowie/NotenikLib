@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 4/9/24.
 //
-//  Copyright © 2024 Herb Bowie (https://hbowie.net)
+//  Copyright © 2024 - 2025 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -23,22 +23,38 @@ public class InfoLineMaker {
         writer = KeyValueWriter()
     }
     
-    func putInfo(collection: NoteCollection, bunch: BunchOfNotes?, subFolder: Bool = false, folderName: String = "") {
+    func putInfo(collection: NoteCollection,
+                 bunch: BunchOfNotes?,
+                 subFolder: Bool = false,
+                 folderName: String = "",
+                 cloning: Bool = false) {
         
         guard let lib = collection.lib else { return }
 
         if subFolder {
             writer.append(label: NotenikConstants.title, value: collection.title + " / " + folderName)
+        } else if cloning {
+            var cloneTitle = "Notes"
+            if let collectionURL = lib.getURL(type: .collection) {
+                cloneTitle = collectionURL.lastPathComponent
+            }
+            writer.append(label: NotenikConstants.title, value: cloneTitle)
         } else {
             writer.append(label: NotenikConstants.title, value: collection.title)
         }
-        writer.append(label: NotenikConstants.titleSetByUser, value: "\(collection.titleSetByUser)")
-        writer.append(label: NotenikConstants.link, value: lib.getPath(type: .collection))
+        if cloning {
+            writer.append(label: NotenikConstants.titleSetByUser, value: "false")
+        } else {
+            writer.append(label: NotenikConstants.titleSetByUser, value: "\(collection.titleSetByUser)")
+        }
+        if !cloning {
+            writer.append(label: NotenikConstants.link, value: lib.getPath(type: .collection))
+        }
         writer.append(label: "Sort Parm", value: collection.sortParm.str)
         writer.append(label: "Sort Descending", value: "\(collection.sortDescending)")
         writer.append(label: NotenikConstants.sortBlankDatesLast, value: "\(collection.sortBlankDatesLast)")
         writer.append(label: "Other Fields Allowed", value: String(collection.otherFields))
-        if bunch != nil && !subFolder {
+        if bunch != nil && !subFolder && !cloning {
             writer.append(label: NotenikConstants.lastIndexSelected, value: "\(bunch!.listIndex)")
         }
         writer.append(label: NotenikConstants.mirrorAutoIndex,   value: "\(collection.mirrorAutoIndex)")
@@ -54,10 +70,10 @@ public class InfoLineMaker {
         writer.append(label: NotenikConstants.curlyAposts,       value: "\(collection.curlyApostrophes)")
         writer.append(label: NotenikConstants.extLinksNewWindows, value: "\(collection.extLinksOpenInNewWindows)")
         writer.append(label: NotenikConstants.scrollingSync,     value: "\(collection.scrollingSync)")
-        if collection.lastStartupDate.count > 0 {
+        if collection.lastStartupDate.count > 0 && !cloning {
             writer.append(label: NotenikConstants.lastStartupDate, value: collection.lastStartupDate)
         }
-        if collection.shortcut.count > 0 && !subFolder {
+        if collection.shortcut.count > 0 && !subFolder && !cloning {
             writer.append(label: NotenikConstants.shortcut, value: collection.shortcut)
         }
         if !collection.webBookPath.isEmpty {
@@ -73,21 +89,23 @@ public class InfoLineMaker {
         
         writer.append(label: NotenikConstants.hashTags, value: "\(collection.hashTagsOption.rawValue)")
         
-        if !collection.windowPosStr.isEmpty && !subFolder {
+        if !collection.windowPosStr.isEmpty && !subFolder && !cloning {
             writer.append(label: NotenikConstants.windowNumbers, value: collection.windowPosStr)
         }
         
         writer.append(label: NotenikConstants.columnWidths, value: "\(collection.columnWidths)")
         
-        for usage in collection.mkdownCommandList.commands {
-            if usage.saveForCollection && !usage.noteID.isEmpty {
-                let label = "\(usage.command) Note ID"
-                let value = usage.noteID
-                writer.append(label: label, value: value)
+        if !cloning {
+            for usage in collection.mkdownCommandList.commands {
+                if usage.saveForCollection && !usage.noteID.isEmpty {
+                    let label = "\(usage.command) Note ID"
+                    let value = usage.noteID
+                    writer.append(label: label, value: value)
+                }
             }
         }
         
-        if collection.highestTitleNumber > 0 {
+        if collection.highestTitleNumber > 0 && !cloning {
             writer.append(label: NotenikConstants.highestTitleNumber, value: "\(collection.highestTitleNumber)")
         }
         
@@ -98,7 +116,7 @@ public class InfoLineMaker {
             writer.append(label: NotenikConstants.textIdSep, value: "\"\(collection.noteIdentifier.textIdSep)\"")
         }
         
-        if !collection.lastImportParent.isEmpty {
+        if !collection.lastImportParent.isEmpty && !cloning {
             writer.append(label: NotenikConstants.lastImportParent, value: collection.lastImportParent)
         }
         
@@ -110,6 +128,10 @@ public class InfoLineMaker {
             writer.append(label: NotenikConstants.notePickerAction, value: collection.notePickerAction)
         }
         
+    }
+    
+    func write(toFile filePath: String) -> Bool {
+        return writer.write(toFile: filePath)
     }
     
     public var str: String {

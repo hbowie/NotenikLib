@@ -314,7 +314,7 @@ public class RealmScanner {
     public static func saveInfoFile(collection: NoteCollection) -> Bool {
         guard collection.isRealmCollection else { return false }
         guard let lib = collection.lib else { return false }
-        let str = NoteString(title: collection.title)
+        let str = KeyValueWriter(title: collection.title)
         if !collection.windowPosStr.isEmpty {
             str.append(label: NotenikConstants.windowNumbers, value: collection.windowPosStr)
         }

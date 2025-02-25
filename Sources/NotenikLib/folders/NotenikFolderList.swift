@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 8/26/20.
 
-//  Copyright © 2020 - 2023 Herb Bowie (https://hbowie.net)
+//  Copyright © 2020 - 2025 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -28,6 +28,8 @@ public class NotenikFolderList: Sequence {
     public var iCloudContainerExists = false
     
     var folders: [NotenikLink] = []
+    
+    public var starterPacksUserFolder: URL?
     
     public let root = NotenikFolderNode()
     
@@ -99,20 +101,24 @@ public class NotenikFolderList: Sequence {
                 logError("iCloud Notenik Documents container could not be created")
             }
         }
-        logInfo("iCloud Notenik Documents container available at \(iCloudContainerPath) exists? \(iCloudContainerExists)")
+        logInfo("iCloud Notenik Documents container available at \(iCloudContainerPath)? \(iCloudContainerExists)")
         
         do {
             let iCloudContents = try fm.contentsOfDirectory(at: iCloudContainerURL!,
                                                          includingPropertiesForKeys: nil,
                                                          options: .skipsHiddenFiles)
             for doc in iCloudContents {
-                let notenikFolder = NotenikLink(url: doc,
-                                                location: .iCloudContainer)
-                switch notenikFolder.type {
-                case .folder, .ordinaryCollection, .webCollection, .parentRealm:
-                    add(notenikFolder)
-                default:
-                    break
+                if doc.lastPathComponent == NotenikConstants.starterPacksFolderName {
+                    starterPacksUserFolder = doc
+                } else {
+                    let notenikFolder = NotenikLink(url: doc,
+                                                    location: .iCloudContainer)
+                    switch notenikFolder.type {
+                    case .folder, .ordinaryCollection, .webCollection, .parentRealm:
+                        add(notenikFolder)
+                    default:
+                        break
+                    }
                 }
             }
         } catch {

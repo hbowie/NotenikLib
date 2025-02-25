@@ -355,8 +355,8 @@ public struct NotenikConstants {
     public static let scriptsFolderName = "scripts"
     
     public static let scriptExt         = FileExtension("tcz")
-    public static let scriptExtAlt1      = FileExtension("tsv")
-    public static let scriptExtAlt2      = FileExtension("csv")
+    public static let scriptExtAlt1     = FileExtension("tsv")
+    public static let scriptExtAlt2     = FileExtension("csv")
     
     public static let BBEditProjectExt  = FileExtension(".bbprojectd")
     public static let webLocExt         = FileExtension(".webloc")
@@ -371,11 +371,15 @@ public struct NotenikConstants {
     
     public static let infoFileExt       = "nnk"
     
-    public static let infoFileName      = "- INFO.nnk"
+    public static let infoFileName        = "- INFO.nnk"
     
-    public static let infoParentFileName = "- INFO-parent-realm.nnk"
+    public static let infoParentFileName  = "- INFO-parent-realm.nnk"
     
     public static let infoProjectFileName = "- project-INFO.nnk"
+    
+    public static let infoStarterFileName = "- starter-INFO.nnk"
+    
+    public static let starterPacksFolderName = "Starter Packs"
     
     //-------------------------------------------------------------
     //
