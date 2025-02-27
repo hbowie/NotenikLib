@@ -43,7 +43,7 @@ public class StarterPackMgr {
         newPack.loadInfo()
         if newPack.seq > highestSeq && newPack.seq <= 99 {
             highestSeq = newPack.seq
-        } else {
+        } else if newPack.seq == 0 || newPack.seq >= 99 {
             highestSeq += 1
             newPack.seq = highestSeq
         }

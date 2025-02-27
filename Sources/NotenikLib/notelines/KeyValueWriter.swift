@@ -32,23 +32,24 @@ public class KeyValueWriter {
         writer.open()
     }
     
-    func appendTitle(_ title: String) {
+    public func appendTitle(_ title: String) {
         append(label: NotenikConstants.title, value: title)
     }
     
-    func appendLink(_ link: String) {
+    public func appendLink(_ link: String) {
         append(label: NotenikConstants.link, value: link)
     }
     
-    func append(label: String, value: String) {
+    public func append(label: String, value: String) {
         writer.writeLine("\(label): \(value)")
         writer.endLine()
     }
     
-    func appendLong(label: String, value: String) {
+    public func appendLong(label: String, value: String) {
         writer.writeLine("\(label): ")
         writer.endLine()
         writer.writeLine(value)
+        writer.endLine()
     }
     
     public func close() {

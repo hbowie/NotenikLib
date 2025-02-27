@@ -124,6 +124,14 @@ public class NotenikFolderList: Sequence {
         } catch {
             logError("Error reading contents of iCloud drive folder")
         }
+        
+        if starterPacksUserFolder == nil {
+            let starterPacksURL = iCloudContainerURL!.appendingPathComponent(NotenikConstants.starterPacksFolderName)
+            let ok = FileUtils.ensureFolder(forURL: starterPacksURL)
+            if ok {
+                starterPacksUserFolder = starterPacksURL
+            }
+        }
     }
     
     /// Load the Collection shortcuts last saved by the user.

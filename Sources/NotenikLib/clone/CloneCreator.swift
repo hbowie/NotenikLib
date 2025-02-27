@@ -93,8 +93,6 @@ public class CloneCreator {
         var folderType: CloneFolderType = .other
         
         // Assign a folder type, based on the folder's contents.
-        var infoURL: URL?
-        var templateURL: URL?
         var noteFileExt = "txt"
         for item in contents {
             let fileName = item.lastPathComponent
@@ -102,16 +100,12 @@ public class CloneCreator {
             switch fileName {
             case NotenikConstants.infoParentFileName:
                 folderType = .project
-                infoURL = item
             case NotenikConstants.infoProjectFileName:
                 folderType = .project
-                infoURL = item
             case NotenikConstants.infoFileName:
                 folderType = .notenik
-                infoURL = item
             default:
                 if nameOnly == NotenikConstants.templateFileName {
-                    templateURL = item
                     noteFileExt = item.pathExtension
                 }
             }
@@ -157,8 +151,6 @@ public class CloneCreator {
             }
         }
         
-
-        
         for item in contents {
             var isDirectory: ObjCBool = false
             if fm.fileExists(atPath: item.path, isDirectory: &isDirectory) {
@@ -174,7 +166,22 @@ public class CloneCreator {
                 }
             }
         }
-    }
+        
+        if path.isEmpty {
+            let kvw = KeyValueWriter()
+            kvw.open()
+            kvw.appendTitle(destination.lastPathComponent)
+            kvw.append(label: NotenikConstants.seq, value: "999")
+            kvw.appendLong(label: NotenikConstants.teaser, value: "XXX")
+            kvw.appendLong(label: NotenikConstants.body, value: " ")
+            kvw.close()
+            let starterInfoURL = outDir.appendingPathComponent(NotenikConstants.infoStarterFileName)
+            let starterInfoOK = kvw.write(toFile: starterInfoURL.path)
+            if !starterInfoOK {
+                logError("Could not write Starter Info file to \(starterInfoURL)")
+            }
+        }
+    } // End processFolder
     
     func processFile(folderType: CloneFolderType,
                      noteFileExt: String,
@@ -215,6 +222,8 @@ public class CloneCreator {
             // skip any alias files
         } else if fileName == "- temp-HTML.html" {
             // skip any temp html files
+        } else if fileName == NotenikConstants.infoStarterFileName {
+            // skip it
         } else {
             do {
                 try fm.copyItem(at: fileURL, to: dstURL)
@@ -238,7 +247,10 @@ public class CloneCreator {
     
     func writeInfoFile(outDir: URL, collection: NoteCollection) {
         let maker = InfoLineMaker()
-        maker.putInfo(collection: collection, bunch: nil, cloning: true)
+        maker.putInfo(collection: collection,
+                      bunch: nil,
+                      cloning: true,
+                      cloneTitle: outDir.lastPathComponent)
         
         let outURL = outDir.appendingPathComponent(NotenikConstants.infoFileName)
         let writeOK = maker.write(toFile: outURL.path)

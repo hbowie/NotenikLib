@@ -166,6 +166,18 @@ public class StarterPack: Comparable, CustomStringConvertible {
                           message: msg)
     }
     
+    public func display(prefix: String = "") {
+        print("\(prefix)StarterPack.display")
+        print("\(prefix)location: \(location)")
+        print("\(prefix)title: \(title)")
+        print("\(prefix)title common: \(titleCommon)")
+        print("\(prefix)seq: \(seq)")
+        print("\(prefix)description: \(description)")
+        print("\(prefix)teaser: \(teaser)")
+        print("\(prefix)body: \(body)")
+        print("\(prefix)projectFolder? \(projectFolder)")
+    }
+    
     // -----------------------------------------------------------
     //
     // MARK: Conformance to Comparable protocol. 

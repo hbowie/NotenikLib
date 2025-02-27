@@ -27,18 +27,19 @@ public class InfoLineMaker {
                  bunch: BunchOfNotes?,
                  subFolder: Bool = false,
                  folderName: String = "",
-                 cloning: Bool = false) {
+                 cloning: Bool = false,
+                 cloneTitle: String? = nil) {
         
         guard let lib = collection.lib else { return }
 
         if subFolder {
             writer.append(label: NotenikConstants.title, value: collection.title + " / " + folderName)
         } else if cloning {
-            var cloneTitle = "Notes"
-            if let collectionURL = lib.getURL(type: .collection) {
-                cloneTitle = collectionURL.lastPathComponent
+            var title = "Notes"
+            if cloneTitle != nil && !cloneTitle!.isEmpty {
+                title = cloneTitle!
             }
-            writer.append(label: NotenikConstants.title, value: cloneTitle)
+            writer.append(label: NotenikConstants.title, value: title)
         } else {
             writer.append(label: NotenikConstants.title, value: collection.title)
         }

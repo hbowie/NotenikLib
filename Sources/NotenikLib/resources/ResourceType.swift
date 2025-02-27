@@ -29,6 +29,7 @@ public enum ResourceType {
     case info
     case infoConflicted
     case infoParent
+    case infoStarterPack
     case klassFolder
     case license
     case mirror

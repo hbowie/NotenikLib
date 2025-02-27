@@ -579,6 +579,8 @@ public class ResourceFileSys: CustomStringConvertible, Comparable, Equatable {
             type = .infoParent
         } else if (_fName == NotenikConstants.infoProjectFileName) {
             type = .infoParent
+        } else if (_fName == NotenikConstants.infoStarterFileName) {
+            type = .infoStarterPack
         } else if ((_fName.starts(with: "- INFO") || _fName.starts(with: "- project-INFO"))
                    && extLower == "nnk"
                    && _fName.lowercased().contains("conflict")) {
@@ -595,7 +597,7 @@ public class ResourceFileSys: CustomStringConvertible, Comparable, Equatable {
             type = .note
         } else if extLower == NotenikConstants.scriptExt.withoutDot {
             type = .script
-        } 
+        }
     }
     
     // -----------------------------------------------------------
