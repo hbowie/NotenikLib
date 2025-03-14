@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 12/4/18.
-//  Copyright © 2018 - 2024 Herb Bowie (https://hbowie.net)
+//  Copyright © 2018 - 2025 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -561,6 +561,71 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
         }
     }
     
+    /// Set the Note's Date Picked  field.
+    public func setDatePicked(_ datePicked: String) -> Bool {
+        guard collection.datePickedFieldDef != nil else { return false }
+        return setField(label: collection.datePickedFieldDef!.fieldLabel.commonForm,
+                        value: datePicked)
+    }
+    
+    /// Note is being picked  right now - bring field up-to-date.
+    public func setDatePickedNow() {
+        guard collection.datePickedFieldDef != nil else { return }
+        let datePickedField = getField(def: collection.datePickedFieldDef!)
+        if let datePickedValue = datePickedField?.value as? DateTimeValue {
+            datePickedValue.setToNow()
+        } else {
+            let nowValue = DateTimeValue()
+            let datePickedField = NoteField(def: collection.datePickedFieldDef!,
+                                            value: nowValue)
+            _ = addField(datePickedField)
+        }
+    }
+    
+    public func clearDatePicked() {
+        guard let def = collection.datePickedFieldDef else { return }
+        guard contains(def: def) else { return }
+        removeField(def: def)
+    }
+    
+    public func hasDatePicked() -> Bool {
+        guard let def = collection.datePickedFieldDef else { return false }
+        return contains(def: def)
+    }
+    
+    public var datePicked: DateTimeValue? {
+        guard collection.datePickedFieldDef != nil else { return nil }
+        guard contains(def: collection.datePickedFieldDef!) else { return nil }
+        let val = getFieldAsValue(def: collection.datePickedFieldDef!)
+        if val is DateTimeValue {
+            return val as? DateTimeValue
+        } else {
+            return nil
+        }
+    }
+    
+    public var datePickedValue: String {
+        guard collection.datePickedFieldDef != nil else { return "" }
+        guard contains(def: collection.datePickedFieldDef!) else { return "" }
+        let val = getFieldAsValue(def: collection.datePickedFieldDef!)
+        if let datePickedValue = val as? DateTimeValue {
+            return datePickedValue.value
+        } else {
+            return ""
+        }
+    }
+    
+    public var datePickedSortKey: String {
+        guard collection.datePickedFieldDef != nil else { return "" }
+        guard contains(def: collection.datePickedFieldDef!) else { return "" }
+        let val = getFieldAsValue(def: collection.datePickedFieldDef!)
+        if let datePickedValue = val as? DateTimeValue {
+            return datePickedValue.sortKey
+        } else {
+            return ""
+        }
+    }
+    
     /// This variable provides compliance with the CustomStringConvertible protocol.
     public var description: String {
         return sortKey
@@ -599,6 +664,16 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
             return dateAddedSortKey
         case .dateModified:
             return dateModifiedSortKey
+        case .datePicked:
+            if hasDatePicked() {
+                return datePickedSortKey + title.sortKey
+            } else {
+                if collection.sortBlankDatesLast  && !collection.sortDescending {
+                    return "9999-12-31 23:59:59 -0000" + title.sortKey
+                } else {
+                    return "0000-00-00 00:00:00 +0000" + title.sortKey
+                }
+            }
         case .datePlusSeq:
             return date.getSortKey(sortBlankDatesLast: collection.sortBlankDatesLast)
                 + seq.sortKey

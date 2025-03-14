@@ -3,7 +3,7 @@
 //  NotenikLib
 //
 //  Created by Herb Bowie on 12/4/18.
-//  Copyright © 2019 - 2024 Herb Bowie (https://hbowie.net)
+//  Copyright © 2019 - 2025 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -104,6 +104,7 @@ public class NoteCollection {
     public  var textFormatFieldDef: FieldDefinition?
     public  var bodyFieldDef:   FieldDefinition
     public  var dateAddedFieldDef: FieldDefinition?
+    public  var datePickedFieldDef: FieldDefinition?
     public  var imageNameFieldDef: FieldDefinition?
     public  var imageDarkFieldDef: FieldDefinition?
     public  var minutesToReadDef: FieldDefinition?
@@ -634,6 +635,9 @@ public class NoteCollection {
             
         case NotenikConstants.dateAddedCommon:
             dateAddedFieldDef = def
+            
+        case NotenikConstants.datePickedCommon:
+            datePickedFieldDef = def
             
         case NotenikConstants.pageStyleCommon:
             pageStyleDef = def

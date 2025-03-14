@@ -3,7 +3,7 @@
 //  NotenikLib
 //
 //  Created by Herb Bowie on 10/25/19.
-//  Copyright © 2019 - 2023 Herb Bowie (https://hbowie.net)
+//  Copyright © 2019 - 2025 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -26,6 +26,7 @@ public class AllTypes {
     let comboType   = ComboType()
     let dateAddedType = DateAddedType()
     let dateModifiedType = DateModifiedType()
+    let datePickedType = DatePickedType()
     let dateType    = DateType()
     let directionsType = DirectionsType()
     let durationType = DurationType()
@@ -117,6 +118,7 @@ public class AllTypes {
         fieldTypes.append(codeType)
         fieldTypes.append(dateAddedType)
         fieldTypes.append(dateModifiedType)
+        fieldTypes.append(datePickedType)
         fieldTypes.append(dateType)
         fieldTypes.append(durationType)
         fieldTypes.append(folderType)
@@ -199,6 +201,8 @@ public class AllTypes {
         case NotenikConstants.dateModifiedCommon:
             return false
         case NotenikConstants.dateAddedCommon:
+            return false
+        case NotenikConstants.datePickedCommon:
             return false
         case NotenikConstants.timestampCommon:
             return false

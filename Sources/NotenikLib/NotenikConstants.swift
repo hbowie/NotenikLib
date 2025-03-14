@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 12/11/18.
-//  Copyright © 2018 - 2024 Herb Bowie (https://hbowie.net)
+//  Copyright © 2018 - 2025 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -48,6 +48,8 @@ public struct NotenikConstants {
     public static let dateAddedCommon   = "dateadded"
     public static let dateModified      = "Date Modified"
     public static let dateModifiedCommon = "datemodified"
+    public static let datePicked        = "Date Picked"
+    public static let datePickedCommon  = "datepicked"
     public static let directions        = "Directions"
     public static let directionsCommon  = "directions"
     public static let directionsRequested = "directions-requested"

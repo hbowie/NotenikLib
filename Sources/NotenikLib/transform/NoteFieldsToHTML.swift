@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 4/15/21.
 //
-//  Copyright © 2021 - 2024 Herb Bowie (https://hbowie.net)
+//  Copyright © 2021 - 2025 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -159,6 +159,8 @@ public class NoteFieldsToHTML {
                             // ignore for now
                         } else if field!.def.fieldLabel.commonForm == NotenikConstants.dateModifiedCommon {
                             // ignore for now
+                        } else if field!.def.fieldLabel.commonForm == NotenikConstants.datePickedCommon {
+                            // ignore for now
                         } else if field!.def.fieldLabel.commonForm == NotenikConstants.timestampCommon {
                             // ignore for now
                         } else if field!.def == collection.backlinksDef {
@@ -192,7 +194,10 @@ public class NoteFieldsToHTML {
         }
         
         // Put system-maintained dates at the bottom, for reference.
-        if parms.fullDisplay && (note.hasDateAdded() || note.hasTimestamp() || note.hasDateModified()) {
+        if parms.fullDisplay && (note.hasDateAdded()
+                                 || note.hasTimestamp()
+                                 || note.hasDateModified()
+                                 || note.hasDatePicked()) {
             code.horizontalRule()
             
             let stamp = note.getField(label: NotenikConstants.timestamp)
@@ -208,6 +213,14 @@ public class NoteFieldsToHTML {
             let dateModified = note.getField(label: NotenikConstants.dateModified)
             if dateModified != nil {
                 code.append(display(dateModified!, noteTitle: noteTitle, note: note, collection: collection, io: io))
+            }
+            
+            if note.hasDatePicked() {
+                if let datePicked = note.getField(def: collection.datePickedFieldDef!) {
+                    code.append(display(datePicked,
+                                        noteTitle: noteTitle, note: note,
+                                        collection: collection, io: io))
+                }
             }
         }
         

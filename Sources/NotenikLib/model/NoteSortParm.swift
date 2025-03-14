@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 12/27/18.
-//  Copyright © 2018 - 2024 Herb Bowie (https://hbowie.net)
+//  Copyright © 2018 - 2025 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -30,6 +30,8 @@ public enum NoteSortParm: Int {
     case folderTitle     = 15
     case folderDateTitle = 16
     case folderSeqTitle  = 17
+    case datePicked      = 18
+
     
     // Get or set with a String containing the raw value
     var str: String {
