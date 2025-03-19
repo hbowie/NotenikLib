@@ -440,20 +440,37 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     
     public func getNotenikLink(preferringTimestamp: Bool = false) -> String {
         
-        var str = "notenik://open?"
         
-        if collection.shortcut.count > 0 {
-            str.append("shortcut=\(collection.shortcut)")
+        var str = "notenik://"
+        if collection.isRealmCollection {
+            if link.value.hasSuffix(".tsv") || link.value.hasSuffix(".tcz") {
+                str.append("run?")
+                if let scriptURL2 = URL(string: link.value) {
+                    let encodedPath = String(scriptURL2.absoluteString.dropFirst(7))
+                    str.append("path=\(encodedPath)")
+                }
+            } else if tags.value.contains("Collections") {
+                str.append("open?")
+                if let folderURL = URL(string: link.value) {
+                    let encodedPath = String(folderURL.absoluteString.dropFirst(7))
+                    str.append("path=\(encodedPath)")
+                }
+            }
         } else {
-            let folderURL = URL(fileURLWithPath: collection.fullPath)
-            let encodedPath = String(folderURL.absoluteString.dropFirst(7))
-            str.append("path=\(encodedPath)")
-        }
-        
-        if preferringTimestamp && collection.hasTimestamp {
-            str.append("&timestamp=\(timestampAsString)")
-        } else {
-            str.append("&id=\(noteID.commonID)")
+            str.append( "open?")
+            if collection.shortcut.count > 0 {
+                str.append("shortcut=\(collection.shortcut)")
+            } else {
+                let folderURL = URL(fileURLWithPath: collection.fullPath)
+                let encodedPath = String(folderURL.absoluteString.dropFirst(7))
+                str.append("path=\(encodedPath)")
+            }
+            
+            if preferringTimestamp && collection.hasTimestamp {
+                str.append("&timestamp=\(timestampAsString)")
+            } else {
+                str.append("&id=\(noteID.commonID)")
+            }
         }
         return str
     }
