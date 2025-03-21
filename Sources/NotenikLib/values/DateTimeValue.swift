@@ -28,7 +28,13 @@ public class DateTimeValue: StringValue {
         super.init()
         ymdhmszFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss xxxx"
         ymdhmsFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-        super.set(ymdhmszFormatter.string(from: dateAndTime))
+    }
+    
+    public convenience init(toNow: Bool) {
+        self.init()
+        if toNow {
+            super.set(ymdhmszFormatter.string(from: dateAndTime))
+        }
     }
     
     /// Set an initial value as part of initialization

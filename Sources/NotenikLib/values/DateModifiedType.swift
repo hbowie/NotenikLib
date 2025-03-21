@@ -32,7 +32,7 @@ class DateModifiedType: AnyType {
     
     /// A factory method to create a new value of this type with no initial value.
     override func createValue() -> StringValue {
-        return DateTimeValue()
+        return DateTimeValue(toNow: true)
     }
     
     /// A factory method to create a new value of this type with the given value.

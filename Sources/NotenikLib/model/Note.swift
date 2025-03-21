@@ -530,7 +530,7 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
         if let dateModValue = dateModField?.value as? DateTimeValue {
             dateModValue.setToNow()
         } else {
-            let nowValue = DateTimeValue()
+            let nowValue = DateTimeValue(toNow: true)
             let dateModField = NoteField(def: dateModifiedDef, value: nowValue)
             _ = addField(dateModField)
         }
@@ -592,7 +592,7 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
         if let datePickedValue = datePickedField?.value as? DateTimeValue {
             datePickedValue.setToNow()
         } else {
-            let nowValue = DateTimeValue()
+            let nowValue = DateTimeValue(toNow: true)
             let datePickedField = NoteField(def: collection.datePickedFieldDef!,
                                             value: nowValue)
             _ = addField(datePickedField)

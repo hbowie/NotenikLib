@@ -1788,7 +1788,11 @@ public class TemplateUtil {
     }
     
     func genAuthorWorkSlug(fromNote: Note) -> String {
-        return NoteSlugger.authorWorkSlug(fromNote: fromNote, links: true, verbose: false)
+        var links = false
+        if templateFileName.extLower == "htm" || templateFileName.extLower == "html" {
+            links = true
+        }
+        return NoteSlugger.authorWorkSlug(fromNote: fromNote, links: links, verbose: false)
     }
     
     func genImageSlug(fromNote: Note) -> String {

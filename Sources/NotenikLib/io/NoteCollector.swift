@@ -28,5 +28,9 @@ public class NoteCollector: NoteOpenInspector {
             }
         }
     }
+    
+    public func sort() {
+        notes.sort()
+    }
 
 }
