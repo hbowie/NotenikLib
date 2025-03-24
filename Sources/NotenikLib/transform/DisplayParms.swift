@@ -18,6 +18,8 @@ import NotenikUtils
 /// All of the parameters used to control the way a Note is converted to HTML. 
 public class DisplayParms {
     
+    let htmlConverter = StringConverter()
+    
     public var cssString = ""
     public var cssLinkToFile = false
     public var displayTemplate = ""
@@ -41,7 +43,7 @@ public class DisplayParms {
     public var addins: [String] = []
     
     public init() {
-        
+        htmlConverter.addHTML()
     }
     
     /// Set various values that are taken from the Note's Collection.
@@ -179,8 +181,9 @@ public class DisplayParms {
         if note.noteID.seqBeforeTitle {
             text = note.title.value
         }
+        let htmlText = htmlConverter.convert(from: text)
         let wikiLink = wikiLinks.assembleWikiLink(idBasis: idToUse)
-        markedup.link(text: text,
+        markedup.link(text: htmlText,
                       path: wikiLink,
                       klass: klass)
     }
