@@ -299,6 +299,7 @@ public class WebBookMaker {
     public func generate() -> Int {
         
         images = []
+        tocLevels = []
         
         loadImagesFolder()
         
@@ -621,8 +622,7 @@ public class WebBookMaker {
     var parms = DisplayParms()
     var display = NoteDisplay()
     
-    var tocLevel1 = 0
-    var tocLevel2 = 0
+    var tocLevels: [Int] = []
     
     /// Generate appropriate output for the next Note.
     func generate(note: Note) {
@@ -630,6 +630,7 @@ public class WebBookMaker {
         if note.mkdownCommandList.metadata {
             metaNote = note
         }
+        
         guard note.includeInBook(epub: epub) else { return }
         
         let title = note.title.value
@@ -649,11 +650,12 @@ public class WebBookMaker {
             levelText = "1"
             levelInt = 1
         } else {
-            if tocLevel1 <= 0 {
-                tocLevel1 = levelInt
+            var tocLevelIndex = 0
+            while tocLevelIndex < tocLevels.count && levelInt > tocLevels[tocLevelIndex] {
+                tocLevelIndex += 1
             }
-            if tocLevel2 <= 0 && levelInt > tocLevel1 {
-                tocLevel2 = levelInt
+            if tocLevelIndex >= tocLevels.count && tocLevelIndex <= collection.tocDepth {
+                tocLevels.append(levelInt)
             }
         }
 
@@ -693,10 +695,20 @@ public class WebBookMaker {
                                           finish: false,
                                           properties: properties)
                 generateSpine(idref: id, finish: false)
-                if levelInt == tocLevel1 {
-                    addToTableOfContents(level: 1, href: fileName + "." + htmlFileExt, note: note)
-                } else if levelInt == tocLevel2 {
-                    addToTableOfContents(level: 2, href: fileName + "." + htmlFileExt, note: note)
+                var tocLevelIndex = 0
+                var i = 0
+                while i < tocLevels.count {
+                    i += 1
+                }
+                while tocLevelIndex < tocLevels.count && tocLevels[tocLevelIndex] < levelInt {
+                    tocLevelIndex += 1
+                }
+                if tocLevelIndex < tocLevels.count {
+                    if levelInt == tocLevels[tocLevelIndex] {
+                        addToTableOfContents(level: tocLevelIndex + 1,
+                                             href: fileName + "." + htmlFileExt,
+                                             note: note)
+                    }
                 }
                 if display.mkdownContext == nil {
                     communicateError("Attempt to generate for Note titled \(note.title.value) witn nil MkdownContext")
@@ -751,6 +763,7 @@ public class WebBookMaker {
     var lastLevel = 0
     
     func addToTableOfContents(level: Int, href: String, note: Note?, finish: Bool = false) {
+        
         if !tocStarted {
             toc = Markedup(format: .xhtmlDoc)
             toc.startDoc(withTitle: "Table of Contents", withCSS: nil, epub3: true)

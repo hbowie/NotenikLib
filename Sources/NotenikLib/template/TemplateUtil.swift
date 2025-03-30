@@ -839,6 +839,8 @@ public class TemplateUtil {
         var repeatStarted = false
         var repeatString = ""
         
+        var altPending = false
+        
         var formatString = ""
         
         wikiStyle = "0"
@@ -899,6 +901,9 @@ public class TemplateUtil {
                 } else {
                     wordDelimiter.append(char)
                 }
+            } else if altPending {
+                modifiedValue = NumberUtils.toAlternate(modifiedValue, altType: char)
+                altPending = false
             } else if char == shiftChar {
                 shiftEngaged = !shiftEngaged
                 if !shiftEngaged {
@@ -942,6 +947,8 @@ public class TemplateUtil {
                 let caretFollowing = nextChar.lowercased()
                 modifiedValue = extractString(inStr: modifiedValue, command: caretFollowing)
                 inc = 2
+            } else if char == "@" {
+                altPending = true
             } else if char == "a" && (nextChar == "1" || nextChar == "2" || nextChar == "3") {
                 let authorValue = AuthorValue(modifiedValue)
                 switch nextChar {

@@ -57,7 +57,7 @@ public class OutlineTree: Sequence {
         collection = note.collection
         hasLevel = (collection!.levelFieldDef != nil)
         hasSeq = (collection!.seqFieldDef != nil)
-        if collection!.outlineTab {
+        if collection!.outlineTabSetting.isEnabled {
             outlineTreeEnabled = true
         }
     }

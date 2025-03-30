@@ -63,7 +63,7 @@ public class InfoLineMaker {
         writer.append(label: NotenikConstants.minBodyEditViewHeight, value: "\(collection.minBodyEditViewHeight)")
         writer.append(label: NotenikConstants.titleDisplayOpt,   value: "\(collection.titleDisplayOption.rawValue)")
         writer.append(label: NotenikConstants.displayMode,       value: collection.displayMode.rawValue)
-        writer.append(label: NotenikConstants.outlineTab,        value: "\(collection.outlineTab)")
+        writer.append(label: NotenikConstants.outlineTab,        value: "\(collection.outlineTabSetting.rawValue)")
         writer.append(label: NotenikConstants.overrideCustomDisplay, value: "\(collection.overrideCustomDisplay)")
         writer.append(label: NotenikConstants.mathJax,           value: "\(collection.mathJax)")
         writer.append(label: NotenikConstants.imgLocal,          value: "\(collection.imgLocal)")
@@ -83,6 +83,8 @@ public class InfoLineMaker {
         if !collection.webBookAsEPUB {
             writer.append(label: NotenikConstants.webBookEPUB, value: "false")
         }
+        
+        writer.append(label: NotenikConstants.tocDepth, value: "\(collection.tocDepth)")
         
         if collection.noteFileFormat != .toBeDetermined {
             writer.append(label: NotenikConstants.noteFileFormat, value: collection.noteFileFormat.rawValue)

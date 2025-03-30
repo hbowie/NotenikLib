@@ -51,7 +51,7 @@ public class NoteCollection {
     public  var bodyLabel = true
     public  var titleDisplayOption: LineDisplayOption = .pBold
     public  var displayMode: DisplayMode = .normal
-    public  var outlineTab = false
+    public  var outlineTabSetting: OutlineTabSetting = .none
     public  var overrideCustomDisplay = false
     public  var displayTemplate = ""
     public  var displayCSS = ""
@@ -133,6 +133,7 @@ public class NoteCollection {
     public  var lastNewKlass   = ""
     public  var webBookPath    = ""
     public  var webBookAsEPUB  = true
+    public  var tocDepth       = 3
     
     public  var idToParse      = ""
     public  var textToParse    = ""

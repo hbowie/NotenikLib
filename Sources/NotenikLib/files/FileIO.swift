@@ -914,10 +914,19 @@ public class FileIO: NotenikIO, RowConsumer {
             }
         }
         
-        let outlineTabField = infoNote.getField(label: NotenikConstants.outlineTabCommon)
-        if outlineTabField != nil {
-            let outlineTab = BooleanValue(outlineTabField!.value.value)
-            collection!.outlineTab = outlineTab.isTrue
+        let outlineTabSettingStr = infoNote.getFieldAsString(label: NotenikConstants.outlineTabCommon)
+        var outlineTabSetting: OutlineTabSetting = .none
+        if !outlineTabSettingStr.isEmpty {
+            if outlineTabSettingStr == "true" {
+                outlineTabSetting = .withSeq
+            } else if outlineTabSettingStr == "false" {
+                outlineTabSetting = .none
+            } else if let outlineTabSettingInt = Int(outlineTabSettingStr) {
+                if let outlineTabSettingCond = OutlineTabSetting(rawValue: outlineTabSettingInt) {
+                    outlineTabSetting = outlineTabSettingCond
+                }
+            }
+            collection!.outlineTabSetting = outlineTabSetting
         }
         
         let overrideCustomDisplayField = infoNote.getField(label: NotenikConstants.overrideCustomDisplayCommon)
@@ -999,6 +1008,11 @@ public class FileIO: NotenikIO, RowConsumer {
         
         let webBookPathStr = infoNote.getFieldAsString(label: NotenikConstants.webBookFolderCommon)
         collection!.webBookPath = webBookPathStr
+        
+        let tocDepthStr = infoNote.getFieldAsString(label: NotenikConstants.tocDepthCommon)
+        if let tocDepth = Int(tocDepthStr) {
+            collection!.tocDepth = tocDepth
+        }
         
         let lastImportParentStr = infoNote.getFieldAsString(label: NotenikConstants.lastImportParentCommon)
         collection!.lastImportParent = lastImportParentStr

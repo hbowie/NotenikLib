@@ -18,7 +18,7 @@ public struct NotenikConstants {
     
     //-------------------------------------------------------------
     //
-    // Field Labels
+    // Field Labels and Types
     //
     //-------------------------------------------------------------
     public static let address           = "Address"
@@ -157,6 +157,22 @@ public struct NotenikConstants {
     
     //-------------------------------------------------------------
     //
+    // Field Type strings (if different from label)
+    //
+    //-------------------------------------------------------------
+    
+    public static let booleanType       = "boolean"
+    public static let comboType         = "combo"
+    public static let dateType          = "date"
+    public static let labelType         = "label"
+    public static let longTextType      = "longtext"
+    public static let lookupType        = "lookup"
+    public static let lookBackType      = "lookback"
+    public static let stringType        = "string"
+    public static let pickFromType      = "pickfrom"
+    
+    //-------------------------------------------------------------
+    //
     // Derived fields that can be used in merge templates.
     //
     //-------------------------------------------------------------
@@ -174,22 +190,6 @@ public struct NotenikConstants {
     public static let titleDisplaySlugCommon = "titledisplayslug"
     public static let uniqueIdCommon       = "uniqueidfornote"
     
-    
-    //-------------------------------------------------------------
-    //
-    // Field Type strings (if different from label)
-    //
-    //-------------------------------------------------------------
-    
-    public static let booleanType       = "boolean"
-    public static let comboType         = "combo"
-    public static let dateType          = "date"
-    public static let labelType         = "label"
-    public static let longTextType      = "longtext"
-    public static let lookupType        = "lookup"
-    public static let lookBackType      = "lookback"
-    public static let stringType        = "string"
-    public static let pickFromType      = "pickfrom"
     
     //-------------------------------------------------------------
     //
@@ -317,6 +317,9 @@ public struct NotenikConstants {
     
     public static let listDisplayFont   = "list-display-font"
     public static let listDisplaySize   = "list-display-size"
+    
+    public static let tocDepth          = "ToC Depth"
+    public static let tocDepthCommon    = "tocdepth"
     
     //-------------------------------------------------------------
     //
