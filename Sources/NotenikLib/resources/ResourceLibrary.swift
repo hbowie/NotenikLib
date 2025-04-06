@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 2/27/21.
 //
-//  Copyright © 2021-2024 Herb Bowie (https://hbowie.net)
+//  Copyright © 2021-2025 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -53,6 +53,7 @@ public class ResourceLibrary: Equatable {
     var klassFolder       = ResourceFileSys()
     var exportFolder      = ResourceFileSys()
     var cssFolder         = ResourceFileSys()
+    var shareTemplatesFolder = ResourceFileSys()
     var addinsFolder      = ResourceFileSys()
     
     var infoCollection:   NoteCollection?
@@ -82,6 +83,7 @@ public class ResourceLibrary: Equatable {
         klassFolder     = ResourceFileSys()
         exportFolder    = ResourceFileSys()
         cssFolder       = ResourceFileSys()
+        shareTemplatesFolder = ResourceFileSys()
         addinsFolder    = ResourceFileSys()
         
         infoCollection  = NoteCollection()
@@ -149,6 +151,8 @@ public class ResourceLibrary: Equatable {
             addinsFolder.checkStatus()
         case .cssFolder:
             cssFolder.checkStatus()
+        case .shareTemplatesFolder:
+            shareTemplatesFolder.checkStatus()
         default:
             return
         }
@@ -194,6 +198,8 @@ public class ResourceLibrary: Equatable {
             return readmeFile.isAvailable
         case .reports:
             return reportsFolder.isAvailable
+        case .shareTemplatesFolder:
+            return shareTemplatesFolder.isAvailable
         case .template:
             return templateFile.isAvailable
         default:
@@ -241,6 +247,8 @@ public class ResourceLibrary: Equatable {
             return readmeFile.actualPath
         case .reports:
             return reportsFolder.actualPath
+        case .shareTemplatesFolder:
+            return shareTemplatesFolder.actualPath
         case .template:
             return templateFile.actualPath
         default:
@@ -288,6 +296,8 @@ public class ResourceLibrary: Equatable {
             return readmeFile.url
         case .reports:
             return reportsFolder.url
+        case .shareTemplatesFolder:
+            return shareTemplatesFolder.url
         case .template:
             return templateFile.url
         default:
@@ -335,6 +345,8 @@ public class ResourceLibrary: Equatable {
             return readmeFile
         case .reports:
             return reportsFolder
+        case .shareTemplatesFolder:
+            return shareTemplatesFolder
         case .template:
             return templateFile
         default:
@@ -387,6 +399,15 @@ public class ResourceLibrary: Equatable {
             _ = notenikFilesSubfolder.ensureExistence()
             notenikFiles = ResourceFileSys(parent: collection, fileName: NotenikConstants.notenikFiles, type: .notenikFiles)
             return notenikFilesSubfolder
+        case .shareTemplatesFolder:
+            if shareTemplatesFolder.isAvailable {
+                return shareTemplatesFolder
+            }
+            shareTemplatesFolder = ResourceFileSys(parent: notesFolder,
+                                                   fileName: NotenikConstants.shareTemplatesFolderName,
+                                                   type: .shareTemplatesFolder)
+            _ = shareTemplatesFolder.ensureExistence()
+            return shareTemplatesFolder
         default:
             return ResourceFileSys()
         }
@@ -428,6 +449,8 @@ public class ResourceLibrary: Equatable {
             return parentFolder.getResourceContents()
         case .reports:
             return reportsFolder.getResourceContents()
+        case .shareTemplatesFolder:
+            return shareTemplatesFolder.getResourceContents()
         default:
             return nil
         }
@@ -698,6 +721,11 @@ public class ResourceLibrary: Equatable {
         
         // Set the location for a possible css folder.
         cssFolder = ResourceFileSys(parent: notesFolder, fileName: NotenikConstants.cssFolderName, type: .cssFolder)
+        
+        // Set the location for a possible share folder
+        shareTemplatesFolder = ResourceFileSys(parent: notesFolder,
+                                               fileName: NotenikConstants.shareTemplatesFolderName,
+                                               type: .shareTemplatesFolder)
         
         // Set the location for a possible add-ins folder.
         addinsFolder = ResourceFileSys(parent: notesFolder, fileName: NotenikConstants.addinsFolderName, type: .addinsFolder)

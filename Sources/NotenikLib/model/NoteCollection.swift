@@ -55,8 +55,13 @@ public class NoteCollection {
     public  var overrideCustomDisplay = false
     public  var displayTemplate = ""
     public  var displayCSS = ""
+    
     public  var cssFiles: [String] = []
     public  var selCSSfile = ""
+    
+    public var  shareTemplates: [String] = []
+    public var  selShareTemplate = ""
+    
     public  var addins: [URL] = []
     
     public  var mathJax = false

@@ -459,6 +459,7 @@ public class FileIO: NotenikIO, RowConsumer {
         loadExportScripts()
         loadKlassDefs()
         loadCSSfiles()
+        loadShareTemplates()
         loadAddins()
         
         let notesContents = collection!.lib.notesFolder.getResourceContents(preferredNoteExt: collection!.preferredExt)
@@ -1086,6 +1087,11 @@ public class FileIO: NotenikIO, RowConsumer {
             collection!.selCSSfile = selCSSfileField!.value.value
         }
         
+        let selShareTemplateField = infoNote.getField(label: NotenikConstants.selShareFileCommon)
+        if selShareTemplateField != nil && !selShareTemplateField!.value.isEmpty {
+            collection!.selShareTemplate = selShareTemplateField!.value.value
+        }
+        
         let notePickerAction = infoNote.getField(label: NotenikConstants.notePickerActionCommon)
         if notePickerAction != nil && !notePickerAction!.value.isEmpty {
             collection!.notePickerAction = notePickerAction!.value.value
@@ -1494,6 +1500,34 @@ public class FileIO: NotenikIO, RowConsumer {
         logInfo("\(collection!.cssFiles.count) CSS file(s) Loaded from the css folder")
         if !selCSSfileFound {
             collection!.selCSSfile = ""
+        }
+    }
+    
+    public func loadShareTemplates() {
+        
+        collection!.shareTemplates = []
+        
+        guard let lib = collection?.lib else { return }
+        guard lib.hasAvailable(type: .shareTemplatesFolder) else {
+            return
+        }
+        
+        var selShareTemplateFound = false
+        
+        guard let contents = lib.getContents(type: .shareTemplatesFolder) else { return }
+        
+        for content in contents {
+            guard content.isAvailable else { continue }
+            guard !content.fileName.starts(with: ".") else { continue }
+            collection!.shareTemplates.append(content.baseDotExt)
+            if collection!.selShareTemplate == content.baseDotExt {
+                selShareTemplateFound = true
+            }
+        }
+        collection!.shareTemplates.sort()
+        logInfo("\(collection!.shareTemplates.count) Merge Templates Loaded from the share folder")
+        if !selShareTemplateFound {
+            collection!.selShareTemplate = ""
         }
     }
     

@@ -107,6 +107,9 @@ public class AppPrefs {
     let openInNovaKey = "open-in-nova"
     var _openInNova = false
     
+    let allowDotsKey = "allow-dots-in-filenames"
+    var _allowDots = false
+    
     let scriptFolderKey = "script-folder"
     var _scriptFolder = ""
     
@@ -314,6 +317,8 @@ public class AppPrefs {
         
         _openInNova = defaults.bool(forKey: openInNovaKey)
         
+        _allowDots = defaults.bool(forKey: allowDotsKey)
+        
         let sf = defaults.string(forKey: scriptFolderKey)
         if sf != nil && !sf!.isEmpty {
             _scriptFolder = sf!
@@ -500,6 +505,16 @@ public class AppPrefs {
         set {
             _openInNova = newValue
             defaults.set(_openInNova, forKey: openInNovaKey)
+        }
+    }
+    
+    public var allowDots: Bool {
+        get {
+            return _allowDots
+        }
+        set {
+            _allowDots = newValue
+            defaults.set(_allowDots, forKey: allowDotsKey)
         }
     }
     

@@ -1092,7 +1092,7 @@ public class TemplateUtil {
         }
         
         if readableFileName {
-            modifiedValue = StringUtils.toReadableFilename(modifiedValue)
+            modifiedValue = StringUtils.toReadableFilename(modifiedValue, allowDots: AppPrefs.shared.allowDots)
         } else if formatFileName {
             modifiedValue = StringUtils.toCommonFileName(modifiedValue)
         }

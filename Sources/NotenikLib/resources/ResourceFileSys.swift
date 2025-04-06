@@ -41,7 +41,10 @@ public class ResourceFileSys: CustomStringConvertible, Comparable, Equatable {
     var base = ""
     var baseLower = ""
     var baseCommon = ""
+    var ext = ""
     var extLower = ""
+    
+    var baseDotExt: String { return "\(base).\(ext)" }
     
     // -----------------------------------------------------------
     //
@@ -175,7 +178,7 @@ public class ResourceFileSys: CustomStringConvertible, Comparable, Equatable {
             
             base = ""
             baseLower = ""
-            var ext = ""
+            ext = ""
             extLower = ""
             
             if c == "." {
@@ -377,7 +380,7 @@ public class ResourceFileSys: CustomStringConvertible, Comparable, Equatable {
         return true
     }
     
-    func getText() -> String {
+    public func getText() -> String {
         guard isAvailable else { return "" }
         guard !isDirectory else { return "" }
         guard let textURL = url else { return "" }
@@ -551,6 +554,8 @@ public class ResourceFileSys: CustomStringConvertible, Comparable, Equatable {
             type = .klassFolder
         } else if _fName == NotenikConstants.notenikFiles {
             type = .notenikFiles
+        } else if _fName == NotenikConstants.shareTemplatesFolderName {
+            type = .shareTemplatesFolder
         } else {
             type = .folder
         }

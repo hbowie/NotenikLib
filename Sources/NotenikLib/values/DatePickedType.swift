@@ -33,13 +33,13 @@ class DatePickedType: AnyType {
     
     /// A factory method to create a new value of this type with no initial value.
     override func createValue() -> StringValue {
-        return DateTimeValue()
+        return DatePickedValue()
     }
     
     /// A factory method to create a new value of this type with the given value.
     /// - Parameter str: The value to be used to populate the field with a value.
     override func createValue(_ str: String) -> StringValue {
-        let datePicked = DateTimeValue(str)
+        let datePicked = DatePickedValue(str)
         return datePicked
     }
     

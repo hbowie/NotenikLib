@@ -312,6 +312,8 @@ public struct NotenikConstants {
     static let outlineTabCommon         = "outlinetab"
     static let selCSSFile               = "Selected CSS File"
     static let selCSSfileCommon         = "selectedcssfile"
+    static let selShareFile             = "Selected Share Template"
+    static let selShareFileCommon       = "selectedsharetemplate"
     public static let notePickerAction       = "Note Picker Action"
     public static let notePickerActionCommon = "notepickeraction"
     
@@ -340,6 +342,8 @@ public struct NotenikConstants {
     public static let klassFolderName   = "class"
     
     public static let cssFolderName     = "css"
+    
+    public static let shareTemplatesFolderName = "share"
     
     public static let notenikFiles      = "- notenik_files"
     

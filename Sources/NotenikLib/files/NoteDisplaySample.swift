@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 4/15/21.
 //
-//  Copyright © 2021 - 2024 Herb Bowie (https://hbowie.net)
+//  Copyright © 2021 - 2025 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -33,6 +33,13 @@ public class NoteDisplaySample {
     public static let sampleReportTemplateFileName = "sample report template"
     
     var io: FileIO!
+    var collection: NoteCollection!
+    var dict: FieldDictionary!
+    var resourceLib: ResourceLibrary!
+    var notes: ResourceFileSys!
+    var specialFiles: ResourceFileSys!
+    var cssFile: ResourceFileSys!
+    var templateFile: ResourceFileSys!
     
     var webRoot = ""
     
@@ -49,7 +56,6 @@ public class NoteDisplaySample {
     var titleLabel = NotenikConstants.titleCommon
     var tagsLabel = NotenikConstants.tagsCommon
     var datesAndTimes = false
-    var collection: NoteCollection!
     var shortMods = "&h"
     var longMods = "&o"
     
@@ -58,10 +64,28 @@ public class NoteDisplaySample {
 
     }
     
+    public func anyExistingFiles(io: NotenikIO) -> Bool {
+        
+        guard ready(io: io) else { return false}
+        
+        if cssFile.exists {
+            return true
+        }
+        
+        if templateFile.exists {
+            return true
+        }
+        
+        return false
+        
+    }
+    
     /// Generate Sample Display Files.
     /// - Parameter io: The Notenik I/O module for the desired Collection.
     /// - Returns: True if successful, false if errors.
     public func genSampleFiles(io: NotenikIO) -> Bool {
+        
+        guard ready(io: io) else { return false}
         
         var ok = true
         
@@ -72,21 +96,7 @@ public class NoteDisplaySample {
         // -----------------------------------------------------------
 
         let displayPrefs = DisplayPrefs.shared
-        var fileIO: FileIO
-        if io is FileIO {
-            fileIO = io as! FileIO
-        } else {
-            return false
-        }
-        guard fileIO.collectionOpen else { return false }
-        collection = io.collection!
-        let resourceLib = io.collection!.lib
-        let notes = resourceLib!.getResource(type: .notes)
-        var specialFiles = notes
-        if resourceLib!.hasAvailable(type: .notenikFiles) {
-            specialFiles = resourceLib!.getResource(type: .notenikFiles)
-        }
-        let dict = collection.dict
+
         titleLabel = collection.titleFieldDef.fieldLabel.commonForm
         tagsLabel = collection.tagsFieldDef.fieldLabel.commonForm
         
@@ -100,9 +110,7 @@ public class NoteDisplaySample {
         if displayPrefs.displayCSS != nil {
             css = displayPrefs.displayCSS!
         }
-        let cssFile = ResourceFileSys(parent: specialFiles,
-                                      fileName: NotenikConstants.displayCSSFileName,
-                                      type: .displayCSS)
+
         ok = cssFile.write(str: css)
         guard ok else { return false }
         
@@ -173,9 +181,6 @@ public class NoteDisplaySample {
         code.templateLoop()
         
         // Save it to disk.
-        let templateFile = ResourceFileSys(parent: specialFiles,
-                                           fileName: NotenikConstants.displayHTMLFileName,
-                                           type: .display)
         ok = templateFile.write(str: code.code)
         
         return ok
@@ -229,6 +234,42 @@ public class NoteDisplaySample {
         }
         
         code.templateEndIf()
+    }
+    
+    func ready(io: NotenikIO) -> Bool {
+        
+        if let checkIO = io as? FileIO {
+            self.io = checkIO
+        } else {
+            return false
+        }
+        
+        guard self.io.collectionOpen else { return false }
+        
+        collection = io.collection!
+        dict = collection.dict
+        
+        if let lib = io.collection!.lib {
+            resourceLib = lib
+        } else {
+            return false
+        }
+        
+        notes = resourceLib.getResource(type: .notes)
+        
+        specialFiles = notes
+        if resourceLib!.hasAvailable(type: .notenikFiles) {
+            specialFiles = resourceLib!.getResource(type: .notenikFiles)
+        }
+        
+        cssFile = ResourceFileSys(parent: specialFiles,
+                                  fileName: NotenikConstants.displayCSSFileName,
+                                  type: .displayCSS)
+        templateFile = ResourceFileSys(parent: specialFiles,
+                                       fileName: NotenikConstants.displayHTMLFileName,
+                                       type: .display)
+        
+        return true
     }
     
 }

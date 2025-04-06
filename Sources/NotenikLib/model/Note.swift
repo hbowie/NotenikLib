@@ -589,7 +589,7 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     public func setDatePickedNow() {
         guard collection.datePickedFieldDef != nil else { return }
         let datePickedField = getField(def: collection.datePickedFieldDef!)
-        if let datePickedValue = datePickedField?.value as? DateTimeValue {
+        if let datePickedValue = datePickedField?.value as? DatePickedValue {
             datePickedValue.setToNow()
         } else {
             let nowValue = DateTimeValue(toNow: true)
@@ -610,12 +610,12 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
         return contains(def: def)
     }
     
-    public var datePicked: DateTimeValue? {
+    public var datePicked: DatePickedValue? {
         guard collection.datePickedFieldDef != nil else { return nil }
         guard contains(def: collection.datePickedFieldDef!) else { return nil }
         let val = getFieldAsValue(def: collection.datePickedFieldDef!)
-        if val is DateTimeValue {
-            return val as? DateTimeValue
+        if val is DatePickedValue {
+            return val as? DatePickedValue
         } else {
             return nil
         }
@@ -625,7 +625,7 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
         guard collection.datePickedFieldDef != nil else { return "" }
         guard contains(def: collection.datePickedFieldDef!) else { return "" }
         let val = getFieldAsValue(def: collection.datePickedFieldDef!)
-        if let datePickedValue = val as? DateTimeValue {
+        if let datePickedValue = val as? DatePickedValue {
             return datePickedValue.value
         } else {
             return ""
@@ -636,7 +636,7 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
         guard collection.datePickedFieldDef != nil else { return "" }
         guard contains(def: collection.datePickedFieldDef!) else { return "" }
         let val = getFieldAsValue(def: collection.datePickedFieldDef!)
-        if let datePickedValue = val as? DateTimeValue {
+        if let datePickedValue = val as? DatePickedValue {
             return datePickedValue.sortKey
         } else {
             return ""

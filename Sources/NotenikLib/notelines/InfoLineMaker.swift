@@ -127,6 +127,10 @@ public class InfoLineMaker {
             writer.append(label: NotenikConstants.selCSSFile, value: collection.selCSSfile)
         }
         
+        if !collection.selShareTemplate.isEmpty {
+            writer.append(label: NotenikConstants.selShareFile, value: collection.selShareTemplate)
+        }
+        
         if !collection.notePickerAction.isEmpty {
             writer.append(label: NotenikConstants.notePickerAction, value: collection.notePickerAction)
         }

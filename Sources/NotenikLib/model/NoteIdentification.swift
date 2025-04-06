@@ -140,7 +140,7 @@ public class NoteIdentification: Identifiable, Comparable, Equatable {
     
     func deriveIdentifiers() {
         commonID         = StringUtils.toCommon(basis)
-        readableFileName = StringUtils.toReadableFilename(basis)
+        readableFileName = StringUtils.toReadableFilename(basis, allowDots: AppPrefs.shared.allowDots)
         commonFileName   = StringUtils.toCommonFileName(basis)
         derivationNeeded = false
     }
@@ -207,7 +207,7 @@ public class NoteIdentification: Identifiable, Comparable, Equatable {
     }
     
     /// The filename consisting of a base, plus a dot, plus the extension.
-    public func  getBaseDotExt() -> String? {
+    public func getBaseDotExt() -> String? {
         
         // Concatenate base, dot and extension.
         if isEmpty {

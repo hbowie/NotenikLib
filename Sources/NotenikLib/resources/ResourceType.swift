@@ -45,6 +45,7 @@ public enum ResourceType {
     case reports
     case report
     case script
+    case shareTemplatesFolder
     case tempDisplay
     case template
     case unknown
