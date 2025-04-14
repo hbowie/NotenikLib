@@ -83,11 +83,14 @@ public class Template {
     /// - Parameters:
     ///   - notesList: The list of Notes to be used.
     ///   - dataSource: A path identifying the source of the notes.
-    public func supplyData(notesList: NotesList, dataSource: String) {
+    public func supplyData(notesList: NotesList, dataSource: String, io: NotenikIO? = nil) {
         util.notesList = notesList
         util.dataFileName = FileName(dataSource)
         util.dataCount = 0
         util.dataMax = notesList.count
+        if io != nil {
+            util.io = io!
+        }
         util.bodyHTML = nil
         util.mdResults.minutesToRead = nil
     }

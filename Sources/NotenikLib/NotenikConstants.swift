@@ -415,7 +415,6 @@ public struct NotenikConstants {
     //-------------------------------------------------------------
     
     public static let webNotenik          = "https://notenik.app"
-    public static let webDonate           = "https://ko-fi.com/hbowie"
     public static let webForum            = "https://discourse.notenik.app"
     public static let webIntro            = "https://notenik.app/intro/welcome-to-notenik.html"
     public static let webVid101           = "https://youtu.be/JR0kpAUXM5E"
