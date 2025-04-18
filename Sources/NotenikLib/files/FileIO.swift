@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 12/14/18.
-//  Copyright © 2018 - 2024 Herb Bowie (https://hbowie.net)
+//  Copyright © 2018 - 2025 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -489,6 +489,9 @@ public class FileIO: NotenikIO, RowConsumer {
                 if note != nil && note!.hasTitle() {
                     addAttachments(to: note!)
                     pickLists.registerNote(note: note!)
+                    if note!.hasSeq() {
+                        collection!.registerSeq(note!.seq)
+                    }
                     var shortIdRead = ""
                     if collection!.shortIdDef != nil {
                         shortIdRead = note!.shortID.value
@@ -688,6 +691,9 @@ public class FileIO: NotenikIO, RowConsumer {
                     addAttachments(to: note!)
                     _ = note!.setFolder(str: subFolder.fileName)
                     pickLists.registerNote(note: note!)
+                    if note!.hasSeq() {
+                        collection!.registerSeq(note!.seq)
+                    }
                     var shortIdRead = ""
                     if collection!.shortIdDef != nil {
                         shortIdRead = note!.shortID.value
@@ -1691,6 +1697,9 @@ public class FileIO: NotenikIO, RowConsumer {
             }
         }
         pickLists.registerNote(note: note)
+        if note.hasSeq() {
+            collection!.registerSeq(note.seq)
+        }
         return collection!.lib.saveNote(note: note)
     }
     

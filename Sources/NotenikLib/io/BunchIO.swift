@@ -362,6 +362,9 @@ class BunchIO: NotenikIO, RowConsumer  {
             return (nil, NotePosition(index: -1))
         }
         pickLists.registerNote(note: newNote)
+        if newNote.hasSeq() {
+            collection!.registerSeq(newNote.seq)
+        }
         let (_, position) = bunch!.selectNote(newNote)
         return (newNote, position)
     }

@@ -156,6 +156,8 @@ public class NoteCollection {
     
     public  var notePickerAction = ""
     
+    public  var highestSeq: SeqValue?
+    
     /// Default initialization of a new Collection.
     public init () {
         lib = ResourceLibrary()
@@ -700,6 +702,12 @@ public class NoteCollection {
         }
     }
     
+    public func registerSeq(_ noteSeq: SeqValue) {
+        guard seqFieldDef != nil else { return }
+        if highestSeq == nil || highestSeq! < noteSeq {
+            highestSeq = noteSeq.dupe()
+        }
+    }
     
     var highestTitleNumber = 0
     

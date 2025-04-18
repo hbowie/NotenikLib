@@ -1319,6 +1319,7 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     
     // Does this note have a non-blank Sequence field?
     public func hasSeq() -> Bool {
+        guard collection.seqFieldDef != nil else { return false }
         return seq.count > 0
     }
     
