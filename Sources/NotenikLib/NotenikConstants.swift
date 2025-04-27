@@ -189,6 +189,7 @@ public struct NotenikConstants {
     public static let childrenSlugCommon   = "childrenslug"
     public static let titleDisplaySlugCommon = "titledisplayslug"
     public static let uniqueIdCommon       = "uniqueidfornote"
+    public static let seqFormattedCommon   = "seqformatted"
     
     
     //-------------------------------------------------------------

@@ -630,6 +630,8 @@ public class NoteFieldsToHTML {
             code.finishParagraph()
         } else if field.def.fieldType.typeString == NotenikConstants.lookupType {
             displayLookup(field, note: note, collection: collection, markedup: code, io: io)
+        } else if field.def.fieldType.typeString == NotenikConstants.seqCommon {
+            displaySeq(field, collection: collection, markedup: code)
         } else {
             displayStraight(field, markedup: code)
         }
@@ -792,6 +794,50 @@ public class NoteFieldsToHTML {
                       path: pathForLink,
                       klass: "ext-link",
                       blankTarget: blankTarget)
+        markedup.finishParagraph()
+    }
+    
+    func displaySeq(_ field: NoteField, collection: NoteCollection, markedup: Markedup) {
+        markedup.startParagraph()
+        markedup.append(field.def.fieldLabel.properWithParent)
+        markedup.append(": ")
+        let display1 = field.value.valueToDisplay()
+        markedup.append(display1)
+        if !collection.seqFormatter.isEmpty {
+            if let seqValue = field.value as? SeqValue {
+                let (full, _) = collection.seqFormatter.format(seq: seqValue, full: true)
+                let (formatted, _) = collection.seqFormatter.format(seq: seqValue)
+                var displayFull = false
+                var displaySimple = false
+                if full != display1 {
+                    displayFull = true
+                }
+                
+                if formatted != display1 && formatted != full {
+                    displaySimple = true
+                }
+                
+                if displayFull || displaySimple {
+                    markedup.append(" (formatted as ")
+                }
+                
+                if displayFull {
+                    markedup.append("'\(full)'")
+                }
+                
+                if displayFull && displaySimple {
+                    markedup.append(" or simply ")
+                }
+                
+                if displaySimple {
+                    markedup.append("'\(formatted)'")
+                }
+                
+                if displayFull || displaySimple {
+                    markedup.append(")")
+                }
+            }
+        }
         markedup.finishParagraph()
     }
     

@@ -846,6 +846,23 @@ public class TemplateUtil {
         wikiStyle = "0"
         mkdownOptions.flattenImageLinks = false
         
+        var seq = false
+        if varNameCommon == NotenikConstants.seqCommon {
+            seq = true
+        } else if varNameCommon == NotenikConstants.seqFormattedCommon {
+            seq = true
+        } else {
+            var seqFieldDef: FieldDefinition?
+            if note.collection.seqFieldDef != nil {
+                seqFieldDef = note.collection.seqFieldDef!
+            } else if workspace!.collection.seqFieldDef != nil {
+                seqFieldDef = workspace!.collection.seqFieldDef!
+            }
+            if seqFieldDef?.fieldType.typeString == NotenikConstants.seqCommon {
+                seq = true
+            }
+        }
+        
         // See what modifiers we have
         var i = mods.startIndex
         
@@ -987,6 +1004,10 @@ public class TemplateUtil {
                 modifiedValue = String(describing: markedUp)
             } else if charLower == "i" {
                 modifiedValue = StringUtils.toCommon(modifiedValue)
+            } else if seq && char == "k" {
+                modifiedValue = note.getFormattedSeq(full: false)
+            } else if seq && char == "K" {
+                modifiedValue = note.getFormattedSeq(full: true)
             } else if char == "k" {
                 formatString.append("h")
             } else if char == "K" {
@@ -1518,6 +1539,9 @@ public class TemplateUtil {
         case NotenikConstants.uniqueIdCommon:
             return fromNote.id
             
+        case NotenikConstants.seqFormattedCommon:
+            return fromNote.getFormattedSeq(full: true)
+            
         default:
             break
         }
@@ -1652,7 +1676,7 @@ public class TemplateUtil {
         var titleToDisplay = fromNote.title.value
         if !parms.included.asList {
             if fromNote.hasSeq() || fromNote.hasDisplaySeq() {
-                titleToDisplay = fromNote.formattedSeqForDisplay + " " + fromNote.title.value
+                titleToDisplay = fromNote.getFormattedSeqForDisplay() + " " + fromNote.title.value
             }
         }
         
@@ -1748,7 +1772,7 @@ public class TemplateUtil {
             if nextDepth == childDepth {
                 childrenHTML.startListItem()
                 if !nextNote.klass.frontOrBack {
-                    childrenHTML.append("\(nextNote.formattedSeqForDisplay) ")
+                    childrenHTML.append("\(nextNote.getFormattedSeqForDisplay()) ")
                 }
                 childrenHTML.link(text: nextNote.noteID.text,
                                   path: parms.wikiLinks.assembleWikiLink(idBasis: nextNote.noteID.getBasis()),

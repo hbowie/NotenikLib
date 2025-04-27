@@ -166,7 +166,7 @@ public class DisplayParms {
         } else if note.hasDisplaySeq() {
             seqPrefix = note.formattedDisplaySeq + " "
         } else {
-            seqPrefix = note.formattedSeq + " "
+            seqPrefix = note.getFormattedSeq() + " "
         }
         if !seqPrefix.isEmpty {
             markedup.append(seqPrefix)
@@ -204,7 +204,7 @@ public class DisplayParms {
             if note.hasDisplaySeq() {
                 return note.formattedDisplaySeq + simpleTitle
             } else if note.hasSeq() {
-                return note.formattedSeq + " " + simpleTitle
+                return note.getFormattedSeq() + " " + simpleTitle
             } else {
                 return simpleTitle
             }

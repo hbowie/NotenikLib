@@ -13,7 +13,7 @@ import Foundation
 
 public class SeqType: AnyType {
     
-    var seqParms = SeqParms()
+    public var seqParms = SeqParms()
     
     override init() {
         

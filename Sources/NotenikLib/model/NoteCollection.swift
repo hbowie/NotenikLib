@@ -158,6 +158,17 @@ public class NoteCollection {
     
     public  var highestSeq: SeqValue?
     
+    public  var sortBySeq: Bool {
+        switch sortParm {
+        case .seqPlusTitle:
+            return true
+        case .tasksBySeq:
+            return true
+        default:
+            return false
+        }
+    }
+    
     /// Default initialization of a new Collection.
     public init () {
         lib = ResourceLibrary()

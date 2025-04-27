@@ -787,10 +787,10 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     ///   will have no effect.
     ///   - sep: The separator to place between the Seq and the Title. Defaults to a single space.
     /// - Returns: The title of the Note, optionally preceded by a Seq value.
-    public func getTitle(withSeq: Bool = false, formattedSeq: Bool = false, sep: String = " ") -> String {
+    public func getTitle(withSeq: Bool = false, formattedSeq: Bool = false, full: Bool = false, sep: String = " ") -> String {
         if withSeq && hasSeq() && !klass.frontOrBack {
-            if formattedSeq {
-                return formattedSeqForDisplay + sep + title.value
+            if formattedSeq || full {
+                return getFormattedSeqForDisplay(full: full) + sep + title.value
             } else {
                 return seq.value + sep + title.value
             }
@@ -1305,11 +1305,11 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     // Return the appropriate seq field.
     //
    
-    public var formattedSeqForDisplay: String {
+    public func getFormattedSeqForDisplay(full: Bool = false) -> String {
         if hasDisplaySeq() {
             return formattedDisplaySeq
         } else {
-            return formattedSeq
+            return getFormattedSeq(full: full)
         }
     }
     
@@ -1348,13 +1348,15 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     }
     
     /// Return a formatted Seq, basec on Collection prefs
-    public var formattedSeq: String {
+    public func getFormattedSeq(full: Bool = false) ->String {
         
         guard collection.seqFieldDef != nil else { return "" }
         
         guard let seqValue = getFieldAsValue(def: collection.seqFieldDef!) as? SeqValue else { return "" }
 
-        return collection.seqFormatter.format(seq: seqValue)
+        let (formatted, _) = collection.seqFormatter.format(seq: seqValue, full: full)
+        return formatted
+        
     }
     
     //

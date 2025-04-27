@@ -928,7 +928,7 @@ public class NotesExporter {
         markup.startDetails(openParm: openParm)
         markup.startSummary()
         if note.hasSeq() {
-            markup.append("\(note.formattedSeq) ")
+            markup.append("\(note.getFormattedSeq()) ")
         }
         markup.append(note.title.value)
         
