@@ -855,7 +855,7 @@ public class TemplateUtil {
             var seqFieldDef: FieldDefinition?
             if note.collection.seqFieldDef != nil {
                 seqFieldDef = note.collection.seqFieldDef!
-            } else if workspace!.collection.seqFieldDef != nil {
+            } else if workspace?.collection.seqFieldDef != nil {
                 seqFieldDef = workspace!.collection.seqFieldDef!
             }
             if seqFieldDef?.fieldType.typeString == NotenikConstants.seqCommon {
