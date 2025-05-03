@@ -237,7 +237,7 @@ public class WebBookMaker {
         
         // Open the input.
         collectionLink = NotenikLink(url: input)
-        collectionLink.determineCollectionType()
+        collectionLink.determineCollectionType(source: .fromWithout)
         switch collectionLink.type {
         case .ordinaryCollection, .webCollection:
             break

@@ -262,7 +262,7 @@ public class NotenikFolderList: Sequence {
         }
         
         /// Let's see if the passed URL  points to a Notenik Collection.
-        folder.determineCollectionType()
+        folder.determineCollectionType(source: .fromWithout)
         
         if index < folders.count {
             folders.insert(folder, at: index)

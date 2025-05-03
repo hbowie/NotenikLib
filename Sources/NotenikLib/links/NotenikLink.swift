@@ -464,7 +464,7 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
     
     /// This method should only be called when needed in a particular context. It is not automatically
     /// performed upon initialization or when a new value is set.
-    public func determineCollectionType() {
+    public func determineCollectionType(source: NotenikLinkSource) {
         guard !collectionTypeDetermined else { return }
         determineDirAndPackage()
         guard type == .folder ||
@@ -554,7 +554,7 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
             type = .ordinaryCollection
         } else if notesFound > 0 && !robotsFileFound {
             type = .ordinaryCollection
-        } else if foldersFound > 0 {
+        } else if foldersFound > 0 && source == .fromWithout {
             type = .parentRealm
         } else if itemsFound == 0 {
             type = .emptyFolder
