@@ -409,6 +409,9 @@ public class DisplayPrefs {
         ul.outline-ul {
             list-style-type: none;
         }
+        ul.outline-list {
+            list-style-type: none;
+        }
         ul.outline-ul-within-details {
             list-style-type: none;
             margin-left: 0;

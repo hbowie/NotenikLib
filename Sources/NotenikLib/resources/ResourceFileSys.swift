@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 2/26/21.
 //
-//  Copyright © 2021 - 2024 Herb Bowie (https://hbowie.net)
+//  Copyright © 2021 - 2025 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -317,6 +317,35 @@ public class ResourceFileSys: CustomStringConvertible, Comparable, Equatable {
             logError("- Error: \(error)")
             return nil
         }
+        /*
+        var items2: [URL] = []
+        if let folderURL = url {
+            do {
+                items2 = try fm.contentsOfDirectory(at: folderURL, includingPropertiesForKeys: nil, options: [])
+                
+                for item2 in items2 {
+                    do {
+                        let rvs = try item2.resourceValues(forKeys: [URLResourceKey.isAliasFileKey])
+                        if let aliasFile = rvs.isAliasFile {
+                            if aliasFile {
+                                print("\(item2) is an alias file")
+                            }
+                        }
+                        /*
+                        do {
+                          let original = try NSURL(byResolvingAliasFileAtURL: url, options: NSURLBookmarkResolutionOptions())
+                          return original.path!
+                        } catch let error as NSError {
+                          print(error)
+                        } */
+                    } catch {
+                        logError("Could not obtain is alias resource value for \(item2)")
+                    }
+                }
+            } catch {
+                logError("Could not load directory contents as URLs")
+            }
+        } */
         var contentType: ResourceType = .unknown
         switch type {
         case .attachments:

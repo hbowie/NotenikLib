@@ -57,7 +57,7 @@ public class RealmScanner {
                         readmeCandidate: false)
             }
             
-            addNote(itemFullPath: "file://" + path,
+            addNote(itemFullPath: "notenik://find?path=" + path,
                     category: "finder",
                     title: "Open in Finder",
                     filePath: false,
