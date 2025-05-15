@@ -150,7 +150,9 @@ public class NoteDisplay {
         guard !parms.epub3 else { return "" }
         guard note.hasLevel() else { return "" }
         let noteLevel = note.level.level
-        guard noteLevel > 1 else { return "" }
+        guard noteLevel > 1 else {
+            return ""
+        }
         let sortParm = parms.sortParm
         guard sortParm == .seqPlusTitle else { return "" }
         var currentPosition = io.positionOfNote(note)
