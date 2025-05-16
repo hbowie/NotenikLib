@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 2/10/24.
 //
-//  Copyright © 2024 Herb Bowie (https://hbowie.net)
+//  Copyright © 2024 - 2025 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -36,6 +36,7 @@ public class NoteIdentification: Identifiable, Comparable, Equatable {
     
     var seqBeforeTitle   = false
     var basis            = ""
+    var fileNameBasis    = ""
     var text             = ""
     
     var existingBase:    String?
@@ -121,8 +122,9 @@ public class NoteIdentification: Identifiable, Comparable, Equatable {
         matchesIdSource = (StringUtils.toCommon(existingBase!) == commonID)
     }
     
-    func setBasis(_ basis: String) {
+    func setBasis(_ basis: String, fileNameBasis: String) {
         self.basis = basis
+        self.fileNameBasis = fileNameBasis
         deriveIdentifiers()
     }
     
@@ -140,8 +142,8 @@ public class NoteIdentification: Identifiable, Comparable, Equatable {
     
     func deriveIdentifiers() {
         commonID         = StringUtils.toCommon(basis)
-        readableFileName = StringUtils.toReadableFilename(basis, allowDots: AppPrefs.shared.allowDots)
-        commonFileName   = StringUtils.toCommonFileName(basis)
+        readableFileName = StringUtils.toReadableFilename(fileNameBasis, allowDots: AppPrefs.shared.allowDots)
+        commonFileName   = StringUtils.toCommonFileName(fileNameBasis)
         derivationNeeded = false
     }
     
@@ -269,6 +271,7 @@ public class NoteIdentification: Identifiable, Comparable, Equatable {
         noteID2.existingBase = self.existingBase
         noteID2.existingExt = self.existingExt
         noteID2.basis       = self.basis
+        noteID2.fileNameBasis  = self.fileNameBasis
         noteID2.text        = self.text
         noteID2.commonID    = commonID
         noteID2.readableFileName = self.readableFileName

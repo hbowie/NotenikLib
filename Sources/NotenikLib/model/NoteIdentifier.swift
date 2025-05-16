@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 2/12/24.
 //
-//  Copyright © 2024 Herb Bowie (https://hbowie.net)
+//  Copyright © 2024 - 2025 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -39,6 +39,17 @@ public class NoteIdentifier {
                 aux = field.value.valueToWrite()
                 if field.def.fieldType.typeString == NotenikConstants.seqCommon {
                     seqFieldFirst = true
+                } 
+            }
+        }
+        
+        var auxIsFolder = false
+        if note.collection.folderFieldDef != nil {
+            if uniqueIdRule == .titleBeforeAux || uniqueIdRule == .titleAfterAux {
+                if let def = note.collection.dict.getDef(noteIdAuxField) {
+                    if def.fieldType.typeString == NotenikConstants.folderCommon {
+                        auxIsFolder = true
+                    }
                 }
             }
         }
@@ -47,20 +58,32 @@ public class NoteIdentifier {
         switch uniqueIdRule {
         case .titleOnly:
             noteID.basis = note.title.value
+            noteID.fileNameBasis = note.title.value
         case .titleBeforeAux:
             if aux.isEmpty {
                 noteID.basis = note.title.value
+                noteID.fileNameBasis = note.title.value
+            } else if auxIsFolder {
+                noteID.basis = note.title.value + " " + aux
+                noteID.fileNameBasis = note.title.value
             } else {
                 noteID.basis = note.title.value + " " + aux
+                noteID.fileNameBasis = note.title.value + " " + aux
             }
         case .titleAfterAux:
             if aux.isEmpty {
                 noteID.basis = note.title.value
+                noteID.fileNameBasis = note.title.value
+            } else if auxIsFolder {
+                noteID.basis = aux + " " + note.title.value
+                noteID.fileNameBasis = note.title.value
             } else {
                 noteID.basis = aux + " " + note.title.value
+                noteID.fileNameBasis = aux + " " + note.title.value
             }
         case .auxOnly:
             noteID.basis = aux
+            noteID.fileNameBasis = aux
         }
         
         // Generate the text to be used to identify the note to the user.

@@ -618,6 +618,7 @@ public class FileIO: NotenikIO, RowConsumer {
                             realm: Realm,
                             collectionPath: String,
                             subFolder: ResourceFileSys) {
+        
         guard let foldersList = folderFieldDef.comboList else { return }
         foldersList.registerValue(subFolder.fileName)
         let subPath = FileUtils.joinPaths(path1: collectionPath, path2: subFolder.fileName)
@@ -690,6 +691,7 @@ public class FileIO: NotenikIO, RowConsumer {
                 if note != nil && note!.hasTitle() {
                     addAttachments(to: note!)
                     _ = note!.setFolder(str: subFolder.fileName)
+                    note!.identify()
                     pickLists.registerNote(note: note!)
                     if note!.hasSeq() {
                         collection!.registerSeq(note!.seq)
