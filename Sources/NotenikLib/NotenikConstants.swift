@@ -420,5 +420,15 @@ public struct NotenikConstants {
     public static let webIntro            = "https://notenik.app/intro/welcome-to-notenik.html"
     public static let webVid101           = "https://youtu.be/JR0kpAUXM5E"
     public static let webMacAppStoreRate  = "https://itunes.apple.com/app/id1465997984?action=write-review"
+    
+    //-------------------------------------------------------------
+    //
+    // Query Labels
+    //
+    //-------------------------------------------------------------
+    
+    public static let indexTermLabel = "t"
+    public static let indexedPageIndexLabel = "i"
+    public static let indexedPageCountLabel = "c"
 
 }

@@ -3,7 +3,7 @@
 //
 //  Created by Herb Bowie on 12/14/20.
 
-//  Copyright © 2020 - 2024 Herb Bowie (https://hbowie.net)
+//  Copyright © 2020 - 2025 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -30,6 +30,9 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
     public var type: NotenikLinkType = .unknown
     public var noteID = ""
     public var location: NotenikFolderLocation = .undetermined
+    public var indexTermKey: String = ""
+    public var indexedPageIndex: Int = -1
+    public var indexedPageCount: Int = 0
     
     var collectionTypeDetermined = false
     
@@ -374,9 +377,7 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
 
         let urlString = description
         if description.starts(with: NotenikConstants.urlNavPrefix) {
-            type = .wikiLink
-            let notePath = String(urlString.dropFirst(NotenikConstants.urlNavPrefix.count))
-            noteID = StringUtils.toCommon(notePath)
+            makeWikiLink()
         } else if description.starts(with: bundlePrefix) {
             type = .wikiLink
             let notePath = String(urlString.dropFirst(bundlePrefix.count))
@@ -392,6 +393,32 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
             type = .aboutlink
         }
         collectionTypeDetermined = false
+    }
+    
+    func makeWikiLink() {
+        type = .wikiLink
+        let urlAfterScheme = String(description.dropFirst(NotenikConstants.urlNavPrefix.count))
+        let urlSplits = urlAfterScheme.split(separator: "?")
+        if urlSplits.count > 0 {
+            let notePath = String(urlSplits[0])
+            noteID = StringUtils.toCommon(notePath)
+            if urlSplits.count > 1 {
+                let querySplits = String(urlSplits[1]).split(separator: "&")
+                if querySplits.count == 3 {
+                    let parm1Splits = querySplits[0].split(separator: "=")
+                    let parm2Splits = querySplits[1].split(separator: "=")
+                    let parm3Splits = querySplits[2].split(separator: "=")
+                    if parm1Splits.count == 2 && parm2Splits.count == 2 && parm3Splits.count == 2
+                        && parm1Splits[0] == NotenikConstants.indexTermLabel
+                        && parm2Splits[0] == NotenikConstants.indexedPageIndexLabel
+                        && parm3Splits[0] == NotenikConstants.indexedPageCountLabel {
+                        indexTermKey = String(parm1Splits[1]).removingPercentEncoding ?? String(parm1Splits[1])
+                        indexedPageIndex = Int(String(parm2Splits[1])) ?? -1
+                        indexedPageCount = Int(String(parm3Splits[1])) ?? 0
+                    }
+                }
+            }
+        }
     }
     
     func determineFileOrFolderSubType() {

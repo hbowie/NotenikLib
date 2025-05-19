@@ -1649,12 +1649,14 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     
     /// Does this note have a non-blank Index field?
     func hasIndex() -> Bool {
+        guard collection.indexFieldDef != nil else { return false }
         return index.count > 0
     }
     
     /// Append additional data to the Index Value
     func appendToIndex(_ index: String) {
-        let field = getField(label: collection.indexFieldDef.fieldLabel.commonForm)
+        guard collection.indexFieldDef != nil else { return }
+        let field = getField(label: collection.indexFieldDef!.fieldLabel.commonForm)
         if field == nil {
             _ = setIndex(index)
         } else {
@@ -1668,12 +1670,14 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     
     /// Set the Note's Index value
     func setIndex(_ index: String) -> Bool {
-        return setField(label: collection.indexFieldDef.fieldLabel.commonForm, value: index)
+        guard collection.indexFieldDef != nil else { return false }
+        return setField(label: collection.indexFieldDef!.fieldLabel.commonForm, value: index)
     }
     
     /// Return the Note's Index Value
     public var index: IndexValue {
-        let val = getFieldAsValue(def: collection.indexFieldDef)
+        guard collection.indexFieldDef != nil else { return IndexValue() }
+        let val = getFieldAsValue(def: collection.indexFieldDef!)
         if val is IndexValue {
             return val as! IndexValue
         } else {

@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 7/12/21.
 //
-//  Copyright © 2021 - 2024 Herb Bowie (https://hbowie.net)
+//  Copyright © 2021 - 2025 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -517,6 +517,13 @@ public class NotesMkdownContext: MkdownContext {
         // Now sort the list of terms.
         indexCollection.sort()
         
+        if let collection = io.collection {
+            collection.indexPageID = collection.idToParse
+            collection.indexOfCollection = indexCollection
+            collection.lastIndexTermKey = ""
+            collection.lastIndexTermPageIx = -1
+        }
+        
         // Generate an index, formatted using Markdown.
         let mkdown = Markedup(format: .htmlFragment)
         termCount = 0
@@ -551,13 +558,18 @@ public class NotesMkdownContext: MkdownContext {
             mkdown.startDefTerm()
             mkdown.append(term.term)
             mkdown.finishDefTerm()
+            var withinCount = 0
             for ref in term.refs {
                 pageCount += 1
                 mkdown.startDefDef()
-                let link = displayParms.wikiLinks.assembleWikiLink(idBasis: ref.page)
+                var link = displayParms.wikiLinks.assembleWikiLink(idBasis: ref.page)
+                link.append("?\(NotenikConstants.indexTermLabel)=\(term.term)")
+                link.append("&\(NotenikConstants.indexedPageIndexLabel)=\(withinCount)")
+                link.append("&\(NotenikConstants.indexedPageCountLabel)=\(term.refs.count)")
                 let text = htmlConverter.convert(from: ref.page)
                 mkdown.link(text: text, path: link, klass: Markedup.htmlClassNavLink)
                 mkdown.finishDefDef()
+                withinCount += 1
             }
         }
         mkdown.finishDefinitionList()

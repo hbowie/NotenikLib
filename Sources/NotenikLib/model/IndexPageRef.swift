@@ -11,13 +11,13 @@
 
 import Foundation
 
-class IndexPageRef {
+public class IndexPageRef {
     
-    var term       = IndexTerm()
-    var page       = ""
-    var pageType   = ""
-    var pageStatus = ""
-    var anchor     = ""
+    public var term       = IndexTerm()
+    public var page       = ""
+    public var pageType   = ""
+    public var pageStatus = ""
+    public var anchor     = ""
     
     init(term: IndexTerm, page: String, pageType: String, pageStatus: String, anchor: String) {
         self.term = term

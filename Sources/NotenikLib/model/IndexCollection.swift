@@ -11,7 +11,7 @@
 
 import Foundation
 
-class IndexCollection {
+public class IndexCollection {
     
     var dict: [String:IndexTerm] = [:]
     var list: [IndexTerm] = []
@@ -32,6 +32,10 @@ class IndexCollection {
     func containsKey(key: String) -> Bool {
         let term = dict[key]
         return term != nil
+    }
+    
+    public func getTermEntry(key: String) -> IndexTerm? {
+        return dict[key]
     }
     
     func add(page: String, pageType: String, pageStatus: String, index: IndexValue) {

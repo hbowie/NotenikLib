@@ -11,21 +11,21 @@
 
 import Foundation
 
-class IndexTerm: Comparable, Equatable {
+public class IndexTerm: Comparable, Equatable {
     
     var term = ""
     var link = ""
-    var refs: [IndexPageRef] = []
+    public var refs: [IndexPageRef] = []
     
-    init() {
+    public init() {
         
     }
     
-    init(term: String) {
+    public init(term: String) {
         self.term = term
     }
     
-    var key: String {
+    public var key: String {
         return term.lowercased() + term
     }
     
@@ -46,11 +46,11 @@ class IndexTerm: Comparable, Equatable {
         }
     }
     
-    static func == (lhs: IndexTerm, rhs: IndexTerm) -> Bool {
+    public static func == (lhs: IndexTerm, rhs: IndexTerm) -> Bool {
         return lhs.term == rhs.term
     }
     
-    static func < (lhs: IndexTerm, rhs: IndexTerm) -> Bool {
+    public static func < (lhs: IndexTerm, rhs: IndexTerm) -> Bool {
         return lhs.key < rhs.key
     }
 }

@@ -136,6 +136,16 @@ public class NoteFieldsToHTML {
             code.append(display(tagsField!, noteTitle: noteTitle, note: note, collection: collection, io: io))
         }
         
+        // Now the Index Term if applicable
+        if collection.indexFieldDef != nil && collection.indexOfCollection != nil
+            && note.noteID.id == collection.lastIndexedPageID {
+            code.startParagraph(klass: "indexed-by")
+            code.append("Indexed by ")
+            code.spanConditional(value: collection.lastIndexTermKey, klass: "index-term", prefix: "", suffix: "")
+            code.append(" (\(collection.lastIndexTermPageIx + 1) of \(collection.lastIndexTermPageCount))")
+            code.finishParagraph()
+        }
+        
         // Now let's display each of the fields, in dictionary order.
         var i = 0
         attribution = nil

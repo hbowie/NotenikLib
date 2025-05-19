@@ -580,6 +580,17 @@ public class DisplayPrefs {
             border-bottom: none;
         }
         
+        p.indexed-by {
+            clear: both;
+            font-style: normal;
+            text-align: right;
+        }
+        
+        span.index-term {
+            font-style: normal;
+            font-weight: 600;
+        }
+        
         """)
         tempCSS.append(buildHeadingsCSS())
         

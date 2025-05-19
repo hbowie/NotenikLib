@@ -98,7 +98,7 @@ public class NoteCollection {
     public  var klassFieldDef:   FieldDefinition?
     public  var includeChildrenDef: FieldDefinition?
     public  var attribFieldDef:  FieldDefinition?
-    public  var indexFieldDef:   FieldDefinition
+    public  var indexFieldDef:   FieldDefinition?
     public  var backlinksDef:    FieldDefinition?
     public  var wikilinksDef:    FieldDefinition?
     public  var creatorFieldDef: FieldDefinition
@@ -168,6 +168,13 @@ public class NoteCollection {
             return false
         }
     }
+    
+    public var indexOfCollection: IndexCollection?
+    public var indexPageID = ""
+    public var lastIndexTermKey: String = ""
+    public var lastIndexTermPageIx: Int = -1
+    public var lastIndexTermPageCount: Int = 0
+    public var lastIndexedPageID = ""
     
     /// Default initialization of a new Collection.
     public init () {
@@ -556,7 +563,7 @@ public class NoteCollection {
             includeChildrenDef = def
             
         case NotenikConstants.indexCommon:
-            if indexFieldDef.fieldLabel.commonForm == NotenikConstants.indexCommon {
+            if indexFieldDef == nil {
                 indexFieldDef = def
             }
             
@@ -788,7 +795,9 @@ public class NoteCollection {
         if includeChildrenDef != nil {
             print("  - Include Children Field: \(includeChildrenDef!.fieldLabel.properForm)")
         }
-        print("  - Index Field: \(indexFieldDef.fieldLabel.properForm)")
+        if indexFieldDef != nil {
+            print("  - Index Field: \(indexFieldDef!.fieldLabel.properForm)")
+        }
         if backlinksDef != nil {
             print("  - Backlinks Field: \(backlinksDef!.fieldLabel.properForm)")
         }
