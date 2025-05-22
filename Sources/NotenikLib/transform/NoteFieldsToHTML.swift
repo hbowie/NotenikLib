@@ -1204,7 +1204,7 @@ public class NoteFieldsToHTML {
                                    noteID: note.noteID.commonID,
                                    noteText: note.noteID.text,
                                    noteFileName: note.noteID.commonFileName,
-                                   noteShortID: shortID)
+                                   note: note)
         writer.append(results.html)
     }
     

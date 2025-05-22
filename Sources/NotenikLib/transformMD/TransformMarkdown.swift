@@ -42,7 +42,7 @@ public class TransformMarkdown {
                                 noteID: String = "",
                                 noteText: String = "",
                                 noteFileName: String = "",
-                                noteShortID: String = "") {
+                                note: Note? = nil) {
                 
         if parserID == NotenikConstants.downParser {
             let down = Down(markdownString: markdown)
@@ -72,6 +72,12 @@ public class TransformMarkdown {
         if fieldType != NotenikConstants.bodyCommon {
             mkdownOptions.checkBoxMessageHandlerName = ""
         }
+        
+        var noteShortID = ""
+        if note != nil && note!.hasShortID() {
+            noteShortID = note!.shortID.value
+        }
+        
         results.mkdownContext = NotesMkdownContext(io: io, displayParms: parms)
         mkdownOptions.shortID = noteShortID
         results.mkdownContext!.identifyNoteToParse(id: noteID,
@@ -112,6 +118,19 @@ public class TransformMarkdown {
                     }
                     let newNote = Note(collection: targetIO.collection!)
                     _ = newNote.setTitle(target.item)
+                    
+                    if collection.levelFieldDef != nil && note != nil && note!.hasLevel() {
+                        _ = newNote.setLevel(note!.level.value)
+                    }
+                    if collection.klassFieldDef != nil && note != nil && note!.hasKlass() {
+                        _ = newNote.setKlass(note!.klass.value)
+                    }
+                    if collection.seqFieldDef != nil && note != nil && note!.hasSeq() {
+                        let seq = note!.seq
+                        seq.increment()
+                        _ = newNote.setSeq(seq.value)
+                        
+                    }
                     newNote.identify()
                     if collection.backlinksDef == nil && !target.hasPath {
                         _ = newNote.setBody("Created by Wiki-style Link found in the Markdown code for the Note identified as [[\(noteID)]].")

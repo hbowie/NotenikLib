@@ -114,7 +114,7 @@ public class NoteDisplay {
                                        noteID: note.noteID.commonID,
                                        noteText: note.noteID.text,
                                        noteFileName: note.noteID.commonFileName,
-                                       noteShortID: shortID)
+                                       note: note)
             
             if mdResults.mkdownContext != nil {
                 note.mkdownCommandList = mdResults.mkdownContext!.mkdownCommandList

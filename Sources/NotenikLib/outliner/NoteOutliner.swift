@@ -241,7 +241,7 @@ public class NoteOutliner: Sequence {
         if details && node.hasChildren {
             code.startListItem()
         } else {
-            code.startListItem(klass: "outline-li-bullet", level: level)
+            code.startListItem(klass: "outline-li-no-kids", level: level)
         }
         if details && node.hasChildren {
             code.startDetails()
