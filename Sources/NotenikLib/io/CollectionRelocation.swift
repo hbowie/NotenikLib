@@ -112,7 +112,6 @@ public class CollectionRelocation {
         toCollection!.statusConfig = fromCollection!.statusConfig
         toCollection!.preferredExt = fromCollection!.preferredExt
         toCollection!.otherFields = fromCollection!.otherFields
-        // toCollection!.notesSubFolder = fromCollection!.notesSubFolder
         toCollection!.mirrorAutoIndex = fromCollection!.mirrorAutoIndex
         toCollection!.bodyLabel = fromCollection!.bodyLabel
         toCollection!.minBodyEditViewHeight = fromCollection!.minBodyEditViewHeight
@@ -120,6 +119,8 @@ public class CollectionRelocation {
         toCollection!.displayMode = fromCollection!.displayMode
         toCollection!.mathJax = fromCollection!.mathJax
         toCollection!.shortcut = fromCollection!.shortcut
+        toCollection!.extLinksOpenInNewWindows = fromCollection!.extLinksOpenInNewWindows
+        toCollection!.dailyNotesType = fromCollection!.dailyNotesType
         
         toNotesPath = toCollection!.lib.getPath(type: .notes)
 

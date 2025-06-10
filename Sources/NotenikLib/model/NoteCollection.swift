@@ -47,6 +47,10 @@ public class NoteCollection {
     public  var lastImportParent = ""
     public  var lastAttachmentParent: URL? = nil
     public  var forceStandardDisplay = false
+    
+    public  var dailyNotesType: DailyNotesType = .none
+    public  var essential = false
+    public  var general = false
 
     public  var bodyLabel = true
     public  var titleDisplayOption: LineDisplayOption = .pBold
@@ -700,6 +704,14 @@ public class NoteCollection {
         } else {
             lastNameFirstConfig = .title
         }
+        
+        determineSpecialFlags()
+    }
+    
+    public func determineSpecialFlags() {
+        let collectionURL = lib.getURL(type: .collection)
+        general   = (collectionURL == AppPrefs.shared.generalURL)
+        essential = (collectionURL == AppPrefs.shared.essentialURL)
     }
     
     /// Copy info such as field definitions from this Collection to another. This will

@@ -415,7 +415,10 @@ public class ResourceLibrary: Equatable {
     
     /// Attempt to create a Resource for the given Note.
     func getNoteResource(note: Note) -> ResourceFileSys? {
-        guard notesFolder.isAvailable else { return nil }
+        guard notesFolder.isAvailable else {
+            logError("No notes folder available")
+            return nil
+        }
         guard let fileName = note.noteID.getBaseDotExt() else { return nil }
         return ResourceFileSys(parent: notesFolder, fileName: fileName, type: .note)
     }

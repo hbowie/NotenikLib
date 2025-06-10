@@ -13,7 +13,7 @@
 import Foundation
 
 /// A single node in the Tags Tree.
-public class TagsNode: Comparable, CustomStringConvertible {
+public class TagsNode: Comparable, CustomStringConvertible, Hashable {
     
     static let thisLessThanThat = -1
     static let thisGreaterThanThat = 1
@@ -90,6 +90,16 @@ public class TagsNode: Comparable, CustomStringConvertible {
             return TagsNode.thisGreaterThanThat
         } else {
             return TagsNode.thisEqualsThat
+        }
+    }
+    
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(type.rawValue)
+        if type == .tag {
+            hasher.combine(tag!.sortKey)
+        } else if type == .note {
+            hasher.combine(note!.sortKey)
+            hasher.combine(note!.noteID.commonID)
         }
     }
     

@@ -90,6 +90,10 @@ public class InfoLineMaker {
             writer.append(label: NotenikConstants.noteFileFormat, value: collection.noteFileFormat.rawValue)
         }
         
+        if collection.dailyNotesType != .none {
+            writer.append(label: NotenikConstants.dailyNotes, value: collection.dailyNotesType.rawValue)
+        }
+        
         writer.append(label: NotenikConstants.hashTags, value: "\(collection.hashTagsOption.rawValue)")
         
         if !collection.windowPosStr.isEmpty && !subFolder && !cloning {

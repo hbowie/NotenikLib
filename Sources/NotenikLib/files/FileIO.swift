@@ -974,6 +974,17 @@ public class FileIO: NotenikIO, RowConsumer {
             collection!.extLinksOpenInNewWindows = extLinks.isTrue
         }
         
+        let dailyNotesField = infoNote.getField(label: NotenikConstants.dailyNotesCommon)
+        if dailyNotesField != nil {
+            let dailyNotesValue = dailyNotesField!.value.value
+            let dailyNotesType = DailyNotesType(rawValue: dailyNotesValue)
+            if dailyNotesType != nil {
+                collection!.dailyNotesType = dailyNotesType!
+            } else {
+                logError("\(dailyNotesValue) is an invalid INFO file value for the key \(NotenikConstants.dailyNotes).")
+            }
+        }
+        
         let scrollingSyncField = infoNote.getField(label: NotenikConstants.scrollingSync)
         if scrollingSyncField != nil {
             let scrollingSync = BooleanValue(scrollingSyncField!.value.value)
@@ -1726,7 +1737,6 @@ public class FileIO: NotenikIO, RowConsumer {
         
         // Make sure we have an open collection available to us
         guard collection != nil && collectionOpen else { return (nil, NotePosition(index: -1)) }
-        guard let lib = collection?.lib else { return (nil, NotePosition(index: -1)) }
         
         // Make sure we have a selected note
         let (noteToDelete, oldPosition) = bunch!.getSelectedNote()
@@ -1734,11 +1744,16 @@ public class FileIO: NotenikIO, RowConsumer {
             return (nil, NotePosition(index: -1))
         }
         
+        guard let lib = noteToDelete?.getResourceLib() else { return (nil, NotePosition(index: -1)) }
+        
         let (priorNote, priorPosition) = bunch!.priorNote(oldPosition)
         var returnNote = priorNote
         var returnPosition = priorPosition
  
-        _ = bunch!.delete(note: noteToDelete!)
+        let ok = bunch!.delete(note: noteToDelete!)
+        if !ok {
+            logError("Could not delete note titled '\(noteToDelete!.title.value)' from internal storage")
+        }
         
         MultiFileIO.shared.cancelLookBacks(lkUpNote: noteToDelete!)
         
@@ -1755,6 +1770,7 @@ public class FileIO: NotenikIO, RowConsumer {
         
         let noteResource = lib.getNoteResource(note: noteToDelete!)
         guard noteResource != nil && noteResource!.isAvailable else {
+            logError("Could not obtain library resource for note titled \(noteToDelete!.title.value)")
             return (nil, NotePosition(index: -1))
         }
         
@@ -2233,7 +2249,7 @@ public class FileIO: NotenikIO, RowConsumer {
                     }
                     
                     if updateField {
-                        let updtOK = newNote.setField(label: field.def.fieldLabel.properForm,
+                        _ = newNote.setField(label: field.def.fieldLabel.properForm,
                                                       value: field.value.value)
                     }
                 }

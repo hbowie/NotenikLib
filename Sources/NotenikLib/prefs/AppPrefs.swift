@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 5/25/19.
-//  Copyright © 2019 - 2024 Herb Bowie (https://hbowie.net)
+//  Copyright © 2019 - 2025 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -52,6 +52,9 @@ public class AppPrefs {
     
     let essentialURLKey = "essential-collection"
     var _essentialURL: URL?
+    
+    let generalURLKey = "general-collection"
+    var _generalURL: URL?
     
     let lastURLKey = "last-collection"
     var _lastURL: URL?
@@ -209,11 +212,15 @@ public class AppPrefs {
         favoritesColumnWidth = "250px"
         markdownParser = "notenik"
         essentialURL = nil
+        generalURL = nil
+        
     }
     
     func loadDefaults() {
         
         _essentialURL = defaults.url(forKey: essentialURLKey)
+        
+        _generalURL = defaults.url(forKey: generalURLKey)
         
         _lastURL = defaults.url(forKey: lastURLKey)
         
@@ -445,6 +452,16 @@ public class AppPrefs {
         set {
             _essentialURL = newValue
             defaults.set(_essentialURL, forKey: essentialURLKey)
+        }
+    }
+    
+    public var generalURL: URL? {
+        get {
+            return _generalURL
+        }
+        set {
+            _generalURL = newValue
+            defaults.set(_generalURL, forKey: generalURLKey)
         }
     }
     
