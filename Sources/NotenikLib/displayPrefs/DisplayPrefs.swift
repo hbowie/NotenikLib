@@ -218,7 +218,7 @@ public class DisplayPrefs {
         body {
           tab-size: 4;
           margin: 1em;
-          max-width: 40em; 
+          max-width: 50em; 
           background-color: var(--background-color);
           color: var(--text-color);
           line-height: 1.45;

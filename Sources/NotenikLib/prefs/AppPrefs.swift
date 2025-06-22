@@ -59,6 +59,12 @@ public class AppPrefs {
     let lastURLKey = "last-collection"
     var _lastURL: URL?
     
+    let leftSyncKey = "left-sync"
+    var _leftSync: URL?
+    
+    let rightSyncKey = "right-sync"
+    var _rightSync: URL?
+    
     let shortcutsKey = "shortcuts"
     var _shortcuts = ""
     
@@ -223,6 +229,10 @@ public class AppPrefs {
         _generalURL = defaults.url(forKey: generalURLKey)
         
         _lastURL = defaults.url(forKey: lastURLKey)
+        
+        _leftSync = defaults.url(forKey: leftSyncKey)
+        
+        _rightSync = defaults.url(forKey: rightSyncKey)
         
         _qd = defaults.bool(forKey: quickDeletesKey)
         
@@ -472,6 +482,26 @@ public class AppPrefs {
         set {
             _lastURL = newValue
             defaults.set(_lastURL, forKey: lastURLKey)
+        }
+    }
+    
+    public var leftSync: URL? {
+        get {
+            return _leftSync
+        }
+        set {
+            _leftSync = newValue
+            defaults.set(_leftSync, forKey: leftSyncKey)
+        }
+    }
+    
+    public var rightSync: URL? {
+        get {
+            return _rightSync
+        }
+        set {
+            _rightSync = newValue
+            defaults.set(_rightSync, forKey: rightSyncKey)
         }
     }
     

@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 3/22/24.
 //
-//  Copyright © 2024 Herb Bowie (https://hbowie.net)
+//  Copyright © 2024 - 2025 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -19,7 +19,10 @@ class NoteSlugger {
     /// Generate nicely formatted HTML to display Author and Work and related fields.
     /// - Parameter fromNote: The note supplying the fields.
     /// - Returns: Formatted html, or blank.
-    public static func authorWorkSlug(fromNote: Note, links: Bool = true, verbose: Bool = false) -> String {
+    public static func authorWorkSlug(fromNote: Note,
+                                      links: Bool = true,
+                                      verbose: Bool = false,
+                                      intLinks: Bool = false) -> String {
         
         let markedUp = Markedup(format: .htmlFragment)
         
@@ -35,12 +38,24 @@ class NoteSlugger {
             }
             
             if links {
-                let authorLink = FieldGrabber.getField(note: fromNote, label: NotenikConstants.authorLinkCommon)
-                if authorLink != nil {
-                    markedUp.startLink(path: authorLink!.value.value, klass: Markedup.htmlClassExtLink, blankTarget: true)
+                var authorLinkStr = ""
+                if intLinks {
+                    authorLinkStr = "../authors/" +
+                        StringUtils.toCommonFileName(authorValue.value) +
+                        ".html"
+                    markedUp.startLink(path: authorLinkStr)
+                } else {
+                    let authorLink = FieldGrabber.getField(note: fromNote,
+                                                           label: NotenikConstants.authorLinkCommon)
+                    if authorLink != nil {
+                        authorLinkStr = authorLink!.value.value
+                        markedUp.startLink(path: authorLinkStr,
+                                           klass: Markedup.htmlClassExtLink,
+                                           blankTarget: true)
+                    }
                 }
                 markedUp.append(authorValue.firstNameFirst)
-                if authorLink != nil {
+                if !authorLinkStr.isEmpty {
                     markedUp.finishLink()
                 }
             } else {
@@ -60,9 +75,9 @@ class NoteSlugger {
         if !workTitle.isEmpty && workTitle.lowercased() != "unknown" {
             if !markedUp.code.isEmpty {
                 markedUp.append(", ")
-                if verbose {
+                // if verbose {
                     markedUp.append("from ")
-                }
+                // }
             }
             var majorWork = true
             if let workTypeField = FieldGrabber.getField(note: fromNote, label: NotenikConstants.workTypeCommon) {
@@ -120,6 +135,27 @@ class NoteSlugger {
                 markedUp.append(", \(slugDate)")
             }
         }
+        
+        let rights = FieldGrabber.getField(note: fromNote, label: NotenikConstants.workRightsCommon)
+        let holder = FieldGrabber.getField(note: fromNote, label: NotenikConstants.workRightsHolderCommon)
+        if rights != nil || holder != nil {
+            if !markedUp.code.isEmpty {
+                markedUp.append(", ")
+            }
+            let author = FieldGrabber.getField(note: fromNote, label: NotenikConstants.authorCommon)
+            if rights == nil || rights!.value.value.lowercased() == "copyright" {
+                markedUp.append("&copy;")
+            } else {
+                markedUp.append(rights!.value.value)
+            }
+            markedUp.append(" ")
+            if holder != nil && !holder!.value.value.isEmpty {
+                markedUp.append(holder!.value.value)
+            } else if author != nil && !author!.value.value.isEmpty {
+                markedUp.append(author!.value.value)
+            }
+        }
+        
         return markedUp.code
     }
 }

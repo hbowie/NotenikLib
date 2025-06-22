@@ -1493,6 +1493,10 @@ public class TemplateUtil {
             let slug = genAuthorWorkSlug(fromNote: fromNote)
             if !slug.isEmpty { return slug }
             
+        case NotenikConstants.authorWorkSlugIntLinksCommon:
+            let slug = genAuthorWorkSlug(fromNote: fromNote, intLinks: true)
+            if !slug.isEmpty { return slug }
+            
         case NotenikConstants.theWorkTypeSlugCommon:
             if let workTypeField = FieldGrabber.getField(note: fromNote, label: NotenikConstants.workTypeCommon) {
                 if let workType = workTypeField.value as? WorkTypeValue {
@@ -1787,7 +1791,7 @@ public class TemplateUtil {
         }
         
         childrenHTML.finishUnorderedList()
-        childrenHTML.horizontalRule()
+        // childrenHTML.horizontalRule()
 
         return childrenHTML.code
     }
@@ -1818,12 +1822,15 @@ public class TemplateUtil {
         return slug
     }
     
-    func genAuthorWorkSlug(fromNote: Note) -> String {
+    func genAuthorWorkSlug(fromNote: Note, intLinks: Bool = false) -> String {
         var links = false
         if templateFileName.extLower == "htm" || templateFileName.extLower == "html" {
             links = true
         }
-        return NoteSlugger.authorWorkSlug(fromNote: fromNote, links: links, verbose: false)
+        return NoteSlugger.authorWorkSlug(fromNote: fromNote,
+                                          links: links,
+                                          verbose: false,
+                                          intLinks: intLinks)
     }
     
     func genImageSlug(fromNote: Note) -> String {
