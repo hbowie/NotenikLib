@@ -9,11 +9,11 @@
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
 //
-public enum SyncActions {
-    case logOnly
-    case logDetails
-    case logSummary
-    case debugging
+public enum SyncActions: String {
+    case logOnly    = "logonly"
+    case logDetails = "logdetails"
+    case logSummary = "logsummary"
+    case debugging  = "debugging"
     
     public var reportDetails: Bool {
         switch self {

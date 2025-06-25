@@ -50,6 +50,13 @@ public class ScriptWorkspace {
     
     var webRootPath  = ""
     
+    var syncLeftURL: URL?
+    var syncRightURL: URL?
+    var syncTotals = SyncTotals()
+    var syncDirection: SyncDirection = .bidirectional
+    var syncActions: SyncActions = .logOnly
+    var respectBlanks: Bool = true
+    
     var pendingErrors = ""
     var holdingErrors = false
     

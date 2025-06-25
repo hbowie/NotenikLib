@@ -25,5 +25,6 @@ public enum ScriptAction: String {
     case record   = "record"
     case set      = "set"
     case stop     = "stop"
+    case sync     = "sync"
     case webroot  = "webroot"
 }

@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 7/23/19.
-//  Copyright © 2019 Herb Bowie (https://powersurgepub.com)
+//  Copyright © 2019 - 2025 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -36,6 +36,7 @@ public class ScriptEngine: RowConsumer {
     let sorter   = SortModule()
     let template = TemplateModule()
     let output   = OutputModule()
+    let sync     = SyncModule()
     
     public init() {
  
@@ -139,6 +140,8 @@ public class ScriptEngine: RowConsumer {
             template.playCommand(workspace: workspace, command: command)
         case .output:
             output.playCommand(workspace: workspace, command: command)
+        case .sync:
+            sync.playCommand(workspace: workspace, command: command)
         case .browse:
             browse(workspace: workspace, command: command)
         default:

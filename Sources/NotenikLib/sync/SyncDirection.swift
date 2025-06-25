@@ -10,10 +10,10 @@
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
 //
 
-public enum SyncDirection {
-    case leftToRight
-    case rightToLeft
-    case bidirectional
+public enum SyncDirection: String {
+    case leftToRight   = "lefttoright"
+    case rightToLeft   = "righttoleft"
+    case bidirectional = "bidirectional"
     
     var syncRight: Bool {
         return self == .leftToRight || self == .bidirectional
