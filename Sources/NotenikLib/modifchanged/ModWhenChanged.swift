@@ -114,7 +114,10 @@ public class ModWhenChanged {
         // Make sure the Note has some kind of title.
         if modNote.title.isEmpty {
             if newNoteRequested {
-                _ = modNote.setTitle(StringUtils.summarize(modNote.body.value, max: 50))
+                _ = modNote.setTitle(StringUtils.summarize(modNote.body.value,
+                                                           max: 60,
+                                                           ellipsis: false,
+                                                           trailingPeriod: false))
                 if modNote.title.isEmpty {
                     _ = modNote.setTitle("New Note without a title")
                 }

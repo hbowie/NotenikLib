@@ -18,6 +18,8 @@ public class StarterPackMgr {
     public var starterPacks: [StarterPack] = []
     var highestSeq = 0
     
+    public var firstUsePack: StarterPack?
+    
     public init() {
         
     }
@@ -41,6 +43,10 @@ public class StarterPackMgr {
         
         let newPack = StarterPack(location: location)
         newPack.loadInfo()
+        if location.lastPathComponent == "XX - First Use" {
+            firstUsePack = newPack
+            return newPack
+        }
         if newPack.seq > highestSeq && newPack.seq <= 99 {
             highestSeq = newPack.seq
         } else if newPack.seq == 0 || newPack.seq >= 99 {

@@ -225,7 +225,7 @@ public class CollectionSync {
         }
         
         if syncActions.performUpdates {
-            ioForDelete.deleteNote(noteToDelete, preserveAttachments: false)
+            _ = ioForDelete.deleteNote(noteToDelete, preserveAttachments: false)
         }
     }
     

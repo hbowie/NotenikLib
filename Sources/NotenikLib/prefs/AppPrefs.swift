@@ -25,6 +25,9 @@ public class AppPrefs {
     
     let defaults = UserDefaults.standard
     
+    let beyondFirstUseKey     = "beyond-first-use"
+    var _beyondFirstUse       = false
+        
     let launchingKey    = "app-launching"
     let quickDeletesKey = "quick-deletes"
     let startupTipsKey  = "tips-at-startup"
@@ -219,10 +222,13 @@ public class AppPrefs {
         markdownParser = "notenik"
         essentialURL = nil
         generalURL = nil
-        
+        beyondFirstUse = false
+        lastURL = nil
     }
     
     func loadDefaults() {
+        
+        _beyondFirstUse = defaults.bool(forKey: beyondFirstUseKey)
         
         _essentialURL = defaults.url(forKey: essentialURLKey)
         
@@ -441,6 +447,16 @@ public class AppPrefs {
             logInfo("Using American English")
         } else {
             logInfo("Using UK/British English")
+        }
+    }
+    
+    public var beyondFirstUse: Bool {
+        get {
+            return _beyondFirstUse
+        }
+        set {
+            _beyondFirstUse = newValue
+            defaults.set(newValue, forKey: beyondFirstUseKey)
         }
     }
     
