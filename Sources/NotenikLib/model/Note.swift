@@ -693,7 +693,7 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
             }
         case .datePlusSeq:
             return date.getSortKey(sortBlankDatesLast: collection.sortBlankDatesLast)
-                + seq.sortKey
+                + seqAsTimeOfDay.sortKey
                 + title.sortKey
         case .rankSeqTitle:
             return rank.getSortKey(config: collection.rankConfig)
@@ -1356,7 +1356,22 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
 
         let (formatted, _) = collection.seqFormatter.format(seq: seqValue, full: full)
         return formatted
-        
+    }
+    
+    public var seqAsTimeOfDay: SeqValue {
+        var val: StringValue!
+        if collection.seqTimeOfDayFieldDef != nil {
+            val = getFieldAsValue(def: collection.seqTimeOfDayFieldDef!)
+        } else if collection.seqFieldDef != nil {
+            val = getFieldAsValue(def: collection.seqFieldDef!)
+        } else {
+            val = SeqValue(seqParms: SeqParms())
+        }
+        if val is SeqValue {
+            return val as! SeqValue
+        } else {
+            return collection.seqFieldDef!.fieldType.createValue(val.value) as! SeqValue
+        }
     }
     
     //

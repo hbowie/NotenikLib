@@ -89,12 +89,14 @@ public class NoteFieldsToHTML {
         // Start the Markedup code generator.
         let code = Markedup(format: parms.format)
         let noteTitle = pop.toXML(note.title.value)
-        code.startDoc(withTitle: noteTitle,
-                      withCSS: note.getCombinedCSS(cssString: parms.cssString),
-                      linkToFile: parms.cssLinkToFile,
-                      withJS: mkdownOptions.getHtmlScript(),
-                      epub3: parms.epub3,
-                      addins: parms.addins)
+        if parms.displayMode != .continuous {
+            code.startDoc(withTitle: noteTitle,
+                          withCSS: note.getCombinedCSS(cssString: parms.cssString),
+                          linkToFile: parms.cssLinkToFile,
+                          withJS: mkdownOptions.getHtmlScript(),
+                          epub3: parms.epub3,
+                          addins: parms.addins)
+        }
         
         // See if we need to start a list of included children.
         startListOfChildren(code: code)
@@ -262,7 +264,9 @@ public class NoteFieldsToHTML {
         }
         
         // Finish off the entire document.
-        code.finishDoc()
+        if parms.displayMode != .continuous {
+            code.finishDoc()
+        }
         
         // Return the markup. 
         return String(describing: code)

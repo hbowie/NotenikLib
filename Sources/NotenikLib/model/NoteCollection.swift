@@ -96,6 +96,7 @@ public class NoteCollection {
     public  var rankFieldDef:    FieldDefinition?
     public  var levelFieldDef:   FieldDefinition?
     public  var seqFieldDef:     FieldDefinition?
+    public  var seqTimeOfDayFieldDef: FieldDefinition?
     public  var durationFieldDef: FieldDefinition?
     public  var displaySeqFieldDef: FieldDefinition?
     public  var folderFieldDef:  FieldDefinition?
@@ -600,6 +601,8 @@ public class NoteCollection {
         case NotenikConstants.seqCommon:
             if seqFieldDef == nil {
                 seqFieldDef = def
+            } else if seqTimeOfDayFieldDef == nil && def.fieldLabel.commonForm.contains("time") {
+                seqTimeOfDayFieldDef = def
             }
             
         case NotenikConstants.displaySeqCommon:

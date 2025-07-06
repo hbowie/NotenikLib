@@ -17,6 +17,7 @@ public enum DisplayMode: String {
     case normal             = "normal"
     case presentation       = "presentation"
     case streamlinedReading = "streamlined"
+    case continuous         = "continuous"
     case quotations         = "quotations"
     case custom             = "custom"
 }

@@ -3,7 +3,7 @@
 //  NotenikLib
 //
 //  Created by Herb Bowie on 1/22/19.
-//  Copyright © 2019 - 2024 Herb Bowie (https://hbowie.net)
+//  Copyright © 2019 - 2025 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -19,6 +19,8 @@ import NotenikMkdown
 /// Used by NoteDisplayViewController to display a Note on the Display tab, but also used by
 /// ShareViewController to share a Note in one of a number of different formats.
 public class NoteDisplay {
+    
+    let pop = PopConverter.shared
     
     public var parms = DisplayParms()
     public var mkdownOptions = MkdownOptions()
@@ -86,7 +88,55 @@ public class NoteDisplay {
         self.mdResults = mdResults
         self.expandedMarkdown = expandedMarkdown
         self.imagePref = imagePref
-
+        
+        if parms.displayMode == .continuous {
+            return displayCollection(note: note, io: io)
+        } else {
+            return displayOneNote(note, io: io, mdResults: mdResults)
+        }
+    }
+    
+    func displayCollection(note: Note, io: NotenikIO) -> String {
+        let otherResults = TransformMdResults()
+        let position = io.positionOfNote(note)
+        // Start the Markedup code generator.
+        let code = Markedup(format: parms.format)
+        var i = 0
+        var nextNote = io.getNote(at: i)
+        while nextNote != nil {
+            if i == 0 {
+                let noteTitle = pop.toXML(nextNote!.title.value)
+                code.startDoc(withTitle: noteTitle,
+                              withCSS: note.getCombinedCSS(cssString: parms.cssString),
+                              linkToFile: parms.cssLinkToFile,
+                              withJS: mkdownOptions.getHtmlScript(),
+                              epub3: parms.epub3,
+                              addins: parms.addins)
+            }
+            if nextNote!.noteID.id != note.noteID.id {
+                code.append(displayOneNote(nextNote!, io: io, mdResults: otherResults))
+            } else {
+                code.append(displayOneNote(nextNote!, io: io, mdResults: mdResults))
+            }
+            i += 1
+            nextNote = io.getNote(at: i)
+        }
+        if position.valid {
+            _ = io.selectNote(at: position.index)
+        }
+        
+        let id = note.noteID.id
+        var js = "window.addEventListener(\"load\", () => { \n"
+        js.append("  document.getElementById('\(id)').scrollIntoView(); \n")
+        js.append("});")
+        code.startScript()
+        code.append(js)
+        code.finishScript()
+        code.finishDoc()
+        return code.code
+    }
+    
+    func displayOneNote(_ note: Note, io: NotenikIO, mdResults: TransformMdResults) -> String {
         if note.hasShortID() {
             mkdownOptions.shortID = note.shortID.value
         } else {
@@ -99,11 +149,6 @@ public class NoteDisplay {
         
         // Pre-parse the body field if we're generating HTML.
         if parms.formatIsHTML && AppPrefs.shared.parseUsingNotenik {
-            
-            var shortID = ""
-            if note.hasShortID() {
-                shortID = note.shortID.value
-            }
             
             TransformMarkdown.mdToHtml(parserID: NotenikConstants.notenikParser,
                                        fieldType: NotenikConstants.bodyCommon,
@@ -246,6 +291,7 @@ public class NoteDisplay {
         
         // See if we meet necessary conditions.
         guard parms.displayMode != .normal else { return "" }
+        guard parms.displayMode != .continuous else { return "" }
         guard !parms.concatenated else { return "" }
         guard note.collection.seqFieldDef != nil || parms.displayMode == .quotations else { return "" }
         let sortParm = parms.sortParm
