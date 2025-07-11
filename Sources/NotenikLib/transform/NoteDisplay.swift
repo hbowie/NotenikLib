@@ -125,7 +125,7 @@ public class NoteDisplay {
             _ = io.selectNote(at: position.index)
         }
         
-        let id = note.noteID.id
+        let id = StringUtils.autoID(note.noteID.basis) 
         var js = "window.addEventListener(\"load\", () => { \n"
         js.append("  document.getElementById('\(id)').scrollIntoView(); \n")
         js.append("});")

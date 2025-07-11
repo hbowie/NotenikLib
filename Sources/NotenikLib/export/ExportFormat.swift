@@ -21,6 +21,7 @@ public enum ExportFormat {
     case continuousHtml
     case outlineHtml
     case concatMarkdown
+    case continuousMarkdown
     case webBookEPUB
     case webBookEPUBFolder
     case webBookSite

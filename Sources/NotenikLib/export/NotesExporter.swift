@@ -19,6 +19,8 @@ public class NotesExporter {
     
     let appPrefs = AppPrefs.shared
     
+    let pop = PopConverter.shared
+    
     var tagsToSelect:   TagsValue!
     var tagsToSuppress: TagsValue!
     
@@ -160,7 +162,7 @@ public class NotesExporter {
         case .opml:
             markup = Markedup(format: .opml)
             markup.startDoc(withTitle: noteIO.collection!.title, withCSS: nil)
-        case .concatHtml, .outlineHtml, .concatMarkdown:
+        case .concatHtml, .outlineHtml, .concatMarkdown, .continuousMarkdown:
             concatOpen(exportFormat: format)
             break
         case .continuousHtml:
@@ -386,7 +388,7 @@ public class NotesExporter {
             writeYAML(splitTag: splitTag, cleanTags: cleanTags, note: note)
         case .opml:
             writeOutline(splitTag: splitTag, cleanTags: cleanTags, note: note)
-        case .concatHtml, .concatMarkdown:
+        case .concatHtml, .concatMarkdown, .continuousMarkdown:
             writeConcat(splitTag: splitTag, cleanTags: cleanTags, note: note)
         case .outlineHtml:
             writeOutlineHtml(note: note)
@@ -729,7 +731,7 @@ public class NotesExporter {
             return yamlClose()
         case .opml:
             return outlineClose()
-        case .concatHtml, .outlineHtml, .concatMarkdown:
+        case .concatHtml, .outlineHtml, .concatMarkdown, .continuousMarkdown:
             return concatClose(exportFormat: format)
         case .continuousHtml:
             return true
@@ -845,7 +847,7 @@ public class NotesExporter {
         switch exportFormat {
         case .concatHtml, .outlineHtml:
             displayParms.format = .htmlFragment
-        case .concatMarkdown:
+        case .concatMarkdown, .continuousMarkdown:
             displayParms.format = .markdown
         default:
             break
@@ -862,6 +864,7 @@ public class NotesExporter {
         displayParms.concatenated = true
         
         markup = Markedup(format: markupFormat)
+        print("concatOpen markup formatted with \(markupFormat)")
     }
     
     func writeConcat(splitTag: String, cleanTags: String, note: Note) {
@@ -881,7 +884,7 @@ public class NotesExporter {
         switch format {
         case .concatHtml:
             displayParms.format = .htmlFragment
-        case .concatMarkdown:
+        case .concatMarkdown, .continuousMarkdown:
             displayParms.format = .markdown
             let expander = MkdownExpander()
             expMD = expander.expand(md: note.body.value,
@@ -894,8 +897,22 @@ public class NotesExporter {
         
         
         let mdResults = TransformMdResults()
-        let code = display.display(note, io: noteIO, parms: displayParms, mdResults: mdResults, expandedMarkdown: expMD)
-        markup.append(code)
+        if format == .continuousMarkdown {
+            print("  - writeConcat")
+            let titleToDisplay = pop.toXML(displayParms.compoundTitle(note: note))
+            print("    - title to display = \(titleToDisplay)")
+            markup.displayLine(opt: note.collection.titleDisplayOption,
+                                 text: titleToDisplay,
+                                 depth: note.depth,
+                                 addID: false,
+                                 idText: note.title.value)
+            print("    - Expanded Markdown: \(expMD!)")
+            markup.append(expMD!)
+        } else {
+            let code = display.display(note, io: noteIO, parms: displayParms, mdResults: mdResults, expandedMarkdown: expMD)
+            markup.append(code)
+        }
+        
         // markup.writeLine(" ")
         notesExported += 1
     }
@@ -1012,6 +1029,7 @@ public class NotesExporter {
         }
         markup.finishDoc()
         do {
+            print("concatClose writing markup code to \(destination!)")
             try markup.code.write(to: destination, atomically: true, encoding: .utf8)
         } catch {
             Logger.shared.log(subsystem: "com.powersurgepub.notenik",
