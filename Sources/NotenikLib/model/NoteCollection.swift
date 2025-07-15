@@ -54,11 +54,14 @@ public class NoteCollection {
 
     public  var bodyLabel = true
     public  var titleDisplayOption: LineDisplayOption = .pBold
-    public  var displayMode: DisplayMode = .normal
     public  var outlineTabSetting: OutlineTabSetting = .none
     public  var overrideCustomDisplay = false
     public  var displayTemplate = ""
     public  var displayCSS = ""
+    
+    public  var displayMode: DisplayMode = .normal
+    public  var previousDisplayMode: DisplayMode = .normal
+    public  var displayedNotes = SelectedNotes()
     
     public  var cssFiles: [String] = []
     public  var selCSSfile = ""
@@ -775,6 +778,17 @@ public class NoteCollection {
             }
         }
         return startingLink
+    }
+    
+    public func setPartialDisplay() {
+        previousDisplayMode = displayMode
+        displayMode = .continuousPartial
+    }
+    
+    public func resetPartialDisplay() {
+        guard displayMode == .continuousPartial else { return }
+        displayMode = previousDisplayMode
+        displayedNotes.removeAll()
     }
     
     /// Useful for debugging. 

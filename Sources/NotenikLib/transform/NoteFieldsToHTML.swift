@@ -58,7 +58,8 @@ public class NoteFieldsToHTML {
                              results: TransformMdResults,
                              bottomOfPage: String = "",
                              lastInList: Bool = false,
-                             expandedMarkdown: String? = nil) -> String {
+                             expandedMarkdown: String? = nil,
+                             continuousPosition: ContinuousPosition = .middle) -> String {
         
         // Save parameters and make key variables easily accessible for later use.
         self.io = io
@@ -89,7 +90,7 @@ public class NoteFieldsToHTML {
         // Start the Markedup code generator.
         let code = Markedup(format: parms.format)
         let noteTitle = pop.toXML(note.title.value)
-        if parms.displayMode != .continuous {
+        if parms.displayMode != .continuous && parms.displayMode !=  .continuousPartial {
             code.startDoc(withTitle: noteTitle,
                           withCSS: note.getCombinedCSS(cssString: parms.cssString),
                           linkToFile: parms.cssLinkToFile,
@@ -108,10 +109,16 @@ public class NoteFieldsToHTML {
             headerContents = parms.header + collection.mkdownCommandList.getCodeFor(MkdownConstants.headerCmd)
         }
         
-        if !parms.epub3 {
-            if note.mkdownCommandList.contentPage && !parms.included.hasData
-                // && note.klass.value != NotenikConstants.titleKlass
-                {
+        var headerAndNav = true
+        if parms.epub3 {
+            headerAndNav = false
+        } else if parms.displayMode == .continuous || parms.displayMode == .continuousPartial {
+            if continuousPosition != .first {
+                headerAndNav = false
+            }
+        }
+        if headerAndNav {
+            if note.mkdownCommandList.contentPage && !parms.included.hasData {
                 if !headerContents.isEmpty {
                     code.header(headerContents, klass: "nnk-header")
                 }
@@ -256,7 +263,15 @@ public class NoteFieldsToHTML {
         
         code.finishMain()
         
-        if !parms.epub3 {
+        var footer = true
+        if parms.epub3 {
+            footer = false
+        } else if parms.displayMode == .continuous || parms.displayMode == .continuousPartial {
+            if continuousPosition != .last {
+                footer = false
+            }
+        }
+        if footer {
             let footerCode = collection.mkdownCommandList.getCodeFor(MkdownConstants.footerCmd)
             if note.includeInBook(epub: parms.epub3) && !footerCode.isEmpty && !parms.included.hasData {
                 code.footer(footerCode, klass: "nnk-footer")
@@ -264,7 +279,7 @@ public class NoteFieldsToHTML {
         }
         
         // Finish off the entire document.
-        if parms.displayMode != .continuous {
+        if parms.displayMode != .continuous && parms.displayMode != .continuousPartial {
             code.finishDoc()
         }
         

@@ -62,7 +62,13 @@ public class InfoLineMaker {
         writer.append(label: NotenikConstants.bodyLabelDisplay,  value: "\(collection.bodyLabel)")
         writer.append(label: NotenikConstants.minBodyEditViewHeight, value: "\(collection.minBodyEditViewHeight)")
         writer.append(label: NotenikConstants.titleDisplayOpt,   value: "\(collection.titleDisplayOption.rawValue)")
+        
+        if collection.displayMode == .continuousPartial {
+            collection.displayMode = .normal
+            collection.resetPartialDisplay()
+        }
         writer.append(label: NotenikConstants.displayMode,       value: collection.displayMode.rawValue)
+        
         writer.append(label: NotenikConstants.outlineTab,        value: "\(collection.outlineTabSetting.rawValue)")
         writer.append(label: NotenikConstants.overrideCustomDisplay, value: "\(collection.overrideCustomDisplay)")
         writer.append(label: NotenikConstants.mathJax,           value: "\(collection.mathJax)")

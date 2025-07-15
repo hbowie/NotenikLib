@@ -917,7 +917,10 @@ public class FileIO: NotenikIO, RowConsumer {
         
         let displayModeField = infoNote.getField(label: NotenikConstants.displayModeCommon)
         if displayModeField != nil {
-            let displayMode = DisplayMode(rawValue: displayModeField!.value.value)
+            var displayMode = DisplayMode(rawValue: displayModeField!.value.value)
+            if displayMode == .continuousPartial {
+                displayMode = .normal
+            }
             if displayMode != nil {
                 collection!.displayMode = displayMode!
             }

@@ -91,6 +91,8 @@ public class NoteDisplay {
         
         if parms.displayMode == .continuous {
             return displayCollection(note: note, io: io)
+        } else if parms.displayMode == .continuousPartial {
+            return displayPartial(note: note, io: io)
         } else {
             return displayOneNote(note, io: io, mdResults: mdResults)
         }
@@ -103,6 +105,7 @@ public class NoteDisplay {
         let code = Markedup(format: parms.format)
         var i = 0
         var nextNote = io.getNote(at: i)
+        var continuousPosition: ContinuousPosition = .first
         while nextNote != nil {
             if i == 0 {
                 let noteTitle = pop.toXML(nextNote!.title.value)
@@ -114,12 +117,17 @@ public class NoteDisplay {
                               addins: parms.addins)
             }
             if nextNote!.noteID.id != note.noteID.id {
-                code.append(displayOneNote(nextNote!, io: io, mdResults: otherResults))
+                code.append(displayOneNote(nextNote!, io: io, mdResults: otherResults, continuousPosition: continuousPosition))
             } else {
-                code.append(displayOneNote(nextNote!, io: io, mdResults: mdResults))
+                code.append(displayOneNote(nextNote!, io: io, mdResults: mdResults, continuousPosition: continuousPosition))
             }
             i += 1
             nextNote = io.getNote(at: i)
+            if i == (io.notesCount - 1) {
+                continuousPosition = .last
+            } else {
+                continuousPosition = .middle
+            }
         }
         if position.valid {
             _ = io.selectNote(at: position.index)
@@ -136,7 +144,56 @@ public class NoteDisplay {
         return code.code
     }
     
-    func displayOneNote(_ note: Note, io: NotenikIO, mdResults: TransformMdResults) -> String {
+    func displayPartial(note: Note, io: NotenikIO) -> String {
+        guard let collection = io.collection else {
+            return ""
+        }
+        let otherResults = TransformMdResults()
+        let position = io.positionOfNote(note)
+        // Start the Markedup code generator.
+        let code = Markedup(format: parms.format)
+        var i = 0
+        var continuousPosition: ContinuousPosition = .first
+        var nextNote = collection.displayedNotes.getNote(at: i)
+        while nextNote != nil {
+            if i == 0 {
+                let noteTitle = pop.toXML(nextNote!.title.value)
+                code.startDoc(withTitle: noteTitle,
+                              withCSS: note.getCombinedCSS(cssString: parms.cssString),
+                              linkToFile: parms.cssLinkToFile,
+                              withJS: mkdownOptions.getHtmlScript(),
+                              epub3: parms.epub3,
+                              addins: parms.addins)
+            }
+            if nextNote!.noteID.id != note.noteID.id {
+                code.append(displayOneNote(nextNote!, io: io, mdResults: otherResults, continuousPosition: continuousPosition))
+            } else {
+                code.append(displayOneNote(nextNote!, io: io, mdResults: mdResults, continuousPosition: continuousPosition))
+            }
+            i += 1
+            nextNote = collection.displayedNotes.getNote(at: i)
+            if i == (collection.displayedNotes.count - 1) {
+                continuousPosition = .last
+            } else {
+                continuousPosition = .middle
+            }
+        }
+        if position.valid {
+            _ = io.selectNote(at: position.index)
+        }
+        
+        let id = StringUtils.autoID(note.noteID.basis)
+        var js = "window.addEventListener(\"load\", () => { \n"
+        js.append("  document.getElementById('\(id)').scrollIntoView(); \n")
+        js.append("});")
+        code.startScript()
+        code.append(js)
+        code.finishScript()
+        code.finishDoc()
+        return code.code
+    }
+    
+    func displayOneNote(_ note: Note, io: NotenikIO, mdResults: TransformMdResults, continuousPosition: ContinuousPosition = .middle) -> String {
         if note.hasShortID() {
             mkdownOptions.shortID = note.shortID.value
         } else {
@@ -183,7 +240,8 @@ public class NoteDisplay {
             return displayWithoutTemplate(note, io: io,
                                           topOfPage: topHTML,
                                           imageWithinPage: imageHTML,
-                                          bottomOfPage: bottomHTML)
+                                          bottomOfPage: bottomHTML,
+                                          continuousPosition: continuousPosition)
         }
     }
     
@@ -590,7 +648,8 @@ public class NoteDisplay {
                                 io: NotenikIO,
                                 topOfPage: String,
                                 imageWithinPage: String,
-                                bottomOfPage: String) -> String {
+                                bottomOfPage: String,
+                                continuousPosition: ContinuousPosition = .middle) -> String {
         
         let fieldsToHTML = NoteFieldsToHTML()
         parms.included.reset()
@@ -601,7 +660,8 @@ public class NoteDisplay {
                                          imageWithinPage: imageWithinPage,
                                          results: mdResults,
                                          bottomOfPage: bottomOfPage,
-                                         expandedMarkdown: expandedMarkdown)
+                                         expandedMarkdown: expandedMarkdown,
+                                         continuousPosition: continuousPosition)
     }
 
     /// Get the code used to display this field
