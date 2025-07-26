@@ -16,7 +16,6 @@ public protocol MultiValues {
     /// The number of sub-values within this multi-value.
     var multiCount: Int { get }
     
-    
     /// Return a sub-value at the given index position.
     /// - Returns: The indicated sub-value, for a valid index, otherwise nil. 
     func multiAt(_ index: Int) -> String?

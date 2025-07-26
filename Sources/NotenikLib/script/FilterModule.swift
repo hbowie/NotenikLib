@@ -73,7 +73,7 @@ class FilterModule {
         var dataCount = 0
         var i = 0
         while i < workspace.list.count {
-            let note = workspace.list[i]
+            let note = workspace.list[i].note
             var counted = false
             var selected = true
             for rule in workspace.currentRules {

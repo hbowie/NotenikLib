@@ -52,4 +52,13 @@ public enum NoteSortParm: Int {
             }
         }
     }
+    
+    var seqSorting: Bool {
+        switch self {
+        case .seqPlusTitle, .tasksBySeq, .tagsPlusSeq, .datePlusSeq, .rankSeqTitle, .folderSeqTitle:
+            return true
+        default:
+            return false
+        }
+    }
 }

@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 5/17/19.
-//  Copyright © 2019 Herb Bowie (https://powersurgepub.com)
+//  Copyright © 2019 - 2025 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -150,25 +150,25 @@ class BunchIO: NotenikIO, RowConsumer  {
     /// - Returns: The number of notes purged.
     func purgeClosed(archiveIO: NotenikIO?) -> Int {
         guard collection != nil && collectionOpen else { return 0 }
-        guard let notes = bunch?.notesList else { return 0 }
+        guard let sortedNotes = bunch?.notesList else { return 0 }
         
         // Now look for closed notes
         var notesToDelete: [Note] = []
-        for note in notes {
-            if note.isDone {
+        for sortedNote in sortedNotes {
+            if sortedNote.isDone {
                 var okToDelete = true
                 if archiveIO != nil {
-                    let (archiveNote, _) = archiveIO!.addNote(newNote: note)
+                    let (archiveNote, _) = archiveIO!.addNote(newNote: sortedNote.note)
                     if archiveNote == nil {
                         okToDelete = false
                         Logger.shared.log(subsystem: "com.powersurgepub.notenik",
                                           category: "BunchIO",
                                           level: .error,
-                                          message: "Could not add note titled '\(note.title.value)' to archive")
+                                          message: "Could not add note titled '\(sortedNote.note.title.value)' to archive")
                     }
                 } // end of optional archive operation
                 if okToDelete {
-                    notesToDelete.append(note)
+                    notesToDelete.append(sortedNote.note)
                 }
             } // end if note is done
         } // end for each note in the collection
@@ -404,7 +404,7 @@ class BunchIO: NotenikIO, RowConsumer  {
     /// - Parameter note: The note we're looking for.
     /// - Returns: The note as it was found in the list, along with its position.
     ///            If not found, return nil and -1.
-    func selectNote(note: Note) -> (Note?, NotePosition) {
+    func selectNote(note: Note) -> (SortedNote?, NotePosition) {
         return bunch!.selectNote(note)
     }
     
@@ -415,7 +415,7 @@ class BunchIO: NotenikIO, RowConsumer  {
     ///            - If the list is empty, return nil and -1.
     ///            - If the index is too high, return the last note.
     ///            - If the index is too low, return the first note.
-    func selectNote(at index: Int) -> (Note?, NotePosition) {
+    func selectNote(at index: Int) -> (SortedNote?, NotePosition) {
         guard collection != nil && collectionOpen else { return (nil, NotePosition(index: -1)) }
         return bunch!.selectNote(at: index)
     }
@@ -427,6 +427,15 @@ class BunchIO: NotenikIO, RowConsumer  {
     func getNote(at index: Int) -> Note? {
         guard collection != nil && collectionOpen else { return nil }
         return bunch!.getNote(at: index)
+    }
+    
+    /// Return the Sorted Note  at the specified position in the sorted list, if possible.
+    ///
+    /// - Parameter at: An index value pointing to a note in the list
+    /// - Returns: Either the note at that position, or nil, if the index is out of range.
+    func getSortedNote(at index: Int) -> SortedNote? {
+        guard collection != nil && collectionOpen else { return nil }
+        return bunch!.getSortedNote(at: index)
     }
     
     /// Get the Note that is known by the passed identifier, one way or another.
@@ -541,7 +550,7 @@ class BunchIO: NotenikIO, RowConsumer  {
     /// Return the first note in the sorted list, along with its index position.
     ///
     /// If the list is empty, return a nil Note and an index position of -1.
-    func firstNote() -> (Note?, NotePosition) {
+    func firstNote() -> (SortedNote?, NotePosition) {
         guard collection != nil && collectionOpen else { return (nil, NotePosition(index: -1)) }
         return bunch!.firstNote()
     }
@@ -549,7 +558,7 @@ class BunchIO: NotenikIO, RowConsumer  {
     /// Return the last note in the sorted list, along with its index position
     ///
     /// if the list is empty, return a nil Note and an index position of -1.
-    func lastNote() -> (Note?, NotePosition) {
+    func lastNote() -> (SortedNote?, NotePosition) {
         guard collection != nil && collectionOpen else { return (nil, NotePosition(index: -1)) }
         return bunch!.lastNote()
     }
@@ -560,7 +569,7 @@ class BunchIO: NotenikIO, RowConsumer  {
     /// - Parameter position: The position of the last note.
     /// - Returns: A tuple containing the next note, along with its index position.
     ///            If we're at the end of the list, then return a nil Note and an index of -1.
-    func nextNote(_ position : NotePosition) -> (Note?, NotePosition) {
+    func nextNote(_ position : NotePosition) -> (SortedNote?, NotePosition) {
         guard collection != nil && collectionOpen else { return (nil, NotePosition(index: -1)) }
         return bunch!.nextNote(position)
     }
@@ -570,7 +579,7 @@ class BunchIO: NotenikIO, RowConsumer  {
     /// - Parameter position: The index position of the last note accessed.
     /// - Returns: A tuple containing the prior note, along with its index position.
     ///            if we're outside the bounds of the list, then return a nil Note and an index of -1.
-    func priorNote(_ position : NotePosition) -> (Note?, NotePosition) {
+    func priorNote(_ position : NotePosition) -> (SortedNote?, NotePosition) {
         guard collection != nil && collectionOpen else { return (nil, NotePosition(index: -1)) }
         return bunch!.priorNote(position)
     }
@@ -585,10 +594,18 @@ class BunchIO: NotenikIO, RowConsumer  {
         return position
     }
     
+    /// Return the position of a given sorted note.
+    /// - Parameter note: A Sorted Note entry.
+    /// - Returns: The position within the master list.
+    func positionOfNote(_ sortedNote: SortedNote) -> NotePosition {
+        guard collection != nil && collectionOpen else { return NotePosition(index: -1) }
+        return bunch!.positionOfNote(sortedNote)
+    }
+    
     /// Return the note currently selected.
     ///
     /// If the list index is out of range, return a nil Note and an index posiiton of -1.
-    func getSelectedNote() -> (Note?, NotePosition) {
+    func getSelectedNote() -> (SortedNote?, NotePosition) {
         guard collection != nil && collectionOpen else { return (nil, NotePosition(index: -1)) }
         return bunch!.getSelectedNote()
     }
@@ -596,7 +613,7 @@ class BunchIO: NotenikIO, RowConsumer  {
     /// Delete the currently selected Note
     ///
     /// - Returns: The new Note on which the collection should be positioned.
-    func deleteSelectedNote(preserveAttachments: Bool) -> (Note?, NotePosition) {
+    func deleteSelectedNote(preserveAttachments: Bool) -> (SortedNote?, NotePosition) {
         
         // Make sure we have an open collection available to us
         guard collection != nil && collectionOpen else { return (nil, NotePosition(index: -1)) }
@@ -609,7 +626,7 @@ class BunchIO: NotenikIO, RowConsumer  {
         var nextNote = priorNote
         var nextPosition = priorPosition
         
-        let deleted = bunch!.delete(note: noteToDelete!)
+        let deleted = bunch!.delete(note: noteToDelete!.note)
         guard deleted else { return (nil, NotePosition(index: -1))}
         var positioned = false
         if priorNote != nil {

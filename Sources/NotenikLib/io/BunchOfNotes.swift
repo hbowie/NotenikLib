@@ -39,7 +39,7 @@ class BunchOfNotes {
             return collection.sortParm
         }
         set {
-            var selectedNote: Note?
+            var selectedNote: SortedNote?
             (selectedNote, _) = getSelectedNote()
             collection.sortParm = newValue
             notesList.sort()
@@ -57,7 +57,7 @@ class BunchOfNotes {
             return collection.sortDescending
         }
         set {
-            var selectedNote: Note?
+            var selectedNote: SortedNote?
             (selectedNote, _) = getSelectedNote()
             collection.sortDescending = newValue
             notesList.sort()
@@ -74,7 +74,7 @@ class BunchOfNotes {
             return collection.sortBlankDatesLast
         }
         set {
-            var selectedNote: Note?
+            var selectedNote: SortedNote?
             (selectedNote, _) = getSelectedNote()
             collection.sortBlankDatesLast = newValue
             notesList.sort()
@@ -115,27 +115,21 @@ class BunchOfNotes {
     /// - Returns: True if the note was added to the collection, false if it could not be added.
     func add(note: Note) -> Bool {
 
+        // Attempt to add the note to the dictionary.
         let existingNote = notesDict[note.noteID.commonID]
         guard existingNote == nil else {
             print("Note with an id of \(note.noteID.commonID) already seems to exist")
             return false
         }
         notesDict[note.noteID.commonID] = note
-        let (index, _) = searchList(note)
-        if index < 0 {
-            notesList.insert(note, at: 0)
-            listIndex = 0
-        } else if index >= notesList.count {
-            listIndex = notesList.count
-            notesList.append(note)
-        } else {
-            notesList.insert(note, at: index)
-            listIndex = index
-        }
+        
+        // Now add to the list.
+        var notesToAdd: [SortedNote] = []
+        (listIndex, notesToAdd) = notesList.add(note: note)
         
         notesTree.add(note: note)
         
-        _ = outlineTree.add(note: note)
+        outlineTree.add(sortedNotes: notesToAdd)
         
         if collection.shortIdDef != nil {
             shortIDs.add(note: note)
@@ -191,17 +185,14 @@ class BunchOfNotes {
         notesDict.removeValue(forKey: note.noteID.commonID)
         
         // Remove the note from sorted list of notes
-        let (index, found) = searchList(note)
-        if found {
-            notesList.remove(at: index)
-        }
+        let deletedNotes = notesList.delete(note: note)
         
         // Remove the note from the Tags Tree
         notesTree.delete(note: note)
         
         // Remove the note from the Outline Tree
         if outlineTree.hasSeq {
-            _ = outlineTree.delete(note: note)
+            outlineTree.delete(sortedNotes: deletedNotes)
         }
         
         // Remove the Note from the list of Short IDs. 
@@ -222,7 +213,7 @@ class BunchOfNotes {
     /// - Parameter note: The note we're looking for.
     /// - Returns: The note as it was found in the list, along with its position.
     ///            If not found, return nil and -1. 
-    func selectNote(_ note: Note) -> (Note?, NotePosition) {
+    func selectNote(_ note: Note) -> (SortedNote?, NotePosition) {
         let (index, exact) = searchList(note)
         if exact {
             listIndex = index
@@ -243,6 +234,10 @@ class BunchOfNotes {
         return notesList.searchList(note)
     }
     
+    func searchList(_ sortedNote: SortedNote) -> (Int, Bool) {
+        return notesList.searchList(sortedNote)
+    }
+    
     /// Select the note at the given position in the sorted list.
     ///
     /// - Parameter index: An index value pointing to a position in the list.
@@ -250,7 +245,7 @@ class BunchOfNotes {
     ///            - If the list is empty, return nil and -1.
     ///            - If the index is too high, return the last note.
     ///            - If the index is too low, return the first note.
-    func selectNote(at index: Int) -> (Note?, NotePosition) {
+    func selectNote(at index: Int) -> (SortedNote?, NotePosition) {
         if index < 0 {
             listIndex = 0
         } else if index >= notesList.count {
@@ -279,6 +274,14 @@ class BunchOfNotes {
     /// - Parameter at: An index value pointing to a note in the list
     /// - Returns: Either the note at that position, or nil, if the index is out of range.
     func getNote(at index: Int) -> Note? {
+        if index < 0 || index >= notesList.count {
+            return nil
+        } else {
+            return notesList[index].note
+        }
+    }
+    
+    func getSortedNote(at index: Int) -> SortedNote? {
         if index < 0 || index >= notesList.count {
             return nil
         } else {
@@ -367,12 +370,38 @@ class BunchOfNotes {
         return akaAll
     }
     
+    /// Return the first note in the sorted list, along with its index position.
+    ///
+    /// If the list is empty, return a nil Note and an index position of -1.
+    func firstNote() -> (SortedNote?, NotePosition) {
+        if notesList.count == 0 {
+            listIndex = -1
+            return (nil, NotePosition(index: listIndex))
+        } else {
+            listIndex = 0
+            return (notesList[listIndex], NotePosition(index: listIndex))
+        }
+    }
+    
+    /// Return the last note in the sorted list, along with its index position
+    ///
+    /// if the list is empty, return a nil Note and an index position of -1.
+    func lastNote() -> (SortedNote?, NotePosition) {
+        if notesList.count == 0 {
+            listIndex = -1
+            return (nil, NotePosition(index: listIndex))
+        } else {
+            listIndex = notesList.count - 1
+            return (notesList[listIndex], NotePosition(index: listIndex))
+        }
+    }
+    
     /// Return the next note in the sorted list, along with its index position.
     ///
     /// - Parameter position: The position of the last note.
     /// - Returns: A tuple containing the next note, along with its index position.
     ///            If we're at the end of the list, then return a nil note and an index of -1.
-    func nextNote(_ position : NotePosition) -> (Note?, NotePosition) {
+    func nextNote(_ position : NotePosition) -> (SortedNote?, NotePosition) {
         let nextIndex = position.index + 1
         if nextIndex < 0 || nextIndex >= notesList.count {
             listIndex = -1
@@ -388,7 +417,7 @@ class BunchOfNotes {
     /// - Parameter position: The index position of the last note accessed.
     /// - Returns: A tuple containing the prior note, along with its index position.
     ///            if we're outside the bounds of the list, then return a nil Note and an index of -1.
-    func priorNote(_ position : NotePosition) -> (Note?, NotePosition) {
+    func priorNote(_ position : NotePosition) -> (SortedNote?, NotePosition) {
         let priorIndex = position.index - 1
         if priorIndex < 0 || priorIndex >= notesList.count {
             listIndex = -1
@@ -399,36 +428,22 @@ class BunchOfNotes {
         }
     }
     
-    /// Return the first note in the sorted list, along with its index position.
-    ///
-    /// If the list is empty, return a nil Note and an index position of -1.
-    func firstNote() -> (Note?, NotePosition) {
-        if notesList.count == 0 {
-            listIndex = -1
-            return (nil, NotePosition(index: listIndex))
+    /// Return the position of a given sorted note.
+    /// - Parameter note: A Sorted Note entry.
+    /// - Returns: The position within the master list.
+    func positionOfNote(_ sortedNote: SortedNote) -> NotePosition {
+        let (index, found) = notesList.searchList(sortedNote)
+        if !found {
+            return NotePosition(index: -1)
         } else {
-            listIndex = 0
-            return (notesList[listIndex], NotePosition(index: listIndex))
-        }
-    }
-    
-    /// Return the last note in the sorted list, along with its index position
-    ///
-    /// if the list is empty, return a nil Note and an index position of -1.
-    func lastNote() -> (Note?, NotePosition) {
-        if notesList.count == 0 {
-            listIndex = -1
-            return (nil, NotePosition(index: listIndex))
-        } else {
-            listIndex = notesList.count - 1
-            return (notesList[listIndex], NotePosition(index: listIndex))
+            return NotePosition(index: index)
         }
     }
     
     /// Return the note currently pointed to by the current list index value.
     ///
     /// If the list index is out of range, return a nil Note and an index posiiton of -1.
-    func getSelectedNote() -> (Note?, NotePosition) {
+    func getSelectedNote() -> (SortedNote?, NotePosition) {
         if listIndex < 0 || listIndex >= notesList.count {
             return (nil, NotePosition(index: -1))
         } else {

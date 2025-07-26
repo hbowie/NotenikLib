@@ -31,7 +31,7 @@ public class SeqFormatter {
         return formatStack.isEmpty
     }
     
-    public func format(seq: SeqValue, full: Bool = false) -> (String, Int) {
+    public func format(seq: SeqSingleValue, full: Bool = false) -> (String, Int) {
         
         // If no formatting codes, simply return the seq value.
         guard !formatStack.isEmpty else {

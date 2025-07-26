@@ -82,7 +82,9 @@ class ApplyTemplateValues {
         var leftAngle: Character = " "
         var colon: Character = " "
         for char in value {
-            if char == "<" && leftAngle == " " && typeStr.count == 0 {
+            if char == "@" {
+                def.writeEmpty = true
+            } else if char == "<" && leftAngle == " " && typeStr.count == 0 {
                 leftAngle = char
             } else if char == ">" && leftAngle == "<" {
                 break

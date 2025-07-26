@@ -29,24 +29,36 @@ public class OutlineTree: Sequence {
 
     }
     
+    public func add(sortedNotes: [SortedNote]) {
+        for sortedNote in sortedNotes {
+            _ = add(sortedNote: sortedNote)
+        }
+    }
+    
     /// Add a note to the Outline Tree.
-    func add(note: Note) -> OutlineNode2? {
+    func add(sortedNote: SortedNote) -> OutlineNode2? {
         let node = OutlineNode2()
-        node.note = note
+        node.sortedNote = sortedNote
         return add(node: node)
     }
     
     func add(node: OutlineNode2) -> OutlineNode2? {
-        if collection == nil && node.note != nil {
-            grabCollectionInfo(node.note!)
+        if collection == nil && node.sortedNote != nil {
+            grabCollectionInfo(node.sortedNote!.note)
         }
         guard outlineTreeEnabled else { return nil }
         return root.addChild(node: node)
     }
     
+    func delete(sortedNotes: [SortedNote]) {
+        for sortedNote in sortedNotes {
+            _ = delete(sortedNote: sortedNote)
+        }
+    }
+    
     /// Delete a note from the tree, wherever it appears
-    func delete(note: Note) -> OutlineNode2? {
-        return root.removeChild(note: note)
+    func delete(sortedNote: SortedNote) -> OutlineNode2? {
+        return root.removeChild(sortedNote: sortedNote)
     }
     
     var isEmpty: Bool {

@@ -248,29 +248,29 @@ public class NotesMkdownContext: MkdownContext {
         hasSeq = (collection.seqFieldDef != nil)
         
         let currentPosition = io.positionOfNote(note)
-        var (priorNote, priorPosition) = io.priorNote(currentPosition)
-        guard priorPosition.valid && priorNote != nil else {
+        var (priorSortedNote, priorPosition) = io.priorNote(currentPosition)
+        guard priorPosition.valid && priorSortedNote != nil else {
             return includeQuoteFromNote(note: note)
         }
         
         var workNote: Note?
         var authorNote: Note?
         
-        var priorLevel = priorNote!.level
+        var priorLevel = priorSortedNote!.note.level
         var navDone = false
         
-        while priorNote != nil && !navDone {
-            let klass = priorNote!.klass.value
-            if priorNote!.level > priorLevel || klass == NotenikConstants.biblioKlass {
+        while priorSortedNote != nil && !navDone {
+            let klass = priorSortedNote!.note.klass.value
+            if priorSortedNote!.note.level > priorLevel || klass == NotenikConstants.biblioKlass {
                 navDone = true
             } else if klass == NotenikConstants.workKlass {
-                workNote = priorNote
+                workNote = priorSortedNote!.note
             } else if klass == NotenikConstants.authorKlass {
-                authorNote = priorNote
+                authorNote = priorSortedNote!.note
                 navDone = true
             }
-            priorLevel = priorNote!.level
-            (priorNote, priorPosition) = io.priorNote(priorPosition)
+            priorLevel = priorSortedNote!.note.level
+            (priorSortedNote, priorPosition) = io.priorNote(priorPosition)
         }
         
         guard workNote != nil || authorNote != nil else {
@@ -323,12 +323,12 @@ public class NotesMkdownContext: MkdownContext {
         let calendar = CalendarMaker(format: .htmlFragment, lowYM: lowYM, highYM: highYM)
         calendar.startCalendar(title: collection.title, prefs: DisplayPrefs.shared)
         
-        var (note, position) = io.firstNote()
+        var (sortedNote, position) = io.firstNote()
         var done = false
-        while note != nil && !done {
-            let link = displayParms.wikiLinks.assembleWikiLink(idBasis: note!.noteID.getBasis())
-            done = calendar.nextNote(note!, link: link)
-            (note, position) = io.nextNote(position)
+        while sortedNote != nil && !done {
+            let link = displayParms.wikiLinks.assembleWikiLink(idBasis: sortedNote!.note.noteID.getBasis())
+            done = calendar.nextNote(sortedNote!.note, link: link)
+            (sortedNote, position) = io.nextNote(position)
         }
         
         let html = calendar.finishCalendar()
@@ -408,12 +408,12 @@ public class NotesMkdownContext: MkdownContext {
         datePlusSeqStartTocUnorderedList(top: true)
         lastDate = ""
         dateStarted = false
-        var (note, position) = io.firstNote()
-        while note != nil {
-            if note!.noteID.commonID != collection.tocNoteID {
-                datePlusSeqTocEntry(for: note!)
+        var (sortedNote, position) = io.firstNote()
+        while sortedNote != nil {
+            if sortedNote!.note.noteID.commonID != collection.tocNoteID {
+                datePlusSeqTocEntry(for: sortedNote!.note)
             }
-            (note, position) = io.nextNote(position)
+            (sortedNote, position) = io.nextNote(position)
         }
         if dateStarted {
             finishLastDate()
@@ -502,16 +502,16 @@ public class NotesMkdownContext: MkdownContext {
         
         // Spin through the collection and collection index terms and references.
         indexCollection  = IndexCollection()
-        var (note, position) = io.firstNote()
-        while note != nil {
-            if note!.hasTitle() && note!.hasIndex() && note!.includeInBook(epub: displayParms.epub3) {
-                let pageType = note!.getFieldAsString(label: NotenikConstants.typeCommon)
-                indexCollection.add(page: note!.title.value, 
+        var (sortedNote, position) = io.firstNote()
+        while sortedNote != nil {
+            if sortedNote!.note.hasTitle() && sortedNote!.note.hasIndex() && sortedNote!.note.includeInBook(epub: displayParms.epub3) {
+                let pageType = sortedNote!.note.getFieldAsString(label: NotenikConstants.typeCommon)
+                indexCollection.add(page: sortedNote!.note.title.value, 
                                     pageType: pageType,
-                                    pageStatus: note!.status.value,
-                                    index: note!.index)
+                                    pageStatus: sortedNote!.note.status.value,
+                                    index: sortedNote!.note.index)
             }
-            (note, position) = io.nextNote(position)
+            (sortedNote, position) = io.nextNote(position)
         }
         
         // Now sort the list of terms.
@@ -650,14 +650,14 @@ public class NotesMkdownContext: MkdownContext {
         js.writeLine("var ix = 0;")
         
         // Now fill the candidate array.
-        var (note, position) = io.firstNote()
-        while note != nil {
-            if isEligibleRandomNote(note: note!, klassList: klassList) {
-                let fileName = StringUtils.toCommonFileName(note!.title.value)
+        var (sortedNote, position) = io.firstNote()
+        while sortedNote != nil {
+            if isEligibleRandomNote(note: sortedNote!.note, klassList: klassList) {
+                let fileName = StringUtils.toCommonFileName(sortedNote!.note.title.value)
                 js.writeLine("fileNames[ix] = \"\(fileName).html\";")
                 js.writeLine("ix++;")
             }
-            (note, position) = io.nextNote(position)
+            (sortedNote, position) = io.nextNote(position)
         }
         let randomScript = """
         var max = ix;
@@ -764,50 +764,52 @@ public class NotesMkdownContext: MkdownContext {
         markup.startScript()
         markup.ensureNewLine()
         markup.writeLine("let searchIndex = [ ")
-        var (note, position) = io.firstNote()
-        while note != nil {
-            
-            markup.writeLine("    { ")
-            
-            // Generate title
-            markup.writeLine("        title: \"\(note!.noteID.text)\", ")
-            
-            // Generate date
-            if note!.hasDate() {
-                markup.writeLine("        date: \"\(note!.getDateAsField()!)\", ")
-            } else {
-                markup.writeLine("        date: \"\", ")
+        var (sortedNote, position) = io.firstNote()
+        while sortedNote != nil {
+            if sortedNote!.original {
+                
+                markup.writeLine("    { ")
+                
+                // Generate title
+                markup.writeLine("        title: \"\(sortedNote!.note.noteID.text)\", ")
+                
+                // Generate date
+                if sortedNote!.note.hasDate() {
+                    markup.writeLine("        date: \"\(sortedNote!.note.getDateAsField()!)\", ")
+                } else {
+                    markup.writeLine("        date: \"\", ")
+                }
+                
+                // Generate URL
+                let resolution = NoteLinkResolution(io: io, linkText: sortedNote!.note.noteID.commonID)
+                NoteLinkResolver.resolve(resolution: resolution)
+                if let target = resolution.genWikiLinkTarget() {
+                    let url = displayParms.wikiLinks.assembleWikiLink(target: target)
+                    markup.writeLine("        url: \"\(url)\", ")
+                } else {
+                    markup.writeLine("        url: \"\", ")
+                }
+                
+                // Generate summary
+                var summaryText = ""
+                if sortedNote!.note.hasTeaser() {
+                    summaryText = sortedNote!.note.teaser.value
+                } else {
+                    summaryText = StringUtils.summarize(sortedNote!.note.body.value)
+                }
+                let mkd = MkdownParser(summaryText, options: displayParms.genMkdownOptions())
+                mkd.parse()
+                
+                let escaped = StringUtils.prepHTMLforJSON(mkd.html)
+                markup.writeLine("        summary: \"\(escaped)\", ")
+                
+                // Generate content
+                let pureContent = StringUtils.purifyPunctuation(sortedNote!.note.body.value)
+                markup.writeLine("        content: \"\(pureContent)\"")
+                
+                markup.writeLine("    }, ")
             }
-            
-            // Generate URL
-            let resolution = NoteLinkResolution(io: io, linkText: note!.noteID.commonID)
-            NoteLinkResolver.resolve(resolution: resolution)
-            if let target = resolution.genWikiLinkTarget() {
-                let url = displayParms.wikiLinks.assembleWikiLink(target: target)
-                markup.writeLine("        url: \"\(url)\", ")
-            } else {
-                markup.writeLine("        url: \"\", ")
-            }
-            
-            // Generate summary
-            var summaryText = ""
-            if note!.hasTeaser() {
-                summaryText = note!.teaser.value
-            } else {
-                summaryText = StringUtils.summarize(note!.body.value)
-            }
-            let mkd = MkdownParser(summaryText, options: displayParms.genMkdownOptions())
-            mkd.parse()
-            
-            let escaped = StringUtils.prepHTMLforJSON(mkd.html)
-            markup.writeLine("        summary: \"\(escaped)\", ")
-            
-            // Generate content
-            let pureContent = StringUtils.purifyPunctuation(note!.body.value)
-            markup.writeLine("        content: \"\(pureContent)\"")
-            
-            markup.writeLine("    }, ")
-            (note, position) = io.nextNote(position)
+            (sortedNote, position) = io.nextNote(position)
         }
         markup.ensureNewLine()
         markup.writeLine("]; ")
@@ -1119,19 +1121,19 @@ public class NotesMkdownContext: MkdownContext {
         
         guard let parent = io.getNote(knownAs: collection.idToParse) else { return "" }
         let currentPosition = io.positionOfNote(parent)
-        let (nextNote, nextPosition) = io.nextNote(currentPosition)
-        guard nextPosition.valid && nextNote != nil else { return "" }
+        let (nextSortedNote, nextPosition) = io.nextNote(currentPosition)
+        guard nextPosition.valid && nextSortedNote != nil else { return "" }
         
-        var children: [Note] = []
+        var children: [SortedNote] = []
         
-        let nextLevel = nextNote!.level
-        let nextSeq = nextNote!.seq
+        let nextLevel = nextSortedNote!.note.level
+        let nextSeq = nextSortedNote!.seqSingleValue
 
         hasLevel = (collection.levelFieldDef != nil)
         hasSeq = (collection.seqFieldDef != nil)
         
-        var followingNote: Note?
-        followingNote = nextNote
+        var followingNote: SortedNote?
+        followingNote = nextSortedNote
         var followingPosition = nextPosition
         var followingLevel = LevelValue(i: nextLevel.getInt(), config: io.collection!.levelConfig)
         var followingSeq = nextSeq.dupe()
@@ -1155,8 +1157,8 @@ public class NotesMkdownContext: MkdownContext {
             followingPosition = nextUpPosition
 
             if followingNote != nil {
-                followingLevel = followingNote!.level
-                followingSeq = followingNote!.seq
+                followingLevel = followingNote!.note.level
+                followingSeq = followingNote!.seqSingleValue
             }
         }
         
@@ -1169,12 +1171,12 @@ public class NotesMkdownContext: MkdownContext {
             
             teasers.startParagraph()
             
-            let seq = child.seq
+            let seq = child.seqSingleValue
             if let seqStack = seq.seqStack {
                 let finalSegment = seqStack.segments[seqStack.max]
                 teasers.append("\(finalSegment.value). ")
             }
-            let mkdown = MkdownParser(child.teaser.value, options: mkdownOptions)
+            let mkdown = MkdownParser(child.note.teaser.value, options: mkdownOptions)
             // mkdown.setWikiLinkFormatting(prefix: "", format: .fileName, suffix: ".html", context: workspace?.mkdownContext)
             // mkdown.setWikiLinkFormatting(prefix: "#", format: .fileName, suffix: "", context: workspace?.mkdownContext)
             mkdown.setWikiLinkFormatting(prefix: mkdownOptions.wikiLinks.prefix,
@@ -1318,8 +1320,8 @@ public class NotesMkdownContext: MkdownContext {
         hasSeq = (collection.seqFieldDef != nil)
         
         let currentPosition = io.positionOfNote(parent)
-        var (nextNote, nextPosition) = io.nextNote(currentPosition)
-        guard nextPosition.valid && nextNote != nil else { return "" }
+        var (nextSortedNote, nextPosition) = io.nextNote(currentPosition)
+        guard nextPosition.valid && nextSortedNote != nil else { return "" }
         
         let biblio = Markedup(format: .htmlFragment)
         biblio.startOrderedList(klass: "notenik-biblio-list")
@@ -1329,21 +1331,21 @@ public class NotesMkdownContext: MkdownContext {
         var worksCount = 0
         var authorKlassFound = false
         
-        while nextNote != nil
+        while nextSortedNote != nil
                 && nextPosition.valid
-                && nextNote!.level > parent.level
-                && nextNote!.seq > parent.seq {
+                && nextSortedNote!.note.level > parent.level
+                && nextSortedNote!.seqSingleValue > parent.seq.firstSeq {
             
-            if nextNote!.klass.value == NotenikConstants.authorKlass {
-                author = nextNote!.title.value
+            if nextSortedNote!.note.klass.value == NotenikConstants.authorKlass {
+                author = nextSortedNote!.note.title.value
                 authorKlassFound = true
             }
             
-            if nextNote!.hasAuthor() && !authorKlassFound {
-                author = nextNote!.author.lastNameFirst
+            if nextSortedNote!.note.hasAuthor() && !authorKlassFound {
+                author = nextSortedNote!.note.author.lastNameFirst
             }
             
-            if (nextNote!.klass.value == NotenikConstants.workKlass || nextNote!.hasWorkTitle()) && !author.isEmpty {
+            if (nextSortedNote!.note.klass.value == NotenikConstants.workKlass || nextSortedNote!.note.hasWorkTitle()) && !author.isEmpty {
                 biblio.startListItem()
                 
                 // Author
@@ -1357,18 +1359,18 @@ public class NotesMkdownContext: MkdownContext {
                 }
                 
                 // Date
-                if nextNote!.hasDate() {
-                    biblio.append("(\(nextNote!.date.value)) ")
+                if nextSortedNote!.note.hasDate() {
+                    biblio.append("(\(nextSortedNote!.note.date.value)) ")
                 }
                 
                 // Title of Work
                 var workTitle = ""
-                if nextNote!.klass.value == NotenikConstants.workKlass {
-                    workTitle = nextNote!.title.value
+                if nextSortedNote!.note.klass.value == NotenikConstants.workKlass {
+                    workTitle = nextSortedNote!.note.title.value
                 } else {
-                    workTitle = nextNote!.workTitle.value
+                    workTitle = nextSortedNote!.note.workTitle.value
                 }
-                let workType = nextNote!.workType
+                let workType = nextSortedNote!.note.workType
                 var citeKlass = ""
                 if workType.isMajor {
                     citeKlass = "notenik-cite-major"
@@ -1380,7 +1382,7 @@ public class NotesMkdownContext: MkdownContext {
                 if !workType.isMajor {
                     biblio.leftDoubleQuote()
                 }
-                if nextNote!.klass.value == NotenikConstants.workKlass {
+                if nextSortedNote!.note.klass.value == NotenikConstants.workKlass {
                     let link = displayParms.wikiLinks.assembleWikiLink(idBasis: workTitle)
                     let text = htmlConverter.convert(from: workTitle)
                     biblio.link(text: text, path: link, klass: Markedup.htmlClassNavLink)
@@ -1392,7 +1394,7 @@ public class NotesMkdownContext: MkdownContext {
                     biblio.rightDoubleQuote()
                 }
                 biblio.finishCite()
-                let workMajorTitle = nextNote!.getFieldAsString(label: "workmajortitle")
+                let workMajorTitle = nextSortedNote!.note.getFieldAsString(label: "workmajortitle")
                 if !workMajorTitle.isEmpty {
                     biblio.append(", ")
                     biblio.startCite(klass: "notenik-cite-major")
@@ -1401,8 +1403,8 @@ public class NotesMkdownContext: MkdownContext {
                 }
                 biblio.append(". ")
                 
-                let publisher = nextNote!.getFieldAsString(label: NotenikConstants.publisherCommon)
-                let pubCity = nextNote!.getFieldAsString(label: NotenikConstants.pubCityCommon)
+                let publisher = nextSortedNote!.note.getFieldAsString(label: NotenikConstants.publisherCommon)
+                let pubCity = nextSortedNote!.note.getFieldAsString(label: NotenikConstants.pubCityCommon)
                 if !publisher.isEmpty {
                     if !pubCity.isEmpty {
                         biblio.append("\(pubCity): ")
@@ -1412,8 +1414,8 @@ public class NotesMkdownContext: MkdownContext {
                 
                 // Web Link
                 var workLink = ""
-                if nextNote!.hasLink() {
-                    workLink = nextNote!.link.value
+                if nextSortedNote!.note.hasLink() {
+                    workLink = nextSortedNote!.note.link.value
                 }
                 if !workLink.isEmpty {
                     biblio.startLink(path: workLink, klass: "ext-link", blankTarget: true)
@@ -1424,7 +1426,7 @@ public class NotesMkdownContext: MkdownContext {
                 worksCount += 1
             }
             
-            (nextNote, nextPosition) = io.nextNote(nextPosition)
+            (nextSortedNote, nextPosition) = io.nextNote(nextPosition)
         }
 
         biblio.finishOrderedList()

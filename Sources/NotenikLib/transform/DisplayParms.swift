@@ -46,6 +46,10 @@ public class DisplayParms {
         htmlConverter.addHTML()
     }
     
+    public func setFrom(sortedNote: SortedNote) {
+        setFrom(collection: sortedNote.note.collection)
+    }
+    
     /// Set various values that are taken from the Note's Collection.
     public func setFrom(note: Note) {
         setFrom(collection: note.collection)
@@ -169,16 +173,16 @@ public class DisplayParms {
         }
     }
     
-    public func streamlinedTitleWithLink(markedup: Markedup, note: Note, klass: String?) {
+    public func streamlinedTitleWithLink(markedup: Markedup, sortedNote: SortedNote, klass: String?) {
 
-        let idBasis = note.noteID.getBasis()
+        let idBasis = sortedNote.note.noteID.getBasis()
         var seqPrefix = ""
-        if note.klass.frontOrBack || note.klass.quote {
+        if sortedNote.note.klass.frontOrBack || sortedNote.note.klass.quote {
             // no need for a preceding number
-        } else if note.hasDisplaySeq() {
-            seqPrefix = note.formattedDisplaySeq + " "
+        } else if sortedNote.note.hasDisplaySeq() {
+            seqPrefix = sortedNote.note.formattedDisplaySeq + " "
         } else {
-            seqPrefix = note.getFormattedSeq() + " "
+            seqPrefix = sortedNote.getFormattedSeq() + " "
         }
         if !seqPrefix.isEmpty {
             markedup.append(seqPrefix)
@@ -189,9 +193,9 @@ public class DisplayParms {
         } else {
             idToUse = idBasis
         }
-        var text = note.noteID.text
-        if note.noteID.seqBeforeTitle {
-            text = note.title.value
+        var text = sortedNote.note.noteID.text
+        if sortedNote.note.noteID.seqBeforeTitle {
+            text = sortedNote.note.title.value
         }
         let htmlText = htmlConverter.convert(from: text)
         let wikiLink = wikiLinks.assembleWikiLink(idBasis: idToUse)

@@ -103,6 +103,8 @@ public struct NotenikConstants {
     public static let ratingCommon  = "rating"
     public static let recurs        = "Recurs"
     public static let recursCommon  = "recurs"
+    public static let singleSeq     = "Single Seq"
+    public static let singleSeqCommon = "singleseq"
     public static let seq           = "Seq"
     public static let seqCommon     = "seq"
     public static let displaySeq    = "Display Seq"

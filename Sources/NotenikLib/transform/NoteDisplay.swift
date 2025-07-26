@@ -68,6 +68,21 @@ public class NoteDisplay {
         }
     }
     
+    public func display(_ note: Note,
+                        io: NotenikIO,
+                        parms: DisplayParms,
+                        mdResults: TransformMdResults,
+                        expandedMarkdown: String? = nil,
+                        imagePref: ImagePref = .light) -> String {
+        let sortedNote = SortedNote(note: note)
+        return display(sortedNote,
+                       io: io,
+                       parms: parms,
+                       mdResults: mdResults,
+                       expandedMarkdown: expandedMarkdown,
+                       imagePref: imagePref)
+    }
+    
     /// Get the code used to display this entire note as a web page, including html tags.
     ///
     /// - Parameter note: The note to be displayed.
@@ -77,7 +92,7 @@ public class NoteDisplay {
     /// - Returns: A string containing the encoded note, and a flag indicating whether
     ///            any wiki link targets that did not yet exist were automatically added.
     ///
-    public func display(_ note: Note,
+    public func display(_ sortedNote: SortedNote,
                         io: NotenikIO,
                         parms: DisplayParms,
                         mdResults: TransformMdResults,
@@ -90,39 +105,39 @@ public class NoteDisplay {
         self.imagePref = imagePref
         
         if parms.displayMode == .continuous {
-            return displayCollection(note: note, io: io)
+            return displayCollection(sortedNote: sortedNote, io: io)
         } else if parms.displayMode == .continuousPartial {
-            return displayPartial(note: note, io: io)
+            return displayPartial(sortedNote: sortedNote, io: io)
         } else {
-            return displayOneNote(note, io: io, mdResults: mdResults)
+            return displayOneNote(sortedNote, io: io, mdResults: mdResults)
         }
     }
     
-    func displayCollection(note: Note, io: NotenikIO) -> String {
+    func displayCollection(sortedNote: SortedNote, io: NotenikIO) -> String {
         let otherResults = TransformMdResults()
-        let position = io.positionOfNote(note)
+        let position = io.positionOfNote(sortedNote)
         // Start the Markedup code generator.
         let code = Markedup(format: parms.format)
         var i = 0
-        var nextNote = io.getNote(at: i)
+        var nextNote = io.getSortedNote(at: i)
         var continuousPosition: ContinuousPosition = .first
         while nextNote != nil {
             if i == 0 {
-                let noteTitle = pop.toXML(nextNote!.title.value)
+                let noteTitle = pop.toXML(nextNote!.note.title.value)
                 code.startDoc(withTitle: noteTitle,
-                              withCSS: note.getCombinedCSS(cssString: parms.cssString),
+                              withCSS: sortedNote.note.getCombinedCSS(cssString: parms.cssString),
                               linkToFile: parms.cssLinkToFile,
                               withJS: mkdownOptions.getHtmlScript(),
                               epub3: parms.epub3,
                               addins: parms.addins)
             }
-            if nextNote!.noteID.id != note.noteID.id {
+            if nextNote!.note.noteID.id != sortedNote.note.noteID.id {
                 code.append(displayOneNote(nextNote!, io: io, mdResults: otherResults, continuousPosition: continuousPosition))
             } else {
                 code.append(displayOneNote(nextNote!, io: io, mdResults: mdResults, continuousPosition: continuousPosition))
             }
             i += 1
-            nextNote = io.getNote(at: i)
+            nextNote = io.getSortedNote(at: i)
             if i == (io.notesCount - 1) {
                 continuousPosition = .last
             } else {
@@ -133,7 +148,7 @@ public class NoteDisplay {
             _ = io.selectNote(at: position.index)
         }
         
-        let id = StringUtils.autoID(note.noteID.basis) 
+        let id = StringUtils.autoID(sortedNote.note.noteID.basis)
         var js = "window.addEventListener(\"load\", () => { \n"
         js.append("  document.getElementById('\(id)').scrollIntoView(); \n")
         js.append("});")
@@ -144,12 +159,12 @@ public class NoteDisplay {
         return code.code
     }
     
-    func displayPartial(note: Note, io: NotenikIO) -> String {
+    func displayPartial(sortedNote: SortedNote, io: NotenikIO) -> String {
         guard let collection = io.collection else {
             return ""
         }
         let otherResults = TransformMdResults()
-        let position = io.positionOfNote(note)
+        let position = io.positionOfNote(sortedNote)
         // Start the Markedup code generator.
         let code = Markedup(format: parms.format)
         var i = 0
@@ -157,15 +172,15 @@ public class NoteDisplay {
         var nextNote = collection.displayedNotes.getNote(at: i)
         while nextNote != nil {
             if i == 0 {
-                let noteTitle = pop.toXML(nextNote!.title.value)
+                let noteTitle = pop.toXML(nextNote!.note.title.value)
                 code.startDoc(withTitle: noteTitle,
-                              withCSS: note.getCombinedCSS(cssString: parms.cssString),
+                              withCSS: sortedNote.note.getCombinedCSS(cssString: parms.cssString),
                               linkToFile: parms.cssLinkToFile,
                               withJS: mkdownOptions.getHtmlScript(),
                               epub3: parms.epub3,
                               addins: parms.addins)
             }
-            if nextNote!.noteID.id != note.noteID.id {
+            if nextNote!.noteID.id != sortedNote.note.noteID.id {
                 code.append(displayOneNote(nextNote!, io: io, mdResults: otherResults, continuousPosition: continuousPosition))
             } else {
                 code.append(displayOneNote(nextNote!, io: io, mdResults: mdResults, continuousPosition: continuousPosition))
@@ -182,7 +197,7 @@ public class NoteDisplay {
             _ = io.selectNote(at: position.index)
         }
         
-        let id = StringUtils.autoID(note.noteID.basis)
+        let id = StringUtils.autoID(sortedNote.note.noteID.basis)
         var js = "window.addEventListener(\"load\", () => { \n"
         js.append("  document.getElementById('\(id)').scrollIntoView(); \n")
         js.append("});")
@@ -193,15 +208,19 @@ public class NoteDisplay {
         return code.code
     }
     
-    func displayOneNote(_ note: Note, io: NotenikIO, mdResults: TransformMdResults, continuousPosition: ContinuousPosition = .middle) -> String {
-        if note.hasShortID() {
-            mkdownOptions.shortID = note.shortID.value
+    func displayOneNote(_ sortedNote: SortedNote,
+                        io: NotenikIO,
+                        mdResults: TransformMdResults,
+                        continuousPosition: ContinuousPosition = .middle) -> String {
+        
+        if sortedNote.note.hasShortID() {
+            mkdownOptions.shortID = sortedNote.note.shortID.value
         } else {
             mkdownOptions.shortID = ""
         }
 
         // mkdownContext.setTitleToParse(title: note.title.value, shortID: note.shortID.value)
-        let collection = note.collection
+        let collection = sortedNote.note.collection
         collection.skipContentsForParent = false
         
         // Pre-parse the body field if we're generating HTML.
@@ -209,35 +228,36 @@ public class NoteDisplay {
             
             TransformMarkdown.mdToHtml(parserID: NotenikConstants.notenikParser,
                                        fieldType: NotenikConstants.bodyCommon,
-                                       markdown: note.body.value,
+                                       markdown: sortedNote.note.body.value,
                                        io: io,
                                        parms: parms,
                                        results: self.mdResults,
-                                       noteID: note.noteID.commonID,
-                                       noteText: note.noteID.text,
-                                       noteFileName: note.noteID.commonFileName,
-                                       note: note)
+                                       noteID: sortedNote.note.noteID.commonID,
+                                       noteText: sortedNote.note.noteID.text,
+                                       noteFileName: sortedNote.note.noteID.commonFileName,
+                                       note: sortedNote.note)
             
             if mdResults.mkdownContext != nil {
-                note.mkdownCommandList = mdResults.mkdownContext!.mkdownCommandList
-                note.mkdownCommandList.updateWith(body: note.body.value, html: mdResults.html)
-                collection.mkdownCommandList.updateWith(noteList: note.mkdownCommandList)
+                sortedNote.note.mkdownCommandList = mdResults.mkdownContext!.mkdownCommandList
+                sortedNote.note.mkdownCommandList.updateWith(body: sortedNote.note.body.value, html: mdResults.html)
+                collection.mkdownCommandList.updateWith(noteList: sortedNote.note.mkdownCommandList)
                 includedNotes = mdResults.mkdownContext!.includedNotes
             }
         }
         
-        let position = io.positionOfNote(note)
-        let topHTML = formatTopOfPage(note, io: io)
-        let imageHTML = formatImage(note, io: io)
-        let bottomHTML = formatBottomOfPage(note, io: io)
+        let position = io.positionOfNote(sortedNote)
+        let topHTML = formatTopOfPage(sortedNote, io: io)
+        let imageHTML = formatImage(sortedNote.note, io: io)
+        let bottomHTML = formatBottomOfPage(sortedNote, io: io)
         if position.valid {
             _ = io.selectNote(at: position.index)
         }
         
         if parms.displayTemplate.count > 0 && parms.displayMode == .custom && parms.formatIsHTML {
-            return displayWithTemplate(note, io: io)
+            return displayWithTemplate(sortedNote.note, io: io)
         } else {
-            return displayWithoutTemplate(note, io: io,
+            return displayWithoutTemplate(sortedNote.note,
+                                          io: io,
                                           topOfPage: topHTML,
                                           imageWithinPage: imageHTML,
                                           bottomOfPage: bottomHTML,
@@ -247,27 +267,27 @@ public class NoteDisplay {
     
     /// If we have a note level greater than 1, then try to display the preceding Note just higher in
     /// the implied hierarchy.
-    func formatTopOfPage(_ note: Note, io: NotenikIO) -> String {
+    func formatTopOfPage(_ sortedNote: SortedNote, io: NotenikIO) -> String {
         guard parms.displayMode == .streamlinedReading else { return "" }
         guard !parms.concatenated else { return "" }
         guard !parms.epub3 else { return "" }
-        guard note.hasLevel() else { return "" }
-        let noteLevel = note.level.level
+        guard sortedNote.note.hasLevel() else { return "" }
+        let noteLevel = sortedNote.note.level.level
         guard noteLevel > 1 else {
             return ""
         }
         let sortParm = parms.sortParm
         guard sortParm == .seqPlusTitle else { return "" }
-        var currentPosition = io.positionOfNote(note)
-        var parentNote: Note?
+        var currentPosition = io.positionOfNote(sortedNote)
+        var parentNote: SortedNote?
         
         while currentPosition.valid {
             let (priorNote, priorPosition) = io.priorNote(currentPosition)
             currentPosition = priorPosition
             guard priorPosition.valid && priorNote != nil else { break }
-            guard priorNote!.hasLevel() else { continue }
-            if priorNote!.level.level < noteLevel {
-                parentNote = priorNote!
+            guard priorNote!.note.hasLevel() else { continue }
+            if priorNote!.note.level.level < noteLevel {
+                parentNote = priorNote
                 break
             }
         }
@@ -275,7 +295,7 @@ public class NoteDisplay {
         
         let topHTML = Markedup()
         topHTML.startParagraph()
-        parms.streamlinedTitleWithLink(markedup: topHTML, note: parentNote!, klass: Markedup.htmlClassNavLink)
+        parms.streamlinedTitleWithLink(markedup: topHTML, sortedNote: parentNote!, klass: Markedup.htmlClassNavLink)
         topHTML.append("&#160;") // numeric code for non-breaking space
         topHTML.append("&#8593;") // Up arrow
         topHTML.finishParagraph()
@@ -345,40 +365,40 @@ public class NoteDisplay {
     }
     
     /// In a sequenced list, show upcoming Notes.
-    func formatBottomOfPage(_ note: Note, io: NotenikIO) -> String {
+    func formatBottomOfPage(_ sortedNote: SortedNote, io: NotenikIO) -> String {
         
         // See if we meet necessary conditions.
         guard parms.displayMode != .normal else { return "" }
         guard parms.displayMode != .continuous else { return "" }
         guard !parms.concatenated else { return "" }
-        guard note.collection.seqFieldDef != nil || parms.displayMode == .quotations else { return "" }
+        guard sortedNote.note.collection.seqFieldDef != nil || parms.displayMode == .quotations else { return "" }
         let sortParm = parms.sortParm
         guard sortParm == .seqPlusTitle || parms.displayMode == .quotations else { return "" }
         
         let bottomHTML = Markedup()
         
-        let currentPosition = io.positionOfNote(note)
-        let currDepth = note.depth
-        var (nextNote, nextPosition) = nextNote(startingPosition: currentPosition, startingNote: note, passedIO: io)
+        let currentPosition = io.positionOfNote(sortedNote)
+        let currDepth = sortedNote.depth
+        var (nextNote, nextPosition) = nextNote(startingPosition: currentPosition, startingNote: sortedNote, passedIO: io)
         guard nextPosition.valid && nextNote != nil else {
             backToTop(io: io, bottomHTML: bottomHTML)
             return bottomHTML.code
         }
         
         var nextBasis = nextNote!.noteID.getBasis()
-        var nextLevel = nextNote!.level
-        var nextSeq = nextNote!.seq
+        var nextLevel = nextNote!.note.level
+        var nextSeq = nextNote!.seqSingleValue
         var nextDepth = nextNote!.depth
         
         var skipIdText = ""
         var skipIdBasis = ""
         
-        if note.collection.levelFieldDef != nil {
-            let includeChildren = note.includeChildren
+        if sortedNote.note.collection.levelFieldDef != nil {
+            let includeChildren = sortedNote.note.includeChildren
             if includeChildren.on {
-                (nextNote, nextPosition) = formatIncludedChildren(note,
+                (nextNote, nextPosition) = formatIncludedChildren(sortedNote,
                                                    io: io,
-                                                   nextNote: nextNote!,
+                                                   nextSortedNote: nextNote!,
                                                    nextPosition: nextPosition,
                                                    nextLevel: nextLevel,
                                                    nextSeq: nextSeq,
@@ -387,14 +407,14 @@ public class NoteDisplay {
             (nextNote, nextPosition) = skipNonMainPageTypes(startingPosition: nextPosition, startingNote: nextNote, passedIO: io)
             if nextNote != nil && nextPosition.valid {
                 nextBasis = nextNote!.noteID.getBasis()
-                nextLevel = nextNote!.level
-                nextSeq = nextNote!.seq
+                nextLevel = nextNote!.note.level
+                nextSeq = nextNote!.seqSingleValue
                 nextDepth = nextNote!.depth
-                let collectionToC = note.mkdownCommandList.contains(MkdownConstants.collectionTocCmd)
-                if !note.collection.skipContentsForParent && !collectionToC {
-                    formatToCforBottom(note,
+                let collectionToC = sortedNote.note.mkdownCommandList.contains(MkdownConstants.collectionTocCmd)
+                if !sortedNote.note.collection.skipContentsForParent && !collectionToC {
+                    formatToCforBottom(sortedNote,
                                        io: io,
-                                       nextNote: nextNote!,
+                                       nextSortedNote: nextNote!,
                                        nextPosition: nextPosition,
                                        nextLevel: nextLevel,
                                        nextSeq: nextSeq,
@@ -406,7 +426,7 @@ public class NoteDisplay {
         }
         
         if parms.displayMode == .streamlinedReading && nextNote != nil && !nextBasis.isEmpty && nextDepth > currDepth {
-            (skipIdText, skipIdBasis) = skipDetails(note, io: io, nextNote: nextNote!, nextPosition: nextPosition)
+            (skipIdText, skipIdBasis) = skipDetails(sortedNote, io: io, nextSortedNote: nextNote!, nextPosition: nextPosition)
         }
         
         if !parms.epub3 {
@@ -438,7 +458,7 @@ public class NoteDisplay {
                     bottomHTML.startParagraph()
                 }
                 bottomHTML.append("Next: ")
-                parms.streamlinedTitleWithLink(markedup: bottomHTML, note: nextNote!, klass: Markedup.htmlClassNavLink)
+                parms.streamlinedTitleWithLink(markedup: bottomHTML, sortedNote: nextNote!, klass: Markedup.htmlClassNavLink)
                 bottomHTML.finishParagraph()
                 if !skipIdBasis.isEmpty {
                     bottomHTML.startParagraph(klass: "float-right")
@@ -459,21 +479,21 @@ public class NoteDisplay {
         return bottomHTML.code
     }
     
-    public func nextNote(startingPosition: NotePosition, startingNote: Note?, passedIO: NotenikIO) -> (Note?, NotePosition) {
+    public func nextNote(startingPosition: NotePosition, startingNote: SortedNote?, passedIO: NotenikIO) -> (SortedNote?, NotePosition) {
         guard startingPosition.valid && startingNote != nil else { return (startingNote, startingPosition) }
-        var (nextNote, nextPosition) = passedIO.nextNote(startingPosition)
-        (nextNote, nextPosition) = skipNonMainPageTypes(startingPosition: nextPosition, startingNote: nextNote, passedIO: passedIO)
-        return (nextNote, nextPosition)
+        var (nextSortedNote, nextPosition) = passedIO.nextNote(startingPosition)
+        (nextSortedNote, nextPosition) = skipNonMainPageTypes(startingPosition: nextPosition, startingNote: nextSortedNote, passedIO: passedIO)
+        return (nextSortedNote, nextPosition)
     }
     
-    func skipNonMainPageTypes(startingPosition: NotePosition, startingNote: Note?, passedIO: NotenikIO) -> (Note?, NotePosition) {
+    func skipNonMainPageTypes(startingPosition: NotePosition, startingNote: SortedNote?, passedIO: NotenikIO) -> (SortedNote?, NotePosition) {
         guard startingPosition.valid && startingNote != nil else { return (startingNote, startingPosition) }
-        var nextNote: Note? = startingNote
+        var nextSortedNote: SortedNote? = startingNote
         var nextPosition: NotePosition = startingPosition
-        while nextNote != nil && nextNote!.excludeFromBook(epub: parms.epub3) {
-            (nextNote, nextPosition) = passedIO.nextNote(nextPosition)
+        while nextSortedNote != nil && nextSortedNote!.note.excludeFromBook(epub: parms.epub3) {
+            (nextSortedNote, nextPosition) = passedIO.nextNote(nextPosition)
         }
-        return (nextNote, nextPosition)
+        return (nextSortedNote, nextPosition)
     }
     
     func backToTop(io: NotenikIO, bottomHTML: Markedup) {
@@ -487,16 +507,16 @@ public class NoteDisplay {
         bottomHTML.finishParagraph()
     }
     
-    func skipDetails(_ note: Note,
+    func skipDetails(_ sortedNote: SortedNote,
                      io: NotenikIO,
-                     nextNote: Note,
+                     nextSortedNote: SortedNote,
                      nextPosition: NotePosition) -> (String, String) {
         
-        let startingDepth = note.depth
-        var followingNote: Note?
-        followingNote = nextNote
+        let startingDepth = sortedNote.depth
+        var followingNote: SortedNote?
+        followingNote = nextSortedNote
         var followingPosition = nextPosition
-        var followingDepth = nextNote.depth
+        var followingDepth = nextSortedNote.depth
         
         while followingNote != nil && followingPosition.valid && followingDepth > startingDepth {
             let (nextUpNote, nextUpPosition) = io.nextNote(followingPosition)
@@ -514,16 +534,16 @@ public class NoteDisplay {
     }
     
     /// Include children on the parent's display.
-    func formatIncludedChildren(_ note: Note,
+    func formatIncludedChildren(_ sortedNote: SortedNote,
                                 io: NotenikIO,
-                                nextNote: Note,
+                                nextSortedNote: SortedNote,
                                 nextPosition: NotePosition,
                                 nextLevel: LevelValue,
-                                nextSeq: SeqValue,
-                                bottomHTML: Markedup) -> (Note?, NotePosition) {
+                                nextSeq: SeqSingleValue,
+                                bottomHTML: Markedup) -> (SortedNote?, NotePosition) {
         
-        var followingNote: Note?
-        followingNote = nextNote
+        var followingNote: SortedNote?
+        followingNote = nextSortedNote
         var followingPosition = nextPosition
         var followingLevel = LevelValue(i: nextLevel.getInt(), config: io.collection!.levelConfig)
         var followingSeq = nextSeq.dupe()
@@ -535,16 +555,19 @@ public class NoteDisplay {
         
         while followingNote != nil
                 && followingPosition.valid
-                && followingLevel > note.level
+                && followingLevel > sortedNote.note.level
                 && followingLevel == nextLevel
-                && followingSeq > note.seq {
+                && followingSeq > sortedNote.seqSingleValue {
             
             let fieldsToHTML = NoteFieldsToHTML()
-            parms.included = note.includeChildren.copy()
+            parms.included = sortedNote.note.includeChildren.copy()
             
             let (nextUpNote, nextUpPosition) = io.nextNote(followingPosition)
             
-            let lastInList = nextUpNote == nil || nextUpPosition.invalid || nextUpNote!.level <= note.level || nextUpNote!.seq <= note.seq
+            let lastInList = nextUpNote == nil
+                || nextUpPosition.invalid
+                || nextUpNote!.note.level <= sortedNote.note.level
+                || nextUpNote!.seqSingleValue <= sortedNote.seqSingleValue
             
             var alreadyIncluded = false
             let followingID = followingNote!.noteID.commonID
@@ -557,7 +580,7 @@ public class NoteDisplay {
             
             if !alreadyIncluded {
                 let childResults = TransformMdResults()
-                let childDisplay = fieldsToHTML.fieldsToHTML(followingNote!,
+                let childDisplay = fieldsToHTML.fieldsToHTML(followingNote!.note,
                                                              io: io,
                                                              parms: parms,
                                                              topOfPage: "",
@@ -573,8 +596,8 @@ public class NoteDisplay {
             followingPosition = nextUpPosition
 
             if followingNote != nil {
-                followingLevel = followingNote!.level
-                followingSeq = followingNote!.seq
+                followingLevel = followingNote!.note.level
+                followingSeq = followingNote!.seqSingleValue
             }
         }
         
@@ -590,21 +613,21 @@ public class NoteDisplay {
         }
     }
     
-    func formatToCforBottom(_ note: Note,
+    func formatToCforBottom(_ sortedNote: SortedNote,
                             io: NotenikIO,
-                            nextNote: Note,
+                            nextSortedNote: SortedNote,
                             nextPosition: NotePosition,
                             nextLevel: LevelValue,
-                            nextSeq: SeqValue,
+                            nextSeq: SeqSingleValue,
                             bottomHTML: Markedup) {
 
-        var tocNotes: [Note] = []
-        if nextLevel > note.level && nextSeq > note.seq {
-            tocNotes.append(nextNote)
+        var tocNotes: [SortedNote] = []
+        if nextLevel > sortedNote.note.level && nextSeq > sortedNote.seqSingleValue {
+            tocNotes.append(nextSortedNote)
             let tocLevel = nextLevel
             var (anotherNote, anotherPosition) = io.nextNote(nextPosition)
-            while anotherNote != nil && anotherNote!.level >= tocLevel {
-                if anotherNote!.level == tocLevel && anotherNote!.includeInBook(epub: parms.epub3) {
+            while anotherNote != nil && anotherNote!.note.level >= tocLevel {
+                if anotherNote!.note.level == tocLevel && anotherNote!.note.includeInBook(epub: parms.epub3) {
                     tocNotes.append(anotherNote!)
                 }
                 (anotherNote, anotherPosition) = io.nextNote(anotherPosition)
@@ -614,7 +637,7 @@ public class NoteDisplay {
                 bottomHTML.startUnorderedList(klass: "notenik-toc")
                 for tocNote in tocNotes {
                     bottomHTML.startListItem()
-                    parms.streamlinedTitleWithLink(markedup: bottomHTML, note: tocNote, klass: Markedup.htmlClassNavLink)
+                    parms.streamlinedTitleWithLink(markedup: bottomHTML, sortedNote: tocNote, klass: Markedup.htmlClassNavLink)
                     bottomHTML.finishListItem()
                 }
                 bottomHTML.finishUnorderedList()

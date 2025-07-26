@@ -1696,7 +1696,7 @@ public class TemplateUtil {
         
         var label = "Next: "
         var index = position + 1
-        while index < notesList.count && notesList[index].excludeFromBook(epub: false) {
+        while index < notesList.count && notesList[index].note.excludeFromBook(epub: false) {
             index += 1
         }
         if index >= notesList.count {
@@ -1726,7 +1726,7 @@ public class TemplateUtil {
         var aboveIndex = position - 1
         var aboveDepth = depth
         while aboveIndex >= 0 && aboveDepth >= depth {
-            let aboveNote = notesList[aboveIndex]
+            let aboveNote = notesList[aboveIndex].note
             aboveDepth = aboveNote.depth
             if aboveDepth >= depth {
                 aboveIndex -= 1
@@ -1737,7 +1737,7 @@ public class TemplateUtil {
             return ""
         }
         
-        let parent = notesList[aboveIndex]
+        let parent = notesList[aboveIndex].note
         let parentSeq = parent.seq
         let parentHTML = Markedup()
         parentHTML.startParagraph()
@@ -1764,7 +1764,7 @@ public class TemplateUtil {
         var nextPosition = position + 1
         guard position >= 0 && nextPosition < notesList.count else { return "" }
         
-        var nextNote = notesList[nextPosition]
+        var nextNote = notesList[nextPosition].note
         var nextDepth = nextNote.depth
         let childDepth = nextDepth
         guard childDepth > parentDepth else { return "" }
@@ -1785,7 +1785,7 @@ public class TemplateUtil {
             }
             nextPosition += 1
             if nextPosition < notesList.count {
-                nextNote = notesList[nextPosition]
+                nextNote = notesList[nextPosition].note
                 nextDepth = nextNote.depth
             }
         }

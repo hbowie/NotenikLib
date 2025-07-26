@@ -116,19 +116,19 @@ public class Transmogrifier {
         var to:   [String:ListOfNoteIdentifiers] = [:]
         
         // First pass through the Notes in the Collection, storing linkages in memory.
-        var (note, position) = io.firstNote()
-        while note != nil {
+        var (sortedNote, position) = io.firstNote()
+        while sortedNote != nil {
             let mdResults = TransformMdResults()
-            parms.setFrom(note: note!)
-            let _ = noteDisplay.display(note!, io: io, parms: parms, mdResults: mdResults)
+            parms.setFrom(sortedNote: sortedNote!)
+            let _ = noteDisplay.display(sortedNote!, io: io, parms: parms, mdResults: mdResults)
             let noteLinkList = mdResults.wikiLinks
             if !noteLinkList.isEmpty {
                 for link in noteLinkList.links {
-                    link.setFrom(path: "", item: note!.noteID.basis)
+                    link.setFrom(path: "", item: sortedNote!.note.noteID.basis)
                     
                     // Add a Note if a target is missing
                     if !link.targetFound {
-                        let newNote = Note(collection: note!.collection)
+                        let newNote = Note(collection: sortedNote!.note.collection)
                         _ = newNote.setTitle(link.originalTarget.item)
                         newNote.identify()
                         _ = io.addNote(newNote: newNote)
@@ -158,25 +158,25 @@ public class Transmogrifier {
                 }
             }
             
-            (note, position) = io.nextNote(position)
+            (sortedNote, position) = io.nextNote(position)
         }
         
         // Now make a second pass through the Notes in the Collection,
         // updating them this time around.
         var backlinksCount = 0
-        (note, position) = io.firstNote()
-        while note != nil {
+        (sortedNote, position) = io.firstNote()
+        while sortedNote != nil {
             let wikiLinks = WikilinkValue()
             let backLinks = BacklinkValue()
 
-            let fromList = from[note!.noteID.commonID]
+            let fromList = from[sortedNote!.note.noteID.commonID]
             if fromList != nil {
                 for noteIdBasis in fromList!.noteIDs {
                     wikiLinks.add(noteIdBasis: noteIdBasis)
                 }
             }
             
-            let toList = to[note!.noteID.commonID]
+            let toList = to[sortedNote!.note.noteID.commonID]
             if toList != nil {
                 for noteID in toList!.noteIDs {
                     backLinks.notePointers.add(noteIdBasis: noteID)
@@ -185,26 +185,26 @@ public class Transmogrifier {
             }
             
             var noteUpdated = false
-            let modNote = note!.copy() as! Note
+            let modNote = sortedNote!.note.copy() as! Note
             
-            if wikiLinks.value != note!.wikilinks.value {
+            if wikiLinks.value != sortedNote!.note.wikilinks.value {
                 noteUpdated = true
                 _ = modNote.setWikilinks(wikiLinks)
             }
             
-            if backLinks.value != note!.backlinks.value {
+            if backLinks.value != sortedNote!.note.backlinks.value {
                 noteUpdated = true
                 _ = modNote.setBacklinks(backLinks)
             }
             
             if noteUpdated {
-                let (updatedNote, _) = io.modNote(oldNote: note!, newNote: modNote)
+                let (updatedNote, _) = io.modNote(oldNote: sortedNote!.note, newNote: modNote)
                 if updatedNote == nil {
                     print("io.modNote failed!")
                 }
             }
             
-            (note, position) = io.nextNote(position)
+            (sortedNote, position) = io.nextNote(position)
         }
         
         return backlinksCount

@@ -17,8 +17,8 @@ public class SelectedNotes: Sequence {
     var io: NotenikIO?
     var collection: NoteCollection?
     
-    var notesDict: [String: Note] =  [:]
-    var notesList: [Note] = []
+    var notesDict: [String: SortedNote] =  [:]
+    var notesList: [SortedNote] = []
     
     public init() {
         
@@ -33,7 +33,7 @@ public class SelectedNotes: Sequence {
         self.io = io
         self.collection = io.collection
         for index in selected {
-            if let selNote = io.getNote(at: index) {
+            if let selNote = io.getSortedNote(at: index) {
                 append(selNote)
             }
         }
@@ -48,21 +48,25 @@ public class SelectedNotes: Sequence {
         notesList.removeAll()
     }
     
-    public func append(_ note: Note) {
-        notesDict[note.id] = note
-        notesList.append(note)
+    public func append(_ sortedNote: SortedNote) {
+        notesDict[sortedNote.note.id] = sortedNote
+        notesList.append(sortedNote)
+    }
+    
+    public func contains(element: SortedNote) -> Bool {
+        return (notesDict[element.note.id] != nil)
     }
     
     public func contains(element: Note) -> Bool {
         return (notesDict[element.id] != nil)
     }
     
-    public func getNote(at: Int) -> Note? {
+    public func getNote(at: Int) -> SortedNote? {
         guard at >= 0 && at < notesList.count else { return nil }
         return notesList[at]
     }
     
-    public func makeIterator() -> Array<Note>.Iterator {
+    public func makeIterator() -> Array<SortedNote>.Iterator {
         return notesList.makeIterator()
     }
     

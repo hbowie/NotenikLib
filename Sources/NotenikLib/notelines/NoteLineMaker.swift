@@ -86,17 +86,25 @@ public class NoteLineMaker {
         fieldsWritten = 0
         fieldMods = " "
         writer.open()
+        let collection = note.collection
+        
         if note.noteID.mmdOrYaml && note.noteID.mmdMetaStartLine.count > 0 {
             writer.writeLine(note.noteID.mmdMetaStartLine)
         }
         if note.hasTitle() {
             putTitle(note)
+        } else {
+            putEmptyField(def: collection.titleFieldDef,
+                          format: note.noteID.noteFileFormat,
+                          newLabel: collection.newLabelForTitle)
         }
         if note.hasTags() {
             putTags(note)
+        } else {
+            putEmptyField(def: collection.tagsFieldDef,
+                          format: note.noteID.noteFileFormat)
         }
         
-        let collection = note.collection
         var i = 0
         while i < collection.dict.count {
             let def = collection.dict.getDef(i)
@@ -123,7 +131,11 @@ public class NoteLineMaker {
                     putParent(parentLabel: def!.fieldLabel.properForm)
                 } else {
                     let field = note.getField(def: def!)
-                    putField(field, format: note.noteID.noteFileFormat)
+                    if field == nil || field!.value.isEmpty {
+                        putEmptyField(def: def, format: note.noteID.noteFileFormat)
+                    } else {
+                        putField(field, format: note.noteID.noteFileFormat)
+                    }
                 }
             }
             i += 1
@@ -154,6 +166,9 @@ public class NoteLineMaker {
         }
         if note.hasBody() {
             putBody(note)
+        } else {
+            putEmptyField(def: collection.bodyFieldDef,
+                          format: note.noteID.noteFileFormat)
         }
         writer.close()
         return fieldsWritten
@@ -245,36 +260,49 @@ public class NoteLineMaker {
         guard let field = possibleField else { return }
         guard field.value.hasData else { return }
         guard field.def.fieldType.typeString != NotenikConstants.folderCommon else { return }
-        putFieldName(field, format: format, newLabel: newLabel)
+        var multiCount = 1
+        if let multi = field.value as? MultiValues {
+            multiCount = multi.multiCount
+        }
+        putFieldName(field.def, multiCount: multiCount, format: format, newLabel: newLabel)
         putFieldValue(field, format: format)
+        fieldsWritten += 1
+    }
+    
+    public func putEmptyField(def: FieldDefinition?, format: NoteFileFormat, newLabel: String = "") {
+        guard def != nil else { return }
+        guard def!.fieldType.typeString != NotenikConstants.folderCommon else { return }
+        guard def!.writeEmpty else { return }
+        putFieldName(def!, multiCount: 0, format: format, newLabel: newLabel)
+        if !def!.fieldType.isTextBlock {
+            writer.endLine()
+        }
         fieldsWritten += 1
     }
     
     /// Write the field label to the writer, along with any necessary preceding and following text.
     ///
     /// - Parameter def: The Field Definition for the field.
-    func putFieldName(_ field: NoteField, format: NoteFileFormat, newLabel: String = "") {
+    func putFieldName(_ def: FieldDefinition, multiCount: Int = 1, format: NoteFileFormat, newLabel: String = "") {
         if fieldsWritten > 0 && format == .notenik {
             writer.endLine()
         }
-        var proper = field.def.fieldLabel.properForm
+        var proper = def.fieldLabel.properForm
         if !newLabel.isEmpty {
             proper = newLabel
         }
-        if !parentLabel.isEmpty && field.def.fieldLabel.parentLabel == parentLabel {
+        if !parentLabel.isEmpty && def.fieldLabel.parentLabel == parentLabel {
             writer.write("  \(proper):")
         } else {
             writer.write("\(proper):")
         }
         var usingYAMLdashLines = false
         if format == .yaml {
-            if let multi = field.value as? MultiValues {
-                if multi.multiCount > 1 {
-                    usingYAMLdashLines = true
-                }
+            if multiCount > 1 {
+                usingYAMLdashLines = true
             }
         }
-        if field.def.fieldType.isTextBlock && format == .notenik {
+        if def.fieldType.isTextBlock && format == .notenik {
             writer.endLine()
             writer.endLine()
         } else if !usingYAMLdashLines {

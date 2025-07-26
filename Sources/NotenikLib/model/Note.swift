@@ -180,35 +180,11 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
         }
     }
     
-    /// See if the supplied sort key is greater than the sort key for this Note.
-    /// - Parameter str: A sort key for comparison.
-    /// - Returns: True if the supplied key is greater than this Note's.
-    public func sortKeyGreaterThan(_ str: String) -> Bool {
-        if collection.sortDescending {
-            return str > sortKey
-        } else {
-            return sortKey > str
-        }
-    }
-    
-    /// See if the supplied sort key is less than the sort key for this Note.
-    /// - Parameter str: A sort key for comparison.
-    /// - Returns: True if the supplied key is less than this Note's.
-    public func sortKeyLessThan(_ str: String) -> Bool {
-        if collection.sortDescending {
-            return str < sortKey
-        } else {
-            return sortKey < str
-        }
-    }
-    
-    
-    /// See if the supplied sort key is equal to this Note's.
-    /// - Parameter str: A sort key for comparison.
-    /// - Returns: True if the keys match exactly.
-    public func sortKeyEquals(_ str: String) -> Bool {
-        return str == sortKey
-    }
+    // -----------------------------------------------------------
+    //
+    // MARK: Conformance to Comparable protocol.
+    //
+    // -----------------------------------------------------------
     
     public static func < (lhs: Note, rhs: Note) -> Bool {
         if lhs.collection.sortParm == .custom {
@@ -255,6 +231,122 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
         }
 
         return result
+    }
+    
+    /// This variable provides compliance with the CustomStringConvertible protocol.
+    public var description: String {
+        return sortKey
+    }
+    
+    public func genSortKey(seqIndex: Int = 0) -> String {
+        switch collection.sortParm {
+        case .seqPlusTitle:
+            return seq.genSortKey(seqIndex: seqIndex) + title.sortKey + level.sortKey
+        case .tasksBySeq:
+            return (status.doneX(config: collection.statusConfig)
+                + seq.genSortKey(seqIndex: seqIndex)
+                + date.getSortKey(sortBlankDatesLast: collection.sortBlankDatesLast)
+                + title.sortKey)
+        case .tagsPlusSeq:
+            return (tags.sortKey + " "
+                + seq.genSortKey(seqIndex: seqIndex) + " "
+                + title.sortKey)
+        case .rankSeqTitle:
+            return rank.getSortKey(config: collection.rankConfig)
+                + seq.genSortKey(seqIndex: seqIndex)
+                + title.sortKey
+        case .folderSeqTitle:
+            return folder.sortKey
+                + seq.genSortKey(seqIndex: seqIndex)
+                + title.sortKey
+        default:
+            return sortKey
+        }
+    }
+    
+    /// Return a String containing the current sort key for the Note
+    public var sortKey: String {
+        switch collection.sortParm {
+        case .title:
+            return title.sortKey
+        case .seqPlusTitle:
+            return seq.sortKey + title.sortKey + level.sortKey
+        case .tasksByDate:
+            return (status.doneX(config: collection.statusConfig)
+                + date.getSortKey(sortBlankDatesLast: collection.sortBlankDatesLast)
+                + seq.sortKey
+                + title.sortKey)
+        case .tasksBySeq:
+            return (status.doneX(config: collection.statusConfig)
+                + seq.sortKey
+                + date.getSortKey(sortBlankDatesLast: collection.sortBlankDatesLast)
+                + title.sortKey)
+        case .tagsPlusTitle:
+            return (tags.sortKey
+                + title.sortKey
+                + status.sortKey)
+        case .author:
+            return (creatorSortKey
+                + date.getSortKey(sortBlankDatesLast: collection.sortBlankDatesLast)
+                + title.sortKey)
+        case .tagsPlusSeq:
+            return (tags.sortKey + " "
+                + seq.sortKey + " "
+                + title.sortKey)
+        case .dateAdded:
+            return dateAddedSortKey
+        case .dateModified:
+            return dateModifiedSortKey
+        case .datePicked:
+            if hasDatePicked() {
+                return datePickedSortKey + title.sortKey
+            } else {
+                if collection.sortBlankDatesLast  && !collection.sortDescending {
+                    return "9999-12-31 23:59:59 -0000" + title.sortKey
+                } else {
+                    return "0000-00-00 00:00:00 +0000" + title.sortKey
+                }
+            }
+        case .datePlusSeq:
+            return date.getSortKey(sortBlankDatesLast: collection.sortBlankDatesLast)
+                + seqAsTimeOfDay.sortKey
+                + title.sortKey
+        case .rankSeqTitle:
+            return rank.getSortKey(config: collection.rankConfig)
+                + seq.sortKey
+                + title.sortKey
+        case .klassTitle:
+            return klass.sortKey
+                + title.sortKey
+        case .klassDateTitle:
+            return klass.sortKey
+                + date.getSortKey(sortBlankDatesLast: collection.sortBlankDatesLast)
+                + title.sortKey
+        case .folderTitle:
+            return folder.sortKey
+                + title.sortKey
+        case .folderDateTitle:
+            return folder.sortKey
+                + date.getSortKey(sortBlankDatesLast: collection.sortBlankDatesLast)
+                + title.sortKey
+        case .folderSeqTitle:
+            return folder.sortKey
+                + seq.sortKey
+                + title.sortKey
+        case .lastNameFirst:
+            return lastNameFirst
+        case .custom:
+            var key = ""
+            for sortField in collection.customFields {
+                let def = sortField.field
+                let field = getField(def: def)
+                if field != nil {
+                    let value = field!.value
+                    key.append(value.sortKey)
+                }
+            }
+            return key
+        }
     }
     
     public func getURLforAttachment(attachmentName: String) -> URL? {
@@ -640,96 +732,6 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
             return datePickedValue.sortKey
         } else {
             return ""
-        }
-    }
-    
-    /// This variable provides compliance with the CustomStringConvertible protocol.
-    public var description: String {
-        return sortKey
-    }
-    
-    /// Return a String containing the current sort key for the Note
-    public var sortKey: String {
-        switch collection.sortParm {
-        case .title:
-            return title.sortKey
-        case .seqPlusTitle:
-            return seq.sortKey + title.sortKey + level.sortKey
-        case .tasksByDate:
-            return (status.doneX(config: collection.statusConfig)
-                + date.getSortKey(sortBlankDatesLast: collection.sortBlankDatesLast)
-                + seq.sortKey
-                + title.sortKey)
-        case .tasksBySeq:
-            return (status.doneX(config: collection.statusConfig)
-                + seq.sortKey
-                + date.getSortKey(sortBlankDatesLast: collection.sortBlankDatesLast)
-                + title.sortKey)
-        case .tagsPlusTitle:
-            return (tags.sortKey
-                + title.sortKey
-                + status.sortKey)
-        case .author:
-            return (creatorSortKey
-                + date.getSortKey(sortBlankDatesLast: collection.sortBlankDatesLast)
-                + title.sortKey)
-        case .tagsPlusSeq:
-            return (tags.sortKey + " "
-                + seq.sortKey + " "
-                + title.sortKey)
-        case .dateAdded:
-            return dateAddedSortKey
-        case .dateModified:
-            return dateModifiedSortKey
-        case .datePicked:
-            if hasDatePicked() {
-                return datePickedSortKey + title.sortKey
-            } else {
-                if collection.sortBlankDatesLast  && !collection.sortDescending {
-                    return "9999-12-31 23:59:59 -0000" + title.sortKey
-                } else {
-                    return "0000-00-00 00:00:00 +0000" + title.sortKey
-                }
-            }
-        case .datePlusSeq:
-            return date.getSortKey(sortBlankDatesLast: collection.sortBlankDatesLast)
-                + seqAsTimeOfDay.sortKey
-                + title.sortKey
-        case .rankSeqTitle:
-            return rank.getSortKey(config: collection.rankConfig)
-                + seq.sortKey
-                + title.sortKey
-        case .klassTitle:
-            return klass.sortKey
-                + title.sortKey
-        case .klassDateTitle:
-            return klass.sortKey
-                + date.getSortKey(sortBlankDatesLast: collection.sortBlankDatesLast)
-                + title.sortKey
-        case .folderTitle:
-            return folder.sortKey
-                + title.sortKey
-        case .folderDateTitle:
-            return folder.sortKey
-                + date.getSortKey(sortBlankDatesLast: collection.sortBlankDatesLast)
-                + title.sortKey
-        case .folderSeqTitle:
-            return folder.sortKey
-                + seq.sortKey
-                + title.sortKey
-        case .lastNameFirst:
-            return lastNameFirst
-        case .custom:
-            var key = ""
-            for sortField in collection.customFields {
-                let def = sortField.field
-                let field = getField(def: def)
-                if field != nil {
-                    let value = field!.value
-                    key.append(value.sortKey)
-                }
-            }
-            return key
         }
     }
     
@@ -1348,13 +1350,13 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     }
     
     /// Return a formatted Seq, basec on Collection prefs
-    public func getFormattedSeq(full: Bool = false) ->String {
+    public func getFormattedSeq(full: Bool = false) -> String {
         
         guard collection.seqFieldDef != nil else { return "" }
         
         guard let seqValue = getFieldAsValue(def: collection.seqFieldDef!) as? SeqValue else { return "" }
 
-        let (formatted, _) = collection.seqFormatter.format(seq: seqValue, full: full)
+        let (formatted, _) = collection.seqFormatter.format(seq: seqValue.firstSeq, full: full)
         return formatted
     }
     

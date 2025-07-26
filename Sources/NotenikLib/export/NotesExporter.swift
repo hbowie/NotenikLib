@@ -28,7 +28,9 @@ public class NotesExporter {
     var collection: NoteCollection!
     var dict = FieldDictionary()
     var format = ExportFormat.commaSeparated
+    
     var split = false
+    var singleSeqs = false
     var webExt = false
     var destination: URL!
     var fileExt = "txt"
@@ -81,6 +83,7 @@ public class NotesExporter {
         mkdownContext = NotesMkdownContext(io: noteIO)
         self.format = format
         self.split = split
+        self.singleSeqs = (collection.seqFieldDef != nil)
         self.webExt = addWebExtensions
         self.destination = destination
         self.fileExt = ext
@@ -182,6 +185,9 @@ public class NotesExporter {
         // Write out column headers
         if split {
             delimWriter.write(value: NotenikConstants.tag)
+        }
+        if singleSeqs {
+            delimWriter.write(value: NotenikConstants.singleSeq)
         }
         for def in dict.list {
             delimWriter.write(value: def.fieldLabel.properForm)
@@ -318,7 +324,7 @@ public class NotesExporter {
         // Now export each Note
         var (nextNote, position) = noteIO.firstNote()
         while nextNote != nil {
-            let note = nextNote!
+            let note = nextNote!.note
             // Let's see if the next Note meets Tags Selection Criteria
             var noteSelected = true
             if tagsToSelect.tags.count > 0 {
@@ -333,7 +339,7 @@ public class NotesExporter {
             }
             
             if noteSelected {
-                exportSelectedNote(note)
+                exportSelectedNote(nextNote!)
             }
             
             (nextNote, position) = noteIO.nextNote(position)
@@ -341,9 +347,10 @@ public class NotesExporter {
     }
     
     /// Export a Note that has met the selection criteria. 
-    func exportSelectedNote(_ note: Note) {
+    func exportSelectedNote(_ sortedNote: SortedNote) {
         
         // Check each tag on the selected note
+        let note = sortedNote.note
         let cleanTags = TagsValue()
         for tag in note.tags.tags {
             var tagSelected = true
@@ -361,11 +368,11 @@ public class NotesExporter {
         tagsWritten = 0
         if split {
             for tag in cleanTags.tags {
-                writeNote(splitTag: tag.description, cleanTags: cleanTags.description, note: note)
+                writeNote(splitTag: tag.description, cleanTags: cleanTags.description, sortedNote: sortedNote)
             }
         }
         if tagsWritten == 0 {
-            writeNote(splitTag: "", cleanTags: cleanTags.description, note: note)
+            writeNote(splitTag: "", cleanTags: cleanTags.description, sortedNote: sortedNote)
         }
         
     }
@@ -376,12 +383,13 @@ public class NotesExporter {
     ///   - splitTag: If we're splitting by tag, then the tag to write for this line; otherwise blank.
     ///   - cleanTags: The cleaned tags for this note, with any suppressed tags removed.
     ///   - note: The Note to be written.
-    func writeNote(splitTag: String, cleanTags: String, note: Note) {
+    func writeNote(splitTag: String, cleanTags: String, sortedNote: SortedNote) {
+        let note = sortedNote.note
         switch format {
         case .commaSeparated, .tabDelimited:
-            writeLine(splitTag: splitTag, cleanTags: cleanTags, note: note)
+            writeLine(splitTag: splitTag, cleanTags: cleanTags, sortedNote: sortedNote)
         case .json:
-            writeObject(splitTag: splitTag, cleanTags: cleanTags, note: note)
+            writeObject(splitTag: splitTag, cleanTags: cleanTags, sortedNote: sortedNote)
         case .notenik:
             writeNotenik(splitTag: splitTag, cleanTags: cleanTags, note: note)
         case .yaml:
@@ -389,11 +397,11 @@ public class NotesExporter {
         case .opml:
             writeOutline(splitTag: splitTag, cleanTags: cleanTags, note: note)
         case .concatHtml, .concatMarkdown, .continuousMarkdown:
-            writeConcat(splitTag: splitTag, cleanTags: cleanTags, note: note)
+            writeConcat(splitTag: splitTag, cleanTags: cleanTags, sortedNote: sortedNote)
         case .outlineHtml:
             writeOutlineHtml(note: note)
         default:
-            writeLine(splitTag: splitTag, cleanTags: cleanTags, note: note)
+            writeLine(splitTag: splitTag, cleanTags: cleanTags, sortedNote: sortedNote)
         }
     }
 
@@ -404,15 +412,18 @@ public class NotesExporter {
     ///   - splitTag: If we're splitting by tag, then the tag to write for this line; otherwise blank.
     ///   - cleanTags: The cleaned tags for this note, with any suppressed tags removed.
     ///   - note: The Note to be written.
-    func writeLine(splitTag: String, cleanTags: String, note: Note) {
+    func writeLine(splitTag: String, cleanTags: String, sortedNote: SortedNote) {
         if split {
             writeField(value: splitTag)
+        }
+        if singleSeqs {
+            writeField(value: sortedNote.seqSingleValue.value)
         }
         for def in dict.list {
             if def.fieldLabel.commonForm == NotenikConstants.tagsCommon {
                 writeField(value: cleanTags)
             } else {
-                writeField(value: note.getFieldAsString(label: def.fieldLabel.commonForm))
+                writeField(value: sortedNote.note.getFieldAsString(label: def.fieldLabel.commonForm))
             }
         }
         
@@ -420,20 +431,20 @@ public class NotesExporter {
             // Now add derived fields
             let code = Markedup(format: .htmlFragment)
             let mkdownOptions = MkdownOptions()
-            Markdown.markdownToMarkedup(markdown: note.getFieldAsString(label: NotenikConstants.bodyCommon),
+            Markdown.markdownToMarkedup(markdown: sortedNote.note.getFieldAsString(label: NotenikConstants.bodyCommon),
                                             options: mkdownOptions, mkdownContext: mkdownContext, writer: code)
             writeField(value: String(describing: code))
             
             if authorDef {
-                let author = note.author
+                let author = sortedNote.note.author
                 writeField(value: author.lastNameFirst)
                 writeField(value: StringUtils.toCommonFileName(author.firstNameFirst))
                 writeField(value: StringUtils.wikiMediaPage(author.firstNameFirst))
             }
             
             if workDef {
-                writeField(value: workToHTML(note: note))
-                writeField(value: workRightsToHTML(note: note))
+                writeField(value: workToHTML(note: sortedNote.note))
+                writeField(value: workRightsToHTML(note: sortedNote.note))
             }
         }
         
@@ -471,11 +482,15 @@ public class NotesExporter {
     ///   - splitTag: If we're splitting by tag, then the tag to write for this line; otherwise blank.
     ///   - cleanTags: The cleaned tags for this note, with any suppressed tags removed.
     ///   - note: The Note to be written.
-    func writeObject(splitTag: String, cleanTags: String, note: Note) {
+    func writeObject(splitTag: String, cleanTags: String, sortedNote: SortedNote) {
+        let note = sortedNote.note
         jsonWriter.writeKey(note.noteID.commonID)
         jsonWriter.startObject()
         if split {
             jsonWriter.write(key: NotenikConstants.tag, value: splitTag)
+        }
+        if singleSeqs {
+            jsonWriter.write(key: NotenikConstants.singleSeq, value: sortedNote.seqSingleValue.value)
         }
         for def in dict.list {
             if def.fieldLabel.commonForm == NotenikConstants.tagsCommon {
@@ -867,16 +882,16 @@ public class NotesExporter {
         print("concatOpen markup formatted with \(markupFormat)")
     }
     
-    func writeConcat(splitTag: String, cleanTags: String, note: Note) {
+    func writeConcat(splitTag: String, cleanTags: String, sortedNote: SortedNote) {
         
         if docTitle.count == 0 {
-            if note.seq.isEmpty && note.level.getInt() == 1 {
-                docTitle = note.title.value
+            if sortedNote.note.seq.isEmpty && sortedNote.note.level.getInt() == 1 {
+                docTitle = sortedNote.note.title.value
             } else {
                 docTitle = collection.title
             }
             markup.startDoc(withTitle: docTitle,
-                            withCSS: note.getCombinedCSS(cssString: displayParms.cssString))
+                            withCSS: sortedNote.note.getCombinedCSS(cssString: displayParms.cssString))
         }
         
         var expMD: String?
@@ -887,8 +902,8 @@ public class NotesExporter {
         case .concatMarkdown, .continuousMarkdown:
             displayParms.format = .markdown
             let expander = MkdownExpander()
-            expMD = expander.expand(md: note.body.value,
-                                    note: note,
+            expMD = expander.expand(md: sortedNote.note.body.value,
+                                    note: sortedNote.note,
                                     io: noteIO,
                                     parms: displayParms)
         default:
@@ -898,18 +913,18 @@ public class NotesExporter {
         
         let mdResults = TransformMdResults()
         if format == .continuousMarkdown {
-            print("  - writeConcat")
-            let titleToDisplay = pop.toXML(displayParms.compoundTitle(note: note))
+            // print("  - writeConcat")
+            let titleToDisplay = pop.toXML(displayParms.compoundTitle(note: sortedNote.note))
             print("    - title to display = \(titleToDisplay)")
-            markup.displayLine(opt: note.collection.titleDisplayOption,
+            markup.displayLine(opt: sortedNote.note.collection.titleDisplayOption,
                                  text: titleToDisplay,
-                                 depth: note.depth,
+                                 depth: sortedNote.depth,
                                  addID: false,
-                                 idText: note.title.value)
+                               idText: sortedNote.note.title.value)
             print("    - Expanded Markdown: \(expMD!)")
             markup.append(expMD!)
         } else {
-            let code = display.display(note, io: noteIO, parms: displayParms, mdResults: mdResults, expandedMarkdown: expMD)
+            let code = display.display(sortedNote, io: noteIO, parms: displayParms, mdResults: mdResults, expandedMarkdown: expMD)
             markup.append(code)
         }
         

@@ -74,31 +74,34 @@ class NoteReader: RowImporter {
         if split {
             labels.append(NotenikConstants.tag)
         }
+        if collection!.seqFieldDef != nil {
+            labels.append(NotenikConstants.singleSeq)
+        }
         for def in collection!.dict.dict {
             labels.append(def.value.fieldLabel.properForm)
         }
         
         // Now read the notes and return fields and rows.
-        var (note, position) = io.firstNote()
-        while note != nil {
+        var (sortedNote, position) = io.firstNote()
+        while sortedNote != nil {
             var tagsWritten = 0
             if split {
-                for tag in note!.tags.tags {
+                for tag in sortedNote!.note.tags.tags {
                     let splitTag = String(describing: tag)
-                    returnNoteFields(note: note!, splitTag: splitTag)
+                    returnNoteFields(sortedNote: sortedNote!, splitTag: splitTag)
                     tagsWritten += 1
                 }
             }
             if tagsWritten == 0 {
-                returnNoteFields(note: note!, splitTag: nil)
+                returnNoteFields(sortedNote: sortedNote!, splitTag: nil)
             }
 
-            (note, position) = io.nextNote(position)
+            (sortedNote, position) = io.nextNote(position)
         }
         io.closeCollection()
     }
     
-    func returnNoteFields(note: Note, splitTag: String?) {
+    func returnNoteFields(sortedNote: SortedNote, splitTag: String?) {
         startRow()
         for label in labels {
             if split && label == NotenikConstants.tag {
@@ -108,7 +111,7 @@ class NoteReader: RowImporter {
                     anotherField(label: label, value: splitTag!)
                 }
             } else {
-                let value = note.getFieldAsString(label: label)
+                let value = sortedNote.note.getFieldAsString(label: label)
                 anotherField(label: label, value: value)
             }
         }

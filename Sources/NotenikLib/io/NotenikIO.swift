@@ -217,7 +217,7 @@ public protocol NotenikIO {
     /// Delete the currently selected Note, plus any attachments it might have.
     ///
     /// - Returns: The new Note on which the collection should be positioned.
-    func deleteSelectedNote(preserveAttachments: Bool) -> (Note?, NotePosition)
+    func deleteSelectedNote(preserveAttachments: Bool) -> (SortedNote?, NotePosition)
     
     /// Delete the given note
     ///
@@ -240,32 +240,38 @@ public protocol NotenikIO {
     /// Return the first note in the sorted list, along with its index position.
     ///
     /// If the list is empty, return a nil Note and an index position of -1.
-    func firstNote() -> (Note?, NotePosition)
+    func firstNote() -> (SortedNote?, NotePosition)
     
     /// Return the last note in the sorted list, along with its index position
     ///
     /// if the list is empty, return a nil Note and an index position of -1.
-    func lastNote() -> (Note?, NotePosition)
+    func lastNote() -> (SortedNote?, NotePosition)
     
     /// Return the next note in the sorted list, along with its index position.
     ///
     /// - Parameter position: The position of the next note.
     /// - Returns: A tuple containing the next note, along with its index position.
     ///            If we're at the end of the list, then return a nil Note and an index of -1.
-    func nextNote(_ position: NotePosition) -> (Note?, NotePosition)
+    func nextNote(_ position: NotePosition) -> (SortedNote?, NotePosition)
     
     /// Return the prior note in the sorted list, along with its index position.
     ///
     /// - Parameter position: The position of the last note accessed.
     /// - Returns: A tuple containing the prior note, along with its index position.
     ///            if we're outside the bounds of the list, then return a nil Note and an index of -1.
-    func priorNote(_ position: NotePosition) -> (Note?, NotePosition)
+    func priorNote(_ position: NotePosition) -> (SortedNote?, NotePosition)
     
     /// Return the position of a given note.
     ///
     /// - Parameter note: The note to find.
     /// - Returns: A Note Position
     func positionOfNote(_ note: Note) -> NotePosition
+    
+    
+    /// Return the position of a given sorted note.
+    /// - Parameter note: A Sorted Note entry.
+    /// - Returns: The position within the master list. 
+    func positionOfNote(_ sortedNote: SortedNote) -> NotePosition
     
     /// Select the note at the given position in the sorted list.
     ///
@@ -274,18 +280,24 @@ public protocol NotenikIO {
     ///            - If the list is empty, return nil and -1.
     ///            - If the index is too high, return the last note.
     ///            - If the index is too low, return the first note.
-    func selectNote(at index: Int) -> (Note?, NotePosition)
+    func selectNote(at index: Int) -> (SortedNote?, NotePosition)
     
     /// Return the note currently selected.
     ///
     /// If no note is selected, return a nil Note and an index posiiton of -1.
-    func getSelectedNote() -> (Note?, NotePosition)
+    func getSelectedNote() -> (SortedNote?, NotePosition)
     
     /// Return the note at the specified position in the sorted list, if possible.
     ///
     /// - Parameter at: An index value pointing to a note in the list
     /// - Returns: Either the note at that position, or nil, if the index is out of range.
     func getNote(at: Int) -> Note?
+    
+    /// Return the Sorted Note  at the specified position in the sorted list, if possible.
+    ///
+    /// - Parameter at: An index value pointing to a note in the list
+    /// - Returns: Either the note at that position, or nil, if the index is out of range.
+    func getSortedNote(at: Int) -> SortedNote?
     
     /// Get the Note that is known by the passed identifier, one way or another.
     /// - Returns: The matching Note, if one could be found. 

@@ -149,9 +149,9 @@ public class CollectionRelocation {
         // toDict.display()
         
         // Copy/move the notes between Collections.
-        var (nextNote, position) = fromIO.firstNote()
-        while nextNote != nil {
-            let fromNote = nextNote!
+        var (nextSortedNote, position) = fromIO.firstNote()
+        while nextSortedNote != nil {
+            let fromNote = nextSortedNote!.note
             let toNote = Note(collection: toCollection!)
             fromNote.copyDefinedFields(to: toNote)
             /* for def in fromDict.list {
@@ -185,7 +185,7 @@ public class CollectionRelocation {
                 }
             }
             
-            (nextNote, position) = fromIO.nextNote(position)
+            (nextSortedNote, position) = fromIO.nextNote(position)
         }
         
         // Let's carry along any timestamp aliases.

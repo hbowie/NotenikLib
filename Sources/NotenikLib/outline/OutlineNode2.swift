@@ -43,25 +43,25 @@ public class OutlineNode2: Comparable, CustomStringConvertible, Hashable {
         return !children.isEmpty
     }
     
-    // Note.
-    public var note: Note? {
+    // Sorted Note.
+    public var sortedNote: SortedNote? {
         get {
-            return _note
+            return _sortedNote
         }
         set {
-            _note = newValue
-            if _note != nil {
+            _sortedNote = newValue
+            if _sortedNote != nil {
                 type = .note
-                level = _note!.depth
-                seqSortKey = _note!.seq.sortKey
-                seqValue = _note!.seq.value
+                level = _sortedNote!.depth
+                seqSortKey = _sortedNote!.seqSortKey
+                seqValue = _sortedNote!.seqSingleValue.value
             } else {
                 level = 0
                 seqSortKey = ""
             }
         }
     }
-    var _note: Note?
+    var _sortedNote: SortedNote?
     
     // The Seq Sort Key for this node
     var seqSortKey = ""
@@ -85,10 +85,10 @@ public class OutlineNode2: Comparable, CustomStringConvertible, Hashable {
     
     /// Initialize witth a Note.
     /// - Parameter note: The Note object to be used.
-    convenience init(note: Note) {
+    convenience init(sortedNote: SortedNote) {
         self.init()
-        self.note = note
-        seqSortKey = note.seq.sortKey
+        self.sortedNote = sortedNote
+        // seqSortKey = sortedNote.seqSortKey
     }
     
     // -----------------------------------------------------------
@@ -103,7 +103,7 @@ public class OutlineNode2: Comparable, CustomStringConvertible, Hashable {
         case .root:
             return "Root of Outline (level: \(level))"
         case .note:
-            return note!.seq.value + " " + note!.title.value + " (level: \(level))"
+            return _sortedNote!.seqSingleValue.value + " " + sortedNote!.note.title.value + " (level: \(level))"
         }
     }
     
@@ -111,8 +111,8 @@ public class OutlineNode2: Comparable, CustomStringConvertible, Hashable {
         hasher.combine(type.rawValue)
         hasher.combine(seqSortKey)
         var noteID = ""
-        if note != nil {
-            noteID = note!.id
+        if sortedNote != nil {
+            noteID = sortedNote!.noteID.id
         }
         hasher.combine(noteID)
     }
@@ -158,10 +158,10 @@ public class OutlineNode2: Comparable, CustomStringConvertible, Hashable {
         }
         
         // Compare Note Identifiers
-        if self.note!.noteID < node2.note!.noteID {
+        if self.sortedNote!.noteIDstr < node2.sortedNote!.noteIDstr {
             return OutlineNode2.thisLessThanThat
         }
-        if self.note!.noteID > node2.note!.noteID {
+        if self.sortedNote!.noteIDstr > node2.sortedNote!.noteIDstr {
             return OutlineNode2.thisGreaterThanThat
         }
         
@@ -191,8 +191,8 @@ public class OutlineNode2: Comparable, CustomStringConvertible, Hashable {
     /// Add a child note beneatht his node.
     /// - Parameter note: The note to be added.
     /// - Returns: The node created and added.
-    func addChild(note: Note) -> OutlineNode2 {
-        let noteNode = OutlineNode2(note: note)
+    func addChild(sortedNote: SortedNote) -> OutlineNode2 {
+        let noteNode = OutlineNode2(sortedNote: sortedNote)
         return addChild(node: noteNode)
     }
     
@@ -277,8 +277,8 @@ public class OutlineNode2: Comparable, CustomStringConvertible, Hashable {
     /// Attempt to remove the given note from the outline tree.
     /// - Parameter note: The note to be removed.
     /// - Returns: The node removed, if a match could be found.
-    func removeChild(note: Note) -> OutlineNode2? {
-        let noteNode = OutlineNode2(note: note)
+    func removeChild(sortedNote: SortedNote) -> OutlineNode2? {
+        let noteNode = OutlineNode2(sortedNote: sortedNote)
         return removeChild(node: noteNode)
     }
     
@@ -373,14 +373,14 @@ public class OutlineNode2: Comparable, CustomStringConvertible, Hashable {
         print(" ")
         print("OutlineNode2.display")
         print("  - Type = \(type)")
-        if note != nil {
-            print("  - Note Title: \(note!.title.value)")
-            print("    - Note Seq: \(note!.seq.value)")
-            print("    - Note Level: \(note!.level.value)")
+        if sortedNote != nil {
+            print("  - Note Title: \(sortedNote!.note.title.value)")
+            print("    - Note Seq: \(sortedNote!.seqSingleValue.value)")
+            print("    - Note Level: \(sortedNote!.note.level.value)")
         }
         print("  - Level: \(level)")
         if hasParent {
-            print("  - Parent: \(parent!.note!.title.value)")
+            print("  - Parent: \(parent!.sortedNote!.note.title.value)")
         }
         if hasChildren {
             if children.count == 1 {
@@ -396,7 +396,7 @@ public class OutlineNode2: Comparable, CustomStringConvertible, Hashable {
             print("Root of Outline (level: \(level))")
         } else {
             let indent = String(repeating: "  ", count: numberOfParents)
-            print(indent + "- " + note!.seq.value + " " + note!.title.value + " (level: \(level))")
+            print(indent + "- " + sortedNote!.seqSingleValue.value + " " + sortedNote!.note.title.value + " (level: \(level))")
         }
         for child in children {
             child.display(numberOfParents: numberOfParents + 1)

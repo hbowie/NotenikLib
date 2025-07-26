@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 12/19/19.
-//  Copyright © 2019 Herb Bowie (https://powersurgepub.com)
+//  Copyright © 2019 - 2025 Herb Bowie (https://powersurgepub.com)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -71,20 +71,20 @@ public class JSONWriter {
     func write(_ io: NotenikIO) {
         guard let collection = io.collection else { return }
         startObject()
-        var (note, position) = io.firstNote()
-        while note != nil {
-            writeKey(note!.noteID.commonID)
+        var (sortedNote, position) = io.firstNote()
+        while sortedNote != nil {
+            writeKey(sortedNote!.note.noteID.commonID)
             startObject()
             let defs = collection.dict.list
             for def in defs {
-                let value = note!.getFieldAsValue(label: def.fieldLabel.commonForm)
+                let value = sortedNote!.note.getFieldAsValue(label: def.fieldLabel.commonForm)
                 if value.count > 0 {
                     writeKey(def.fieldLabel.properForm)
                     writeValue(value.value)
                 }
             }
             endObject()
-            (note, position) = io.nextNote(position)
+            (sortedNote, position) = io.nextNote(position)
         }
         endObject()
     }

@@ -60,7 +60,7 @@ public class WebBookMaker {
     // The META-INF folder contains the container.xml file.
     let metaInfFolderName = "META-INF"
     var metaFolder:       URL!
-    var metaNote:         Note?
+    var metaNote:         SortedNote?
     
     let containerFileName = "container"
     let containerFileExt  = "xml"
@@ -335,16 +335,16 @@ public class WebBookMaker {
         }
         
         bookTitle = ""
-        var (note, position) = io.firstNote()
+        var (sortedNote, position) = io.firstNote()
         firstPage = true
-        while note != nil && position.valid {
-            generate(note: note!)
-            (note, position) = io.nextNote(position)
+        while sortedNote != nil && position.valid {
+            generate(sortedNote: sortedNote!)
+            (sortedNote, position) = io.nextNote(position)
             firstPage = false
         }
         
         if epub {
-            addToTableOfContents(level: 0, href: "", note: nil, finish: true)
+            addToTableOfContents(level: 0, href: "", sortedNote: nil, finish: true)
         }
         
         copyImages()
@@ -625,16 +625,16 @@ public class WebBookMaker {
     var tocLevels: [Int] = []
     
     /// Generate appropriate output for the next Note.
-    func generate(note: Note) {
+    func generate(sortedNote: SortedNote) {
         
-        if note.mkdownCommandList.metadata {
-            metaNote = note
+        if sortedNote.note.mkdownCommandList.metadata {
+            metaNote = sortedNote
         }
         
-        guard note.includeInBook(epub: epub) else { return }
+        guard sortedNote.note.includeInBook(epub: epub) else { return }
         
-        let title = note.title.value
-        let level = note.level
+        let title = sortedNote.note.title.value
+        let level = sortedNote.note.level
         var levelText = level.value
         var levelInt = level.getInt()
         if levelText.count >= 1 && levelInt >= 1 && levelInt <= 6 {
@@ -643,7 +643,7 @@ public class WebBookMaker {
             levelText = "2"
             levelInt = 2
         }
-        let fileName = note.noteID.commonFileName
+        let fileName = sortedNote.note.noteID.commonFileName
         
         if bookTitle.isEmpty {
             bookTitle = title
@@ -661,7 +661,7 @@ public class WebBookMaker {
 
         let fileURL = URL(fileURLWithPath: fileName, relativeTo: htmlFolder).appendingPathExtension(htmlFileExt)
         let mdResults = TransformMdResults()
-        let code = display.display(note, io: io, parms: parms, mdResults: mdResults)
+        let code = display.display(sortedNote, io: io, parms: parms, mdResults: mdResults)
         
         let written = FileUtils.saveToDisk(strToWrite: code,
                                            outputURL: fileURL,
@@ -678,15 +678,15 @@ public class WebBookMaker {
         
         if written {
             filesWritten += 1
-            if let imgURL = note.getImageURL() {
-                if let imgCommon = note.getImageCommonName() {
+            if let imgURL = sortedNote.note.getImageURL() {
+                if let imgCommon = sortedNote.note.getImageCommonName() {
                     let img = ImageFile(originalLocation: imgURL, toName: imgCommon)
                     images.append(img)
                 }
             }
             if epub {
                 var properties = ""
-                if note.mkdownCommandList.scripted {
+                if sortedNote.note.mkdownCommandList.scripted {
                     properties = "scripted"
                 }
                 let id = generateManifest(folder: "",
@@ -707,11 +707,11 @@ public class WebBookMaker {
                     if levelInt == tocLevels[tocLevelIndex] {
                         addToTableOfContents(level: tocLevelIndex + 1,
                                              href: fileName + "." + htmlFileExt,
-                                             note: note)
+                                             sortedNote: sortedNote)
                     }
                 }
                 if display.mkdownContext == nil {
-                    communicateError("Attempt to generate for Note titled \(note.title.value) witn nil MkdownContext")
+                    communicateError("Attempt to generate for Note titled \(sortedNote.note.title.value) witn nil MkdownContext")
                 } else if !display.mkdownContext!.javaScript.isEmpty {
                     let jsURL = URL(fileURLWithPath: fileName, relativeTo: jsFolder).appendingPathExtension(jsFileExt)
                     let jsWritten = FileUtils.saveToDisk(strToWrite: display.mkdownContext!.javaScript,
@@ -762,7 +762,7 @@ public class WebBookMaker {
     var tocStarted = false
     var lastLevel = 0
     
-    func addToTableOfContents(level: Int, href: String, note: Note?, finish: Bool = false) {
+    func addToTableOfContents(level: Int, href: String, sortedNote: SortedNote?, finish: Bool = false) {
         
         if !tocStarted {
             toc = Markedup(format: .xhtmlDoc)
@@ -792,9 +792,9 @@ public class WebBookMaker {
             workLevel += 1
         }
         
-        if level > 0 && !href.isEmpty && note != nil {
+        if level > 0 && !href.isEmpty && sortedNote != nil {
             toc.startListItem()
-            parms.streamlinedTitleWithLink(markedup: toc, note: note!, klass: Markedup.htmlClassNavLink)
+            parms.streamlinedTitleWithLink(markedup: toc, sortedNote: sortedNote!, klass: Markedup.htmlClassNavLink)
         }
         
         lastLevel = level
@@ -1007,7 +1007,7 @@ public class WebBookMaker {
             let linesIn = metaCode.components(separatedBy: "\n")
             var linesOut = ""
             for line in linesIn {
-                let lineOut = templateUtil.replaceVariables(str: line, note: metaNote!)
+                let lineOut = templateUtil.replaceVariables(str: line, note: metaNote!.note)
                 linesOut.append(lineOut.line)
                 linesOut.append("\n")
             }

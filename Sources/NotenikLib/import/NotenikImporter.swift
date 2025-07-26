@@ -101,80 +101,82 @@ public class NotenikImporter {
         while importNote != nil && importPosition.valid {
             
             parms.input += 1
-            
-            // Build a Note containing only the prescribed fields.
-            let commonNote = Note(collection: updateCollection)
-            
-            // Process each field in each Note.
-            for (_, importField) in importNote!.fields {
-                if importField.value.hasData {
-                    
-                    // Add field to dictionary if not already present, and allowed.
-                    var fieldExistsInDict = updateDict.contains(importField.def)
-                    if !fieldExistsInDict && parms.addingFields {
-                        let leaveLocked = updateDict.locked
-                        if updateDict.locked {
-                            updateDict.unlock()
+            if importNote!.seqIndex < 1 {
+                
+                // Build a Note containing only the prescribed fields.
+                let commonNote = Note(collection: updateCollection)
+                
+                // Process each field in each Note.
+                for (_, importField) in importNote!.note.fields {
+                    if importField.value.hasData {
+                        
+                        // Add field to dictionary if not already present, and allowed.
+                        var fieldExistsInDict = updateDict.contains(importField.def)
+                        if !fieldExistsInDict && parms.addingFields {
+                            let leaveLocked = updateDict.locked
+                            if updateDict.locked {
+                                updateDict.unlock()
+                            }
+                            let updateDef = importField.def.copy()
+                            let addedDef = updateDict.addDef(updateDef)
+                            fieldExistsInDict = (addedDef != nil)
+                            if leaveLocked {
+                                updateDict.lock()
+                            }
                         }
-                        let updateDef = importField.def.copy()
-                        let addedDef = updateDict.addDef(updateDef)
-                        fieldExistsInDict = (addedDef != nil)
-                        if leaveLocked {
-                            updateDict.lock()
-                        }
-                    }
-                    
-                    if fieldExistsInDict {
-                        if let updateDef = updateDict.getDef(importField.def.fieldLabel.commonForm) {
-                            let value = updateDef.fieldType.createValue(importField.value.value)
-                            let field = NoteField(def: updateDef, value: value)
-                            _ =  commonNote.setField(field)
-                            if parms.consolidateLookups && importField.def.fieldType.typeString == NotenikConstants.lookupType {
-                                addLookupFields(importField, importCollection: importCollection, commonNote: commonNote)
+                        
+                        if fieldExistsInDict {
+                            if let updateDef = updateDict.getDef(importField.def.fieldLabel.commonForm) {
+                                let value = updateDef.fieldType.createValue(importField.value.value)
+                                let field = NoteField(def: updateDef, value: value)
+                                _ =  commonNote.setField(field)
+                                if parms.consolidateLookups && importField.def.fieldType.typeString == NotenikConstants.lookupType {
+                                    addLookupFields(importField, importCollection: importCollection, commonNote: commonNote)
+                                }
                             }
                         }
                     }
                 }
-            }
-            
-            commonNote.identify()
-            
-            let existingNote = updateIO.getNote(forID: commonNote.noteID)
-            
-            switch parms.rowParm {
-            case .add:
-                updateIO.ensureUniqueID(for: commonNote)
-                let (added, _) = updateIO.addNote(newNote: commonNote)
-                if added == nil {
-                    parms.rejected += 1
-                } else {
-                    parms.added += 1
-                }
-            case .matchAndAdd:
-                if existingNote == nil {
+                
+                commonNote.identify()
+                
+                let existingNote = updateIO.getNote(forID: commonNote.noteID)
+                
+                switch parms.rowParm {
+                case .add:
+                    updateIO.ensureUniqueID(for: commonNote)
                     let (added, _) = updateIO.addNote(newNote: commonNote)
                     if added == nil {
                         parms.rejected += 1
                     } else {
                         parms.added += 1
                     }
-                } else {
-                    let (mod, _) = updateIO.modNote(oldNote: existingNote!, newNote: commonNote)
-                    if mod == nil {
-                        parms.rejected += 1
+                case .matchAndAdd:
+                    if existingNote == nil {
+                        let (added, _) = updateIO.addNote(newNote: commonNote)
+                        if added == nil {
+                            parms.rejected += 1
+                        } else {
+                            parms.added += 1
+                        }
                     } else {
-                        parms.modified += 1
+                        let (mod, _) = updateIO.modNote(oldNote: existingNote!, newNote: commonNote)
+                        if mod == nil {
+                            parms.rejected += 1
+                        } else {
+                            parms.modified += 1
+                        }
                     }
-                }
-            case .matchOnly:
-                if existingNote == nil {
-                    parms.ignored += 1
-                } else {
-                    let (mod, _) = updateIO.modNote(oldNote: existingNote!, newNote: commonNote)
-                    if mod == nil {
-                        parms.rejected += 1
+                case .matchOnly:
+                    if existingNote == nil {
+                        parms.ignored += 1
                     } else {
-                        parms.modified += 1
+                        let (mod, _) = updateIO.modNote(oldNote: existingNote!, newNote: commonNote)
+                        if mod == nil {
+                            parms.rejected += 1
+                        } else {
+                            parms.modified += 1
+                        }
                     }
                 }
             }

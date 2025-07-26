@@ -23,7 +23,7 @@ public class SearchNotes {
     
     var starting = true
     
-    var startingNote: Note?
+    var startingNote: SortedNote?
     var startingPosition = NotePosition()
     
     /// Initialize a new instance.
@@ -68,7 +68,7 @@ public class SearchNotes {
     /// Find the next matchig note.
     /// - Parameter startNew: Are we definitely starting a new search?
     /// - Returns: The next matching note, if any, plus its position.
-    public func nextMatching(startNew: Bool) -> (Note?, NotePosition) {
+    public func nextMatching(startNew: Bool) -> (SortedNote?, NotePosition) {
         
         starting = false
         if startNew || prevSearchText.isEmpty || options.searchText != prevSearchText {
@@ -79,19 +79,19 @@ public class SearchNotes {
         prevSearchText = options.searchText
         
         var found = false
-        var (note, position) = firstToSearch()
-        while !found && note != nil {
-            found = searchNoteUsingOptions(note!)
+        var (sortedNote, position) = firstToSearch()
+        while !found && sortedNote != nil {
+            found = searchNoteUsingOptions(sortedNote!.note)
             if !found {
-                (note, position) = io.nextNote(position)
+                (sortedNote, position) = io.nextNote(position)
             }
         }
-        if found && options.scope == .within && !note!.seq.value.starts(with: options.anchorSeq) {
+        if found && options.scope == .within && !sortedNote!.seqSingleValue.value.starts(with: options.anchorSeq) {
             found = false
         }
         if found {
-            history!.addToHistory(another: note!)
-            return (note, position)
+            history!.addToHistory(another: sortedNote!.note)
+            return (sortedNote, position)
         } else {
             return (nil, NotePosition())
         } 
@@ -104,8 +104,8 @@ public class SearchNotes {
     
     /// Return the note with which we will start our next search.
     /// - Returns: The next note to check, if any available, plus its position.
-    func firstToSearch() -> (Note?, NotePosition) {
-        var note: Note?
+    func firstToSearch() -> (SortedNote?, NotePosition) {
+        var sortedNote: SortedNote?
         var position = NotePosition()
         
         if starting {
@@ -114,27 +114,27 @@ public class SearchNotes {
             if options.scope == .all {
                 return io.firstNote()
             }
-            (note, position) = io.getSelectedNote()
-            if note == nil {
+            (sortedNote, position) = io.getSelectedNote()
+            if sortedNote == nil {
                 return io.firstNote()
             } 
-            options.anchorSortKey = note!.sortKey
-            options.anchorSeq = note!.seq.value
+            options.anchorSortKey = sortedNote!.sortKey
+            options.anchorSeq = sortedNote!.seqSingleValue.value
         } else {
-            (note, position) = io.getSelectedNote()
-            if note != nil {
-                startingNote = note
+            (sortedNote, position) = io.getSelectedNote()
+            if sortedNote != nil {
+                startingNote = sortedNote
                 startingPosition = position
-                (note, position) = io.nextNote(position)
+                (sortedNote, position) = io.nextNote(position)
             }
         }
 
-        return (note, position)
+        return (sortedNote, position)
     }
     
     /// If we couldn't find another Note, then let's return to where we last started looking.
     /// - Returns: The starting note, if one could be found, plus its position. 
-    public func backToStart() -> (Note?, NotePosition) {
+    public func backToStart() -> (SortedNote?, NotePosition) {
         if startingNote != nil {
             return (startingNote, startingPosition)
         } else {
@@ -145,12 +145,12 @@ public class SearchNotes {
     /// Go backwards in the search history.
     /// - Returns: A possible prior Note obtained from the search history. 
     public func searchForPrevious() -> Note? {
-        var (note, position) = io.getSelectedNote()
-        guard note != nil else { return note }
-        startingNote = note!
+        var (sortedNote, position) = io.getSelectedNote()
+        guard sortedNote != nil else { return nil }
+        startingNote = sortedNote!
         startingPosition = position
-        note = history.backwards(from: startingNote!)
-        return note
+        let priorNote = history.backwards(from: startingNote!.note)
+        return priorNote
     }
     
     /// Search the fields of this Note, using search options, to see if a

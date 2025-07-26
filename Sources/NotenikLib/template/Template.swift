@@ -235,7 +235,8 @@ public class Template {
         }
         
         util.notesIndex = -1
-        for note in util.notesList {
+        for sortedNote in util.notesList {
+            let note = sortedNote.note
             util.notesIndex += 1
             util.dataCount = util.notesIndex + 1
             util.note = note

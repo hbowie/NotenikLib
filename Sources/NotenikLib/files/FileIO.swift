@@ -1736,7 +1736,7 @@ public class FileIO: NotenikIO, RowConsumer {
     /// Delete the currently selected Note, plus any attachments it might have.
     ///
     /// - Returns: The new Note on which the collection should be positioned.
-    public func deleteSelectedNote(preserveAttachments: Bool) -> (Note?, NotePosition) {
+    public func deleteSelectedNote(preserveAttachments: Bool) -> (SortedNote?, NotePosition) {
         
         // Make sure we have an open collection available to us
         guard collection != nil && collectionOpen else { return (nil, NotePosition(index: -1)) }
@@ -1747,18 +1747,18 @@ public class FileIO: NotenikIO, RowConsumer {
             return (nil, NotePosition(index: -1))
         }
         
-        guard let lib = noteToDelete?.getResourceLib() else { return (nil, NotePosition(index: -1)) }
+        guard let lib = noteToDelete?.note.getResourceLib() else { return (nil, NotePosition(index: -1)) }
         
         let (priorNote, priorPosition) = bunch!.priorNote(oldPosition)
         var returnNote = priorNote
         var returnPosition = priorPosition
  
-        let ok = bunch!.delete(note: noteToDelete!)
+        let ok = bunch!.delete(note: noteToDelete!.note)
         if !ok {
-            logError("Could not delete note titled '\(noteToDelete!.title.value)' from internal storage")
+            logError("Could not delete note titled '\(noteToDelete!.note.title.value)' from internal storage")
         }
         
-        MultiFileIO.shared.cancelLookBacks(lkUpNote: noteToDelete!)
+        MultiFileIO.shared.cancelLookBacks(lkUpNote: noteToDelete!.note)
         
         if priorNote != nil {
             let (nextNote, nextPosition) = bunch!.nextNote(priorPosition)
@@ -1771,14 +1771,14 @@ public class FileIO: NotenikIO, RowConsumer {
             (returnNote, returnPosition) = bunch!.firstNote()
         }
         
-        let noteResource = lib.getNoteResource(note: noteToDelete!)
+        let noteResource = lib.getNoteResource(note: noteToDelete!.note)
         guard noteResource != nil && noteResource!.isAvailable else {
-            logError("Could not obtain library resource for note titled \(noteToDelete!.title.value)")
+            logError("Could not obtain library resource for note titled \(noteToDelete!.note.title.value)")
             return (nil, NotePosition(index: -1))
         }
         
         if !preserveAttachments {
-            for attachment in noteToDelete!.attachments {
+            for attachment in noteToDelete!.note.attachments {
                 let attachmentResource = lib.getAttachmentResource(fileName: attachment.fullName)
                 if attachmentResource == nil {
                     logError("Problems deleting attachment named \(attachment.fullName)")
@@ -1913,7 +1913,7 @@ public class FileIO: NotenikIO, RowConsumer {
     /// Return the first note in the sorted list, along with its index position.
     ///
     /// If the list is empty, return a nil Note and an index position of -1.
-    public func firstNote() -> (Note?, NotePosition) {
+    public func firstNote() -> (SortedNote?, NotePosition) {
         guard collection != nil && collectionOpen else { return (nil, NotePosition(index: -1)) }
         return bunch!.firstNote()
     }
@@ -1921,7 +1921,7 @@ public class FileIO: NotenikIO, RowConsumer {
     /// Return the last note in the sorted list, along with its index position
     ///
     /// if the list is empty, return a nil Note and an index position of -1.
-    public func lastNote() -> (Note?, NotePosition) {
+    public func lastNote() -> (SortedNote?, NotePosition) {
         guard collection != nil && collectionOpen else { return (nil, NotePosition(index: -1)) }
         return bunch!.lastNote()
     }
@@ -1931,7 +1931,7 @@ public class FileIO: NotenikIO, RowConsumer {
     /// - Parameter position: The position of the last note.
     /// - Returns: A tuple containing the next note, along with its index position.
     ///            If we're at the end of the list, then return a nil Note and an index of -1.
-    public func nextNote(_ position: NotePosition) -> (Note?, NotePosition) {
+    public func nextNote(_ position: NotePosition) -> (SortedNote?, NotePosition) {
         guard collection != nil && collectionOpen else { return (nil, NotePosition(index: -1)) }
         return bunch!.nextNote(position)
     }
@@ -1941,7 +1941,7 @@ public class FileIO: NotenikIO, RowConsumer {
     /// - Parameter position: The index position of the last note accessed.
     /// - Returns: A tuple containing the prior note, along with its index position.
     ///            if we're outside the bounds of the list, then return a nil Note and an index of -1.
-    public func priorNote(_ position : NotePosition) -> (Note?, NotePosition) {
+    public func priorNote(_ position : NotePosition) -> (SortedNote?, NotePosition) {
         guard collection != nil && collectionOpen else { return (nil, NotePosition(index: -1)) }
         return bunch!.priorNote(position)
     }
@@ -1956,6 +1956,14 @@ public class FileIO: NotenikIO, RowConsumer {
         return position
     }
     
+    /// Return the position of a given sorted note.
+    /// - Parameter note: A Sorted Note entry.
+    /// - Returns: The position within the master list.
+    public func positionOfNote(_ sortedNote: SortedNote) -> NotePosition {
+        guard collection != nil && collectionOpen else { return NotePosition(index: -1) }
+        return bunch!.positionOfNote(sortedNote)
+    }
+    
     /// Select the note at the given position in the sorted list.
     ///
     /// - Parameter index: An index value pointing to a position in the list.
@@ -1963,7 +1971,7 @@ public class FileIO: NotenikIO, RowConsumer {
     ///            - If the list is empty, return nil and -1.
     ///            - If the index is too high, return the last note.
     ///            - If the index is too low, return the first note.
-    public func selectNote(at index: Int) -> (Note?, NotePosition) {
+    public func selectNote(at index: Int) -> (SortedNote?, NotePosition) {
         guard collection != nil && collectionOpen else { return (nil, NotePosition(index: -1)) }
         return bunch!.selectNote(at: index)
     }
@@ -1971,7 +1979,7 @@ public class FileIO: NotenikIO, RowConsumer {
     /// Return the note currently selected.
     ///
     /// If the list index is out of range, return a nil Note and an index posiiton of -1.
-    public func getSelectedNote() -> (Note?, NotePosition) {
+    public func getSelectedNote() -> (SortedNote?, NotePosition) {
         guard collection != nil && collectionOpen else { return (nil, NotePosition(index: -1)) }
         return bunch!.getSelectedNote()
     }
@@ -1983,6 +1991,15 @@ public class FileIO: NotenikIO, RowConsumer {
     public func getNote(at index: Int) -> Note? {
         guard collection != nil && collectionOpen else { return nil }
         return bunch!.getNote(at: index)
+    }
+    
+    /// Return the Sorted Note  at the specified position in the sorted list, if possible.
+    ///
+    /// - Parameter at: An index value pointing to a note in the list
+    /// - Returns: Either the note at that position, or nil, if the index is out of range.
+    public func getSortedNote(at index: Int) -> SortedNote? {
+        guard collection != nil && collectionOpen else { return nil }
+        return bunch!.getSortedNote(at: index)
     }
     
     /// Get the Note that is known by the passed identifier, one way or another.
@@ -2299,7 +2316,8 @@ public class FileIO: NotenikIO, RowConsumer {
         
         // Now look for closed notes
         var notesToDelete: [Note] = []
-        for note in notes {
+        for sortedNote in notes {
+            let note = sortedNote.note
             if note.isDone {
                 var okToDelete = true
                 if archiveIO != nil {
@@ -2349,25 +2367,27 @@ public class FileIO: NotenikIO, RowConsumer {
     func changeAllNoteExtensions(to newFileExt: String) -> Int {
         guard collection != nil && collectionOpen else { return 0 }
         guard let lib = collection?.lib else { return 0 }
-        var (note, position) = firstNote()
+        var (sortedNote, position) = firstNote()
         var errors = 0
-        while note != nil {
-            let noteResource = lib.getNoteResource(note: note!)
-            if collection!.textFormatFieldDef != nil && note!.textFormat.isText {
-                // leave text files as-is
+        while sortedNote != nil {
+            if sortedNote!.note.hasSeq() && sortedNote!.seqIndex > 0 {
+                // Skip phantom notes
             } else {
-                let noteResourceMod = noteResource?.changeExt(to: newFileExt)
-                if noteResourceMod != nil && noteResourceMod!.isAvailable {
-                    note!.noteID.changeFileExt(to: newFileExt)
+                let noteResource = lib.getNoteResource(note: sortedNote!.note)
+                if collection!.textFormatFieldDef != nil && sortedNote!.note.textFormat.isText {
+                    // leave text files as-is
                 } else {
-                    errors += 1
+                    let noteResourceMod = noteResource?.changeExt(to: newFileExt)
+                    if noteResourceMod != nil && noteResourceMod!.isAvailable {
+                        sortedNote!.note.noteID.changeFileExt(to: newFileExt)
+                    } else {
+                        errors += 1
+                    }
                 }
             }
             
-            // more to do here ???
-            
             let (nextNt, nextPos) = nextNote(position)
-            note = nextNt
+            sortedNote = nextNt
             position = nextPos
         }
         return errors

@@ -112,10 +112,10 @@ public class CollectionSync {
             logInfo("Starting pass through left-hand notes")
         }
         processedIDs = [:]
-        var (leftNote, leftPosition) = leftIO.firstNote()
-        while leftNote != nil {
-            let (nextNote, nextPosition) = leftIO.nextNote(leftPosition)
-            let leftID = leftNote!.noteID.commonID
+        var (leftSortedNote, leftPosition) = leftIO.firstNote()
+        while leftSortedNote != nil {
+            let (nextSortedNote, nextPosition) = leftIO.nextNote(leftPosition)
+            let leftID = leftSortedNote!.note.noteID.commonID
             if syncActions.debugging {
                 logInfo("  - Considering note with id of \(leftID)")
             }
@@ -130,20 +130,20 @@ public class CollectionSync {
                 }
             }
             if matched {
-                compareNotes(leftNote: leftNote!, rightNote: rightNote!)
+                compareNotes(leftNote: leftSortedNote!.note, rightNote: rightNote!)
             } else {
                 if syncActions.debugging {
                     logInfo("    - No right-hand match found")
                 }
                 if direction.syncRight {
                     syncTotals.rightAdds += 1
-                    addMissingNote(noteToAdd: leftNote!, ioForAdd: rightIO)
+                    addMissingNote(noteToAdd: leftSortedNote!.note, ioForAdd: rightIO)
                 } else if direction == .rightToLeft {
                     syncTotals.leftDels += 1
-                    deleteUnmatchedNote(noteToDelete: leftNote!, ioForDelete: leftIO)
+                    deleteUnmatchedNote(noteToDelete: leftSortedNote!.note, ioForDelete: leftIO)
                 }
             }
-            leftNote = nextNote
+            leftSortedNote = nextSortedNote
             leftPosition = nextPosition
         }
         
@@ -151,13 +151,13 @@ public class CollectionSync {
         if syncActions.debugging {
             logInfo("Starting pass through right-hand notes")
         }
-        var (rightNote, rightPosition) = rightIO.firstNote()
-        while rightNote != nil {
-            let (nextNote, nextPosition) = rightIO.nextNote(rightPosition)
+        var (rightSortedNote, rightPosition) = rightIO.firstNote()
+        while rightSortedNote != nil {
+            let (nextSortedNote, nextPosition) = rightIO.nextNote(rightPosition)
             if syncActions.debugging {
-                logInfo("  - Considering right-hand note with id of \(rightNote!.noteID.commonID)")
+                logInfo("  - Considering right-hand note with id of \(rightSortedNote!.note.noteID.commonID)")
             }
-            let rightID = rightNote!.noteID.commonID
+            let rightID = rightSortedNote!.note.noteID.commonID
             let leftID = processedIDs[rightID]
             if leftID == nil {
                 if syncActions.debugging {
@@ -165,14 +165,14 @@ public class CollectionSync {
                 }
                 if direction.syncLeft {
                     syncTotals.leftAdds += 1
-                    addMissingNote(noteToAdd: rightNote!, ioForAdd: leftIO)
+                    addMissingNote(noteToAdd: rightSortedNote!.note, ioForAdd: leftIO)
                 } else if direction == .leftToRight {
                     syncTotals.rightDels += 1
-                    deleteUnmatchedNote(noteToDelete: rightNote!, ioForDelete: rightIO)
+                    deleteUnmatchedNote(noteToDelete: rightSortedNote!.note, ioForDelete: rightIO)
                 }
             }
             
-            rightNote = nextNote
+            rightSortedNote = nextSortedNote
             rightPosition = nextPosition
         }
         

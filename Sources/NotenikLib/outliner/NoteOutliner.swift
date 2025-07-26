@@ -2,7 +2,7 @@
 //  NoteOutliner.swift
 //  NotenikLib
 //
-//  Copyright © 2023 Herb Bowie (https://hbowie.net)
+//  Copyright © 2023 - 2025 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -60,13 +60,13 @@ public class NoteOutliner: Sequence {
         while i < notesList.count {
             
             // Initialize a new node instance.
-            let note = notesList[i]
+            let sortedNote = notesList[i]
             let node = OutlineNode()
-            node.note = note
+            node.sortedNote = sortedNote
             node.depth = 0
             
             if collection == nil {
-                grabCollectionInfo(note)
+                grabCollectionInfo(sortedNote.note)
             }
             
             // var inTheFamily = false
@@ -76,13 +76,13 @@ public class NoteOutliner: Sequence {
                 include = false
             } else if node.level > levelEnd {
                 include = false
-            } else if note.noteID.commonID == skipID {
+            } else if sortedNote.note.noteID.commonID == skipID {
                 include = false
-            } else if note.klass.value == NotenikConstants.titleKlass {
+            } else if sortedNote.note.klass.value == NotenikConstants.titleKlass {
                 include = false
-            } else if !note.includeInBook(epub: displayParms.epub3) {
+            } else if !sortedNote.note.includeInBook(epub: displayParms.epub3) {
                 include = false
-            } else if hasLevelAndSeq && note.level.level <= 1 && note.seq.count == 0 {
+            } else if hasLevelAndSeq && sortedNote.note.level.level <= 1 && sortedNote.note.seq.count == 0 {
                 include = false
             }
                         
@@ -234,7 +234,7 @@ public class NoteOutliner: Sequence {
     }
     
     func startListItem(node: OutlineNode) {
-        guard let note = node.note else { return }
+        guard let sortedNote = node.sortedNote else { return }
         if level < 1 {
             level = 1
         }
@@ -247,7 +247,7 @@ public class NoteOutliner: Sequence {
             code.startDetails()
             code.startSummary()
         }
-        displayParms.streamlinedTitleWithLink(markedup: code, note: note, klass: Markedup.htmlClassNavLink)
+        displayParms.streamlinedTitleWithLink(markedup: code, sortedNote: sortedNote, klass: Markedup.htmlClassNavLink)
         if details && node.hasChildren {
             code.finishSummary()
         }

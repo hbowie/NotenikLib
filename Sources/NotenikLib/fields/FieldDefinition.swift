@@ -19,6 +19,7 @@ public class FieldDefinition: Comparable, CustomStringConvertible {
     public var fieldLabel:      FieldLabel = FieldLabel()
     public var fieldType:       AnyType = StringType()
     public var parentField:     Bool = false
+    public var writeEmpty:      Bool = false
     public var pickList:        PickList?
     public var comboList:       ComboList?
     public var lookupFrom:      String = ""
@@ -146,6 +147,7 @@ public class FieldDefinition: Comparable, CustomStringConvertible {
         copy.pickList   = self.pickList
         copy.comboList  = self.comboList
         copy.lookupFrom = self.lookupFrom
+        copy.writeEmpty = self.writeEmpty
         return copy
     }
     

@@ -2,7 +2,7 @@
 //  OutlineNode.swift
 //  NotenikLib
 //
-//  Copyright © 2023 Herb Bowie (https://hbowie.net)
+//  Copyright © 2023 - 2025 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -15,20 +15,20 @@ import Foundation
 public class OutlineNode {
     
     // Getter and Setter for Note.
-    var note: Note? {
+    var sortedNote: SortedNote? {
         get {
-            return _note
+            return _sortedNote
         }
         set {
-            _note = newValue
-            if _note != nil {
-                level = _note!.depth
+            _sortedNote = newValue
+            if _sortedNote != nil {
+                level = _sortedNote!.depth
             } else {
                 level = 0
             }
         }
     }
-    var _note: Note?
+    var _sortedNote: SortedNote?
     
     // Level in hierarchy as indicated by level and/or seq fields.
     var level = 0
@@ -38,7 +38,7 @@ public class OutlineNode {
     var depth = -1
     
     // Parent of this node.
-    var parent:         OutlineNode? {
+    var parent: OutlineNode? {
         get {
             return _parent
         }
@@ -110,15 +110,15 @@ public class OutlineNode {
     public func display() {
         print(" ")
         print("OutlineNode.display")
-        if note != nil {
-            print("  - Note Title: \(note!.title.value)")
-            print("    - Note Seq: \(note!.seq.value)")
-            print("    - Note Level: \(note!.level.value)")
+        if sortedNote != nil {
+            print("  - Note Title: \(sortedNote!.note.title.value)")
+            print("    - Note Seq: \(sortedNote!.note.seq.value)")
+            print("    - Note Level: \(sortedNote!.note.level.value)")
         }
         print("  - Level: \(level)")
         print("  - Depth: \(depth)")
         if hasParent {
-            print("  - Parent: \(parent!.note!.title.value)")
+            print("  - Parent: \(parent!.sortedNote!.note.title.value)")
         }
         if hasChildren {
             if children.count == 1 {
@@ -128,10 +128,10 @@ public class OutlineNode {
             }
         }
         if priorSibling != nil {
-            print("  - Prior Sibling: \(priorSibling!.note!.title.value)")
+            print("  - Prior Sibling: \(priorSibling!.sortedNote!.note.title.value)")
         }
         if hasNextSibling {
-            print("  - Next Sibling: \(nextSibling!.note!.title.value)")
+            print("  - Next Sibling: \(nextSibling!.sortedNote!.note.title.value)")
         }
     }
 

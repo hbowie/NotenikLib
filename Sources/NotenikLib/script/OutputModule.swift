@@ -49,7 +49,8 @@ class OutputModule {
             writer.write(value: def.fieldLabel.properForm)
         }
         writer.endLine()
-        for note in workspace.list {
+        for sortedNote in workspace.list {
+            let note = sortedNote.note
             for entry in dict.list {
                 let def = entry
                 let field = note.getField(def: def)

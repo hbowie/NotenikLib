@@ -346,7 +346,7 @@ public class MultiFileIO {
                 
                 if found {
                     for lkUpNote in lkUpIO.notesList {
-                        if let lkUpField = lkUpNote.getField(def: lkUpDef!) {
+                        if let lkUpField = lkUpNote.note.getField(def: lkUpDef!) {
                             let lkUpValue = StringUtils.toCommon(lkUpField.value.value)
                             lookBackTree.registerLookup(lkUpCollectionID: lkUpCollectionID, 
                                                         lkUpNoteIdCommon: lkUpNote.noteID.commonID,

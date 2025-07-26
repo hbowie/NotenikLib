@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 8/5/23.
 //
-//  Copyright © 2023 Herb Bowie (https://hbowie.net)
+//  Copyright © 2023 - 2025 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -104,6 +104,10 @@ public class NavHistory {
         }
         
         return nextNote
+    }
+    
+    public func addToHistory(another: SortedNote) {
+        addToHistory(another: another.note)
     }
     
     /// Add another note to the history trail.

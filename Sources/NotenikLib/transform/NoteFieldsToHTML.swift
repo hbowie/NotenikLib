@@ -834,36 +834,38 @@ public class NoteFieldsToHTML {
         markedup.append(display1)
         if !collection.seqFormatter.isEmpty {
             if let seqValue = field.value as? SeqValue {
-                let (full, _) = collection.seqFormatter.format(seq: seqValue, full: true)
-                let (formatted, _) = collection.seqFormatter.format(seq: seqValue)
-                var displayFull = false
-                var displaySimple = false
-                if full != display1 {
-                    displayFull = true
-                }
-                
-                if formatted != display1 && formatted != full {
-                    displaySimple = true
-                }
-                
-                if displayFull || displaySimple {
-                    markedup.append(" (formatted as ")
-                }
-                
-                if displayFull {
-                    markedup.append("'\(full)'")
-                }
-                
-                if displayFull && displaySimple {
-                    markedup.append(" or simply ")
-                }
-                
-                if displaySimple {
-                    markedup.append("'\(formatted)'")
-                }
-                
-                if displayFull || displaySimple {
-                    markedup.append(")")
+                if seqValue.multiCount == 1 {
+                    let (full, _) = collection.seqFormatter.format(seq: seqValue.firstSeq, full: true)
+                    let (formatted, _) = collection.seqFormatter.format(seq: seqValue.firstSeq)
+                    var displayFull = false
+                    var displaySimple = false
+                    if full != display1 {
+                        displayFull = true
+                    }
+                    
+                    if formatted != display1 && formatted != full {
+                        displaySimple = true
+                    }
+                    
+                    if displayFull || displaySimple {
+                        markedup.append(" (formatted as ")
+                    }
+                    
+                    if displayFull {
+                        markedup.append("'\(full)'")
+                    }
+                    
+                    if displayFull && displaySimple {
+                        markedup.append(" or simply ")
+                    }
+                    
+                    if displaySimple {
+                        markedup.append("'\(formatted)'")
+                    }
+                    
+                    if displayFull || displaySimple {
+                        markedup.append(")")
+                    }
                 }
             }
         }
