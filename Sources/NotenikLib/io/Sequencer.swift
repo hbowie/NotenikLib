@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 9/20/19.
-//  Copyright © 2019 - 2023 Herb Bowie (https://hbowie.net)
+//  Copyright © 2019 - 2025 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -59,13 +59,11 @@ public class Sequencer {
         guard startingNote.note.hasSeq() else { return (0, nil) }
         
         // Determine depth at which we are incrementing
-        let seqIndex = startingNote.seqIndex
         var incDepth: Int = 0
-        if let singleSeq = startingNote.note.seq.getSingleSeq(seqIndex: seqIndex) {
-            incDepth = singleSeq.seqStack.max
-            if incMajor {
-                incDepth = 0
-            }
+        let singleSeq = startingNote.seqSingleValue
+        incDepth = singleSeq.seqStack.max
+        if incMajor {
+            incDepth = 0
         }
         
         // Prepare to bump up as many notes as necessary to avoid duplicates
@@ -81,27 +79,27 @@ public class Sequencer {
             let newSeq = sortedNote!.note.seq.dupe()
             var seqMods = false
             
-            if let seqSingle = sortedNote!.note.seq.getSingleSeq(seqIndex: seqIndex) {
-                // Special logic for first note processed
-                if starting {
-                    lastSeq = seqSingle.dupe()
+            let seqSingle = sortedNote!.seqSingleValue
+            
+            // Special logic for first note processed
+            if starting {
+                lastSeq = seqSingle.dupe()
+            }
+            // See if the current sequence is already greater than the last one
+            let greater = (seqSingle > lastSeq!)
+            
+            // See if we're done, or need to keep going
+            if greater {
+                incrementing = false
+            } else {
+                incrementing = true
+                let newSingleSeq = seqSingle.dupe()
+                newSingleSeq.incAtLevel(level: incDepth, removingDeeperLevels: false)
+                let ok = newSeq.setSingleSeq(newSingleSeq.value, seqIndex: sortedNote!.seqIndex)
+                if ok {
+                    seqMods = true
                 }
-                // See if the current sequence is already greater than the last one
-                let greater = (seqSingle > lastSeq!)
-                
-                // See if we're done, or need to keep going
-                if greater {
-                    incrementing = false
-                } else {
-                    incrementing = true
-                    let newSingleSeq = seqSingle.dupe()
-                    newSingleSeq.incAtLevel(level: incDepth, removingDeeperLevels: false)
-                    let ok = newSeq.setSingleSeq(newSingleSeq.value, seqIndex: seqIndex)
-                    if ok {
-                        seqMods = true
-                    }
-                    lastSeq = newSingleSeq.dupe()
-                }
+                lastSeq = newSingleSeq.dupe()
             }
             
             if seqMods {
@@ -124,52 +122,35 @@ public class Sequencer {
     ///   - startingRow: The first row to be resequenced.
     ///   - endingRow:   The last row to be resequenced.
     ///   - newSeqValue: The new value to be assigned as the Seq value for the first note in the range.
-    ///   - seqIndex:    An optional specific seq index on which to operate.
     /// - Returns: Updates the notes in the range to retain their Seq depth, but be numbered consecutively
     ///
     ///     starting with the new Seq value of the starting note.
-    public func renumberRange(startingRow: Int, endingRow: Int, newSeqValue: String, seqIndex: Int? = nil) -> SortedNote? {
+    public func renumberRange(startingRow: Int, endingRow: Int, newSeqValue: String) -> SortedNote? {
         
         let (ready, _) = readyForUpdates()
         guard ready else { return nil }
         
         guard let firstNote = io.getSortedNote(at: startingRow) else { return nil }
-        var priorOldEntireSeq = firstNote.note.seq.dupe()
-        var priorNewEntireSeq = seqType.createValue(newSeqValue) as! SeqValue
-        var numberOfSeqs = firstNote.note.seq.multiCount
-        if priorNewEntireSeq.multiCount < numberOfSeqs {
-            numberOfSeqs = priorNewEntireSeq.multiCount
-        }
+        let oldSingleSeq = firstNote.seqSingleValue
+        let newEntireSeq = seqType.createValue(newSeqValue) as! SeqValue
+        let newSingleSeq = newEntireSeq.getSingleSeq(seqIndex: firstNote.seqIndex)
         
         // Adjust note's level value, if the number of seq levels is changing
         var newLevel: LevelValue?
-        var levelAdd: [Int] = []
-        if seqIndex != nil {
-            newLevel = checkChangingLevels(firstNote: firstNote,
-                                           priorOldEntireSeq: priorOldEntireSeq,
-                                           priorNewEntireSeq: priorNewEntireSeq,
-                                           seqIndex: seqIndex!,
-                                           levelAdd: &levelAdd,
-                                           firstOrOnly: true)
-        } else {
-            var i = 0
-            var first = true
-            while i < numberOfSeqs {
-                let newLevelForOne = checkChangingLevels(firstNote: firstNote,
-                                                         priorOldEntireSeq: priorOldEntireSeq,
-                                                         priorNewEntireSeq: priorNewEntireSeq,
-                                                         seqIndex: i,
-                                                         levelAdd: &levelAdd,
-                                                         firstOrOnly: first)
-                if newLevel == nil && newLevelForOne != nil {
-                    newLevel = newLevelForOne
-                }
-                first = false
-                i += 1
-            }
-        }
+        var levelAdd: Int = 0
         
-        appendMod(sortedNote: firstNote, newSeq: priorNewEntireSeq, newLevel: newLevel)
+        // Check for changing levels
+        guard newSingleSeq != nil else { return nil }
+
+        levelAdd = newSingleSeq!.numberOfLevels - oldSingleSeq.numberOfLevels
+        if levelAdd != 0 {
+            newLevel = firstNote.note.level.dupe()
+            newLevel!.add(levelsToAdd: levelAdd, config: collection.levelConfig)
+        }
+
+        appendMod(sortedNote: firstNote, newSeq: newEntireSeq, newLevel: newLevel)
+        
+        var priorNewSingleSeq = newSingleSeq!.dupe()
         
         var nextRow = startingRow + 1
         while nextRow <= endingRow {
@@ -177,87 +158,27 @@ public class Sequencer {
                 nextRow = endingRow
                 break
             }
-            let nextOldEntireSeq = priorNewEntireSeq
-            // let nextNewEntireSeq = priorNewEntireSeq.dupe()
-            
+            let nextOldSingleSeq = priorNewSingleSeq
             let nextNewEntireSeq = nextNote.note.seq.dupe()
             
-            let oldLevel = nextNote.note.level.dupe()
+            let incLevel =  nextOldSingleSeq.maxLevel
+            let singleSeq = nextOldSingleSeq.dupe()
+            singleSeq.incAtLevel(level: incLevel, removingDeeperLevels: true)
+            _ = nextNewEntireSeq.setSingleSeq(singleSeq.value, seqIndex: nextNote.seqIndex)
+            
             var newLevel: LevelValue? = nil
-            if seqIndex != nil {
-                adjustNewSeq(nextOldEntireSeq: nextOldEntireSeq,
-                             nextNewEntireSeq: nextNewEntireSeq,
-                             levelAdd: levelAdd,
-                             seqIndex: seqIndex!,
-                             oldLevel: oldLevel,
-                             newLevel: &newLevel)
-            } else {
-                var i = 0
-                while i < numberOfSeqs {
-                    adjustNewSeq(nextOldEntireSeq: nextOldEntireSeq,
-                                 nextNewEntireSeq: nextNewEntireSeq,
-                                 levelAdd: levelAdd,
-                                 seqIndex: i,
-                                 oldLevel: oldLevel,
-                                 newLevel: &newLevel)
-                    i += 1
-                }
+            if levelAdd != 0 {
+                newLevel = nextNote.note.level.dupe()
+                newLevel!.add(levelsToAdd: levelAdd, config: collection.levelConfig)
             }
             
             appendMod(sortedNote: nextNote, newSeq: nextNewEntireSeq, newLevel: newLevel)
-            priorOldEntireSeq = nextOldEntireSeq
-            priorNewEntireSeq = nextNewEntireSeq
+            
+            priorNewSingleSeq = singleSeq
             nextRow += 1
         }
         
         return applyUpdates(updateSeq: true, updateTags: false)
-    }
-    
-    func checkChangingLevels(firstNote: SortedNote,
-                             priorOldEntireSeq: SeqValue,
-                             priorNewEntireSeq: SeqValue,
-                             seqIndex: Int,
-                             levelAdd: inout [Int],
-                             firstOrOnly: Bool = true) -> LevelValue? {
-        
-        let priorOldSeq = firstNote.note.seq.getSingleSeq(seqIndex: seqIndex)
-        let priorNewSeq = priorNewEntireSeq.getSingleSeq(seqIndex: seqIndex)
-        var newLevel: LevelValue?
-        if priorOldSeq != nil && priorNewSeq != nil {
-            while levelAdd.count < seqIndex + 1 {
-                levelAdd.append(0)
-            }
-            levelAdd[seqIndex] = priorNewSeq!.numberOfLevels - priorOldSeq!.numberOfLevels
-            if firstOrOnly {
-                if levelAdd[seqIndex] != 0 {
-                    newLevel = firstNote.note.level.dupe()
-                    newLevel!.add(levelsToAdd: levelAdd[seqIndex], config: collection.levelConfig)
-                }
-            }
-        }
-        return newLevel
-    }
-    
-    func adjustNewSeq(nextOldEntireSeq: SeqValue,
-                      nextNewEntireSeq: SeqValue,
-                      levelAdd: [Int],
-                      seqIndex: Int,
-                      oldLevel: LevelValue,
-                      newLevel: inout LevelValue?) {
-        
-        _ = nextNewEntireSeq.setSingleSeq(nextOldEntireSeq.getSingleSeq(seqIndex: seqIndex)!.value, seqIndex: seqIndex)
-        if let nextOldSeq = nextOldEntireSeq.getSingleSeq(seqIndex: seqIndex) {
-            let incLevel =  nextOldSeq.maxLevel // + levelAdd[seqIndex]
-            if let singleSeq = nextNewEntireSeq.getSingleSeq(seqIndex: seqIndex) {
-                singleSeq.incAtLevel(level: incLevel, removingDeeperLevels: true)
-                _ = nextNewEntireSeq.setSingleSeq(singleSeq.value, seqIndex: seqIndex)
-            }
-        }
-        
-        if newLevel == nil && levelAdd[seqIndex] != 0 {
-            newLevel = oldLevel.dupe()
-            newLevel!.add(levelsToAdd: levelAdd[0], config: collection.levelConfig)
-        }
     }
     
     /// Update Seq and/or Tags field based on outline structure (based on seq + level).

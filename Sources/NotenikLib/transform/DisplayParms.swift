@@ -189,7 +189,7 @@ public class DisplayParms {
         }
         var idToUse = ""
         if wikiLinks.prefix == "#" {
-            idToUse = seqPrefix + idBasis
+            idToUse = /* seqPrefix + */ idBasis
         } else {
             idToUse = idBasis
         }

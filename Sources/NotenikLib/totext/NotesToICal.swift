@@ -4,6 +4,11 @@
 //
 //  Created by Herb Bowie on 2/26/24.
 //
+//  Copyright © 2025 Herb Bowie (https://hbowie.net)
+//
+//  This programming code is published as open source software under the
+//  terms of the MIT License (https://opensource.org/licenses/MIT).
+//
 
 import Foundation
 
@@ -198,8 +203,8 @@ public class NotesToICal: NotesToText {
     }
     
     func getTimeFromSeq(note: Note) -> TimeOfDay? {
-        guard let seqField = note.getSeqAsField() else { return nil }
-        guard let seqValue = seqField.value as? SeqValue else { return nil }
+        let seqField = note.seqAsTimeOfDay
+        let seqValue = seqField.firstSeq
         guard let seqStack = seqValue.seqStack else { return nil }
         guard seqStack.possibleTimeStack else { return nil }
         

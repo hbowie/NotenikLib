@@ -1005,6 +1005,8 @@ public class NotesExporter {
                 break
             case NotenikConstants.levelCommon:
                 break
+            case NotenikConstants.dateAddedCommon:
+                break
             case NotenikConstants.bodyCommon:
                 break
             default:

@@ -62,7 +62,13 @@ public class SortedNote: Comparable {
     }
     
     public static func < (lhs: SortedNote, rhs: SortedNote) -> Bool {
-        return lhs.sortKey < rhs.sortKey
+        if lhs.note.collection.sortParm == .custom {
+            return Note.compareCustomFields(lhs: lhs.note, rhs: rhs.note) < 0
+        } else if lhs.collection.sortDescending {
+            return lhs.sortKey > rhs.sortKey
+        } else {
+            return lhs.sortKey < rhs.sortKey
+        }
     }
     
     public static func == (lhs: SortedNote, rhs: SortedNote) -> Bool {
@@ -131,17 +137,21 @@ public class SortedNote: Comparable {
     
     /// Return the Note's Sequence Value
     public var seqSingleValue: SeqSingleValue {
-        let seqParms = SeqParms()
-        var seqSingleValue = SeqSingleValue(seqParms: seqParms)
         guard let seqFieldDef = note.collection.seqFieldDef else {
-            return seqSingleValue
+            return emptySingle
         }
         let val = note.getFieldAsValue(def: seqFieldDef)
         if let seqValue = val as? SeqValue {
             if let singleSeq = seqValue.getSingleSeq(seqIndex: seqIndex) {
-                seqSingleValue = singleSeq
+                return singleSeq
             }
         }
+        return emptySingle
+    }
+    
+    var emptySingle: SeqSingleValue {
+        let seqParms = SeqParms()
+        let seqSingleValue = SeqSingleValue(seqParms: seqParms)
         return seqSingleValue
     }
     

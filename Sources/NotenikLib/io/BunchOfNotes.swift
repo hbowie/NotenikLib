@@ -210,6 +210,21 @@ class BunchOfNotes {
     
     /// Select the given note and return its index, if it can be found in the sorted list, using its current sort key.
     ///
+    /// - Parameter sortedNote: The sorted note we're looking for.
+    /// - Returns: The note as it was found in the list, along with its position.
+    ///            If not found, return nil and -1.
+    func selectSortedNote(_ sortedNote: SortedNote) -> (SortedNote?, NotePosition) {
+        let (index, exact) = searchList(sortedNote)
+        if exact {
+            listIndex = index
+            return selectNote(at: index)
+        } else {
+            return (nil, NotePosition(index: -1))
+        }
+    }
+    
+    /// Select the given note and return its index, if it can be found in the sorted list, using its current sort key.
+    ///
     /// - Parameter note: The note we're looking for.
     /// - Returns: The note as it was found in the list, along with its position.
     ///            If not found, return nil and -1. 
