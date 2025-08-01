@@ -385,7 +385,9 @@ public class Sequencer {
                 let newTags = updatedTags[updateIndex]
                 setOK = modNote.note.setTags(newTags)
             }
-            if updatedLevels.count == notesToUpdate.count && setOK {
+            if updatedLevels.count == notesToUpdate.count
+                && setOK
+                && collection.levelFieldDef != nil {
                 let newLevel = updatedLevels[updateIndex]
                 setOK = modNote.note.setLevel(newLevel)
             }
@@ -396,9 +398,12 @@ public class Sequencer {
                                   category: "Sequencer",
                                   level: .error,
                                   message: "Trouble updating Note titled \(modNote.note.title.value)")
-            } else {
-                firstModNote = modNote
+                Logger.shared.log(subsystem: "com.powersurgepub.notenik",
+                                  category: "Sequencer",
+                                  level: .error,
+                                  message: "setok = \(setOK) modok = \(modOK)")
             }
+            firstModNote = modNote
             
             updateIndex -= 1
         }
