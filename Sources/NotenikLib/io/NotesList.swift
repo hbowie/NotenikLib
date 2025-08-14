@@ -194,7 +194,7 @@ public class NotesList: Sequence {
         
         // See if we have prerequisites satisfied.
         guard !list.isEmpty else { return }
-        let collection = list[1].note.collection
+        let collection = list[0].note.collection
         
         // First, go through and remove any duplicates, and regen sort keys.
         var i = 0
