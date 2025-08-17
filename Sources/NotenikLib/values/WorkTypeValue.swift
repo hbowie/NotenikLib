@@ -52,5 +52,16 @@ public class WorkTypeValue: StringValue {
             return false
         }
     }
+    
+    public var activity: String {
+        switch value.lowercased() {
+        case "album", "cd", "song":
+            return "listening to"
+        case "film", "television show":
+            return "watching"
+        default:
+            return "reading"
+        }
+    }
 
 }

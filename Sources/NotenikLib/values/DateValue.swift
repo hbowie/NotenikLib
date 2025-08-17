@@ -78,10 +78,60 @@ public class DateValue: StringValue {
         formatter.dateFormat = with
         let possibleDate = date
         if possibleDate == nil {
-            return ymdDate
+            return format2(with: with)
         } else {
             return formatter.string(from: possibleDate!)
         }
+    }
+    
+    var formatted = ""
+    var formatWord = ""
+    
+    func format2(with: String) -> String {
+        formatted = ""
+        formatWord = ""
+        for c in with {
+            if c.isPunctuation || c.isNumber {
+                applyFormatWord()
+                formatted.append(c)
+            } else if c.isWhitespace {
+                applyFormatWord()
+                if !formatted.isEmpty {
+                    formatted.append(" ")
+                }
+            }else if formatWord.isEmpty {
+                formatWord.append(c)
+            } else if c == formatWord.first! {
+                formatWord.append(c)
+            } else {
+                applyFormatWord()
+                formatWord.append(c)
+            }
+        }
+        applyFormatWord()
+        return formatted
+    }
+    
+    func applyFormatWord() {
+        guard !formatWord.isEmpty else { return }
+        if formatWord.first! == "d" {
+            if !dd.isEmpty {
+                formatted.append(dd)
+            }
+        } else if formatWord == "MMM" {
+            if !mm.isEmpty {
+                if let m = month {
+                    formatted.append(DateUtils.shared.getShortMonthName(for: m))
+                } else {
+                    formatted.append(mm)
+                }
+            }
+        } else if formatWord.first! == "y" {
+            if formatWord.count > 2 {
+                formatted.append(yyyy)
+            }
+        }
+        formatWord = ""
     }
     
     /// Return an optional Date object based on the user's text input

@@ -181,6 +181,7 @@ public struct NotenikConstants {
     
     public static let authorWorkSlugCommon = "authorworkslug"
     public static let authorWorkSlugIntLinksCommon = "authorworkslugintlinks"
+    public static let finishedWorkSlugCommon = "finishedworkslug"
     public static let imageSlugCommon      = "imageslug"
     public static let imageNameShortCommon = "imagenameshort"
     public static let theWorkTypeSlugCommon = "theworktypeslug"

@@ -158,4 +158,60 @@ class NoteSlugger {
         
         return markedUp.code
     }
+    
+    /// Generate nicely formatted HTML to display Author and Work and related fields.
+    /// - Parameter fromNote: The note supplying the fields.
+    /// - Returns: Formatted html, or blank.
+    public static func finishedWorkSlug(fromNote: Note) -> String {
+        let markedUp = Markedup(format: .htmlFragment)
+        
+        var majorWork = true
+        var activity = "reading"
+        if let workTypeField = FieldGrabber.getField(note: fromNote, label: NotenikConstants.workTypeCommon) {
+            if let workType = workTypeField.value as? WorkTypeValue {
+                majorWork = workType.isMajor
+                activity = workType.activity
+            }
+        }
+        
+        markedUp.append("Finished \(activity) ")
+        
+        var workTitle = ""
+        if fromNote.klass.value == NotenikConstants.workKlass {
+            workTitle = fromNote.title.value
+        } else if let wt = FieldGrabber.getField(note: fromNote, label: NotenikConstants.workTitleCommon) {
+            workTitle = wt.value.value
+        }
+        
+        if !workTitle.isEmpty && workTitle.lowercased() != "unknown" {
+
+            if majorWork {
+                markedUp.startCite()
+            } else {
+                markedUp.leftDoubleQuote()
+            }
+            
+            markedUp.append(workTitle)
+
+            if majorWork {
+                markedUp.finishCite()
+            } else {
+                markedUp.rightDoubleQuote()
+            }
+        }
+        
+        if markedUp.code.count < 40 {
+            if let authorField = FieldGrabber.getField(note: fromNote, label: NotenikConstants.authorCommon) {
+                var authorValue = AuthorValue()
+                if let av = authorField.value as? AuthorValue {
+                    authorValue = av
+                } else {
+                    authorValue = AuthorValue(authorField.value.value)
+                }
+                markedUp.append(" by \(authorValue.firstNameFirst)")
+            }
+        }
+        
+        return markedUp.code
+    }
 }

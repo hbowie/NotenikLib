@@ -1493,6 +1493,10 @@ public class TemplateUtil {
             let slug = genAuthorWorkSlug(fromNote: fromNote)
             if !slug.isEmpty { return slug }
             
+        case NotenikConstants.finishedWorkSlugCommon:
+            let slug = genFinishedWorkSlug(fromNote: fromNote)
+            if !slug.isEmpty { return slug }
+            
         case NotenikConstants.authorWorkSlugIntLinksCommon:
             let slug = genAuthorWorkSlug(fromNote: fromNote, intLinks: true)
             if !slug.isEmpty { return slug }
@@ -1833,6 +1837,10 @@ public class TemplateUtil {
                                           intLinks: intLinks)
     }
     
+    func genFinishedWorkSlug(fromNote: Note) -> String {
+        return NoteSlugger.finishedWorkSlug(fromNote: fromNote)
+    }
+    
     func genImageSlug(fromNote: Note) -> String {
         
         guard let imageAttachment = fromNote.getImageAttachment() else { return "" }
@@ -1910,6 +1918,8 @@ public class TemplateUtil {
         }
         return markedUp.code
     }
+    
+    
     
     func genImageNameShort(fromNote: Note) -> String {
         guard let attachment = fromNote.getImageAttachment() else { return "" }
