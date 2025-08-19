@@ -921,11 +921,11 @@ public class TemplateUtil {
             } else if altPending {
                 modifiedValue = NumberUtils.toAlternate(modifiedValue, altType: char)
                 altPending = false
-            } else if char == shiftChar {
-                shiftEngaged = !shiftEngaged
-                if !shiftEngaged {
-                    repeatStarted = false
-                }
+            } else if char == shiftChar && !shiftEngaged && nextCharLower == "r" {
+                shiftEngaged = true
+            } else if char == shiftChar && shiftEngaged {
+                shiftEngaged = false
+                repeatStarted = false
             } else if shiftEngaged && charLower == "r" {
                 repeatSepCount = 0
                 repeatPlusMinus = 0
@@ -1195,8 +1195,8 @@ public class TemplateUtil {
                 index = inStr.index(before: index)
                 if index >= inStr.startIndex {
                     let c = inStr[index]
-                    if inStr[index] == "." {
-                        period = String(inStr[index])
+                    if c == "." {
+                        period = String(c)
                     } else {
                         ext.insert(c, at: ext.startIndex)
                     }

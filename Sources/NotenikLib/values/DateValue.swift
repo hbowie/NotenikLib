@@ -20,6 +20,11 @@ public class DateValue: StringValue {
     public var mm = ""
     public var dd = ""
     
+    public var yy: String {
+        guard yyyy.count == 4 else { return "" }
+        return String(yyyy.suffix(2))
+    }
+    
     var timeValuesIncluded = false
     
     public var hours = ""
@@ -86,16 +91,20 @@ public class DateValue: StringValue {
     
     var formatted = ""
     var formatWord = ""
+    var startChar: Character = " "
+    var endChar: Character = " "
     
     func format2(with: String) -> String {
         formatted = ""
         formatWord = ""
+        startChar = " "
+        endChar = " "
         for c in with {
             if c.isPunctuation || c.isNumber {
-                applyFormatWord()
+                applyFormatWord(termChar: c)
                 formatted.append(c)
             } else if c.isWhitespace {
-                applyFormatWord()
+                applyFormatWord(termChar: c)
                 if !formatted.isEmpty {
                     formatted.append(" ")
                 }
@@ -104,19 +113,24 @@ public class DateValue: StringValue {
             } else if c == formatWord.first! {
                 formatWord.append(c)
             } else {
-                applyFormatWord()
+                applyFormatWord(termChar: c)
                 formatWord.append(c)
             }
         }
-        applyFormatWord()
+        applyFormatWord(termChar: " ")
         return formatted
     }
     
-    func applyFormatWord() {
+    func applyFormatWord(termChar: Character) {
+        startChar = endChar
+        endChar = termChar
+        let strictDate = (!startChar.isWhitespace || !endChar.isWhitespace)
         guard !formatWord.isEmpty else { return }
         if formatWord.first! == "d" {
             if !dd.isEmpty {
                 formatted.append(dd)
+            } else if strictDate {
+                formatted.append("01")
             }
         } else if formatWord == "MMM" {
             if !mm.isEmpty {
@@ -126,9 +140,17 @@ public class DateValue: StringValue {
                     formatted.append(mm)
                 }
             }
+        } else if formatWord == "MM" {
+            if !mm.isEmpty {
+                formatted.append(mm)
+            } else if strictDate {
+                formatted.append("06")
+            }
         } else if formatWord.first! == "y" {
             if formatWord.count > 2 {
                 formatted.append(yyyy)
+            } else {
+                formatted.append(yy)
             }
         }
         formatWord = ""
