@@ -841,6 +841,12 @@ public class TemplateUtil {
         
         var altPending = false
         
+        var hashTags = false
+        var tagsPlusMinus: Character = " "
+        var tagsStartFresh = true
+        var minusTags: [String] = []
+        var plusTags:  [String] = []
+        
         var formatString = ""
         
         wikiStyle = "0"
@@ -876,6 +882,31 @@ public class TemplateUtil {
             var inc = 1
             if formatString.count > 0 {
                 formatString.append(char)
+            } else if hashTags {
+                if char == "+" {
+                    tagsPlusMinus = char
+                    tagsStartFresh = true
+                } else if char == "-" {
+                    tagsPlusMinus = char
+                    tagsStartFresh = true
+                } else if char == "," || char == ";" {
+                    tagsStartFresh = true
+                } else if char.isWhitespace && tagsStartFresh {
+                    // Skip leading spaces
+                } else if tagsStartFresh {
+                    tagsStartFresh = false
+                    if tagsPlusMinus == "-" {
+                        minusTags.append(String(char))
+                    } else if tagsPlusMinus == "+" {
+                        plusTags.append(String(char))
+                    }
+                } else {
+                    if tagsPlusMinus == "-" {
+                        minusTags[minusTags.count - 1].append(char)
+                    } else if tagsPlusMinus == "+" {
+                        plusTags[plusTags.count - 1].append(char)
+                    }
+                }
             } else if varyStage > 0 && varyStage < 4 {
                 if varyStage == 1 {
                     varyDelim = char
@@ -1089,6 +1120,8 @@ public class TemplateUtil {
                 modifiedValue = emailSingleQuoteConverter.convert(from: modifiedValue)
             } else if char == "\\" {
                 modifiedValue = StringUtils.prepHTMLforJSON(modifiedValue)
+            } else if char == "#" && varNameCommon == NotenikConstants.tagsCommon {
+                hashTags = true
             } else if char.isWholeNumber {
                 number = (number * 10) + char.wholeNumberValue!
                 if !nextChar.isWholeNumber {
@@ -1145,6 +1178,37 @@ public class TemplateUtil {
         
         if zStage > 0 {
             modifiedValue = zTags(tagsString: modifiedValue, prefix: zPrefix, suffix: zSuffix, htmlClass: zClass)
+        }
+        
+        if hashTags {
+            let tags = TagsValue(modifiedValue)
+            var hashed = ""
+            for plus in plusTags {
+                if !hashed.isEmpty {
+                    hashed.append(" ")
+                }
+                hashed.append("#" + plus)
+            }
+            for tag in tags.tags {
+                let tagCommon = StringUtils.toCommon(tag.value)
+                var skip = false
+                for minus in minusTags {
+                    if tagCommon == StringUtils.toCommon(minus) {
+                        skip = true
+                        break
+                    }
+                }
+                if !skip {
+                    let cameled = StringUtils.wordDemarcation(tag.value,
+                                                              caseMods: ["u", "u", "l"],
+                                                              delimiter: "")
+                    if !hashed.isEmpty {
+                        hashed.append(" ")
+                    }
+                    hashed.append("#" + cameled)
+                }
+            }
+            modifiedValue = hashed
         }
         
         if formatString.count > 0 {

@@ -145,7 +145,7 @@ public class SearchNotes {
     /// Go backwards in the search history.
     /// - Returns: A possible prior Note obtained from the search history. 
     public func searchForPrevious() -> Note? {
-        var (sortedNote, position) = io.getSelectedNote()
+        let (sortedNote, position) = io.getSelectedNote()
         guard sortedNote != nil else { return nil }
         startingNote = sortedNote!
         startingPosition = position
