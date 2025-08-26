@@ -163,7 +163,7 @@ class NoteSlugger {
     /// - Parameter fromNote: The note supplying the fields.
     /// - Returns: Formatted html, or blank.
     public static func finishedWorkSlug(fromNote: Note) -> String {
-        let markedUp = Markedup(format: .htmlFragment)
+        let markedUp = Markedup(format: .markdown)
         
         var majorWork = true
         var activity = "reading"
@@ -200,7 +200,7 @@ class NoteSlugger {
             }
         }
         
-        if markedUp.code.count < 40 {
+        // if markedUp.code.count < 40 {
             if let authorField = FieldGrabber.getField(note: fromNote, label: NotenikConstants.authorCommon) {
                 var authorValue = AuthorValue()
                 if let av = authorField.value as? AuthorValue {
@@ -210,7 +210,7 @@ class NoteSlugger {
                 }
                 markedUp.append(" by \(authorValue.firstNameFirst)")
             }
-        }
+        // }
         
         return markedUp.code
     }

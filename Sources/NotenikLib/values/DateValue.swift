@@ -94,6 +94,9 @@ public class DateValue: StringValue {
     var startChar: Character = " "
     var endChar: Character = " "
     
+    /// Let's do our own formatting, when we don't have a complete standard ate.
+    /// - Parameter with: The fiormatting string to be used.
+    /// - Returns: The formatted date.
     func format2(with: String) -> String {
         formatted = ""
         formatWord = ""
@@ -108,7 +111,7 @@ public class DateValue: StringValue {
                 if !formatted.isEmpty {
                     formatted.append(" ")
                 }
-            }else if formatWord.isEmpty {
+            } else if formatWord.isEmpty {
                 formatWord.append(c)
             } else if c == formatWord.first! {
                 formatWord.append(c)
@@ -127,24 +130,44 @@ public class DateValue: StringValue {
         let strictDate = (!startChar.isWhitespace || !endChar.isWhitespace)
         guard !formatWord.isEmpty else { return }
         if formatWord.first! == "d" {
-            if !dd.isEmpty {
-                formatted.append(dd)
-            } else if strictDate {
-                formatted.append("01")
-            }
-        } else if formatWord == "MMM" {
-            if !mm.isEmpty {
-                if let m = month {
-                    formatted.append(DateUtils.shared.getShortMonthName(for: m))
-                } else {
-                    formatted.append(mm)
+            if dd.isEmpty || dd == "00" {
+                if strictDate {
+                    if formatWord == "d" {
+                        formatted.append("1")
+                    } else {
+                        formatted.append("01")
+                    }
                 }
+            } else if formatWord == "d" {
+                formatted.append(d)
+            } else {
+                formatted.append(dd)
             }
-        } else if formatWord == "MM" {
-            if !mm.isEmpty {
-                formatted.append(mm)
-            } else if strictDate {
-                formatted.append("06")
+        } else if formatWord.first! == "M" {
+            if mm.isEmpty || mm == "00" {
+                if strictDate {
+                    switch formatWord.count {
+                    case 1:
+                        formatted.append("6")
+                    case 2:
+                        formatted.append("06")
+                    case 3:
+                        formatted.append("Jun")
+                    default:
+                        formatted.append("June")
+                    }
+                }
+            } else {
+                switch formatWord.count {
+                case 1:
+                    formatted.append(m)
+                case 2:
+                    formatted.append(mm)
+                case 3:
+                    formatted.append(DateUtils.shared.getShortMonthName(for: mm))
+                default:
+                    formatted.append(DateUtils.shared.getMonthName(for: mm))
+                }
             }
         } else if formatWord.first! == "y" {
             if formatWord.count > 2 {
@@ -177,10 +200,36 @@ public class DateValue: StringValue {
         return Int(yyyy)
     }
     
+    /// Return the month value without any zero padding.
+    public var m: String {
+        if let monthInt = day {
+            if monthInt > 9 {
+                return mm
+            } else {
+                return String(mm.suffix(1))
+            }
+        }
+        return dd
+    }
+    
+    /// Return the month as an Integer, if possible.
     public var month: Int? {
         return Int(mm)
     }
     
+    /// Return the day value without zero padding.
+    public var d: String {
+        if let dayInt = day {
+            if dayInt > 9 {
+                return dd
+            } else {
+                return String(dd.suffix(1))
+            }
+        }
+        return dd
+    }
+    
+    /// Return the day as an Integer, if possible.
     public var day: Int? {
         return Int(dd)
     }

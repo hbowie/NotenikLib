@@ -1126,7 +1126,13 @@ public class TemplateUtil {
                 number = (number * 10) + char.wholeNumberValue!
                 if !nextChar.isWholeNumber {
                     if summarizePending {
-                        modifiedValue = StringUtils.summarize(modifiedValue, max: number)
+                        if varNameCommon == NotenikConstants.finishedWorkSlugCommon {
+                            modifiedValue = StringUtils.summarize(modifiedValue,
+                                                                  max: number,
+                                                                  backBefore: " by ")
+                        } else {
+                            modifiedValue = StringUtils.summarize(modifiedValue, max: number)
+                        }
                         summarizePending = false
                     } else {
                         modifiedValue = StringUtils.truncateOrPad(modifiedValue, toLength: number, keepOnRight: keepCharsOnRight)
