@@ -144,7 +144,7 @@ class NoteSlugger {
             }
             let author = FieldGrabber.getField(note: fromNote, label: NotenikConstants.authorCommon)
             if rights == nil || rights!.value.value.lowercased() == "copyright" {
-                markedUp.append("&copy;")
+                markedUp.append("&#x0a9;")
             } else {
                 markedUp.append(rights!.value.value)
             }

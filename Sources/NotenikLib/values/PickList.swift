@@ -152,16 +152,18 @@ public class PickList {
     
     public func getTypeWithValues(type: String = "pick-from") -> String {
         var str = "<\(type): "
-        var valueIndex = 0
+        let startingLength = str.count
         for value in values {
-            if valueIndex > 0 {
-                str.append(", ")
+            let itemValue = String(describing: value)
+            if !itemValue.isEmpty {
+                if str.count > startingLength {
+                    str.append(", ")
+                }
+                str.append(itemValue)
+                if value.value == defaultValue {
+                    str.append("*")
+                }
             }
-            str.append(String(describing: value))
-            if value.value == defaultValue {
-                str.append("*")
-            }
-            valueIndex += 1
         }
         str.append(" >")
         return str

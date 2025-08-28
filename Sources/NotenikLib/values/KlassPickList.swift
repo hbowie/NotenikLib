@@ -36,13 +36,15 @@ public class KlassPickList: PickList {
     
     public override func getTypeWithValues(type: String = "class") -> String {
         var str = "<\(type): "
-        var valueIndex = 0
+        let startingLength = str.count
         for value in values {
-            if valueIndex > 0 {
-                str.append(", ")
+            let klassValue = String(describing: value)
+            if !klassValue.isEmpty && klassValue != " " {
+                if str.count > startingLength {
+                    str.append(", ")
+                }
+                str.append(klassValue)
             }
-            str.append(String(describing: value))
-            valueIndex += 1
         }
         str.append(" >")
         return str
