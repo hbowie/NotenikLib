@@ -731,4 +731,15 @@ class BunchIO: NotenikIO, RowConsumer  {
     func getAttachmentsLocation() -> String? {
         return nil
     }
+    
+    // -----------------------------------------------------------
+    //
+    // MARK: Lookup Class based on Level
+    //
+    // -----------------------------------------------------------
+    
+    public func klassForLevel(_ level: Int) -> String? {
+        guard bunch != nil else { return nil }
+        return bunch!.levelToKlass.klassForLevel(level)
+    }
 }

@@ -3,7 +3,7 @@
 //  NotenikLib
 //
 //  Created by Herb Bowie on 2/5/19.
-//  Copyright © 2019 - 2024 Herb Bowie (https://hbowie.net)
+//  Copyright © 2019 - 2025 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -19,12 +19,13 @@ class BunchOfNotes {
     var collection: NoteCollection
     var notesDict = [String : Note]()
     var notesList = NotesList()
+    var listIndex = 0
     var notesTree = TagsTree()
     var outlineTree = OutlineTree()
     var shortIDs  = ShortIDs()
     var timestampDict = [String : Note]()
     var akaAll = AKAentries()
-    var listIndex = 0
+    var levelToKlass = LevelToKlassLookup()
     
     /// Return the number of notes in the current collection.
     ///
@@ -154,6 +155,8 @@ class BunchOfNotes {
         
         registerComboValues(note: note)
         
+        levelToKlass.oneMoreLink(note: note)
+        
         return true
 
     }
@@ -204,6 +207,9 @@ class BunchOfNotes {
         if collection.hasTimestamp {
             timestampDict.removeValue(forKey: note.timestampAsString)
         }
+        
+        // Decrease count of level to class linkages
+        levelToKlass.oneLessLink(note: note)
         
         return true
     }

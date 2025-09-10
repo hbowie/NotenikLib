@@ -389,5 +389,13 @@ public protocol NotenikIO {
     
     /// Create an iterator for the tags nodes.
     func makeOutlineNodeIterator() -> OutlineNodeIterator
+    
+    // -----------------------------------------------------------
+    //
+    // MARK: Lookup Class based on Level
+    //
+    // -----------------------------------------------------------
+    
+    func klassForLevel(_ level: Int) -> String? 
 }
 
