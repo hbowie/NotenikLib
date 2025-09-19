@@ -491,7 +491,11 @@ public class NoteFieldsToHTML {
     ///
     /// - Parameter field: The field to be displayed.
     /// - Returns: A String containing the code that can be used to display this field.
-    func display(_ field: NoteField, noteTitle: String, note: Note, collection: NoteCollection, io: NotenikIO?) -> String {
+    func display(_ field: NoteField,
+                 noteTitle: String,
+                 note: Note,
+                 collection: NoteCollection,
+                 io: NotenikIO?) -> String {
         
         // Prepare for processing.
         if io != nil {

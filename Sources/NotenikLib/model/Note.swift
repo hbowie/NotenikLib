@@ -833,6 +833,66 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     }
     
     //
+    // Functions and variables concerning the Note's optional long title.
+    //
+    
+    /// Get the title of the Note as a String, optionally preceded by the Note's Seq value.
+    /// - Parameters:
+    ///   - withSeq: Should the returned value be prefixed by the Note's Seq value? If the Note has no Seq value,
+    ///   or if its class/klass indicates it should be treated as front matter or back matter, then a True value here
+    ///   will have no effect.
+    ///   - sep: The separator to place between the Seq and the Title. Defaults to a single space.
+    /// - Returns: The title of the Note, optionally preceded by a Seq value.
+    public func getLongTitle(withSeq: Bool = false, formattedSeq: Bool = false, full: Bool = false, sep: String = " ") -> String {
+        if withSeq && hasSeq() && !klass.frontOrBack {
+            if formattedSeq || full {
+                return getFormattedSeqForDisplay(full: full) + sep + longTitle.value
+            } else {
+                return seq.value + sep + title.value
+            }
+        } else {
+            return title.value
+        }
+    }
+    
+    /// Return the Note's Title Value
+    public var longTitle: LongTitleValue {
+        guard let def = collection.longTitleFieldDef else { return LongTitleValue() }
+        guard let field = getField(def: def) else { return LongTitleValue() }
+        if let val = field.value as? LongTitleValue {
+            return val
+        } else {
+            return LongTitleValue(field.value.value)
+        }
+    }
+    
+    /// Does this note have a non-blank title field?
+    public func hasLongTitle() -> Bool {
+        guard let def = collection.longTitleFieldDef else { return false }
+        guard let field = getField(def: def) else { return false }
+        return !field.value.isEmpty
+    }
+    
+    /// Does this Note contain a long title?
+    func containsLongTitle() -> Bool {
+        guard let def = collection.longTitleFieldDef else { return false }
+        return contains(def: def)
+    }
+    
+    /// Get the Long Title field, if one exists
+    func getLongTitleAsField() -> NoteField? {
+        guard let def = collection.longTitleFieldDef else { return nil }
+        return getField(def: def)
+    }
+    
+    /// Set the Note's Long Title value
+    public func setLongTitle(_ longTitle: String) -> Bool {
+        guard let def = collection.longTitleFieldDef else { return false }
+        let ok = setField(label: def.fieldLabel.commonForm, value: longTitle)
+        return ok
+    }
+    
+    //
     // Functions and variables concerning the Note's Address field
     //
     

@@ -81,6 +81,8 @@ public struct NotenikConstants {
     public static let levelCommon       = "level"
     public static let link              = "Link"
     public static let linkCommon        = "link"
+    public static let longTitle         = "Long Title"
+    public static let longTitleCommon   = "longtitle"
     public static let minutesToRead     = "Minutes to Read"
     public static let minutesToReadCommon = "minutestoread"
     public static let mirrorAutoIndex   = "Mirror Auto Index"

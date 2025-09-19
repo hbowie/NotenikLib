@@ -205,6 +205,7 @@ public class NoteLineParser {
                 if noteLine.yamlDashLine && note.noteID.noteFileFormat == .yaml
                     && def.fieldType.typeString != NotenikConstants.bodyCommon
                     && def.fieldType.typeString != NotenikConstants.longTextType
+                    && def.fieldType.typeString != NotenikConstants.longTitleCommon
                     && def.fieldType.typeString != NotenikConstants.teaserCommon {
                     appendYAMLvalue()
                 } else {

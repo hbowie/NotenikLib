@@ -41,6 +41,7 @@ public class AllTypes {
     let levelType   = LevelType()
     let linkType    = LinkType()
     let longTextType = LongTextType()
+    let longTitleType = LongTitleType()
     let lookBackType = LookBackType()
     let lookupType  = LookupType()
     let minutesToReadType = MinutesToReadType()
@@ -162,6 +163,8 @@ public class AllTypes {
         fieldTypes.append(phoneType)
         
         fieldTypes.append(pageStyleType)
+        
+        fieldTypes.append(longTitleType)
         
     }
     

@@ -211,11 +211,14 @@ public class DisplayParms {
     /// - Returns: The title of the Note, possibly preceded by a
     ///   Sequence number of one kind or another. 
     public func compoundTitle(note: Note) -> String {
-        let simpleTitle = note.title.value
+        var simpleTitle = note.title.value
         guard displayMode != .normal else { return simpleTitle }
         guard !included.asList else { return simpleTitle }
-        guard !note.klass.frontOrBack else { return simpleTitle }
         guard !note.klass.quote else { return simpleTitle }
+        if note.hasLongTitle() {
+            simpleTitle = note.longTitle.value
+        }
+        guard !note.klass.frontOrBack else { return simpleTitle }
         if note.collection.sortParm == .seqPlusTitle {
             if note.hasDisplaySeq() {
                 return note.formattedDisplaySeq + simpleTitle

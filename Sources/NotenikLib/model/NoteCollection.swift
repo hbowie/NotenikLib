@@ -91,6 +91,7 @@ public class NoteCollection {
     public  var idFieldDef:      FieldDefinition
     public  var titleFieldDef:   FieldDefinition
     public  var akaFieldDef:     FieldDefinition?
+    public  var longTitleFieldDef: FieldDefinition?
     public  var tagsFieldDef:    FieldDefinition
     public  var linkFieldDef:    FieldDefinition
     public  var dateFieldDef:    FieldDefinition
@@ -515,6 +516,9 @@ public class NoteCollection {
             
         case NotenikConstants.akaCommon:
             akaFieldDef = def
+            
+        case NotenikConstants.longTitleCommon:
+            longTitleFieldDef = def
         
         case NotenikConstants.artistCommon:
             creatorFieldDef = def
@@ -799,6 +803,9 @@ public class NoteCollection {
         print("  - File Format: \(noteFileFormat)")
         if akaFieldDef != nil {
             print("  - AKA Field: \(akaFieldDef!.fieldLabel.properForm)")
+        }
+        if longTitleFieldDef != nil {
+            print("  - Long Title Field: \(longTitleFieldDef!.fieldLabel.properForm)")
         }
         print("  - Path: \(path)")
         print("  - Preferred ext: \(preferredExt)")

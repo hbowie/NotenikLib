@@ -1751,10 +1751,14 @@ public class TemplateUtil {
             }
         }
         
-        var titleToDisplay = fromNote.title.value
+        var titleToUse = fromNote.title.value
+        if fromNote.hasLongTitle() {
+            titleToUse = fromNote.longTitle.value
+        }
+        var titleToDisplay = titleToUse
         if !parms.included.asList {
             if fromNote.hasSeq() || fromNote.hasDisplaySeq() {
-                titleToDisplay = fromNote.getFormattedSeqForDisplay() + " " + fromNote.title.value
+                titleToDisplay = fromNote.getFormattedSeqForDisplay() + " " + titleToUse
             }
         }
         
