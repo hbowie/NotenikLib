@@ -132,16 +132,16 @@ public class Sequencer {
         
         guard let firstNote = io.getSortedNote(at: startingRow) else { return nil }
         let oldSingleSeq = firstNote.seqSingleValue
-        let newEntireSeq = seqType.createValue(newSeqValue) as! SeqValue
+        let newEntireSeq = firstNote.note.seq.dupe()
+        _ = newEntireSeq.setSingleSeq(newSeqValue, seqIndex: firstNote.seqIndex)
         let newSingleSeq = newEntireSeq.getSingleSeq(seqIndex: firstNote.seqIndex)
+        guard newSingleSeq != nil else { return nil }
         
         // Adjust note's level value, if the number of seq levels is changing
         var newLevel: LevelValue?
         var levelAdd: Int = 0
         
         // Check for changing levels
-        guard newSingleSeq != nil else { return nil }
-
         levelAdd = newSingleSeq!.numberOfLevels - oldSingleSeq.numberOfLevels
         if levelAdd != 0 {
             newLevel = firstNote.note.level.dupe()
@@ -151,21 +151,29 @@ public class Sequencer {
         appendMod(sortedNote: firstNote, newSeq: newEntireSeq, newLevel: newLevel)
         
         var priorNewSingleSeq = newSingleSeq!.dupe()
+        // var priorOldSeqDepth = oldSingleSeq.maxLevel
+        var priorOldSingleSeq = oldSingleSeq.dupe()
         
         var nextRow = startingRow + 1
         while nextRow <= endingRow {
+            
+            // Get the sorted note for the next row
             guard let nextNote = io.getSortedNote(at: nextRow) else {
                 nextRow = endingRow
                 break
             }
-            let nextOldSingleSeq = priorNewSingleSeq
-            let nextNewEntireSeq = nextNote.note.seq.dupe()
             
-            let incLevel =  nextOldSingleSeq.maxLevel
-            let singleSeq = nextOldSingleSeq.dupe()
+            // Update Seq value
+            // let nextOldSingleSeq = priorNewSingleSeq
+            let nextOldSingleSeq = nextNote.seqSingleValue
+            let nextNewEntireSeq = nextNote.note.seq.dupe()
+            let relationshipToPrior = nextOldSingleSeq.maxLevel - priorOldSingleSeq.maxLevel
+            let incLevel =  priorNewSingleSeq.maxLevel + relationshipToPrior
+            let singleSeq = priorNewSingleSeq.dupe()
             singleSeq.incAtLevel(level: incLevel, removingDeeperLevels: true)
             _ = nextNewEntireSeq.setSingleSeq(singleSeq.value, seqIndex: nextNote.seqIndex)
             
+            // Update level, if requested.
             var newLevel: LevelValue? = nil
             if levelAdd != 0 {
                 newLevel = nextNote.note.level.dupe()
@@ -175,6 +183,7 @@ public class Sequencer {
             appendMod(sortedNote: nextNote, newSeq: nextNewEntireSeq, newLevel: newLevel)
             
             priorNewSingleSeq = singleSeq
+            priorOldSingleSeq = nextOldSingleSeq
             nextRow += 1
         }
         
