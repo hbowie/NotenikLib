@@ -746,7 +746,7 @@ public class NoteFieldsToHTML {
     // Display the Title of the Note in one of several possible formats.
     func displayTitle(note: Note, noteTitle: String, markedup: Markedup) {
         
-        var titleToDisplay = pop.toXML(parms.compoundTitle(note: note))
+        var titleToDisplay = parms.compoundTitle(note: note)
         
         if parms.displayMode == .streamlinedReading && parms.included.on && note.klass.quote && note.hasAuthor() {
             let titleMarkup = Markedup(format: parms.format)
@@ -1184,6 +1184,9 @@ public class NoteFieldsToHTML {
             quoteFrom.author = authorNote!.title.value
             if authorNote!.hasAKA() {
                 quoteFrom.author = authorNote!.aka.value
+            } else if authorNote!.title.value.contains(", ") {
+                let author = AuthorValue(authorNote!.title.value)
+                quoteFrom.author = author.firstNameFirst
             }
             quoteFrom.authorLink = parms.wikiLinks.assembleWikiLink(idBasis: authorNote!.title.value)
         }

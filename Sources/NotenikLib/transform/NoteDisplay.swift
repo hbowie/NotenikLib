@@ -404,21 +404,27 @@ public class NoteDisplay {
                                                    nextSeq: nextSeq,
                                                    bottomHTML: bottomHTML)
             }
-            (nextNote, nextPosition) = skipNonMainPageTypes(startingPosition: nextPosition, startingNote: nextNote, passedIO: io)
-            if nextNote != nil && nextPosition.valid {
+            (nextNote, nextPosition) = skipNonMainPageTypes(startingPosition: nextPosition,
+                                                            startingNote: nextNote,
+                                                            passedIO: io)
+            if nextNote != nil
+                && nextPosition.valid {
                 nextBasis = nextNote!.noteID.getBasis()
                 nextLevel = nextNote!.note.level
                 nextSeq = nextNote!.seqSingleValue
                 nextDepth = nextNote!.depth
-                let collectionToC = sortedNote.note.mkdownCommandList.contains(MkdownConstants.collectionTocCmd)
-                if !sortedNote.note.collection.skipContentsForParent && !collectionToC {
-                    formatToCforBottom(sortedNote,
-                                       io: io,
-                                       nextSortedNote: nextNote!,
-                                       nextPosition: nextPosition,
-                                       nextLevel: nextLevel,
-                                       nextSeq: nextSeq,
-                                       bottomHTML: bottomHTML)
+                if nextNote!.noteID.commonID != "tableofcontents"
+                    && nextNote!.note.klass.value != "toc" {
+                    let collectionToC = sortedNote.note.mkdownCommandList.contains(MkdownConstants.collectionTocCmd)
+                    if !sortedNote.note.collection.skipContentsForParent && !collectionToC {
+                        formatToCforBottom(sortedNote,
+                                           io: io,
+                                           nextSortedNote: nextNote!,
+                                           nextPosition: nextPosition,
+                                           nextLevel: nextLevel,
+                                           nextSeq: nextSeq,
+                                           bottomHTML: bottomHTML)
+                    }
                 }
             } else {
                 nextBasis = ""

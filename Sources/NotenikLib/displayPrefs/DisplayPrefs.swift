@@ -3,7 +3,7 @@
 //  NotenikLib
 //
 //  Created by Herb Bowie on 5/8/19.
-//  Copyright © 2019 - 2024 Herb Bowie (https://hbowie.net)
+//  Copyright © 2019 - 2025 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -131,84 +131,6 @@ public class DisplayPrefs {
     public var displayCSS: String? {
         var tempCSS = darkModeAdjustments()
         tempCSS.append("""
-        /* The following CSS comes from the darkModeAdjustments 
-           method of the DisplayPrefs class within Notenik. */
-        :root {
-            color-scheme: light dark;
-            --background-color: #FFFFFF;
-            --text-color: #000000;
-            --link-color: Blue;
-            --link-hover-color: Blue;
-            --background-hover-color: #f0f0f0;
-            --link-visited-color: Purple;
-            --link-active-color: Red;
-            --background-active-color: #e0e0e0;
-            --code-color: #d81b60;
-            --preformatted-color: #444;
-            --accent-bg: #f5f7ff;
-            --border: #898EA4;
-            --highlight-color: Gainsboro;
-            --bg: #fff;
-            --accent-bg: #f5f7ff;
-        }
-        a.ext-link::after {
-            content: "";
-            width: 0.9em;
-            height: 0.9em;
-            margin-left: 0.2em;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5z'/%3E%3Cpath fill-rule='evenodd' d='M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0v-5z'/%3E%3C/svg%3E");
-            background-position: center;
-            background-repeat: no-repeat;
-            background-size: contain;
-            display: inline-block;
-        }
-        @media screen and (prefers-color-scheme: dark) { 
-          :root {
-            --background-color: #000000;
-            --text-color: #F0F0F0;
-            --link-color: #93d5ff;
-            --link-hover-color: #94d8ff;
-            --background-hover-color: #282828;
-            --link-visited-color: #cab7ff;
-            --link-active-color: #94d8ff;
-            --background-active-color: #363636;
-            --code-color: #f06292;
-            --preformatted-color: #ccc;
-            --accent-bg: #2b2b2b;
-            --highlight-color: DimGray;
-            --bg: #212121;
-            --accent-bg: #2b2b2b;
-          }
-            a.ext-link::after {
-                content: "";
-                width: 0.9em;
-                height: 0.9em;
-                margin-left: 0.2em;
-                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' stroke='%23F0F0F0' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5z'/%3E%3Cpath fill-rule='evenodd' d='M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0v-5z'/%3E%3C/svg%3E");
-                background-position: center;
-                background-repeat: no-repeat;
-                background-size: contain;
-                display: inline-block;
-            }
-        }
-        a {
-            color: var(--link-color);
-        }
-        a:focus {
-            color: var(--link-hover-color);
-            background: var(--background-hover-color);
-        }
-        a:hover {
-            color: var(--link-hover-color);
-            background: var(--background-hover-color);
-        }
-        a:active {
-            color: var(--link-active-color);
-            background: var(--background-active-color);
-        }
-        .search-results {
-            background-color: var(--highlight-color);
-        }
         /* The following CSS comes from the displayCSS method of the
            DisplayPrefs class within Notenik.                        */
         :root {
@@ -222,10 +144,13 @@ public class DisplayPrefs {
           background-color: var(--background-color);
           color: var(--text-color);
           line-height: 1.45;
-        /* fontCSS insertion starts here */
-        font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif;
-        font-size: 15pt;
-        /* fontCSS insertion ends here   */
+        """)
+        if fontCSS != nil {
+            tempCSS.append("/* fontCSS insertion starts here */\n")
+            tempCSS.append(fontCSS!)
+            tempCSS.append("/* fontCSS insertion ends here   */\n")
+        }
+        tempCSS.append("""
         }
         img { max-width: 100%; border: 4px solid gray; }
         /* body { max-width: 33em; margin: 0 auto; float: none; } */
@@ -668,40 +593,6 @@ public class DisplayPrefs {
             text-decoration: none;
             border-bottom: none;
         }
-        /* Generated CSS for headings follows. */
-        h1, h2, h3, h4, h5, h6 {
-            font-family: "Avenir Next", Helvetica, Arial, sans-serif;
-            font-weight: 600;
-            margin-top: 0.7em;
-            margin-bottom: 0.2em;
-            font-style: normal;
-        }
-        h1 {
-            text-align: center;
-            font-size: 2.0em;
-        }
-        h2 {
-            text-align: left;
-            font-size: 1.8em;
-        }
-        h3 {
-            text-align: left;
-            font-size: 1.6em;
-        }
-        h4 {
-            text-align: left;
-            font-size: 1.4em;
-        }
-        h5 {
-            text-align: left;
-            font-size: 1.2em;
-        }
-        h6 {
-            text-align: left;
-            font-size: 1.0em;
-        }
-
-
         """)
         tempCSS.append(buildHeadingsCSS())
         
@@ -877,6 +768,7 @@ public class DisplayPrefs {
         }
         
         """)
+        tempCSS.append("/* End of darkModeAdjustments code. */\n")
         return tempCSS
     }
     

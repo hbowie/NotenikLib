@@ -256,20 +256,22 @@ public class NotesMkdownContext: MkdownContext {
         var workNote: Note?
         var authorNote: Note?
         
-        var priorLevel = priorSortedNote!.note.level
         var navDone = false
         
         while priorSortedNote != nil && !navDone {
-            let klass = priorSortedNote!.note.klass.value
-            if priorSortedNote!.note.level > priorLevel || klass == NotenikConstants.biblioKlass {
+            switch priorSortedNote!.note.klass.value {
+            case NotenikConstants.biblioKlass:
                 navDone = true
-            } else if klass == NotenikConstants.workKlass {
+            case NotenikConstants.workKlass:
                 workNote = priorSortedNote!.note
-            } else if klass == NotenikConstants.authorKlass {
+            case NotenikConstants.quoteKlass:
+                break
+            case NotenikConstants.authorKlass:
                 authorNote = priorSortedNote!.note
                 navDone = true
+            default:
+                navDone = true
             }
-            priorLevel = priorSortedNote!.note.level
             (priorSortedNote, priorPosition) = io.priorNote(priorPosition)
         }
         
@@ -379,7 +381,7 @@ public class NotesMkdownContext: MkdownContext {
                                         levelEnd: levelEnd,
                                         skipID: collection.tocNoteID,
                                         displayParms: displayParms)
-            return outliner.genToC(details: true).code
+            return outliner.`genToC`(details: true).code
         } else {
             let outliner = NoteOutliner(list: io.notesList,
                                         levelStart: levelStart,
