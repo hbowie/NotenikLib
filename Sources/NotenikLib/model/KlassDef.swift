@@ -17,6 +17,7 @@ public class KlassDef: Comparable {
     public var name = ""
     public var fieldDefs: [FieldDefinition] = []
     public var defaultValues: Note?
+    public var seqFormatString: String?
     
     public static func < (lhs: KlassDef, rhs: KlassDef) -> Bool {
         return lhs.name < rhs.name

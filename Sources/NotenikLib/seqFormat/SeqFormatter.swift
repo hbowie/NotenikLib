@@ -31,22 +31,34 @@ public class SeqFormatter {
         return formatStack.isEmpty
     }
     
-    public func format(seq: SeqSingleValue, full: Bool = false) -> (String, Int) {
+    /// Format a sequence value for display.
+    /// - Parameters:
+    ///   - seq: The raw sequence value to be formatted.
+    ///   - klassDef: The Class definition to be used, if any.
+    ///   - full: Do we want the full sequence, or perhaps just a partial sequence?
+    /// - Returns: The formatted sequence, plus the number of segments skipped.
+    public func format(seq: SeqSingleValue, klassDef: KlassDef?, full: Bool = false) -> (String, Int) {
         
-        // If no formatting codes, simply return the seq value.
-        guard !formatStack.isEmpty else {
-            return (seq.value, 0)
-        }
+        var subCodes = ""
         
-        // Figure out wich format string to use.
-        var stackIx = 0
-        if !full {
-            stackIx = seq.numberOfLevels
-        }
-        if stackIx < 0 || stackIx >= formatStack.count {
+        if !full
+            && klassDef != nil
+            && klassDef!.seqFormatString != nil
+            && !klassDef!.seqFormatString!.isEmpty {
+            subCodes = klassDef!.seqFormatString!
+        } else if formatStack.isEmpty {
             return (seq.value, 0)
+        } else {
+            // Figure out wich format string to use.
+            var stackIx = 0
+            if !full {
+                stackIx = seq.numberOfLevels
+            }
+            if stackIx < 0 || stackIx >= formatStack.count {
+                return (seq.value, 0)
+            }
+            subCodes = formatStack[stackIx]
         }
-        let subCodes = formatStack[stackIx]
         
         // Now apply formatting codes.
         var formatted = ""

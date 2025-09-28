@@ -196,7 +196,7 @@ public class SortedNote: Comparable {
         guard let seqValue = note.getFieldAsValue(def: collection.seqFieldDef!) as? SeqValue else { return "" }
         guard let singleSeq = seqValue.getSingleSeq(seqIndex: seqIndex) else { return "" }
 
-        let (formatted, _) = collection.seqFormatter.format(seq: singleSeq, full: full)
+        let (formatted, _) = collection.seqFormatter.format(seq: singleSeq, klassDef: note.klassDef, full: full)
         return formatted
     }
     

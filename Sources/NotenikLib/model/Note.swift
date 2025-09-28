@@ -45,20 +45,16 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     }
     
     func applyDefaults() {
-        guard !collection.klassDefs.isEmpty else { return }
-        for klassDef in collection.klassDefs {
-            if klassDef.name == NotenikConstants.defaultsKlass {
-                if let defaults = klassDef.defaultValues {
-                    for (_, field) in defaults.fields {
-                        if !field.value.value.isEmpty {
-                            if field.def.shouldInitFromKlassTemplate {
-                                _ = setField(label: field.def.fieldLabel.properForm, value: field.value.value)
-                            }
-                        }
-                    }
+        guard let defaultsKlass = collection.klassDefs.klassFor(NotenikConstants.defaultsKlass) else { return }
+        guard let defaults = defaultsKlass.defaultValues else { return }
+        for (_, field) in defaults.fields {
+            if !field.value.value.isEmpty {
+                if field.def.shouldInitFromKlassTemplate {
+                    _ = setField(label: field.def.fieldLabel.properForm, value: field.value.value)
                 }
             }
         }
+
     }
     
     /// Generate identifiers for the Note.
@@ -1416,7 +1412,7 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
         
         guard let seqValue = getFieldAsValue(def: collection.seqFieldDef!) as? SeqValue else { return "" }
 
-        let (formatted, _) = collection.seqFormatter.format(seq: seqValue.firstSeq, full: full)
+        let (formatted, _) = collection.seqFormatter.format(seq: seqValue.firstSeq, klassDef: klassDef, full: full)
         return formatted
     }
     
@@ -1646,6 +1642,15 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
         } else {
             return KlassValue(val.value)
         }
+    }
+    
+    /// The KlassDef object for this Note's klass, if any. 
+    public var klassDef: KlassDef? {
+        guard let klassFieldDef = collection.klassFieldDef else { return nil }
+        guard !collection.klassDefs.isEmpty else { return nil }
+        guard let val = getFieldAsValue(def: klassFieldDef) as? KlassValue else { return nil }
+        guard !val.isEmpty else { return nil }
+        return collection.klassDefs.klassFor(val.value)
     }
     
     //

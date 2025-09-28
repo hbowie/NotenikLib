@@ -143,7 +143,7 @@ public class NoteCollection {
             var lookupDefs:     [FieldDefinition] = []
             var lookBackDefs:   [FieldDefinition] = []
     
-    public  var klassDefs:     [KlassDef] = []
+    public  var klassDefs:     KlassDict = KlassDict()
     public  var lastNewKlass   = ""
     public  var webBookPath    = ""
     public  var webBookAsEPUB  = true

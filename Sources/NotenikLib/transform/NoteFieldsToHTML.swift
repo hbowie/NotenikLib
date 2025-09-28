@@ -664,7 +664,7 @@ public class NoteFieldsToHTML {
         } else if field.def.fieldType.typeString == NotenikConstants.lookupType {
             displayLookup(field, note: note, collection: collection, markedup: code, io: io)
         } else if field.def.fieldType.typeString == NotenikConstants.seqCommon {
-            displaySeq(field, collection: collection, markedup: code)
+            displaySeq(field, note: note, collection: collection, markedup: code)
         } else {
             displayStraight(field, markedup: code)
         }
@@ -830,7 +830,7 @@ public class NoteFieldsToHTML {
         markedup.finishParagraph()
     }
     
-    func displaySeq(_ field: NoteField, collection: NoteCollection, markedup: Markedup) {
+    func displaySeq(_ field: NoteField, note: Note, collection: NoteCollection, markedup: Markedup) {
         markedup.startParagraph()
         markedup.append(field.def.fieldLabel.properWithParent)
         markedup.append(": ")
@@ -839,8 +839,8 @@ public class NoteFieldsToHTML {
         if !collection.seqFormatter.isEmpty {
             if let seqValue = field.value as? SeqValue {
                 if seqValue.multiCount == 1 {
-                    let (full, _) = collection.seqFormatter.format(seq: seqValue.firstSeq, full: true)
-                    let (formatted, _) = collection.seqFormatter.format(seq: seqValue.firstSeq)
+                    let (full, _) = collection.seqFormatter.format(seq: seqValue.firstSeq, klassDef: note.klassDef, full: true)
+                    let (formatted, _) = collection.seqFormatter.format(seq: seqValue.firstSeq, klassDef: note.klassDef)
                     var displayFull = false
                     var displaySimple = false
                     if full != display1 {

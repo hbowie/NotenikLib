@@ -1444,7 +1444,7 @@ public class FileIO: NotenikIO, RowConsumer {
     /// Load A list of available reports from the reports folder.
     public func loadKlassDefs() {
         
-        collection!.klassDefs = []
+        collection!.klassDefs = KlassDict()
         
         guard let lib = collection?.lib else { return }
         guard lib.hasAvailable(type: .klassFolder) else {
@@ -1479,6 +1479,13 @@ public class FileIO: NotenikIO, RowConsumer {
             }
             klassDef.defaultValues = klassNote
             guard klassDef.fieldDefs.count > 0 else { continue }
+            var seqValueStr = klassNote.seq.originalValue
+            if seqValueStr.isEmpty {
+                seqValueStr = klassNote.displaySeq.value
+            }
+            if !seqValueStr.isEmpty {
+                klassDef.seqFormatString = seqValueStr
+            }
             collection!.klassDefs.append(klassDef)
             if let klassPickList = collection?.klassFieldDef?.pickList {
                 klassPickList.registerValue(klassDef.name)

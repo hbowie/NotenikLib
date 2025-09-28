@@ -211,6 +211,10 @@ public class AllTypes {
             return false
         case NotenikConstants.lookBackType:
             return false
+        case NotenikConstants.seqCommon:
+            return false
+        case NotenikConstants.displaySeqCommon:
+            return false
         default:
             return true
         }

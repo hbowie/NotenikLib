@@ -139,7 +139,7 @@ public class DisplayPrefs {
         }
         body {
           tab-size: 4;
-          margin: 1em;
+          margin: 1em 1em 1em 1.1em;
           max-width: 50em; 
           background-color: var(--background-color);
           color: var(--text-color);
