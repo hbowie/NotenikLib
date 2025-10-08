@@ -286,7 +286,7 @@ public class NoteDisplay {
             currentPosition = priorPosition
             guard priorPosition.valid && priorNote != nil else { break }
             guard priorNote!.note.hasLevel() else { continue }
-            if priorNote!.note.level.level < noteLevel {
+            if priorNote!.note.level.level < noteLevel && !priorNote!.note.excludeFromBook(epub: parms.epub3){
                 parentNote = priorNote
                 break
             }

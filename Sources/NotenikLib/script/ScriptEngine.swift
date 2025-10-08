@@ -36,6 +36,7 @@ public class ScriptEngine: RowConsumer {
     let sorter   = SortModule()
     let template = TemplateModule()
     let output   = OutputModule()
+    let export   = ExportModule()
     let sync     = SyncModule()
     
     public init() {
@@ -140,6 +141,8 @@ public class ScriptEngine: RowConsumer {
             template.playCommand(workspace: workspace, command: command)
         case .output:
             output.playCommand(workspace: workspace, command: command)
+        case .export:
+            export.playCommand(workspace: workspace, command: command)
         case .sync:
             sync.playCommand(workspace: workspace, command: command)
         case .browse:

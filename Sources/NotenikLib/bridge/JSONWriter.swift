@@ -13,20 +13,24 @@ import Foundation
 
 import NotenikUtils
 
+/// Write notes, or general data content, to a JSON file.
 public class JSONWriter {
-    
-    /// Format with line breaks.
-    var lineByLine = true
     
     /// The output writer to use.
     var writer: LineWriter = BigStringWriter()
     
-    var startOfObject = true
     var indentLevel = 0
     var indent = ""
-    var lineLength = 0
     var startOfLine = true
     var lineCount = 0
+    
+    var openElements = OpenElements()
+    
+    // -----------------------------------------------------------
+    //
+    // MARK: Init, Open, Close, Save, Output.
+    //
+    // -----------------------------------------------------------
     
     public init() {
         
@@ -38,7 +42,8 @@ public class JSONWriter {
         indentLevel = 0
         indent = ""
         lineCount = 0
-        lineLength = 0
+        startOfLine = true
+        openElements = OpenElements()
     }
     
     /// Close the writer. This must always be done once, after all writes have occurred.
@@ -54,7 +59,7 @@ public class JSONWriter {
             Logger.shared.log(subsystem: "com.powersurgepub.notenik",
                               category: "JSONWriter",
                               level: .error,
-                              message: "Problem writing JSON to disk")
+                              message: "Problem writing JSON to disk at \(destination)")
             return false
         }
         return true
@@ -66,6 +71,12 @@ public class JSONWriter {
         let big = writer as! BigStringWriter
         return big.bigString
     }
+    
+    // -----------------------------------------------------------
+    //
+    // MARK: Generalized Note handling.
+    //
+    // -----------------------------------------------------------
     
     /// Format an entire collection of notes as one big JSON object.
     func write(_ io: NotenikIO) {
@@ -109,51 +120,123 @@ public class JSONWriter {
         endObject()
     }
     
+    // -----------------------------------------------------------
+    //
+    // MARK: Generalized JSON output.
+    //
+    // -----------------------------------------------------------
+    
     /// Start the specification of an object.
-    func startObject() {
-        if lineByLine {
+    func startObject(withKey: String? = nil) {
+
+        var label = "startObject"
+        if withKey != nil && !withKey!.isEmpty {
+            label.append(" with key of \"\(withKey!)\"")
+        }
+        writeCommaIfNotFirst(label: label)
+        if !startOfLine {
+            endLine()
+        }
+        var needSpace = true
+        if startOfLine {
             startLine()
+            needSpace = false
+        }
+        if withKey != nil && !withKey!.isEmpty {
+            writeKeyOnly(withKey!)
+            needSpace = true
+        }
+        if needSpace {
+            write(" ")
         }
         write("{")
-        if lineByLine {
-            endLine()
-            increaseIndent()
-        }
-        startOfObject = true
+        endLine()
+        increaseIndent()
+        openElements.anotherItem()
+        openElements.openNew(compoundType: "{")
     }
     
     /// End the specification of an object.
     func endObject() {
-        if lineByLine {
-            endLine()
-            decreaseIndent()
-            startLine()
-        }
+        endLine()
+        decreaseIndent()
+        startLine()
         write("}")
+        openElements.removeLast()
+    }
+    
+    /// Start the specification of an array..
+    func startArray(withKey: String? = nil) {
+        
+        var label = "startArray"
+        if withKey != nil && !withKey!.isEmpty {
+            label.append(" with key of \"\(withKey!)\"")
+        }
+        
+        writeCommaIfNotFirst(label: label)
+        if !startOfLine {
+            endLine()
+        }
+        var needSpace = true
+        if startOfLine {
+            startLine()
+            needSpace = false
+        }
+        if withKey != nil && !withKey!.isEmpty {
+            writeKeyOnly(withKey!)
+            needSpace = true
+        }
+        if needSpace {
+            write(" ")
+        }
+        write("[")
+        endLine()
+        increaseIndent()
+        openElements.anotherItem()
+        openElements.openNew(compoundType: "[")
+    }
+    
+    /// End the specification of an Array.
+    func endArray() {
+        endLine()
+        decreaseIndent()
+        startLine()
+        write("]")
+        openElements.removeLast()
     }
     
     /// Write out a key and its associated value.
-    func write(key: String, value: String) {
+    func write(key: String, value: String, withComma: Bool = false) {
+        writeKey(key)
+        writeValue(value)
+    }
+    
+    func write(key: String, value: UInt64, withComma: Bool = false) {
         writeKey(key)
         writeValue(value)
     }
     
     /// Write out a key identifying the field with its label.
     func writeKey(_ key: String) {
-        if !startOfObject {
-            write(",")
-            if lineByLine {
-                endLine()
-            }
-        }
+        let label = "writeKey with key of \"\(key)\""
+        writeCommaIfNotFirst(label: label)
         if !startOfLine {
+            endLine()
+        }
+        startLine()
+        let keyCountTarget = 13
+        write("\"\(key)\"")
+        var keyCount = key.count
+        repeat {
             write(" ")
-        }
-        var keyCountTarget = 0
-        if lineByLine {
-            startLine()
-            keyCountTarget = 13
-        }
+            keyCount += 1
+        } while keyCount < keyCountTarget
+        write(":")
+        anotherItem()
+    }
+    
+    func writeKeyOnly(_ key: String) {
+        let keyCountTarget = 13
         write("\"\(key)\"")
         var keyCount = key.count
         repeat {
@@ -169,7 +252,14 @@ public class JSONWriter {
             write(" ")
         }
         write("\"\(encodedString(value))\"")
-        startOfObject = false
+    }
+    
+    /// Write out the value associated with the preceding key.
+    func writeValue(_ value: UInt64) {
+        if !startOfLine {
+            write(" ")
+        }
+        write("\(value)")
     }
     
     /// Replace verboten characters with escaped equivalents.
@@ -196,6 +286,21 @@ public class JSONWriter {
         return v
     }
     
+    func writeCommaIfNotFirst(label: String? = nil) {
+        if !startOfLine && openElements.notTheFirst {
+            writeComma()
+        }
+    }
+    
+    func writeComma() {
+        write(",")
+        endLine()
+    }
+    
+    func anotherItem() {
+        openElements.anotherItem()
+    }
+    
     /// Bump up the indentation by 1 notch.
     func increaseIndent() {
         indentLevel += 1
@@ -210,22 +315,71 @@ public class JSONWriter {
     
     /// Start a line by writing out the appropriate indentation.
     func startLine() {
+        guard startOfLine else {
+            return
+        }
         write(indent)
-        startOfLine = true
+        startOfLine = false
     }
     
     /// Write some text to the current line.
     func write(_ str: String) {
         writer.write(str)
-        lineLength += str.count
         startOfLine = false
     }
     
     /// End the current line.
     func endLine() {
-        writer.endLine()
-        lineLength = 0
-        startOfLine = true
+        if !startOfLine {
+            writer.endLine()
+            startOfLine = true
+        }
+    }
+    
+    class OpenElements {
+        var openElements: [CompoundElement] = []
+        
+        var notTheFirst: Bool {
+            guard !openElements.isEmpty else {
+                return false
+            }
+            return openElements[openElements.count - 1].containedItems > 0
+        }
+        
+        func openNew(compoundType: Character) {
+            let newElement = CompoundElement(compoundType: compoundType)
+            openElements.append(newElement)
+        }
+        
+        func anotherItem() {
+            guard openElements.count > 0 else {
+                return
+            }
+            openElements[openElements.count - 1].containedItems += 1
+        }
+        
+        func removeLast() {
+            _ = openElements.removeLast()
+        }
+        
+        func display() {
+            print("    JSONWriter.OpenElements.display")
+
+            var count = 0
+            for element in openElements {
+                count += 1
+                print("      - \(count). type = \(element.compoundType), # of items = \(element.containedItems)")
+            }
+        }
+    }
+    
+    class CompoundElement {
+        var compoundType: Character = "{"
+        var containedItems = 0
+        
+        init(compoundType: Character) {
+            self.compoundType = compoundType
+        }
     }
     
 }

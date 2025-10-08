@@ -214,7 +214,6 @@ public class NotesExporter {
     
     func jsonOpen() {
         jsonWriter = JSONWriter()
-        jsonWriter.lineByLine = true
         jsonWriter.writer = BigStringWriter()
         jsonWriter.open()
         jsonWriter.startObject()
@@ -484,8 +483,7 @@ public class NotesExporter {
     ///   - note: The Note to be written.
     func writeObject(splitTag: String, cleanTags: String, sortedNote: SortedNote) {
         let note = sortedNote.note
-        jsonWriter.writeKey(note.noteID.commonID)
-        jsonWriter.startObject()
+        jsonWriter.startObject(withKey: note.noteID.commonID)
         if split {
             jsonWriter.write(key: NotenikConstants.tag, value: splitTag)
         }
