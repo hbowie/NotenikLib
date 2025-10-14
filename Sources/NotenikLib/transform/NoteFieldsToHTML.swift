@@ -786,7 +786,8 @@ public class NoteFieldsToHTML {
                                  text: titleToDisplay,
                                  depth: note.depth,
                                  addID: true,
-                                 idText: note.title.value)
+                                 idText: note.title.value,
+                                 style: "clear:both")
         }
     }
     

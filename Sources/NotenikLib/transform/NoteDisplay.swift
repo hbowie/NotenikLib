@@ -562,40 +562,41 @@ public class NoteDisplay {
         while followingNote != nil
                 && followingPosition.valid
                 && followingLevel > sortedNote.note.level
-                && followingLevel == nextLevel
                 && followingSeq > sortedNote.seqSingleValue {
-            
-            let fieldsToHTML = NoteFieldsToHTML()
-            parms.included = sortedNote.note.includeChildren.copy()
             
             let (nextUpNote, nextUpPosition) = io.nextNote(followingPosition)
             
-            let lastInList = nextUpNote == nil
-                || nextUpPosition.invalid
-                || nextUpNote!.note.level <= sortedNote.note.level
-                || nextUpNote!.seqSingleValue <= sortedNote.seqSingleValue
-            
-            var alreadyIncluded = false
-            let followingID = followingNote!.noteID.commonID
-            for includedNote in includedNotes {
-                if followingID == includedNote {
-                    alreadyIncluded = true
-                    break
+            if followingLevel == nextLevel {
+                let fieldsToHTML = NoteFieldsToHTML()
+                parms.included = sortedNote.note.includeChildren.copy()
+                
+                let lastInList = nextUpNote == nil
+                    || nextUpPosition.invalid
+                    || nextUpNote!.note.level <= sortedNote.note.level
+                    || nextUpNote!.seqSingleValue <= sortedNote.seqSingleValue
+                
+                var alreadyIncluded = false
+                let followingID = followingNote!.noteID.commonID
+                for includedNote in includedNotes {
+                    if followingID == includedNote {
+                        alreadyIncluded = true
+                        break
+                    }
                 }
-            }
-            
-            if !alreadyIncluded {
-                let childResults = TransformMdResults()
-                let childDisplay = fieldsToHTML.fieldsToHTML(followingNote!.note,
-                                                             io: io,
-                                                             parms: parms,
-                                                             topOfPage: "",
-                                                             imageWithinPage: "",
-                                                             results: childResults,
-                                                             bottomOfPage: "",
-                                                             lastInList: lastInList)
-                bottomHTML.append(childDisplay)
-                displayedChildCount += 1
+                
+                if !alreadyIncluded {
+                    let childResults = TransformMdResults()
+                    let childDisplay = fieldsToHTML.fieldsToHTML(followingNote!.note,
+                                                                 io: io,
+                                                                 parms: parms,
+                                                                 topOfPage: "",
+                                                                 imageWithinPage: "",
+                                                                 results: childResults,
+                                                                 bottomOfPage: "",
+                                                                 lastInList: lastInList)
+                    bottomHTML.append(childDisplay)
+                    displayedChildCount += 1
+                }
             }
             
             followingNote = nextUpNote

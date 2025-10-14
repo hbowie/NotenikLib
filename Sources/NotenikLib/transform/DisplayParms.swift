@@ -213,11 +213,11 @@ public class DisplayParms {
     public func compoundTitle(note: Note) -> String {
         var simpleTitle = note.title.value
         guard displayMode != .normal else { return simpleTitle }
-        guard !included.asList else { return simpleTitle }
         guard !note.klass.quote else { return simpleTitle }
         if note.hasLongTitle() {
             simpleTitle = note.longTitle.value
         }
+        guard !included.asList else { return simpleTitle }
         guard !note.klass.frontOrBack else { return simpleTitle }
         if note.collection.sortParm == .seqPlusTitle {
             if note.hasDisplaySeq() {
