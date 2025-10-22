@@ -532,7 +532,7 @@ public class NotesMkdownContext: MkdownContext {
         pageCount = 0
         var lastLetter = " "
         
-        // Generate Table of Contents
+        // Generate Index
         mkdown.startParagraph()
         for term in indexCollection.list {
             let initialLetter = term.term.prefix(1).uppercased()

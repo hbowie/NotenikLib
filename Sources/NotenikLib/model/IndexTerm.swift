@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 8/7/19.
-//  Copyright © 2019 Herb Bowie (https://hbowie.net)
+//  Copyright © 2019 - 2025 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -30,7 +30,7 @@ public class IndexTerm: Comparable, Equatable {
     }
     
     func addRef(_ ref: IndexPageRef) {
-        var i = 0
+        /* var i = 0
         var looking = true
         while i < refs.count && looking {
             let nextRef = refs[i]
@@ -41,9 +41,9 @@ public class IndexTerm: Comparable, Equatable {
                 i += 1
             }
         }
-        if looking {
+        if looking { */
             refs.append(ref)
-        }
+        // }
     }
     
     public static func == (lhs: IndexTerm, rhs: IndexTerm) -> Bool {

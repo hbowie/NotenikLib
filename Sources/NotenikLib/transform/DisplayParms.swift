@@ -197,11 +197,29 @@ public class DisplayParms {
         if sortedNote.note.noteID.seqBeforeTitle {
             text = sortedNote.note.title.value
         }
-        let htmlText = htmlConverter.convert(from: text)
+        let htmlText = titleToHTML(text: text, note: sortedNote.note)
         let wikiLink = wikiLinks.assembleWikiLink(idBasis: idToUse)
         markedup.link(text: htmlText,
                       path: wikiLink,
                       klass: klass)
+    }
+    
+    func titleToHTML(text: String, note: Note) -> String {
+        
+        let parserID = AppPrefs.shared.markdownParser
+        let mdResults = TransformMdResults()
+        // let parserID = NotenikConstants.notenikParser
+        TransformMarkdown.mdToHtml(parserID: parserID,
+                                   fieldType: NotenikConstants.titleCommon,
+                                   markdown: text,
+                                   io: nil,
+                                   parms: self,
+                                   results: mdResults,
+                                   noteID: note.noteID.commonID,
+                                   noteText: note.noteID.text,
+                                   noteFileName: note.noteID.commonFileName,
+                                   note: note)
+        return StringUtils.removeParagraphTags(mdResults.html)
     }
     
     

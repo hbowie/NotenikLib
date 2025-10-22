@@ -36,7 +36,7 @@ public class TransformMarkdown {
     public static func mdToHtml(parserID: String,
                                 fieldType: String,
                                 markdown: String,
-                                io: NotenikIO,
+                                io: NotenikIO?,
                                 parms: DisplayParms,
                                 results: TransformMdResults,
                                 noteID: String = "",
@@ -44,6 +44,7 @@ public class TransformMarkdown {
                                 noteFileName: String = "",
                                 note: Note? = nil) {
                 
+        // Transform using Down, if requested.
         if parserID == NotenikConstants.downParser {
             let down = Down(markdownString: markdown)
             do {
@@ -59,13 +60,12 @@ public class TransformMarkdown {
             return
         }
         
+        // Transform using Ink, if requested.
         if parserID == NotenikConstants.inkParser {
             let ink = MarkdownParser()
             results.html = ink.html(from: markdown)
             return
         }
-        
-        guard io.collection != nil else { return }
 
         let mkdownOptions = MkdownOptions()
         parms.setMkdownOptions(mkdownOptions)
@@ -78,14 +78,18 @@ public class TransformMarkdown {
             noteShortID = note!.shortID.value
         }
         
-        results.mkdownContext = NotesMkdownContext(io: io, displayParms: parms)
+        if io == nil {
+            results.mkdownContext = nil
+        } else {
+            results.mkdownContext = NotesMkdownContext(io: io!, displayParms: parms)
+            results.mkdownContext!.identifyNoteToParse(id: noteID,
+                                                       text: noteText,
+                                                       fileName: noteFileName,
+                                                       shortID: noteShortID)
+            io!.collection!.skipContentsForParent = false
+        }
+        
         mkdownOptions.shortID = noteShortID
-        results.mkdownContext!.identifyNoteToParse(id: noteID,
-                                                   text: noteText,
-                                                   fileName: noteFileName,
-                                                   shortID: noteShortID)
-        let collection = io.collection!
-        collection.skipContentsForParent = false
         
         let mdParser = MkdownParser(markdown, options: mkdownOptions)
         mdParser.setWikiLinkFormatting(prefix: parms.wikiLinks.prefix,
@@ -98,48 +102,50 @@ public class TransformMarkdown {
         if fieldType == NotenikConstants.bodyCommon {
             results.bodyHTML = mdParser.html
             results.counts = mdParser.counts
-            if collection.minutesToReadDef != nil {
+            if io?.collection?.minutesToReadDef != nil {
                 results.minutesToRead = MinutesToReadValue(with: results.counts)
             }
         }
         
         results.wikiLinks.addList(moreLinks: mdParser.wikiLinkList)
-        if collection.missingTargets {
-            for link in mdParser.wikiLinkList.links {
-                if !link.targetFound {
-                    let target = link.originalTarget
-                    let multi = MultiFileIO.shared
-                    var targetIO = io
-                    if target.hasPath {
-                        let (targetCollection, maybeIO) = multi.provision(shortcut: target.path, inspector: nil, readOnly: false)
-                        if targetCollection != nil {
-                            targetIO = maybeIO
+        if let collection = io?.collection {
+            if collection.missingTargets {
+                for link in mdParser.wikiLinkList.links {
+                    if !link.targetFound {
+                        let target = link.originalTarget
+                        let multi = MultiFileIO.shared
+                        var targetIO = io!
+                        if target.hasPath {
+                            let (targetCollection, maybeIO) = multi.provision(shortcut: target.path, inspector: nil, readOnly: false)
+                            if targetCollection != nil {
+                                targetIO = maybeIO
+                            }
                         }
-                    }
-                    let newNote = Note(collection: targetIO.collection!)
-                    _ = newNote.setTitle(target.item)
-                    
-                    if collection.levelFieldDef != nil && note != nil && note!.hasLevel() {
-                        _ = newNote.setLevel(note!.level.value)
-                    }
-                    if collection.klassFieldDef != nil && note != nil && note!.hasKlass() {
-                        _ = newNote.setKlass(note!.klass.value)
-                    }
-                    if collection.seqFieldDef != nil && note != nil && note!.hasSeq() {
-                        let seq = note!.seq
-                        seq.increment()
-                        _ = newNote.setSeq(seq.value)
+                        let newNote = Note(collection: targetIO.collection!)
+                        _ = newNote.setTitle(target.item)
                         
+                        if collection.levelFieldDef != nil && note != nil && note!.hasLevel() {
+                            _ = newNote.setLevel(note!.level.value)
+                        }
+                        if collection.klassFieldDef != nil && note != nil && note!.hasKlass() {
+                            _ = newNote.setKlass(note!.klass.value)
+                        }
+                        if collection.seqFieldDef != nil && note != nil && note!.hasSeq() {
+                            let seq = note!.seq
+                            seq.increment()
+                            _ = newNote.setSeq(seq.value)
+                            
+                        }
+                        newNote.identify()
+                        if collection.backlinksDef == nil && !target.hasPath {
+                            _ = newNote.setBody("Created by Wiki-style Link found in the Markdown code for the Note identified as [[\(noteID)]].")
+                        } else {
+                            _ = newNote.setBacklinks(noteID)
+                            _ = newNote.setBody("Created by Wiki-style Link found in the Markdown code for the Note identified as \(noteText).")
+                        }
+                        _ = targetIO.addNote(newNote: newNote)
+                        results.wikiAdds = true
                     }
-                    newNote.identify()
-                    if collection.backlinksDef == nil && !target.hasPath {
-                        _ = newNote.setBody("Created by Wiki-style Link found in the Markdown code for the Note identified as [[\(noteID)]].")
-                    } else {
-                        _ = newNote.setBacklinks(noteID)
-                        _ = newNote.setBody("Created by Wiki-style Link found in the Markdown code for the Note identified as \(noteText).")
-                    }
-                    _ = targetIO.addNote(newNote: newNote)
-                    results.wikiAdds = true
                 }
             }
         }
