@@ -2457,6 +2457,11 @@ public class FileIO: NotenikIO, RowConsumer {
         return bunch!.levelToKlass.klassForLevel(level)
     }
     
+    public func levelForKlass(_ klass: String) -> Int? {
+        guard bunch != nil else { return nil }
+        return bunch!.levelToKlass.levelForKlass(klass)
+    }
+    
     // -----------------------------------------------------------
     //
     // MARK: Logging and Debugging

@@ -124,4 +124,18 @@ public class LevelToKlassLookup {
         }
         return klass
     }
+    
+    public func levelForKlass(_ klass: String) -> Int? {
+        let klassLower = klass.lowercased()
+        var level = 0
+        while level < links.count {
+            for link in links[level] {
+                if klassLower == link.klass.lowercased() {
+                    return level
+                }
+            }
+            level += 1
+        }
+        return nil
+    }
 }

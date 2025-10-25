@@ -1169,7 +1169,7 @@ public class NoteFieldsToHTML {
         
         self.io = io
         
-        markedup.startBlockQuote()
+        markedup.startBlockQuote(klass: "attribution-following")
         
         transformMarkdown(markdown: note.body.value,
                           fieldType: NotenikConstants.bodyCommon,

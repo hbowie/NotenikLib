@@ -396,6 +396,8 @@ public protocol NotenikIO {
     //
     // -----------------------------------------------------------
     
-    func klassForLevel(_ level: Int) -> String? 
+    func klassForLevel(_ level: Int) -> String?
+    
+    func levelForKlass(_ klass: String) -> Int?
 }
 

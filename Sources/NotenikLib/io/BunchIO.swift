@@ -742,4 +742,9 @@ class BunchIO: NotenikIO, RowConsumer  {
         guard bunch != nil else { return nil }
         return bunch!.levelToKlass.klassForLevel(level)
     }
+    
+    public func levelForKlass(_ klass: String) -> Int? {
+        guard bunch != nil else { return nil }
+        return bunch!.levelToKlass.levelForKlass(klass)
+    }
 }
