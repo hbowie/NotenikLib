@@ -303,6 +303,8 @@ public struct NotenikConstants {
     static let highestTitleNumberCommon = "highesttitlenumber"
     static let displayMode              = "Display Mode"
     static let displayModeCommon        = "displaymode"
+    static let tagsDisplay              = "Tags Display"
+    static let tagsDisplayCommon        = "tagsdisplay"
     static let overrideCustomDisplay    = "Override Custom Display"
     static let overrideCustomDisplayCommon = "overridecustomdisplay"
     static let noteIdAux                = "Note ID Aux Field"

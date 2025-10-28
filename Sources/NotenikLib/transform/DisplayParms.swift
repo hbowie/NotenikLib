@@ -42,8 +42,23 @@ public class DisplayParms {
     public var inlineHashtags = false
     public var addins: [String] = []
     
+    public var tagsIndexFilename: String? = nil
+    public var hasTagsIndexFilename: Bool {
+        return tagsIndexFilename != nil && !tagsIndexFilename!.isEmpty
+    }
+    public var tagsCloud = false
+    
     public init() {
         htmlConverter.addHTML()
+    }
+    
+    public func formatLinkToTag(tag: String) -> String {
+        guard hasTagsIndexFilename else { return "" }
+        if tagsCloud {
+            return tagsIndexFilename! + wikiLinks.suffix + "#tags." + StringUtils.toCommonFileName(tag)
+        } else {
+            return tagsIndexFilename! + wikiLinks.suffix + "#" + StringUtils.toCommon(tag) + "-0"
+        }
     }
     
     public func setFrom(sortedNote: SortedNote) {
@@ -131,7 +146,7 @@ public class DisplayParms {
         case .presentation:
             return false
         case .streamlinedReading:
-            return false
+            return true
         case .continuous:
             return false
         case .continuousPartial:

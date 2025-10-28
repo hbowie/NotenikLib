@@ -36,6 +36,8 @@ public class NoteFieldsToHTML {
     
     var expandedMarkdown: String? = nil
     
+    var topOfPage: String = ""
+    
     var attribution: NoteField?
     
     var quoted = false
@@ -66,6 +68,9 @@ public class NoteFieldsToHTML {
         self.results = results
         self.parms = parms
         self.expandedMarkdown = expandedMarkdown
+        self.topOfPage = topOfPage
+        
+        
         
         if io != nil {
             mkdownContext = NotesMkdownContext(io: io!, displayParms: parms)
@@ -78,6 +83,8 @@ public class NoteFieldsToHTML {
         }
         self.bodyHTML = results.bodyHTML
         self.minutesToRead = results.minutesToRead
+        
+        var tagsDisplayed = false
         
         // Use separate logic if in quotes mode
         if parms.displayMode == .quotations && !parms.epub3 {
@@ -131,18 +138,28 @@ public class NoteFieldsToHTML {
         
         code.startMain()
         
+        if topOfPage.isEmpty && note.hasTags() && collection.tagsDisplayOption == .replNavUp {
+            let tagsField = note.getTagsAsField()
+            let topHTML = Markedup()
+            topHTML.append(display(tagsField!, noteTitle: noteTitle, note: note, collection: collection, io: io))
+            self.topOfPage = topHTML.code
+            tagsDisplayed = true
+        }
+        
         // Start with top of page code, if we have any.
-        if !topOfPage.isEmpty {
-            code.append(topOfPage)
+        if !self.topOfPage.isEmpty {
+            code.append(self.topOfPage)
         }
         
         // Start an included item, if needed.
         startIncludedItem(code: code)
         
         // Let's put the tags at the top, if it's a normal display.
-        if note.hasTags() && topOfPage.isEmpty && parms.displayTags {
+        if !tagsDisplayed && note.hasTags() && collection.tagsDisplayOption == .aboveTitle {
+            // topOfPage.isEmpty && parms.displayTags {
             let tagsField = note.getTagsAsField()
             code.append(display(tagsField!, noteTitle: noteTitle, note: note, collection: collection, io: io))
+            tagsDisplayed = true
         }
         
         // Now the Index Term if applicable
@@ -171,8 +188,9 @@ public class NoteFieldsToHTML {
                     let field = note.getField(def: def!)
                     if field != nil && field!.value.hasData {
                         if field!.def == collection.tagsFieldDef {
-                            if !topOfPage.isEmpty {
+                            if !tagsDisplayed && collection.tagsDisplayOption == .belowTitle {
                                 code.append(display(field!, noteTitle: noteTitle, note: note, collection: collection, io: io))
+                                tagsDisplayed = true
                             }
                         } else if field!.def.fieldLabel.commonForm == NotenikConstants.dateAddedCommon {
                             // ignore for now
@@ -726,20 +744,28 @@ public class NoteFieldsToHTML {
     /// Provide special formatting for the Tags field. 
     func displayTags(_ field: NoteField, collection: NoteCollection, markedup: Markedup) {
         
-        markedup.startParagraph()
-        markedup.startEmphasis()
+        var klass = "nnk-tags"
+        if collection.tagsDisplayOption == .replNavUp {
+            klass = "nnk-tags-repl-nav-up"
+        }
+        markedup.startParagraph(klass: klass)
         if let tags = field.value as? TagsValue {
             var tagsCount = 0
             for tag in tags.tags {
                 if tagsCount > 0 {
                     markedup.append(", ")
                 }
-                let link = CustomURLFormatter().expandTag(collection: collection, tag: tag)
+                var link = ""
+                if parms.wikiLinks.format == .fileName
+                    && parms.hasTagsIndexFilename {
+                    link = parms.formatLinkToTag(tag: tag.value)
+                } else {
+                    link = CustomURLFormatter().expandTag(collection: collection, tag: tag)
+                }
                 markedup.link(text: tag.description, path: link, style: "text-decoration: none")
                 tagsCount += 1
             }
         }
-        markedup.finishEmphasis()
         markedup.finishParagraph()
     }
     

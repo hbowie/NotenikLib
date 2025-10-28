@@ -926,6 +926,13 @@ public class FileIO: NotenikIO, RowConsumer {
             }
         }
         
+        let tagsDisplayField = infoNote.getField(label: NotenikConstants.tagsDisplayCommon)
+        if tagsDisplayField != nil {
+            if let tagsDisplay = TagsDisplayOption(rawValue: tagsDisplayField!.value.value) {
+                collection!.tagsDisplayOption = tagsDisplay
+            }
+        }
+        
         let outlineTabSettingStr = infoNote.getFieldAsString(label: NotenikConstants.outlineTabCommon)
         var outlineTabSetting: OutlineTabSetting = .none
         if !outlineTabSettingStr.isEmpty {

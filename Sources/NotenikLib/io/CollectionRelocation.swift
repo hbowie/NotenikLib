@@ -116,6 +116,7 @@ public class CollectionRelocation {
         toCollection!.bodyLabel = fromCollection!.bodyLabel
         toCollection!.minBodyEditViewHeight = fromCollection!.minBodyEditViewHeight
         toCollection!.titleDisplayOption = fromCollection!.titleDisplayOption
+        toCollection!.tagsDisplayOption = fromCollection!.tagsDisplayOption
         toCollection!.displayMode = fromCollection!.displayMode
         toCollection!.mathJax = fromCollection!.mathJax
         toCollection!.shortcut = fromCollection!.shortcut

@@ -14,6 +14,7 @@ import Foundation
 
 import NotenikUtils
 
+/// Format a Notenik Custom URL. 
 public class CustomURLFormatter {
     
     var link = ""

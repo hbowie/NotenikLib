@@ -219,7 +219,6 @@ public class NoteDisplay {
             mkdownOptions.shortID = ""
         }
 
-        // mkdownContext.setTitleToParse(title: note.title.value, shortID: note.shortID.value)
         let collection = sortedNote.note.collection
         collection.skipContentsForParent = false
         
@@ -271,6 +270,7 @@ public class NoteDisplay {
         guard parms.displayMode == .streamlinedReading else { return "" }
         guard !parms.concatenated else { return "" }
         guard !parms.epub3 else { return "" }
+        guard sortedNote.note.collection.tagsDisplayOption != .replNavUp else { return "" }
         guard sortedNote.note.hasLevel() else { return "" }
         let noteLevel = sortedNote.note.level.level
         guard noteLevel > 1 else {
@@ -692,116 +692,6 @@ public class NoteDisplay {
                                          bottomOfPage: bottomOfPage,
                                          expandedMarkdown: expandedMarkdown,
                                          continuousPosition: continuousPosition)
-    }
-
-    /// Get the code used to display this field
-    ///
-    /// - Parameter field: The field to be displayed.
-    /// - Returns: A String containing the code that can be used to display this field.
-    func display(_ field: NoteField, 
-                 note: Note,
-                 collection: NoteCollection,
-                 io: NotenikIO) -> String {
-        
-        mkdownContext = NotesMkdownContext(io: io, displayParms: parms)
-        let code = Markedup(format: parms.format)
-        if field.def == collection.titleFieldDef {
-            mkdownContext!.identifyNoteToParse(id: note.noteID.commonID,
-                                           text: note.noteID.text,
-                                           fileName: note.noteID.commonFileName,
-                                           shortID: note.shortID.value)
-            code.displayLine(opt: collection.titleDisplayOption,
-                             text: field.value.value,
-                             depth: note.depth,
-                             addID: true,
-                             idText: field.value.value)
-        } else if field.def == collection.tagsFieldDef {
-            code.startParagraph()
-            code.startEmphasis()
-            code.append(field.value.value)
-            code.finishEmphasis()
-            code.finishParagraph()
-        } else if field.def == collection.bodyFieldDef {
-            if collection.bodyLabel {
-                code.startParagraph()
-                code.append(field.def.fieldLabel.properForm)
-                code.append(": ")
-                code.finishParagraph()
-            }
-            if parms.formatIsHTML {
-                if AppPrefs.shared.parseUsingNotenik {
-                    code.append(mdBodyParser!.html)
-                } else {
-                    code.append(parseMarkdown(field.value.value, context: mkdownContext!))
-                }
-            } else {
-                code.append(field.value.value)
-                code.newLine()
-            }
-        } else if field.def.fieldType is LinkType {
-            code.startParagraph()
-            code.append(field.def.fieldLabel.properForm)
-            code.append(": ")
-            var pathDisplay = field.value.value.removingPercentEncoding
-            if pathDisplay == nil {
-                pathDisplay = field.value.value
-            }
-            code.link(text: pathDisplay!, path: field.value.value)
-            code.finishParagraph()
-        } else if field.def.fieldType.typeString == NotenikConstants.codeCommon {
-            code.startParagraph()
-            code.append(field.def.fieldLabel.properForm)
-            code.append(": ")
-            code.finishParagraph()
-            code.codeBlock(field.value.value)
-        } else if field.def.fieldType.typeString == NotenikConstants.longTextType ||
-                    field.def.fieldType.typeString == NotenikConstants.teaserCommon ||
-                    field.def.fieldType.typeString == NotenikConstants.bodyCommon {
-            code.startParagraph()
-            code.append(field.def.fieldLabel.properForm)
-            code.append(": ")
-            code.finishParagraph()
-            if parms.formatIsHTML {
-                code.append(parseMarkdown(field.value.value, context: mkdownContext!))
-            } else {
-                code.append(field.value.value)
-                code.newLine()
-            }
-        } else if field.def.fieldType.typeString == NotenikConstants.dateType {
-            code.startParagraph()
-            code.append(field.def.fieldLabel.properForm)
-            code.append(": ")
-            if let dateValue = field.value as? DateValue {
-                code.append(dateValue.dMyWDate)
-            } else {
-                code.append(field.value.value)
-            }
-            code.finishParagraph()
-        } else if field.def.fieldType.typeString == NotenikConstants.imageNameCommon {
-            code.startParagraph()
-            code.append(field.def.fieldLabel.properForm)
-            code.append(": ")
-            code.append(field.value.value)
-            code.finishParagraph()
-        } else if field.def == collection.minutesToReadDef {
-            code.startParagraph()
-            code.append(field.def.fieldLabel.properForm)
-            code.append(": ")
-            if mdResults.minutesToRead != nil {
-                code.append(mdResults.minutesToRead!.value)
-            } else {
-                code.append(field.value.value)
-            }
-            code.finishParagraph()
-        } else {
-            code.startParagraph()
-            code.append(field.def.fieldLabel.properForm)
-            code.append(": ")
-            code.append(field.value.value)
-            code.finishParagraph()
-        }
-
-        return String(describing: code)
     }
     
     func parseMarkdown(_ md: String, context: MkdownContext) -> String {

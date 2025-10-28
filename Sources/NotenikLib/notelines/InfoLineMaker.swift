@@ -62,6 +62,7 @@ public class InfoLineMaker {
         writer.append(label: NotenikConstants.bodyLabelDisplay,  value: "\(collection.bodyLabel)")
         writer.append(label: NotenikConstants.minBodyEditViewHeight, value: "\(collection.minBodyEditViewHeight)")
         writer.append(label: NotenikConstants.titleDisplayOpt,   value: "\(collection.titleDisplayOption.rawValue)")
+        writer.append(label: NotenikConstants.tagsDisplay,       value: "\(collection.tagsDisplayOption.rawValue)")
         
         if collection.displayMode == .continuousPartial {
             collection.displayMode = .normal
@@ -128,7 +129,7 @@ public class InfoLineMaker {
             writer.append(label: NotenikConstants.textIdRule, value: collection.noteIdentifier.textIdRule.rawValue)
             writer.append(label: NotenikConstants.textIdSep, value: "\"\(collection.noteIdentifier.textIdSep)\"")
         }
-        
+         
         if !collection.lastImportParent.isEmpty && !cloning {
             writer.append(label: NotenikConstants.lastImportParent, value: collection.lastImportParent)
         }

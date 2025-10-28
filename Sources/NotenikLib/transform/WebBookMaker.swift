@@ -62,6 +62,9 @@ public class WebBookMaker {
     var metaFolder:       URL!
     var metaNote:         SortedNote?
     
+    var tagsIndexIdBasis: String? = nil
+    var tagsIndexCommonFilename = ""
+    
     let containerFileName = "container"
     let containerFileExt  = "xml"
     var containerFile:    URL!
@@ -283,7 +286,6 @@ public class WebBookMaker {
         for addInURL in collection.addins {
             parms.addins.append(NotenikConstants.addinsFolderName + "/" + addInURL.lastPathComponent)
         }
-        // parms.cssString = cssRelPath
         
         htmlConverter.addHTML()
         
@@ -324,6 +326,25 @@ public class WebBookMaker {
         
         // Now generate fresh content.
         display.loadResourcePagesForCollection(io: io, parms: parms)
+        
+        tagsIndexIdBasis = nil
+        tagsIndexCommonFilename = ""
+        parms.tagsIndexFilename = ""
+        for usage in collection.mkdownCommandList.commands {
+            guard !usage.noteID.isEmpty else { continue }
+            if usage.command == MkdownConstants.tagsCloudCmd || usage.command == MkdownConstants.tagsOutlineCmd {
+                if let tagsIndexNote = io.getNote(knownAs: usage.noteID) {
+                    let confirmed = tagsIndexNote.mkdownCommandList.contains(usage.command)
+                    if confirmed {
+                        tagsIndexIdBasis = tagsIndexNote.noteID.basis
+                        tagsIndexCommonFilename = StringUtils.toCommonFileName(tagsIndexIdBasis!)
+                        parms.tagsIndexFilename = tagsIndexCommonFilename
+                        parms.tagsCloud = (usage.command == MkdownConstants.tagsCloudCmd)
+                    }
+                }
+            }
+        }
+        
         filesWritten = 0
         switch io.sortParm {
         case .seqPlusTitle:

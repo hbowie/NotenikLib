@@ -911,15 +911,12 @@ public class NotesExporter {
         
         let mdResults = TransformMdResults()
         if format == .continuousMarkdown {
-            // print("  - writeConcat")
             let titleToDisplay = pop.toXML(displayParms.compoundTitle(note: sortedNote.note))
-            print("    - title to display = \(titleToDisplay)")
             markup.displayLine(opt: sortedNote.note.collection.titleDisplayOption,
                                  text: titleToDisplay,
                                  depth: sortedNote.depth,
                                  addID: false,
                                idText: sortedNote.note.title.value)
-            print("    - Expanded Markdown: \(expMD!)")
             markup.append(expMD!)
         } else {
             let code = display.display(sortedNote, io: noteIO, parms: displayParms, mdResults: mdResults, expandedMarkdown: expMD)

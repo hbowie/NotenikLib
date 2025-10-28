@@ -1041,7 +1041,7 @@ public class NotesMkdownContext: MkdownContext {
     public func mkdownTagsOutline(mods: String) -> String {
         guard io.collection != nil else { return "" }
         guard io.collectionOpen else { return "" }
-        let includeUntagged = mods.isEmpty
+        let includeUntagged = mods.isEmpty // && displayParms.tagsIndexFilename == nil
         tagsCode = Markedup(format: .htmlFragment)
         tagsListLevel = 0
         openTagsList()
@@ -1055,6 +1055,9 @@ public class NotesMkdownContext: MkdownContext {
         return tagsCode.code
     }
     
+    var countOfNotesWithinTag = 0
+    var tagID: String? = ""
+    
     /// Generate html code for the next node.
     func generateTagsNode(node: TagsNode, depth: Int, includeUntagged: Bool) {
         switch node.type {
@@ -1062,23 +1065,31 @@ public class NotesMkdownContext: MkdownContext {
             break
         case .tag:
             closeTagContent(downTo: depth)
-            tagsCode.startListItem()
-            let text = htmlConverter.convert(from: node.description)
-            tagsCode.startDetails(summary: text)
-            // tagsCode.writeLine(text)
-            openTagsList()
+            if node.description != "- untagged" || includeUntagged {
+                tagsCode.startListItem()
+                let text = htmlConverter.convert(from: node.description)
+                tagID = StringUtils.toCommon(node.description)
+                tagsCode.startDetails(summary: text, id: tagID)
+                openTagsList()
+            }
+            countOfNotesWithinTag = 0
         case .note:
             let note = node.note!
             if includeUntagged || note.hasTags() {
                 let seq = note.seq.value
                 let link = displayParms.wikiLinks.assembleWikiLink(idBasis: note.noteID.getBasis())
-                tagsCode.startListItem()
+                var listItemID: String? = nil
+                if tagID != nil {
+                    listItemID = "\(tagID!)-\(countOfNotesWithinTag)"
+                }
+                tagsCode.startListItem(id: listItemID)
                 if seq.count > 0 {
                     tagsCode.write("\(seq) ")
                 }
                 let text = htmlConverter.convert(from: note.noteID.text)
                 tagsCode.link(text: text, path: link, klass: Markedup.htmlClassNavLink)
                 tagsCode.finishListItem()
+                countOfNotesWithinTag += 1
             }
         }
     }
@@ -1101,6 +1112,109 @@ public class NotesMkdownContext: MkdownContext {
             tagsCode.finishListItem()
         }
         tagsListLevel -= 1
+    }
+    
+    // -----------------------------------------------------------
+    //
+    // MARK: Generate HTML for a Tags Cloud.
+    //
+    // -----------------------------------------------------------
+    
+    var tagsList: [String] = []
+    var tagsConcat = ""
+    var tagsLast = ""
+    
+    /// Return a tags cloud of the collection, formatted in HTML.
+    public func mkdownTagsCloud(mods: String) -> String {
+        guard io.collection != nil else { return "" }
+        guard io.collectionOpen else { return "" }
+        tagsCode = Markedup(format: .htmlFragment)
+        
+        // Perform first pass to generate the cloud.
+        tagsLast = ""
+        tagsCode.startUnorderedList(klass: "tags-cloud")
+        var iterator = io.makeTagsNodeIterator()
+        var tagsNode = iterator.next()
+        while tagsNode != nil {
+            generateTagsCloudNode(pass: 1, node: tagsNode!, depth: iterator.depth)
+            tagsNode = iterator.next()
+        }
+        tagsCode.finishUnorderedList()
+        
+        tagsCode.horizontalRule()
+        
+        // Perform second pass.
+        tagsLast = ""
+        tagsCode.startDiv(klass: "tags-contents")
+        iterator = io.makeTagsNodeIterator()
+        tagsNode = iterator.next()
+        while tagsNode != nil {
+            generateTagsCloudNode(pass: 2, node: tagsNode!, depth: iterator.depth)
+            tagsNode = iterator.next()
+        }
+        if !tagsLast.isEmpty {
+            tagsCode.finishUnorderedList()
+        }
+        tagsCode.finishDiv()
+        
+        return tagsCode.code
+    }
+    
+    /// Generate html code for the next node.
+    func generateTagsCloudNode(pass: Int, node: TagsNode, depth: Int) {
+        switch node.type {
+        case .root:
+            break
+        case .tag:
+            if tagsList.count >= depth {
+                tagsList[depth - 1] = node.tag!.forDisplay
+            } else {
+                tagsList.append(node.tag!.forDisplay)
+            }
+            tagsConcat = ""
+            var i = 0
+            while i < depth {
+                if i > 0 {
+                    tagsConcat.append(".")
+                }
+                tagsConcat.append(tagsList[i])
+                i += 1
+            }
+        case .note:
+            let note = node.note!
+            guard note.hasTags() else { break }
+
+            if tagsConcat != tagsLast {
+                if pass == 1 {
+                    startTagsCloudFirstPass()
+                } else {
+                    startTagsCloudSecondPass()
+                }
+                tagsLast = tagsConcat
+            }
+            
+            guard pass == 2 else { break }
+            
+            let link = displayParms.wikiLinks.assembleWikiLink(idBasis: note.noteID.getBasis())
+            let text = htmlConverter.convert(from: note.noteID.text)
+            tagsCode.startListItem()
+            tagsCode.link(text: text, path: link, klass: Markedup.htmlClassNavLink)
+            tagsCode.finishListItem()
+        }
+    }
+    
+    func startTagsCloudFirstPass() {
+        tagsCode.startListItem()
+        tagsCode.link(text: tagsConcat, path: "#tags.\(StringUtils.toCommonFileName(tagsConcat))")
+        tagsCode.finishListItem()
+    }
+    
+    func startTagsCloudSecondPass() {
+        if !tagsLast.isEmpty {
+            tagsCode.finishUnorderedList()
+        }
+        tagsCode.heading(level: 5, text: tagsConcat, addID: true, idText: "tags.\(tagsConcat)")
+        tagsCode.startUnorderedList(klass: nil)
     }
     
     // -----------------------------------------------------------
@@ -1198,110 +1312,6 @@ public class NotesMkdownContext: MkdownContext {
         }
         
         return teasers.code
-    }
-    
-    // -----------------------------------------------------------
-    //
-    // MARK: Generate HTML for a Tags Cloud.
-    //
-    // -----------------------------------------------------------
-    
-    var tagsList: [String] = []
-    var tagsConcat = ""
-    var tagsLast = ""
-    
-    /// Return a tags cloud of the collection, formatted in HTML.
-    public func mkdownTagsCloud(mods: String) -> String {
-        guard io.collection != nil else { return "" }
-        guard io.collectionOpen else { return "" }
-        tagsCode = Markedup(format: .htmlFragment)
-        
-        // Perform first pass.
-        tagsLast = ""
-        tagsCode.startUnorderedList(klass: "tags-cloud")
-        var iterator = io.makeTagsNodeIterator()
-        var tagsNode = iterator.next()
-        while tagsNode != nil {
-            generateTagsCloudNode(pass: 1, node: tagsNode!, depth: iterator.depth)
-            tagsNode = iterator.next()
-        }
-        tagsCode.finishUnorderedList()
-        
-        tagsCode.horizontalRule()
-        
-        // Perform second pass.
-        tagsLast = ""
-        tagsCode.startDiv(klass: "tags-contents")
-        iterator = io.makeTagsNodeIterator()
-        tagsNode = iterator.next()
-        while tagsNode != nil {
-            generateTagsCloudNode(pass: 2, node: tagsNode!, depth: iterator.depth)
-            tagsNode = iterator.next()
-        }
-        if !tagsLast.isEmpty {
-            tagsCode.finishUnorderedList()
-        }
-        tagsCode.finishDiv()
-        
-        return tagsCode.code
-    }
-    
-    /// Generate html code for the next node.
-    func generateTagsCloudNode(pass: Int, node: TagsNode, depth: Int) {
-        switch node.type {
-        case .root:
-            break
-        case .tag:
-            if tagsList.count >= depth {
-                tagsList[depth - 1] = node.tag!.forDisplay
-            } else {
-                tagsList.append(node.tag!.forDisplay)
-            }
-            tagsConcat = ""
-            var i = 0
-            while i < depth {
-                if i > 0 {
-                    tagsConcat.append(".")
-                }
-                tagsConcat.append(tagsList[i])
-                i += 1
-            }
-        case .note:
-            let note = node.note!
-            guard note.hasTags() else { break }
-
-            if tagsConcat != tagsLast {
-                if pass == 1 {
-                    startTagsCloudFirstPass()
-                } else {
-                    startTagsCloudSecondPass()
-                }
-                tagsLast = tagsConcat
-            }
-            
-            guard pass == 2 else { break }
-            
-            let link = displayParms.wikiLinks.assembleWikiLink(idBasis: note.noteID.getBasis())
-            let text = htmlConverter.convert(from: note.noteID.text)
-            tagsCode.startListItem()
-            tagsCode.link(text: text, path: link, klass: Markedup.htmlClassNavLink)
-            tagsCode.finishListItem()
-
-        }
-    }
-    
-    func startTagsCloudFirstPass() {
-        tagsCode.startListItem()
-        tagsCode.link(text: tagsConcat, path: "#tags.\(StringUtils.toCommonFileName(tagsConcat))")
-        tagsCode.finishListItem()
-    }
-    
-    func startTagsCloudSecondPass() {
-        if !tagsLast.isEmpty {
-            tagsCode.finishUnorderedList()
-        }
-        tagsCode.heading(level: 5, text: tagsConcat, addID: true, idText: "tags.\(tagsConcat)")
-        tagsCode.startUnorderedList(klass: nil)
     }
     
     var author = ""

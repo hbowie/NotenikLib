@@ -54,6 +54,7 @@ public class NoteCollection {
 
     public  var bodyLabel = true
     public  var titleDisplayOption: LineDisplayOption = .pBold
+    public  var tagsDisplayOption: TagsDisplayOption = .aboveTitle
     public  var outlineTabSetting: OutlineTabSetting = .none
     public  var overrideCustomDisplay = false
     public  var displayTemplate = ""

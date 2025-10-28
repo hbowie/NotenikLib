@@ -234,6 +234,15 @@ public class DisplayPrefs {
         * -------------------------------------------------- */
 
         li { margin-top: 0.2em; margin-bottom: 0.2em; }
+        p.nnk-tags-repl-nav-up {
+                font-style: italic;
+        }
+        p.nnk-tags {
+                font-style: italic;
+                width: 100%;
+                text-align: right;
+                clear: both;
+        }
         ul.checklist { list-style-type: none; }
         ul.tags-list { list-style-type: none; }
         ul.tags-cloud {

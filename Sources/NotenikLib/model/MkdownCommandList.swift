@@ -35,6 +35,7 @@ public class MkdownCommandList {
     public var metadata     = false
     public var search       = false
     public var scripted     = false
+    public var tagsIndex    = false
     
     public init(collectionLevel: Bool) {
         self.collectionLevel = collectionLevel
@@ -52,6 +53,16 @@ public class MkdownCommandList {
     
     public var count: Int {
         return commands.count
+    }
+    
+    /// Return the code associated with a particular command.
+    public func getNoteIdFor(_ command: String) -> String? {
+        for usage in commands {
+            if usage.command == command {
+                return usage.command
+            }
+        }
+        return nil
     }
     
     /// Return the code associated with a particular command.
@@ -187,6 +198,10 @@ public class MkdownCommandList {
             contentPage = false
         case MkdownConstants.sortTableCmd:
             scripted = true
+        case MkdownConstants.tagsCloudCmd:
+            tagsIndex = true
+        case MkdownConstants.tagsOutlineCmd:
+            tagsIndex = true
         default:
             break
         }

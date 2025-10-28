@@ -52,6 +52,10 @@ public class MkdownCommandUsage: Comparable, Equatable {
         case MkdownConstants.navCmd:
             saveCode = true
             saveForCollection = true
+        case MkdownConstants.tagsCloudCmd:
+            saveForCollection = true
+        case MkdownConstants.tagsOutlineCmd:
+            saveForCollection = true
         default:
             saveCode = false
             saveForCollection = false
