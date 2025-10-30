@@ -930,83 +930,7 @@ public class NotesMkdownContext: MkdownContext {
         // Generate the JavaScript
         let js = BigStringWriter()
         js.open()
-        let sortScript = """
-        function sortTable(tableID, n) {
-          var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
-          var firstElement = "";
-          var nextElement = "";
-          var firstLowered = "";
-          var nextLowered = "";
-          var firstNumber = 0;
-          var nextNumber = 0;
-          var firstValue = 0;
-          var nextValue = 0;
-          table = document.getElementById(tableID);
-          switching = true;
-          // Set the sorting direction to ascending:
-          dir = "asc";
-          /* Make a loop that will continue until
-          no switching has been done: */
-          while (switching) {
-            // Start by saying: no switching is done:
-            switching = false;
-            rows = table.rows;
-            /* Loop through all table rows (except the
-            first, which contains table headers): */
-            for (i = 1; i < (rows.length - 1); i++) {
-              // Start by saying there should be no switching:
-              shouldSwitch = false;
-              /* Get the two elements you want to compare,
-              one from current row and one from the next: */
-              firstElement = rows[i].getElementsByTagName("TD")[n];
-              nextElement = rows[i + 1].getElementsByTagName("TD")[n];
-              firstLowered = firstElement.innerHTML.toLowerCase();
-              nextLowered = nextElement.innerHTML.toLowerCase();
-              firstNumber = Number(firstLowered);
-              nextNumber = Number(nextLowered);
-              if (isNaN(firstLowered) || isNaN(nextLowered)) {
-                x = firstLowered;
-                y = nextLowered;
-              } else {
-                x = firstNumber;
-                y = nextNumber;
-              }
-              
-              /* Check if the two rows should switch place,
-              based on the direction, asc or desc: */
-              if (dir == "asc") {
-                if (x > y) {
-                  // If so, mark as a switch and break the loop:
-                  shouldSwitch = true;
-                  break;
-                }
-              } else if (dir == "desc") {
-                if (x < y) {
-                  // If so, mark as a switch and break the loop:
-                  shouldSwitch = true;
-                  break;
-                }
-              }
-            }
-            if (shouldSwitch) {
-              /* If a switch has been marked, make the switch
-              and mark that a switch has been done: */
-              rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-              switching = true;
-              // Each time a switch is done, increase this count by 1:
-              switchcount ++;
-            } else {
-              /* If no switching has been done AND the direction is "asc",
-              set the direction to "desc" and run the while loop again. */
-              if (switchcount == 0 && dir == "asc") {
-                dir = "desc";
-                switching = true;
-              }
-            }
-          }
-        }
-        """
-        js.writeLine(sortScript)
+        js.writeLine(tableSortScript())
         js.close()
         
         // Generate the HTML
@@ -1450,6 +1374,185 @@ public class NotesMkdownContext: MkdownContext {
         }
         
         return biblio.code
+    }
+    
+    
+    /// Generate a table of authors.
+    public func mkdownAuthorsTable() -> String {
+
+        guard io.collectionOpen else { return "" }
+        let authors = Markedup(format: .htmlFragment)
+        
+        // Generate the JavaScript
+        let js = BigStringWriter()
+        js.open()
+        js.writeLine(tableSortScript())
+        js.close()
+        
+        // Generate the HTML
+        if displayParms.epub3 {
+            javaScript = js.bigString
+            if let collection = io.collection {
+                let jsFileName = collection.fileNameToParse
+                authors.script(src: "js/\(jsFileName).js")
+            }
+        } else {
+            authors.startScript()
+            authors.ensureNewLine()
+            authors.append(js.bigString)
+            authors.finishScript()
+            authors.ensureBlankLine()
+        }
+        
+        let tableID = "authors-table"
+        
+        authors.startTable(id: tableID)
+        
+        authors.startColGroup()
+        authors.tableCol(style: "width:25%")
+        authors.tableCol(style: "width:50%")
+        authors.tableCol(style: "width:25%")
+        authors.finishColGroup()
+        
+        authors.startTableRow()
+        
+        authors.startTableHeader(onclick: "sortTable(\'\(tableID)\', 0)")
+        authors.write("Last Name")
+        authors.finishTableHeader()
+        
+        authors.startTableHeader(onclick: "sortTable(\'\(tableID)\', 1)")
+        authors.write("Author Name")
+        authors.finishTableHeader()
+        
+        authors.startTableHeader(onclick: "sortTable(\'\(tableID)\', 2)")
+        authors.write("Years Lived")
+        authors.finishTableHeader()
+        
+        authors.finishTableRow()
+        
+        var (sortedNote, position) = io.firstNote()
+        while sortedNote != nil {
+            if sortedNote!.note.klass.value == NotenikConstants.authorKlass {
+                let note = sortedNote!.note
+                authors.startTableRow()
+                
+                let author = AuthorValue(note.title.value)
+                
+                var lastName = author.lastName
+                if lastName.isEmpty {
+                    let nameBits = note.title.value.split(separator: ",")
+                    if !nameBits.isEmpty {
+                        lastName = String(nameBits[0])
+                    }
+                }
+                authors.startTableData()
+                authors.write(lastName)
+                authors.finishTableData()
+                
+                authors.startTableData()
+                let linkText = author.firstNameFirst
+                let linkPath = displayParms.wikiLinks.assembleWikiLink(idBasis: note.noteID.getBasis())
+                var linkTitle = ""
+                if let authorInfo = note.getField(label: NotenikConstants.authorInfoCommon) {
+                    linkTitle = authorInfo.value.value
+                }
+                authors.link(text: linkText, path: linkPath, title: linkTitle, klass: "implicit")
+                authors.finishTableData()
+                
+                authors.startTableData()
+                if let authorYears = note.getField(common: NotenikConstants.authorYearsCommon) {
+                    authors.write(authorYears.value.value)
+                }
+                authors.finishTableData()
+                
+                authors.finishTableRow()
+            }
+            (sortedNote, position) = io.nextNote(position)
+        }
+        
+        authors.finishTable()
+        
+        return authors.code
+    }
+    
+    func tableSortScript() -> String {
+        let sortScript = """
+        function sortTable(tableID, n) {
+          var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+          var firstElement = "";
+          var nextElement = "";
+          var firstLowered = "";
+          var nextLowered = "";
+          var firstNumber = 0;
+          var nextNumber = 0;
+          var firstValue = 0;
+          var nextValue = 0;
+          table = document.getElementById(tableID);
+          switching = true;
+          // Set the sorting direction to ascending:
+          dir = "asc";
+          /* Make a loop that will continue until
+          no switching has been done: */
+          while (switching) {
+            // Start by saying: no switching is done:
+            switching = false;
+            rows = table.rows;
+            /* Loop through all table rows (except the
+            first, which contains table headers): */
+            for (i = 1; i < (rows.length - 1); i++) {
+              // Start by saying there should be no switching:
+              shouldSwitch = false;
+              /* Get the two elements you want to compare,
+              one from current row and one from the next: */
+              firstElement = rows[i].getElementsByTagName("TD")[n];
+              nextElement = rows[i + 1].getElementsByTagName("TD")[n];
+              firstLowered = firstElement.innerText.trim().toLowerCase();
+              nextLowered = nextElement.innerText.trim().toLowerCase();
+              firstNumber = Number(firstLowered);
+              nextNumber = Number(nextLowered);
+              if (isNaN(firstLowered) || isNaN(nextLowered)) {
+                x = firstLowered;
+                y = nextLowered;
+              } else {
+                x = firstNumber;
+                y = nextNumber;
+              }
+              
+              /* Check if the two rows should switch place,
+              based on the direction, asc or desc: */
+              if (dir == "asc") {
+                if (x > y) {
+                  // If so, mark as a switch and break the loop:
+                  shouldSwitch = true;
+                  break;
+                }
+              } else if (dir == "desc") {
+                if (x < y) {
+                  // If so, mark as a switch and break the loop:
+                  shouldSwitch = true;
+                  break;
+                }
+              }
+            }
+            if (shouldSwitch) {
+              /* If a switch has been marked, make the switch
+              and mark that a switch has been done: */
+              rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+              switching = true;
+              // Each time a switch is done, increase this count by 1:
+              switchcount ++;
+            } else {
+              /* If no switching has been done AND the direction is "asc",
+              set the direction to "desc" and run the while loop again. */
+              if (switchcount == 0 && dir == "asc") {
+                dir = "desc";
+                switching = true;
+              }
+            }
+          }
+        }
+        """
+        return sortScript
     }
     
     /// Provide links to file attachments.
