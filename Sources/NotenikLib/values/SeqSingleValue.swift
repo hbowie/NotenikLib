@@ -97,7 +97,7 @@ public class SeqSingleValue: StringValue {
             seqStack.segments[level].increment()
         }
         let newValue = seqStack.value
-        set(newValue)
+        self.value = newValue
     }
     
     /// Set this sequence value to the provided string

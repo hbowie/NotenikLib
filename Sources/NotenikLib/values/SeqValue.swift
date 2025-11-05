@@ -133,6 +133,7 @@ public class SeqValue: StringValue, MultiValues, Collection, Sequence {
             seqSingleValue.incAtLevel(level: level, removingDeeperLevels: removingDeeperLevels)
             i += 1
         }
+        setWithLatestValues()
     }
     
     public func genSortKey(seqIndex: Int = 0) -> String {

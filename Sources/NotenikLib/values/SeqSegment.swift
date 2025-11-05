@@ -185,7 +185,7 @@ public class SeqSegment {
     
     /// Increment the sequence value by 1.
     public func increment() {
-            
+
         guard value.count > 0 else {
             value = "1"
             return
