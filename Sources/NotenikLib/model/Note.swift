@@ -330,7 +330,9 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
                 + seq.sortKey
                 + title.sortKey
         case .lastNameFirst:
-            return lastNameFirst
+            return (lastNameFirst
+                + date.getSortKey(sortBlankDatesLast: collection.sortBlankDatesLast)
+                + title.sortKey)
         case .custom:
             var key = ""
             for sortField in collection.customFields {
