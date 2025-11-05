@@ -11,9 +11,13 @@
 
 import Foundation
 
+import NotenikUtils
+
 public class IndexTerm: Comparable, Equatable {
     
     var term = ""
+    var termSort = ""
+    var startingArticle = ""
     var link = ""
     public var refs: [IndexPageRef] = []
     
@@ -23,10 +27,25 @@ public class IndexTerm: Comparable, Equatable {
     
     public init(term: String) {
         self.term = term
+        var termWork = term.lowercased()
+        if termWork.hasPrefix("a ") {
+            termWork.removeFirst(2)
+            startingArticle = String(self.term.prefix(1))
+            self.term.removeFirst(2)
+        } else if termWork.hasPrefix(" an ") {
+            termWork.removeFirst(3)
+            startingArticle = String(self.term.prefix(2))
+            self.term.removeFirst(3)
+        } else if termWork.hasPrefix("the ") {
+            termWork.removeFirst(4)
+            startingArticle = String(self.term.prefix(3))
+            self.term.removeFirst(4)
+        }
+        termSort = StringUtils.toCommon(termWork)
     }
     
     public var key: String {
-        return term.lowercased() + term
+        return termSort + term
     }
     
     func addRef(_ ref: IndexPageRef) {
