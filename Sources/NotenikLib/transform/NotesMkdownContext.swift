@@ -500,18 +500,31 @@ public class NotesMkdownContext: MkdownContext {
     public var pageCount = 0
     
     /// Return an index to the Collection, formatted in HTML.
-    public func mkdownIndex() -> String {
+    /// - Parameter mods: The index field name, if not the one and only for the collection.
+    /// - Returns: Fully formatted HTML.
+    public func mkdownIndex(mods: String? = nil) -> String {
+        
+        guard let collection = io.collection else { return "" }
+        guard let oneIndexDef = collection.indexFieldDef else { return "" }
+        var indexFieldName = oneIndexDef.fieldLabel.commonForm
+        if mods != nil {
+            indexFieldName = StringUtils.toCommon(mods!)
+        }
         
         // Spin through the collection and collection index terms and references.
         indexCollection  = IndexCollection()
         var (sortedNote, position) = io.firstNote()
         while sortedNote != nil {
-            if sortedNote!.note.hasTitle() && sortedNote!.note.hasIndex() && sortedNote!.note.includeInBook(epub: displayParms.epub3) {
-                let pageType = sortedNote!.note.getFieldAsString(label: NotenikConstants.typeCommon)
-                indexCollection.add(page: sortedNote!.note.title.value, 
-                                    pageType: pageType,
-                                    pageStatus: sortedNote!.note.status.value,
-                                    index: sortedNote!.note.index)
+            let note = sortedNote!.note
+            if let indexField = note.getField(common: indexFieldName) {
+                let indexValue = indexField.value as? IndexValue ?? IndexValue(indexField.value.value)
+                if note.hasTitle() && note.includeInBook(epub: displayParms.epub3) {
+                    let pageType = sortedNote!.note.getFieldAsString(label: NotenikConstants.typeCommon)
+                    indexCollection.add(page: note.title.value,
+                                        pageType: pageType,
+                                        pageStatus: note.status.value,
+                                        index: indexValue)
+                }
             }
             (sortedNote, position) = io.nextNote(position)
         }

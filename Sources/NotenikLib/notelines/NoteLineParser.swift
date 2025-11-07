@@ -40,7 +40,6 @@ public class NoteLineParser {
     
     var mmdMetaStartEndLineCount = 0
     var bodyStarted  = false
-    var indexStarted = false
     var wikilinkStarted = false
     var backlinkStarted = false
     
@@ -84,7 +83,6 @@ public class NoteLineParser {
         fileSize   = 0
         mmdMetaStartEndLineCount = 0
         bodyStarted = false
-        indexStarted = false
         wikilinkStarted = false
         backlinkStarted = false
         pendingBlankLines = 0
@@ -296,11 +294,15 @@ public class NoteLineParser {
                 field.setValue(value)
             }
             if field.def.fieldType.typeString == NotenikConstants.indexCommon {
-                if indexStarted {
-                    note.appendToIndex(value)
+                if let indexField = note.getField(def: field.def) {
+                    field = indexField
+                    if let oldValue = field.value as? IndexValue {
+                        oldValue.append(value)
+                    } else {
+                        field.value.set(value)
+                    }
                 } else {
-                    _ = note.setIndex(value)
-                    indexStarted = true
+                    _ = note.setField(field)
                 }
             } else if field.def.fieldType.typeString == NotenikConstants.backlinksCommon {
                 if backlinkStarted {
