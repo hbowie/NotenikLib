@@ -224,6 +224,7 @@ public class QuotesToBiblio {
         _ = quoteNote.setSeq(quoteSeq.value)
         _ = quoteNote.setLevel(5)
         _ = quoteNote.setKlass("quote")
+        _ = quoteNote.setTags(quote.note.tags.value)
         _ = quoteNote.setBody(quote.note.body.value)
         let (addedNote, _) = biblioIO.addNote(newNote: quoteNote)
         if addedNote != nil {

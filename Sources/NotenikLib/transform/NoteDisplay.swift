@@ -271,6 +271,11 @@ public class NoteDisplay {
         guard !parms.concatenated else { return "" }
         guard !parms.epub3 else { return "" }
         guard sortedNote.note.collection.tagsDisplayOption != .replNavUp else { return "" }
+        
+        if sortedNote.note.collection.mkdownCommandList.contains(MkdownConstants.navLeftCmd) {
+            return sortedNote.note.collection.mkdownCommandList.getCodeFor(MkdownConstants.navLeftCmd)
+        }
+        
         guard sortedNote.note.hasLevel() else { return "" }
         let noteLevel = sortedNote.note.level.level
         guard noteLevel > 1 else {
@@ -292,6 +297,8 @@ public class NoteDisplay {
             }
         }
         guard parentNote != nil else { return "" }
+        
+        guard parentNote!.note.level.level > 1 || (!parentNote!.note.seq.value.isEmpty) else { return "" }
         
         let topHTML = Markedup()
         topHTML.startParagraph()

@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 4/21/23.
 //
-//  Copyright © 2023 Herb Bowie (https://hbowie.net)
+//  Copyright © 2023 - 2025 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -32,6 +32,7 @@ public class MkdownCommandList {
     public var header       = false
     public var footer       = false
     public var nav          = false
+    public var navLeft      = false
     public var metadata     = false
     public var search       = false
     public var scripted     = false
@@ -189,6 +190,9 @@ public class MkdownCommandList {
             contentPage = false
         case MkdownConstants.navCmd:
             nav = true
+            contentPage = false
+        case MkdownConstants.navLeftCmd:
+            navLeft = true
             contentPage = false
         case MkdownConstants.randomCmd:
             scripted = true

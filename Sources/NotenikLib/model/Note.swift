@@ -2043,8 +2043,17 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     }
     
     /// Does this note have a non-blank Author field?
-    func hasAuthor() -> Bool {
-        return author.count > 0
+    public func hasAuthor() -> Bool {
+        guard collection.authorDef != nil else {
+            return false
+        }
+        guard let authorField = getField(def: collection.authorDef!) else {
+            return false
+        }
+        guard authorField.value.hasData else {
+            return false
+        }
+        return true
     }
     
     /// Set the note's author value.

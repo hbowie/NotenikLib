@@ -12,11 +12,13 @@
 
 import Foundation
 
+import NotenikUtils
+
 public class WorkTypeList {
     
     public static let shared = WorkTypeList()
     
-    public let originalTypes = ["unknown", "Album", "Article", "Blog Post", "Book", "CD", "Comment", "Conference", "Decision", "Editorial", "Essay", "Film", "Interview", "Lecture", "Letter", "Major Work", "Minor Work", "Novel", "Obituary", "Opinion", "Paper", "Play", "Podcast", "Poem", "Preface", "Presentation", "Remarks", "Sermon", "Song", "Speech", "Story", "Television Show", "Video", "Web Page"]
+    public var originalTypes: [String] = []
     
     public var allTypes: [String] = []
     
@@ -25,6 +27,7 @@ public class WorkTypeList {
     }
     
     private init() {
+        originalTypes = QuoteFrom.shared.workTypes
         for originalType in originalTypes {
             allTypes.append(originalType)
             let lowerCaseType = originalType.lowercased()

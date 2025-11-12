@@ -263,7 +263,9 @@ public class NotesMkdownContext: MkdownContext {
             case NotenikConstants.biblioKlass:
                 navDone = true
             case NotenikConstants.workKlass:
-                workNote = priorSortedNote!.note
+                if workNote == nil {
+                    workNote = priorSortedNote!.note
+                }
             case NotenikConstants.quoteKlass:
                 break
             case NotenikConstants.authorKlass:
@@ -505,9 +507,14 @@ public class NotesMkdownContext: MkdownContext {
     public func mkdownIndex(mods: String? = nil) -> String {
         
         guard let collection = io.collection else { return "" }
-        guard let oneIndexDef = collection.indexFieldDef else { return "" }
-        var indexFieldName = oneIndexDef.fieldLabel.commonForm
-        if mods != nil {
+        var indexFieldDef = FieldDefinition(typeCatalog: collection.typeCatalog,
+                                            label: NotenikConstants.index,
+                                            type: NotenikConstants.indexCommon)
+        if collection.indexFieldDef != nil {
+            indexFieldDef = collection.indexFieldDef!
+        }
+        var indexFieldName = indexFieldDef.fieldLabel.commonForm
+        if mods != nil && !mods!.isEmpty {
             indexFieldName = StringUtils.toCommon(mods!)
         }
         
