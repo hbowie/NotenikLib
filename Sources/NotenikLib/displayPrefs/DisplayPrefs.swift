@@ -387,6 +387,11 @@ public class DisplayPrefs {
             text-decoration: none;
             border-bottom: none;
         }
+        
+        .nnk-header a:link {
+            text-decoration: none;
+            border-bottom: none; 
+        }
 
         footer.nnk-footer {
             clear: both;

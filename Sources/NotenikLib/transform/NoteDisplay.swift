@@ -298,11 +298,14 @@ public class NoteDisplay {
         }
         guard parentNote != nil else { return "" }
         
-        guard parentNote!.note.level.level > 1 || (!parentNote!.note.seq.value.isEmpty) else { return "" }
-        
         let topHTML = Markedup()
         topHTML.startParagraph()
-        parms.streamlinedTitleWithLink(markedup: topHTML, sortedNote: parentNote!, klass: Markedup.htmlClassNavLink)
+        var altText: String? = nil
+        let headerCmd = sortedNote.note.collection.mkdownCommandList.contains(MkdownConstants.headerCmd)
+        if headerCmd && parentNote!.note.level.level <= 1 || parentNote!.note.seq.value.isEmpty {
+            altText = "Up"
+        }
+        parms.streamlinedTitleWithLink(markedup: topHTML, sortedNote: parentNote!, klass: Markedup.htmlClassNavLink, altText: altText)
         topHTML.append("&#160;") // numeric code for non-breaking space
         topHTML.append("&#8593;") // Up arrow
         topHTML.finishParagraph()

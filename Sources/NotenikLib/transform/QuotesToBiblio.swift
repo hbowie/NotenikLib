@@ -109,10 +109,8 @@ public class QuotesToBiblio {
     
     func transformOneNote(quote: SortedNote) {
         
-        print("  - transformOneNote titled \(quote.note.title.value)")
         // Generate the Author note
         let author = quote.note.author.value
-        print("    + author = \(author)")
         if !author.isEmpty {
             genAuthor(quote: quote, author: author)
         }
@@ -131,9 +129,7 @@ public class QuotesToBiblio {
     }
     
     func genAuthor(quote: SortedNote, author: String) {
-        print("      * generating author")
         guard author != lastAuthor else {
-            print("        > Same author - skip")
             return
         }
         let authorValue = AuthorValue(author)
@@ -142,18 +138,13 @@ public class QuotesToBiblio {
         if authorNote == nil {
             authorNote = Note(collection: biblioCollection!)
             _ = authorNote!.setTitle(authorForBiblio)
-            
-            print("        > Incrementing author seq")
-            print("        > author seq level = \(authorSeqLevel)")
-            print("        > starting author seq = \(authorSeq.value)")
             authorSeq.incAtLevel(level: authorSeqLevel, removingDeeperLevels: true)
-            print("        > author seq after inc = \(authorSeq.value)")
             workSeq = authorSeq.dupe()
             quoteSeq = workSeq.dupe()
-            print("        > Setting seq for author note titled \(authorForBiblio) to \(authorSeq.value)")
             _ = authorNote!.setSeq(authorSeq.value)
             _ = authorNote!.setLevel(3)
             _ = authorNote!.setKlass("author")
+            _ = authorNote!.setTags("authors")
             if let quoteLinkField = FieldGrabber.getField(note: quote.note, label: "Author Link") {
                 _ = authorNote!.setLink(quoteLinkField.value.value)
             }
@@ -165,7 +156,6 @@ public class QuotesToBiblio {
             }
             _ = biblioIO.addNote(newNote: authorNote!)
         } else {
-            print("        > author already exists with seq of \(authorNote!.seq.value)")
             authorSeq = authorNote!.seq.dupe()
             authorSeqLevel = authorSeq.numberOfLevels - 1
             workSeq = authorSeq.dupe()
@@ -176,24 +166,20 @@ public class QuotesToBiblio {
     }
     
     func genWork(quote: SortedNote, author: String, work: String) {
-        print("      * generating work")
         guard work != lastWork else {
-            print("        > Same work - skip")
             return
         }
         var workNote: Note? = biblioIO.getNote(knownAs: work)
         if workNote == nil {
             workNote = Note(collection: biblioCollection!)
             _ = workNote!.setTitle(work)
-            print("        > Work seq before inc = \(workSeq.value)")
-            print("        > Work seq level = \(workSeqLevel)")
             workSeq.incAtLevel(level: workSeqLevel, removingDeeperLevels: true)
-            print("        > Work seq after  inc = \(workSeq.value)")
             _ = workNote!.setSeq(workSeq.value)
             quoteSeq = workSeq.dupe()
             _ = workNote!.setLevel(4)
             _ = workNote!.setKlass("work")
             _ = workNote!.setAuthor(author)
+            _ = workNote!.setTags("works")
             if let quoteLinkField = FieldGrabber.getField(note: quote.note, label: "Work Link") {
                 _ = workNote!.setLink(quoteLinkField.value.value)
             }
@@ -205,7 +191,6 @@ public class QuotesToBiblio {
             }
             _ = biblioIO.addNote(newNote: workNote!)
         } else {
-            print("        > work already exists with seq of \(workNote!.seq.value)")
             workSeq = workNote!.seq.dupe()
             workSeqLevel = workSeq.numberOfLevels - 1
             quoteSeq = workSeq.dupe()
@@ -214,13 +199,9 @@ public class QuotesToBiblio {
     }
     
     func genQuote(quote: SortedNote) {
-        print("      * generating quote")
         let quoteNote = Note(collection: biblioCollection!)
         _ = quoteNote.setTitle(quote.note.title.value)
-        print("        > Quote seq before inc = \(quoteSeq.value)")
-        print("        > Quote seq level = \(quoteSeqLevel)")
         quoteSeq.incAtLevel(level: quoteSeqLevel, removingDeeperLevels: true)
-        print("        > Quote seq after  inc = \(quoteSeq.value)")
         _ = quoteNote.setSeq(quoteSeq.value)
         _ = quoteNote.setLevel(5)
         _ = quoteNote.setKlass("quote")

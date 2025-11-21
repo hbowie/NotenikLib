@@ -188,11 +188,15 @@ public class DisplayParms {
         }
     }
     
-    public func streamlinedTitleWithLink(markedup: Markedup, sortedNote: SortedNote, klass: String?) {
+    public func streamlinedTitleWithLink(markedup: Markedup,
+                                         sortedNote: SortedNote,
+                                         klass: String? = nil,
+                                         altText: String? = nil) {
 
         let idBasis = sortedNote.note.noteID.getBasis()
         var seqPrefix = ""
-        if sortedNote.note.klass.frontOrBack || sortedNote.note.klass.quote {
+        if sortedNote.note.klass.frontOrBack || sortedNote.note.klass.quote
+            || (altText != nil && !altText!.isEmpty) {
             // no need for a preceding number
         } else if sortedNote.note.hasDisplaySeq() {
             seqPrefix = sortedNote.note.formattedDisplaySeq + " "
@@ -208,10 +212,15 @@ public class DisplayParms {
         } else {
             idToUse = idBasis
         }
-        var text = sortedNote.note.noteID.text
-        if sortedNote.note.noteID.seqBeforeTitle {
+        var text = ""
+        if altText != nil && !altText!.isEmpty {
+            text = altText!
+        } else if sortedNote.note.noteID.seqBeforeTitle {
             text = sortedNote.note.title.value
+        } else {
+            text = sortedNote.note.noteID.text
         }
+
         let htmlText = titleToHTML(text: text, note: sortedNote.note)
         let wikiLink = wikiLinks.assembleWikiLink(idBasis: idToUse)
         markedup.link(text: htmlText,
