@@ -225,7 +225,6 @@ public class NoteFieldsToHTML {
         }
         
         // Put quote attribution after the quote itself.
-        // if quoted && attribution != nil {
         if attribution != nil {
             code.append(display(attribution!, noteTitle: noteTitle, note: note, collection: collection, io: io))
         }
@@ -704,7 +703,11 @@ public class NoteFieldsToHTML {
         }
         if parms.formatIsHTML {
             if note.klass.quote {
-                markedup.startBlockQuote()
+                if note.hasAttribution() {
+                    markedup.startBlockQuote(klass: "attribution-following")
+                } else {
+                    markedup.startBlockQuote()
+                }
                 quoted = true
             }
             if collection.textFormatFieldDef != nil && note.textFormat.isText {
@@ -1080,11 +1083,6 @@ public class NoteFieldsToHTML {
                                            bodyHTML: String? = nil,
                                            withAttrib: Bool = true) {
         
-        /* var mkdownContext: MkdownContext?
-        if io != nil {
-            mkdownContext = NotesMkdownContext(io: io!, displayParms: parms)
-        } */
-        
         self.io = io
         
         if withAttrib && (note.hasAttribution() || note.hasAuthor() || note.hasWorkTitle()) {
@@ -1260,7 +1258,14 @@ public class NoteFieldsToHTML {
                                    noteText: note.noteID.text,
                                    noteFileName: note.noteID.commonFileName,
                                    note: note)
-        writer.append(results.html)
+        if fieldType == NotenikConstants.attribCommon {
+            let sansPara = StringUtils.removeParagraphTags(results.html)
+            writer.startParagraph(klass: "quote-from")
+            writer.append(sansPara)
+            writer.finishParagraph()
+        } else {
+            writer.append(results.html)
+        }
     }
     
     enum CiteType {
