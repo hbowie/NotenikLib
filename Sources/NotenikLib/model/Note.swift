@@ -1959,6 +1959,118 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     }
     
     //
+    // Functions and variables concerning the Note's inclusions field.
+    //
+    
+    /// Does the Note have any inclusions?
+    func hasInclusions() -> Bool {
+        return collection.inclusionsDef != nil && wikilinks.count > 0
+    }
+    
+    /// Add another line of inclusions..
+    func appendInclude(_ moreIncludes: String) {
+        guard let def = collection.inclusionsDef else { return }
+        let field = getField(label: def.fieldLabel.commonForm)
+        if field == nil {
+            _ = setInclusions(moreIncludes)
+        } else {
+            let val = field!.value
+            if val is InclusionsValue {
+                let incVal = val as! InclusionsValue
+                incVal.append(moreIncludes)
+            }
+        }
+    }
+    
+    /// Set the Note's inclusions value.
+    func setInclusions(_ inclusions: String) -> Bool {
+        guard let def = collection.inclusionsDef else { return false }
+        return setField(label: def.fieldLabel.commonForm,
+                        value: inclusions)
+    }
+    
+    func setInclusions(_ inclusions: InclusionsValue) -> Bool {
+        guard let def = collection.inclusionsDef else { return false }
+        let field = NoteField()
+        field.def = def
+        field.value = inclusions
+        return setField(field)
+    }
+    
+    func setInclusions(wikiLinks: [WikiLink]) -> Bool {
+        guard let def = collection.inclusionsDef else { return false }
+        let inclusionsValue = InclusionsValue()
+        inclusionsValue.set(wikiLinks: wikiLinks)
+        let field = NoteField()
+        field.def = def
+        field.value = inclusionsValue
+        return setField(field)
+    }
+    
+    /// Return the Note's inclusions value.
+    public var inclusions: InclusionsValue {
+        guard let def = collection.inclusionsDef else { return InclusionsValue() }
+        let val = getFieldAsValue(def: def)
+        if val is InclusionsValue {
+            return val as! InclusionsValue
+        } else {
+            return InclusionsValue(val.value)
+        }
+    }
+    
+    //
+    // Functions and variables concerning the Note's includedBy field.
+    //
+    
+    /// Does the Note have any backlinks?
+    func hasIncludedBy() -> Bool {
+        return collection.includedByDef != nil && includedBy.count > 0
+    }
+    
+    /// Add another line of links.
+    func appendToIncludedBy(_ moreIncludedBy: String) {
+        guard let def = collection.includedByDef else { return }
+        let field = getField(label: def.fieldLabel.commonForm)
+        if field == nil {
+            _ = setIncludedBy(moreIncludedBy)
+        } else {
+            let val = field!.value
+            if val is IncludedByValue {
+                let includedByVal = val as! IncludedByValue
+                includedByVal.append(moreIncludedBy)
+            }
+        }
+    }
+    
+    /// Set the Note's backlinks value.
+    func setIncludedBy(_ includedBy: String) -> Bool {
+        guard let def = collection.includedByDef else { return false }
+        return setField(label: def.fieldLabel.commonForm,
+                        value: includedBy)
+    }
+    
+    func setIncludedBy(_ includedBy: IncludedByValue) -> Bool {
+        guard let def = collection.includedByDef else { return false }
+        let field = NoteField()
+        field.def = def
+        field.value = includedBy
+        return setField(field)
+    }
+    
+    /// Return the Note's includedBy value.
+    public var includedBy: IncludedByValue {
+        guard let def = collection.includedByDef else {
+            return IncludedByValue("")
+        }
+        let val = getFieldAsValue(def: def)
+        if val is IncludedByValue {
+            return val as! IncludedByValue
+        } else {
+            return IncludedByValue(val.value)
+        }
+    }
+    
+    //
     // Return last name first.
     //
     

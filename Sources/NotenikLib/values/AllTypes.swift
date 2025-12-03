@@ -34,6 +34,8 @@ public class AllTypes {
     let folderType  = FolderType()
     let imageNameType = ImageNameType()
     let includeChildrenType = IncludeChildrenType()
+    let includedByType = IncludedByType()
+    let inclusionsTYpe = InclusionsType()
     let indexType   = IndexType()
     let intType     = IntType()
     let klassType   = KlassType()
@@ -138,6 +140,9 @@ public class AllTypes {
         fieldTypes.append(backlinkType)
         fieldTypes.append(wikilinkType)
         
+        fieldTypes.append(inclusionsTYpe)
+        fieldTypes.append(includedByType)
+        
         fieldTypes.append(linkType)
         fieldTypes.append(longTextType)
         fieldTypes.append(lookupType)
@@ -214,6 +219,10 @@ public class AllTypes {
         case NotenikConstants.seqCommon:
             return false
         case NotenikConstants.displaySeqCommon:
+            return false
+        case NotenikConstants.wikilinksCommon, NotenikConstants.backlinksCommon:
+            return false
+        case NotenikConstants.inclusionsCommon, NotenikConstants.includedByCommon:
             return false
         default:
             return true

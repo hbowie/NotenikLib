@@ -156,6 +156,14 @@ class ApplyTemplateValues {
             let wikiLinksType = WikilinkType()
             wikiLinksType.setInitialReveal(str: typeValues.str)
             def.fieldType = wikiLinksType
+        } else if typeStrCommon == NotenikConstants.inclusionsCommon && !typeValues.isEmpty {
+            let inclusionsType = InclusionsType()
+            inclusionsType.setInitialReveal(str: typeValues.str)
+            def.fieldType = inclusionsType
+        } else if typeStrCommon == NotenikConstants.includedByCommon && !typeValues.isEmpty {
+            let includedByType = IncludedByType()
+            includedByType.setInitialReveal(str: typeValues.str)
+            def.fieldType = includedByType
         } else {
             def.fieldType = collection.typeCatalog.assignType(label: def.fieldLabel, type: typeStrCommon)
             def.pickList = def.fieldType.genPickList()

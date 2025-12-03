@@ -111,6 +111,8 @@ public class NoteCollection {
     public  var indexFieldDef:   FieldDefinition?
     public  var backlinksDef:    FieldDefinition?
     public  var wikilinksDef:    FieldDefinition?
+    public  var inclusionsDef:   FieldDefinition?
+    public  var includedByDef:   FieldDefinition?
     public  var creatorFieldDef: FieldDefinition
     public  var workLinkFieldDef: FieldDefinition
     public  var workTitleFieldDef: FieldDefinition
@@ -155,6 +157,8 @@ public class NoteCollection {
     public  var fileNameToParse = ""
     public  var shortID        = ""
     public  var tocNoteID      = ""
+    public  var includingID    = ""
+    public  var lastInclusion  = ""
     public  var skipContentsForParent = false
     
     public  var mkdownCommandList = MkdownCommandList(collectionLevel: true)
@@ -682,6 +686,12 @@ public class NoteCollection {
             
         case NotenikConstants.pageStyleCommon:
             pageStyleDef = def
+            
+        case NotenikConstants.inclusionsCommon:
+            inclusionsDef = def
+            
+        case NotenikConstants.includedByCommon:
+            includedByDef = def
             
         default:
             break

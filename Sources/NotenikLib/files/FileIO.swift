@@ -607,8 +607,6 @@ public class FileIO: NotenikIO, RowConsumer {
                 multiRequests!.populateLookBacks(io: self)
             }
             
-            // bunch!.outlineTree.display()
-            
             return collection
         }
     }

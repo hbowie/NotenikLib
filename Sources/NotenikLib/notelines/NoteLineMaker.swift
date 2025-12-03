@@ -126,6 +126,18 @@ public class NoteLineMaker {
                         let notePointers = wikilinkField.notePointers
                         putWikilinks(note: note, def: def!, notePointers: notePointers)
                     }
+                } else if def == collection.inclusionsDef {
+                    let field = note.getFieldAsValue(def: def!)
+                    if let inclusionsField = field as? InclusionsValue {
+                        let notePointers = inclusionsField.notePointers
+                        putWikilinks(note: note, def: def!, notePointers: notePointers)
+                    }
+                } else if def == collection.includedByDef {
+                    let field = note.getFieldAsValue(def: def!)
+                    if let includedByField = field as? IncludedByValue {
+                        let notePointers = includedByField.notePointers
+                        putWikilinks(note: note, def: def!, notePointers: notePointers)
+                    }
                 } else if def!.parentField {
                     parentLabel = def!.fieldLabel.properForm
                     putParent(parentLabel: def!.fieldLabel.properForm)

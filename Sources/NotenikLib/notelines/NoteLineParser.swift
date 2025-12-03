@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 12/10/18.
-//  Copyright © 2018 - 2024 Herb Bowie (https://hbowie.net)
+//  Copyright © 2018 - 2025 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -42,6 +42,8 @@ public class NoteLineParser {
     var bodyStarted  = false
     var wikilinkStarted = false
     var backlinkStarted = false
+    var inclusionsStarted = false
+    var includedByStarted = false
     
     var lineNumber   = 0
     var fieldNumber  = 0
@@ -85,6 +87,8 @@ public class NoteLineParser {
         bodyStarted = false
         wikilinkStarted = false
         backlinkStarted = false
+        inclusionsStarted = false
+        includedByStarted = false
         pendingBlankLines = 0
         var valueComplete = false
         var noteComplete = false
@@ -317,6 +321,20 @@ public class NoteLineParser {
                 } else {
                     _ = note.setWikilinks(value)
                     wikilinkStarted = true
+                }
+            } else if field.def.fieldType.typeString == NotenikConstants.inclusionsCommon {
+                if inclusionsStarted {
+                    note.appendInclude(value)
+                } else {
+                    _ = note.setInclusions(value)
+                    inclusionsStarted = true
+                }
+            } else if field.def.fieldType.typeString == NotenikConstants.includedByCommon {
+                if includedByStarted {
+                    note.appendToIncludedBy(value)
+                } else {
+                    _ = note.setIncludedBy(value)
+                    includedByStarted = true
                 }
             } else {
                 _ = note.setField(field)

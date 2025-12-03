@@ -204,6 +204,8 @@ public class NoteFieldsToHTML {
                             // ignore for now
                         } else if field!.def == collection.wikilinksDef {
                             // ignore for now
+                        } else if field!.def == collection.inclusionsDef {
+                            // ignore for now
                         } else if parms.displayMode == .quotations && field!.def.fieldType.typeString == NotenikConstants.booleanType {
                             // don't show flags in quotes mode
                         } else if field!.def.fieldType.typeString == NotenikConstants.pageStyleCommon {
@@ -266,6 +268,7 @@ public class NoteFieldsToHTML {
         // Add wiki links and backlinks, when present.
         formatWikilinks(note, linksHTML: code, io: io)
         formatBacklinks(note, linksHTML: code, io: io)
+        formatInclusions(note, linksHTML: code, io: io)
         
         // Now add the bottom of the page, if any.
         if !bottomOfPage.isEmpty {
@@ -469,6 +472,7 @@ public class NoteFieldsToHTML {
     
     func formatWikilinks(_ note: Note, linksHTML: Markedup, io: NotenikIO?) {
         guard let def = note.collection.wikilinksDef else { return }
+        guard parms.fullDisplay else { return }
         let links = note.wikilinks
         guard links.hasData else { return }
         if io != nil {
@@ -499,6 +503,25 @@ public class NoteFieldsToHTML {
         let wrangler = WikiLinkWrangler(options: mkdownOptions, context: mkdownContext)
         wrangler.targetsToHTML(properLabel: def.fieldLabel.properForm,
                                targets: links.notePointers,
+                               markedup: linksHTML,
+                               initialReveal: initialReveal)
+    }
+    
+    func formatInclusions(_ note: Note, linksHTML: Markedup, io: NotenikIO?) {
+        guard let def = note.collection.inclusionsDef else { return }
+        guard parms.fullDisplay else { return }
+        let inclusions = note.inclusions
+        guard inclusions.hasData else { return }
+        if io != nil {
+            mkdownContext = NotesMkdownContext(io: io!, displayParms: parms)
+        }
+        var initialReveal = false
+        if let inclusionsType = def.fieldType as? InclusionsType {
+            initialReveal = inclusionsType.initialReveal
+        }
+        let wrangler = WikiLinkWrangler(options: mkdownOptions, context: mkdownContext)
+        wrangler.targetsToHTML(properLabel: def.fieldLabel.properForm,
+                               targets: inclusions.notePointers,
                                markedup: linksHTML,
                                initialReveal: initialReveal)
     }

@@ -94,6 +94,22 @@ public class TemplateLineMaker {
                             value += "<wikilinks>"
                         }
                     }
+                } else if def.fieldType.typeString == NotenikConstants.inclusionsCommon {
+                    if let inclusionstType = def.fieldType as? InclusionsType {
+                        if inclusionstType.initialReveal {
+                            value += "<inclusions: reveal>"
+                        } else {
+                            value += "<inclusions>"
+                        }
+                    }
+                } else if def.fieldType.typeString == NotenikConstants.includedByCommon {
+                    if let includedByType = def.fieldType as? IncludedByType {
+                        if includedByType.initialReveal {
+                            value += "<includedby: reveal>"
+                        } else {
+                            value += "<includedby>"
+                        }
+                    }
                 } else if def.fieldType.typeString != NotenikConstants.stringType {
                     value += "<\(def.fieldType.typeString)>"
                 }

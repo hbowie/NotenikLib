@@ -14,9 +14,13 @@ import Foundation
 
 /// An object that defines a particular Note's position within the sorted list
 /// containing all Notes in the Collection. 
-public class NotePosition {
+public class NotePosition: CustomStringConvertible {
     
     public var index = 0
+    
+    public var description: String {
+        return "NotePosition at index of \(index)"
+    }
     
     /// Is this a valid position pointing to an actual Note?
     public var valid: Bool {

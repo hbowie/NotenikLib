@@ -32,6 +32,8 @@ public class KlassValue: StringValue {
             return true
         case NotenikConstants.prefaceKlass:
             return true
+        case NotenikConstants.quoteKlass:
+            return true
         case NotenikConstants.titleKlass:
             return true
         case NotenikConstants.tocKlass:
