@@ -135,6 +135,9 @@ public class ModWhenChanged {
                 if collection.wikilinksDef != nil || collection.backlinksDef != nil {
                     parsingNeeded = true
                 }
+                if collection.inclusionsDef != nil || collection.includedByDef != nil {
+                    parsingNeeded = true
+                }
             }
             if collection.hashTagsOption == .inlineHashtags {
                 parsingNeeded = true
@@ -147,6 +150,7 @@ public class ModWhenChanged {
                                               text: modNote.noteID.text,
                                               fileName: modNote.noteID.commonFileName,
                                               shortID: modNote.shortID.value)
+                mkdownContext.clearIncludedNotes()
                 mdBodyParser.setWikiLinkFormatting(prefix: parms.wikiLinks.prefix,
                                                    format: parms.wikiLinks.format,
                                                    suffix: parms.wikiLinks.suffix,
@@ -169,6 +173,15 @@ public class ModWhenChanged {
                     let newLinks = mdBodyParser.wikiLinkList.links
                     let trans = Transmogrifier(io: io)
                     let mods = trans.updateLinks(for: modNote, links: newLinks)
+                    if mods {
+                        modified = true
+                    }
+                }
+                
+                if collection.inclusionsDef != nil {
+                    let newIncludes = mkdownContext.includedLinks.links
+                    let trans = Transmogrifier(io: io)
+                    let mods = trans.updateInclusions(for: modNote, links: newIncludes)
                     if mods {
                         modified = true
                     }

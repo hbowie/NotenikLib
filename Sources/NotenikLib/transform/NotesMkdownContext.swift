@@ -34,6 +34,7 @@ public class NotesMkdownContext: MkdownContext {
     // outside of the Markdown parser.
     public var mkdownCommandList = MkdownCommandList(collectionLevel: false)
     public var includedNotes: [String] = []
+    public var includedLinks = WikiLinkList()
     public var javaScript = ""
     public var hashTags: [String] = []
     public var localImages: [LinkPair] = []
@@ -68,6 +69,10 @@ public class NotesMkdownContext: MkdownContext {
         collection.textToParse = text
         collection.fileNameToParse = fileName
         collection.shortID = shortID
+        if collection.idToParse != collection.lastInclusion {
+            collection.includingID = id
+            collection.lastInclusion = ""
+        }
         mkdownCommandList = MkdownCommandList(collectionLevel: false)
         localImages = []
         javaScript = ""
@@ -169,6 +174,7 @@ public class NotesMkdownContext: MkdownContext {
     
     public func clearIncludedNotes() {
         includedNotes = []
+        includedLinks = WikiLinkList()
     }
     
     func includeFromNote(item: String, style: String) -> String? {
@@ -183,6 +189,23 @@ public class NotesMkdownContext: MkdownContext {
         }
         
         includedNotes.append(resolution.pathSlashID)
+        
+        let wikiLink = WikiLink()
+        
+        if let collection = io.collection {
+            wikiLink.setFrom(path: "", item: collection.includingID)
+            collection.lastInclusion = StringUtils.toCommon(item)
+        }
+        wikiLink.setOriginalTarget(item)
+        wikiLink.targetFound = true
+        let lookedUp = mkdownWikiLinkLookup(linkText: item)
+        if lookedUp == nil {
+            wikiLink.targetFound = false
+        } else {
+            wikiLink.updatedTarget = lookedUp!
+            wikiLink.targetFound = true
+        }
+        includedLinks.addLink(wikiLink)
         
         switch style {
         case "body":

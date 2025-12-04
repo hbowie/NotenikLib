@@ -101,6 +101,85 @@ public class Transmogrifier {
         return noteUpdated
     }
     
+    /// Update Inclusions  and IncludedBy links for an edited Note.
+    /// - Parameters:
+    ///   - note:  The note that has been edited.
+    ///   - links: The Inclusions derived from the latest Markdown contents of the
+    ///            note's body field.
+    /// - Returns: True if changes in the Inclusions were detected; false otherwise.
+    public func updateInclusions(for includingNote: Note, links: [WikiLink]) -> Bool {
+
+        guard let collection = io.collection else { return false }
+        guard collection.includedByDef != nil else { return false }
+        guard collection.inclusionsDef != nil else { return false }
+        
+        // Compare old links to new ones, deleting any matches
+        // from both lists.
+        var newLinks = links
+        var oldLinks = includingNote.inclusions.notePointers.list
+        
+        var i = 0
+        while i < newLinks.count {
+            var matched = false
+            let newLink = newLinks[i]
+            var j = 0
+            while j < oldLinks.count {
+                let oldLink = oldLinks[j]
+                if newLink.bestTarget.pathSlashID == oldLink.pathSlashID {
+                    matched = true
+                    oldLinks.remove(at: j)
+                    break
+                } else {
+                    j += 1
+                }
+            }
+            if matched {
+                newLinks.remove(at: i)
+            } else {
+                i += 1
+            }
+        }
+        
+        var noteUpdated = false
+        
+        // Now let's process any unmatched new links.
+        for newLink in newLinks {
+            noteUpdated = true
+            let (targetIO, includedNote) = getNote(newLink.bestTarget)
+            if includedNote != nil {
+                let modNote = includedNote!.copy() as! Note
+                let includedBy = modNote.includedBy
+                let path = includingNote.collection.collectionID
+                if path.isEmpty {
+                    includedBy.add(noteIdBasis: includingNote.noteID.basis)
+                } else {
+                    includedBy.add(noteIdBasis: path + "/" + includingNote.noteID.basis)
+                }
+                _ = modNote.setIncludedBy(includedBy)
+                _ = targetIO!.modNote(oldNote: includedNote!, newNote: modNote)
+            }
+        }
+        
+        for oldLink in oldLinks {
+            noteUpdated = true
+            let (targetIO, linkedNote) = getNote(oldLink)
+            if linkedNote != nil {
+                let modNote = linkedNote!.copy() as! Note
+                let includedBy = modNote.includedBy
+                includedBy.remove(noteIdBasis: includingNote.noteID.basis)
+                _ = modNote.setIncludedBy(includedBy)
+                _ = targetIO!.modNote(oldNote: linkedNote!, newNote: modNote)
+            }
+        }
+        
+        if noteUpdated {
+            _ = includingNote.setInclusions(wikiLinks: links)
+        }
+        
+        return noteUpdated
+    }
+    
+    
     /// Go through the entire Collection, updating Wikilinks and Backlinks fields to reflect
     /// current wiki style links found within Note bodies.
     public func generateBacklinks() -> Int {

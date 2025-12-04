@@ -70,8 +70,6 @@ public class NoteFieldsToHTML {
         self.expandedMarkdown = expandedMarkdown
         self.topOfPage = topOfPage
         
-        
-        
         if io != nil {
             mkdownContext = NotesMkdownContext(io: io!, displayParms: parms)
         }
@@ -206,6 +204,8 @@ public class NoteFieldsToHTML {
                             // ignore for now
                         } else if field!.def == collection.inclusionsDef {
                             // ignore for now
+                        } else if field!.def == collection.includedByDef {
+                            // ignore for now
                         } else if parms.displayMode == .quotations && field!.def.fieldType.typeString == NotenikConstants.booleanType {
                             // don't show flags in quotes mode
                         } else if field!.def.fieldType.typeString == NotenikConstants.pageStyleCommon {
@@ -269,6 +269,7 @@ public class NoteFieldsToHTML {
         formatWikilinks(note, linksHTML: code, io: io)
         formatBacklinks(note, linksHTML: code, io: io)
         formatInclusions(note, linksHTML: code, io: io)
+        formatIncludedBy(note, linksHTML: code, io: io)
         
         // Now add the bottom of the page, if any.
         if !bottomOfPage.isEmpty {
@@ -507,6 +508,24 @@ public class NoteFieldsToHTML {
                                initialReveal: initialReveal)
     }
     
+    func formatIncludedBy(_ note: Note, linksHTML: Markedup, io: NotenikIO?) {
+        guard let def = note.collection.includedByDef else { return }
+        let links = note.includedBy
+        guard links.hasData else { return }
+        if io != nil {
+            mkdownContext = NotesMkdownContext(io: io!, displayParms: parms)
+        }
+        var initialReveal = false
+        if let includedByType = def.fieldType as? IncludedByType {
+            initialReveal = includedByType.initialReveal
+        }
+        let wrangler = WikiLinkWrangler(options: mkdownOptions, context: mkdownContext)
+        wrangler.targetsToHTML(properLabel: def.fieldLabel.properForm,
+                               targets: links.notePointers,
+                               markedup: linksHTML,
+                               initialReveal: initialReveal)
+    }
+    
     func formatInclusions(_ note: Note, linksHTML: Markedup, io: NotenikIO?) {
         guard let def = note.collection.inclusionsDef else { return }
         guard parms.fullDisplay else { return }
@@ -553,6 +572,9 @@ public class NoteFieldsToHTML {
                                                    text: note.noteID.text,
                                                    fileName: note.noteID.commonFileName,
                                                    shortID: note.shortID.value)
+                if let nmkdcontext = mkdownContext as? NotesMkdownContext {
+                    nmkdcontext.clearIncludedNotes()
+                }
             }
         // Format the tags field
         } else if field.def == collection.tagsFieldDef && parms.displayTags {
