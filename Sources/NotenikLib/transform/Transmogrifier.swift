@@ -289,6 +289,115 @@ public class Transmogrifier {
         return backlinksCount
     }
     
+    /// Go through the entire Collection, updating Inclusions and Included By fields to reflect
+    /// current inclusions found within Note bodies.
+    public func generateIncludedBy() -> Int {
+        
+        guard let collection = io.collection else { return 0 }
+        guard collection.includedByDef != nil else { return 0 }
+        guard collection.inclusionsDef != nil else { return 0 }
+        
+        let noteDisplay = NoteDisplay()
+        let parms = DisplayParms()
+        parms.localMj = false
+        var from: [String:ListOfNoteIdentifiers] = [:]
+        var to:   [String:ListOfNoteIdentifiers] = [:]
+        
+        // First pass through the Notes in the Collection, storing linkages in memory.
+        var (sortedNote, position) = io.firstNote()
+        while sortedNote != nil {
+            let mdResults = TransformMdResults()
+            parms.setFrom(sortedNote: sortedNote!)
+            let _ = noteDisplay.display(sortedNote!, io: io, parms: parms, mdResults: mdResults)
+            let noteLinkList = mdResults.mkdownContext!.includedLinks
+            if !noteLinkList.isEmpty {
+                for link in noteLinkList.links {
+                    link.setFrom(path: "", item: sortedNote!.note.noteID.basis)
+                    
+                    // Add a Note if a target is missing
+                    if !link.targetFound {
+                        let newNote = Note(collection: sortedNote!.note.collection)
+                        _ = newNote.setTitle(link.originalTarget.item)
+                        newNote.identify()
+                        _ = io.addNote(newNote: newNote)
+                    }
+                    
+                    // Determine the To Title to be recorded
+                    var toTarget = link.originalTarget
+                    if !link.updatedTarget.isEmpty {
+                        toTarget = link.updatedTarget
+                    }
+                    
+                    // Record this link in the from dict.
+                    let fromTitles = from[link.fromTarget.itemID]
+                    if fromTitles == nil {
+                        from[link.fromTarget.itemID] = ListOfNoteIdentifiers(noteIdBasis: toTarget.pathSlashItem)
+                    } else {
+                        from[link.fromTarget.itemID]!.add(noteIdBasis: toTarget.pathSlashItem)
+                    }
+                    
+                    // Record this link in the To dict
+                    let toTitles = to[link.bestTarget.pathSlashID]
+                    if toTitles == nil {
+                        to[link.bestTarget.pathSlashID] = ListOfNoteIdentifiers(noteIdBasis: link.fromTarget.pathSlashItem)
+                    } else {
+                        to[link.bestTarget.pathSlashID]!.add(noteIdBasis: link.fromTarget.pathSlashItem)
+                    }
+                }
+            }
+            
+            (sortedNote, position) = io.nextNote(position)
+        }
+        
+        // Now make a second pass through the Notes in the Collection,
+        // updating them this time around.
+        var includedByCount = 0
+        (sortedNote, position) = io.firstNote()
+        while sortedNote != nil {
+            let inclusions = InclusionsValue()
+            let includedBy = IncludedByValue()
+
+            let fromList = from[sortedNote!.note.noteID.commonID]
+            if fromList != nil {
+                for noteIdBasis in fromList!.noteIDs {
+                    inclusions.add(noteIdBasis: noteIdBasis)
+                }
+            }
+            
+            let toList = to[sortedNote!.note.noteID.commonID]
+            if toList != nil {
+                for noteID in toList!.noteIDs {
+                    includedBy.notePointers.add(noteIdBasis: noteID)
+                    includedByCount += 1
+                }
+            }
+            
+            var noteUpdated = false
+            let modNote = sortedNote!.note.copy() as! Note
+            
+            if inclusions.value != sortedNote!.note.inclusions.value {
+                noteUpdated = true
+                _ = modNote.setInclusions(inclusions)
+            }
+            
+            if includedBy.value != sortedNote!.note.includedBy.value {
+                noteUpdated = true
+                _ = modNote.setIncludedBy(includedBy)
+            }
+            
+            if noteUpdated {
+                let (updatedNote, _) = io.modNote(oldNote: sortedNote!.note, newNote: modNote)
+                if updatedNote == nil {
+                    print("io.modNote failed!")
+                }
+            }
+            
+            (sortedNote, position) = io.nextNote(position)
+        }
+        
+        return includedByCount
+    }
+    
     let multiIO = MultiFileIO.shared
     
     /// Look for a Note, using the path to access a differnet Collection via MultifileIO, if path is non-blank.

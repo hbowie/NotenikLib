@@ -86,6 +86,7 @@ public class TransformMarkdown {
                                                        text: noteText,
                                                        fileName: noteFileName,
                                                        shortID: noteShortID)
+            results.mkdownContext!.clearIncludedNotes()
             io!.collection!.skipContentsForParent = false
         }
         
