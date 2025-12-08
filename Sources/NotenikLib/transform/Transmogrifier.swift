@@ -149,12 +149,12 @@ public class Transmogrifier {
             if includedNote != nil {
                 let modNote = includedNote!.copy() as! Note
                 let includedBy = modNote.includedBy
-                let path = includingNote.collection.collectionID
-                if path.isEmpty {
+                // let path = includingNote.collection.collectionID
+                // if path.isEmpty {
                     includedBy.add(noteIdBasis: includingNote.noteID.basis)
-                } else {
-                    includedBy.add(noteIdBasis: path + "/" + includingNote.noteID.basis)
-                }
+                // } else {
+                //     includedBy.add(noteIdBasis: path + "/" + includingNote.noteID.basis)
+                // }
                 _ = modNote.setIncludedBy(includedBy)
                 _ = targetIO!.modNote(oldNote: includedNote!, newNote: modNote)
             }

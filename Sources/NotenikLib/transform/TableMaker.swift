@@ -31,18 +31,18 @@ public class TableMaker: RowConsumer {
     public func consumeRow(labels: [String], fields: [String]) {
         if lineCount == 0 {
             for label in labels {
-                piped.append("| \(label)")
+                piped.append("| \(label) ")
             }
-            piped.append(" | \n")
+            piped.append("| \n")
             for _ in labels {
-                piped.append("| ---")
+                piped.append("| --- ")
             }
-            piped.append(" | \n")
+            piped.append("| \n")
         }
         for field in fields {
-            piped.append("| \(field)")
+            piped.append("| \(field) ")
         }
-        piped.append(" | \n")
+        piped.append("| \n")
         lineCount += 1
     }
 }

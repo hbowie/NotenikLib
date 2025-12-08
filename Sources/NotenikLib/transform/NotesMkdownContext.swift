@@ -188,6 +188,7 @@ public class NotesMkdownContext: MkdownContext {
             return "Note titled '\(item)' could not be included"
         }
         
+        // Keep track of included notes.
         includedNotes.append(resolution.pathSlashID)
         
         let wikiLink = WikiLink()
@@ -207,6 +208,7 @@ public class NotesMkdownContext: MkdownContext {
         }
         includedLinks.addLink(wikiLink)
         
+        // Vary processing and formatting based on style.
         switch style {
         case "body":
             return resolution.resolvedNote!.body.value
@@ -218,6 +220,8 @@ public class NotesMkdownContext: MkdownContext {
             return includeQuoteFromNote(note: resolution.resolvedNote!, withAttrib: false)
         case "quote":
             return includeQuoteFromNote(note: resolution.resolvedNote!)
+        case "ref":
+            return includeReferenceFromNote(note: resolution.resolvedNote!)
         default:
             return resolution.resolvedNote!.body.value
         }
@@ -316,6 +320,69 @@ public class NotesMkdownContext: MkdownContext {
                                            parms: displayParms,
                                            io: io)
         return markedUp.code
+    }
+    
+    func includeReferenceFromNote(note: Note) -> String? {
+        
+        let markedUp = Markedup(format: .htmlFragment)
+        
+        var parent: Note? = nil
+        if note.klass.value.contains("element") {
+            parent = includeElementParent(note: note)
+        }
+    
+        let link = displayParms.wikiLinks.assembleWikiLink(idBasis: note.noteID.basis)
+        markedUp.startParagraph()
+        markedUp.link(text: note.noteID.basis, path: link, klass: "wiki-link")
+        markedUp.finishParagraph()
+        
+        if parent != nil {
+            let parentLink = displayParms.wikiLinks.assembleWikiLink(idBasis: parent!.noteID.basis)
+            markedUp.startUnorderedList()
+            markedUp.startListItem()
+            markedUp.write("An element of ")
+            markedUp.link(text: parent!.noteID.basis, path: parentLink, klass: "wiki-link")
+            markedUp.finishListItem()
+            markedUp.finishUnorderedList()
+        }
+        return markedUp.code
+    }
+    
+    func includeElementParent(note: Note) -> Note? {
+        
+        // See if we have what we need to find this note's parents.
+        guard let collection = io.collection else { return nil }
+        guard io.collectionOpen else { return nil }
+        guard collection.seqFieldDef != nil else { return nil }
+        let sortParm = collection.sortParm
+        guard sortParm == .seqPlusTitle || sortParm == .custom else {
+            return nil
+        }
+        
+        hasLevel = (collection.levelFieldDef != nil)
+        hasSeq = (collection.seqFieldDef != nil)
+        
+        let currentPosition = io.positionOfNote(note)
+        var (priorSortedNote, priorPosition) = io.priorNote(currentPosition)
+        guard priorPosition.valid && priorSortedNote != nil else {
+            return nil
+        }
+        
+        var parentNote: Note?
+        
+        var navDone = false
+        
+        while priorSortedNote != nil && !navDone {
+            
+            if !priorSortedNote!.note.klass.value.contains("element") {
+                parentNote = priorSortedNote!.note
+                navDone = true
+            }
+
+            (priorSortedNote, priorPosition) = io.priorNote(priorPosition)
+        }
+        
+        return parentNote
     }
     
     // -----------------------------------------------------------
