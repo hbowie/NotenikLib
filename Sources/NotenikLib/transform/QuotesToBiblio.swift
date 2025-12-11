@@ -117,7 +117,6 @@ public class QuotesToBiblio {
         
         // Generate the work note
         let work = quote.note.workTitle.value
-        print("    + work = \(work)")
         if !work.isEmpty && work.lowercased() != "unknown" {
             genWork(quote: quote, author: author, work: work)
         }

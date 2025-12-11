@@ -17,6 +17,8 @@ import NotenikMkdown
 /// Retrieve and save Notes from and to files stored locally.
 public class FileIO: NotenikIO, RowConsumer {
     
+    var ioNumber = 0
+    
     // -----------------------------------------------------------
     //
     // MARK: Variables required by NotenikIO
@@ -141,6 +143,8 @@ public class FileIO: NotenikIO, RowConsumer {
         realm.name = NSUserName()
         realm.path = NSHomeDirectory()
         closeCollection()
+        ioNumber = IOJuggler.shared.getNextIoNumber()
+        logInfo("New FileIO Instance Created")
     }
     
     /// Provide an inspector that will be passed each Note as a Collection is opened.
@@ -2476,7 +2480,7 @@ public class FileIO: NotenikIO, RowConsumer {
     /// Send an informative message to the log.
     func logInfo(_ msg: String) {
         Logger.shared.log(subsystem: "com.powersurgepub.notenik",
-                          category: "FileIO",
+                          category: "FileIO # \(ioNumber)",
                           level: .info,
                           message: msg)
     }
@@ -2484,7 +2488,7 @@ public class FileIO: NotenikIO, RowConsumer {
     /// Send an error message to the log.
     func logError(_ msg: String) {
         Logger.shared.log(subsystem: "com.powersurgepub.notenik",
-                          category: "FileIO",
+                          category: "FileIO # \(ioNumber)",
                           level: .error,
                           message: msg)
     }

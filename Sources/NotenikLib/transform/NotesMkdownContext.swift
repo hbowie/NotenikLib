@@ -362,6 +362,8 @@ public class NotesMkdownContext: MkdownContext {
         hasLevel = (collection.levelFieldDef != nil)
         hasSeq = (collection.seqFieldDef != nil)
         
+        let (_, selPosition) = io.getSelectedNote()
+        
         let currentPosition = io.positionOfNote(note)
         var (priorSortedNote, priorPosition) = io.priorNote(currentPosition)
         guard priorPosition.valid && priorSortedNote != nil else {
@@ -380,6 +382,9 @@ public class NotesMkdownContext: MkdownContext {
             }
 
             (priorSortedNote, priorPosition) = io.priorNote(priorPosition)
+        }
+        if selPosition.valid {
+            _ = io.selectNote(at: selPosition.index)
         }
         
         return parentNote
