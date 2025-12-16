@@ -68,6 +68,15 @@ public class AppPrefs {
     let rightSyncKey = "right-sync"
     var _rightSync: URL?
     
+    let quotesForBiblioKey = "quotes-for-biblio"
+    var _quotesForBiblio: URL? = nil
+    
+    let existingBiblioKey = "existing-biblio"
+    var _existingBiblio: URL? = nil
+    
+    let outputBiblioKey = "output-biblio"
+    var _outputBiblio: URL? = nil
+    
     let shortcutsKey = "shortcuts"
     var _shortcuts = ""
     
@@ -237,6 +246,10 @@ public class AppPrefs {
         _lastURL = defaults.url(forKey: lastURLKey)
         
         _leftSync = defaults.url(forKey: leftSyncKey)
+        
+        _quotesForBiblio = defaults.url(forKey: quotesForBiblioKey)
+        _existingBiblio = defaults.url(forKey: existingBiblioKey)
+        _outputBiblio = defaults.url(forKey: outputBiblioKey)
         
         _rightSync = defaults.url(forKey: rightSyncKey)
         
@@ -518,6 +531,36 @@ public class AppPrefs {
         set {
             _rightSync = newValue
             defaults.set(_rightSync, forKey: rightSyncKey)
+        }
+    }
+    
+    public var quotesForBiblio: URL? {
+        get {
+            return _quotesForBiblio
+        }
+        set {
+            _quotesForBiblio = newValue
+            defaults.set(_quotesForBiblio, forKey: quotesForBiblioKey)
+        }
+    }
+    
+    public var existingBiblio: URL? {
+        get {
+            return _existingBiblio
+        }
+        set {
+            _existingBiblio = newValue
+            defaults.set(_existingBiblio, forKey: existingBiblioKey)
+        }
+    }
+    
+    public var outputBiblio: URL? {
+        get {
+            return _outputBiblio
+        }
+        set {
+            _outputBiblio = newValue
+            defaults.set(_outputBiblio, forKey: outputBiblioKey)
         }
     }
     

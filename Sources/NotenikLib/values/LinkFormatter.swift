@@ -140,8 +140,16 @@ public class LinkFormatter {
                         str.append("/")
                     }
                 }
+                var lastPath = url.lastPathComponent
                 if pathInstruction == .simplify {
-                    let lastPath = url.deletingPathExtension().lastPathComponent
+                    let ext = url.pathExtension
+                    let extLower = ext.lowercased()
+                    switch extLower {
+                    case "htm", "html":
+                        lastPath = url.deletingPathExtension().lastPathComponent
+                    default:
+                        break
+                    }
                     let simplified = StringUtils.wordDemarcation(lastPath, caseMods: ["a", "a", "a"], delimiter: " ")
                     str.append(simplified)
                 } else {

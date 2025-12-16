@@ -80,7 +80,7 @@ public class QuotesToBiblio {
         biblioCollection = biblioIO.collection!
     }
     
-    public func transform() {
+    public func transform() -> Int {
         quotesAdded = 0
         let seqParms = SeqParms()
         authorSeq = SeqValue("3.4.0", seqParms: seqParms)
@@ -105,6 +105,7 @@ public class QuotesToBiblio {
         }
         
         logInfo("Added \(quotesAdded) biblio quotes")
+        return quotesAdded
     }
     
     func transformOneNote(quote: SortedNote) {
