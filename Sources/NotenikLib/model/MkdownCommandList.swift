@@ -66,6 +66,15 @@ public class MkdownCommandList {
         return nil
     }
     
+    public func getModsFor(_ command: String) -> String? {
+        for usage in commands {
+            if usage.command == command {
+                return usage.mods
+            }
+        }
+        return nil
+    }
+    
     /// Return the code associated with a particular command.
     public func getCodeFor(_ command: String) -> String {
         for usage in commands {
@@ -100,7 +109,7 @@ public class MkdownCommandList {
     ///   - code: The code generated from the Note's body field.
     public func updateWith(noteList: MkdownCommandList) {
         for usage in noteList.commands {
-            updateWith(command: usage.command, noteTitle: usage.noteID, code: usage.code)
+            updateWith(command: usage.command, noteTitle: usage.noteID, code: usage.code, mods: usage.mods)
         }
     }
     
@@ -150,9 +159,9 @@ public class MkdownCommandList {
     ///   - command: The Markdown command.
     ///   - noteTitle: The title of the Note.
     ///   - code: The code generated from the Note.
-    public func updateWith(command: String, noteTitle: String, code: String?) {
+    public func updateWith(command: String, noteTitle: String, code: String?, mods: String? = nil) {
         
-        let usage = MkdownCommandUsage(command: command, noteTitle: noteTitle)
+        let usage = MkdownCommandUsage(command: command, noteTitle: noteTitle, mods: mods)
         guard !collectionLevel || usage.saveForCollection else { return }
         var i = 0
         var done = false
@@ -173,6 +182,9 @@ public class MkdownCommandList {
         }
         if commands[i].saveCode && commands[i].code.isEmpty && code != nil && !code!.isEmpty {
             commands[i].code = code!
+        }
+        if mods != nil && !mods!.isEmpty && commands[i].mods.isEmpty {
+            commands[i].mods = mods!
         }
     }
     

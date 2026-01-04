@@ -144,7 +144,6 @@ public class QuotesToBiblio {
             _ = authorNote!.setSeq(authorSeq.value)
             _ = authorNote!.setLevel(3)
             _ = authorNote!.setKlass("author")
-            _ = authorNote!.setTags("authors")
             if let quoteLinkField = FieldGrabber.getField(note: quote.note, label: "Author Link") {
                 _ = authorNote!.setLink(quoteLinkField.value.value)
             }
@@ -179,7 +178,6 @@ public class QuotesToBiblio {
             _ = workNote!.setLevel(4)
             _ = workNote!.setKlass("work")
             _ = workNote!.setAuthor(author)
-            _ = workNote!.setTags("works")
             if let quoteLinkField = FieldGrabber.getField(note: quote.note, label: "Work Link") {
                 _ = workNote!.setLink(quoteLinkField.value.value)
             }
@@ -205,7 +203,7 @@ public class QuotesToBiblio {
         _ = quoteNote.setSeq(quoteSeq.value)
         _ = quoteNote.setLevel(5)
         _ = quoteNote.setKlass("quote")
-        _ = quoteNote.setTags(quote.note.tags.value)
+        // _ = quoteNote.setTags(quote.note.tags.value)
         _ = quoteNote.setBody(quote.note.body.value)
         let (addedNote, _) = biblioIO.addNote(newNote: quoteNote)
         if addedNote != nil {

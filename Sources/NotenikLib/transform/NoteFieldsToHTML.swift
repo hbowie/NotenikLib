@@ -94,10 +94,74 @@ public class NoteFieldsToHTML {
         
         // Start the Markedup code generator.
         let code = Markedup(format: parms.format)
-        let noteTitle = pop.toXML(note.title.value)
+        
+        var noteTitle = pop.toXML(note.title.value)
+        var suffix = parms.titleSuffix
+        if !suffix.isEmpty && suffix.last!.isWhitespace {
+            suffix.removeLast()
+        }
+        if !suffix.isEmpty {
+            if suffix.last!.isPunctuation {
+                noteTitle = pop.toXML(suffix + " " + note.title.value)
+            } else {
+                noteTitle = pop.toXML(note.title.value + " " + suffix)
+            }
+        }
+        
+        // See if we have a meta description value
+        var desc: String? = nil
+        if parms.descriptionCode == .longTitle && note.hasLongTitle() {
+            desc = note.longTitle.value
+        }
+        if parms.descriptionCode == .teaser && note.hasTeaser() {
+            desc = note.teaser.value
+        }
+        if desc == nil && parms.descriptionCode != .none {
+            let options = MkdownOptions()
+            let parser = MkdownParser(note.body.value, options: options)
+            parser.parse()
+            desc = StringUtils.summarize(parser.plainText.text, max: 160, ellipsis: true, trailingPeriod: false)
+        }
+        
+        // Determint the author to identify (if any)
+        var author = ""
+        if !parms.author.isEmpty {
+            let creator = note.creator
+            if !creator.isEmpty {
+                if let authorValue = creator as? AuthorValue {
+                    author = authorValue.firstNameFirst
+                } else {
+                    author = creator.value
+                }
+            } else if note.hasKlass() {
+                if note.klass.value == "author" {
+                    if note.hasAKA() {
+                        author = note.aka.value
+                    } else {
+                        let authorTitle = note.title.value
+                        if authorTitle.contains(", ") {
+                            let authorValue = AuthorValue(authorTitle)
+                            author = authorValue.firstNameFirst
+                        } else {
+                            author = note.title.value
+                        }
+                    }
+                } else if note.klass.value == "work" && note.hasAttribution() {
+                    author = authorFromAttribution(note.attribution.value)
+                } else if note.klass.value == "quote" && note.hasAttribution() {
+                    author = authorFromAttribution(note.attribution.value)
+                }
+            } else {
+                author = parms.author
+            }
+        }
+        
+        // Start the document now, creating the head section
         if parms.displayMode != .continuous && parms.displayMode !=  .continuousPartial {
             code.startDoc(withTitle: noteTitle,
                           withCSS: note.getCombinedCSS(cssString: parms.cssString),
+                          withDesc: desc,
+                          withAuthor: author,
                           linkToFile: parms.cssLinkToFile,
                           withJS: mkdownOptions.getHtmlScript(),
                           epub3: parms.epub3,
@@ -306,6 +370,22 @@ public class NoteFieldsToHTML {
         
         // Return the markup. 
         return String(describing: code)
+    }
+    
+    func authorFromAttribution(_ attr: String) -> String {
+        var author = ""
+        for c in attr {
+            if c == "[" {
+                // ignore left bracket(s)
+            } else if c == "]" {
+                break
+            } else if c == "|" {
+                author = ""
+            } else {
+                author.append(c)
+            }
+        }
+        return author
     }
     
     /// Get the code used to display this entire note as a web page, including html tags.

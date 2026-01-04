@@ -3,7 +3,7 @@
 //  NotenikLib
 //
 //  Created by Herb Bowie on 1/22/19.
-//  Copyright © 2019 - 2025 Herb Bowie (https://hbowie.net)
+//  Copyright © 2019 - 2026 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -42,6 +42,7 @@ public class NoteDisplay {
     }
     
     public func loadResourcePagesForCollection(io: NotenikIO, parms: DisplayParms) {
+        
         guard parms.formatIsHTML && AppPrefs.shared.parseUsingNotenik else { return }
         guard let collection = io.collection else { return }
         mkdownOptions = MkdownOptions()
@@ -690,6 +691,29 @@ public class NoteDisplay {
                                 imageWithinPage: String,
                                 bottomOfPage: String,
                                 continuousPosition: ContinuousPosition = .middle) -> String {
+        
+        let cmdList = note.collection.mkdownCommandList
+        if cmdList.contains(MkdownConstants.titleSuffixCmd) {
+            if let titleSuffix =  cmdList.getModsFor(MkdownConstants.titleSuffixCmd) {
+                parms.titleSuffix = titleSuffix
+            }
+        }
+        
+        if cmdList.contains(MkdownConstants.descriptionCmd) {
+            if let pageDescRaw = cmdList.getModsFor(MkdownConstants.descriptionCmd) {
+                if let pageDescCode = PageDescriptionCode(rawValue: pageDescRaw.lowercased()) {
+                    parms.descriptionCode = pageDescCode
+                }
+            }
+        }
+        
+        if cmdList.contains(MkdownConstants.authorCmd) {
+            if let author = cmdList.getModsFor(MkdownConstants.authorCmd) {
+                if !author.isEmpty {
+                    parms.author = author
+                }
+            }
+        }
         
         let fieldsToHTML = NoteFieldsToHTML()
         parms.included.reset()

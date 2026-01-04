@@ -41,6 +41,9 @@ public class DisplayParms {
     public var checkBoxMessageHandlerName = ""
     public var inlineHashtags = false
     public var addins: [String] = []
+    public var titleSuffix = ""
+    public var descriptionCode: PageDescriptionCode = .none
+    public var author = ""
     
     public var tagsIndexFilename: String? = nil
     public var hasTagsIndexFilename: Bool {

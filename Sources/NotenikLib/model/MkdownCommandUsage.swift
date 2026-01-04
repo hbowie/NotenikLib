@@ -22,6 +22,7 @@ import NotenikUtils
 public class MkdownCommandUsage: Comparable, Equatable {
     
     var command = ""
+    var mods    = ""
     var noteID  = ""
     var code    = ""
     
@@ -32,9 +33,12 @@ public class MkdownCommandUsage: Comparable, Equatable {
     /// - Parameters:
     ///   - command: The Markdown command being documented.
     ///   - noteTitle: The title of the Note containing the command.
-    public init(command: String, noteTitle: String) {
+    public init(command: String, noteTitle: String, mods: String? = nil) {
         self.command = StringUtils.toCommon(command)
         self.noteID = StringUtils.toCommon(noteTitle)
+        if mods != nil {
+            self.mods = mods!
+        }
         setCommandAttributes()
     }
     
@@ -58,6 +62,12 @@ public class MkdownCommandUsage: Comparable, Equatable {
         case MkdownConstants.tagsCloudCmd:
             saveForCollection = true
         case MkdownConstants.tagsOutlineCmd:
+            saveForCollection = true
+        case MkdownConstants.authorCmd:
+            saveForCollection = true
+        case MkdownConstants.titleSuffixCmd:
+            saveForCollection = true
+        case MkdownConstants.descriptionCmd:
             saveForCollection = true
         default:
             saveCode = false

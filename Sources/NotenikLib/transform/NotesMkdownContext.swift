@@ -86,7 +86,7 @@ public class NotesMkdownContext: MkdownContext {
     // -----------------------------------------------------------
     
     /// Expose the usage of a Markdown command found within the page.
-    public func exposeMarkdownCommand(_ command: String) {
+    public func exposeMarkdownCommand(_ command: String, mods: String? = nil) {
         guard let collection = io.collection else {
             // print("  - collection is missing!")
             return
@@ -95,7 +95,7 @@ public class NotesMkdownContext: MkdownContext {
             // print("  - id to parse is missing!")
             return
         }
-        mkdownCommandList.updateWith(command: command, noteTitle: collection.idToParse, code: nil)
+        mkdownCommandList.updateWith(command: command, noteTitle: collection.idToParse, code: nil, mods: mods)
     }
     
     /// Expose the usage of an image link.
