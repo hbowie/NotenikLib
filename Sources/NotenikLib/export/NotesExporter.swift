@@ -983,9 +983,10 @@ public class NotesExporter {
         }
 
         mkdownContext.identifyNoteToParse(id: note.noteID.commonID,
-                                      text: note.noteID.text,
-                                      fileName: note.noteID.commonFileName,
-                                      shortID: note.shortID.value)
+                                          text: note.noteID.text,
+                                          fileName: note.noteID.commonFileName,
+                                          shortID: note.shortID.value,
+                                          initialDisplay: false)
         let collection = note.collection
         collection.skipContentsForParent = false
         mdBodyParser = nil

@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 4/5/19.
-//  Copyright © 2019 - 2024 Herb Bowie (https://hbowie.net)
+//  Copyright © 2019 - 2026 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -147,9 +147,10 @@ public class ModWhenChanged {
                 let body = modNote.body
                 let mdBodyParser = MkdownParser(body.value, options: mkdownOptions)
                 mkdownContext.identifyNoteToParse(id: modNote.noteID.commonID,
-                                              text: modNote.noteID.text,
-                                              fileName: modNote.noteID.commonFileName,
-                                              shortID: modNote.shortID.value)
+                                                  text: modNote.noteID.text,
+                                                  fileName: modNote.noteID.commonFileName,
+                                                  shortID: modNote.shortID.value,
+                                                  initialDisplay: false)
                 mkdownContext.clearIncludedNotes()
                 mdBodyParser.setWikiLinkFormatting(prefix: parms.wikiLinks.prefix,
                                                    format: parms.wikiLinks.format,

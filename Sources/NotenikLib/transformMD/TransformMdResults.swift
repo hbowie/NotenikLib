@@ -2,7 +2,7 @@
 //  TransformMdResults.swift
 //  NotenikLib
 //
-//  Copyright © 2023 Herb Bowie (https://hbowie.net)
+//  Copyright © 2023 - 2026 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -27,6 +27,7 @@ public class TransformMdResults {
     // The following variables show the results of the parsing of
     // the body field for the current Note.
     public var bodyHTML: String? = nil
+    public var bodyText: String? = nil
     public var counts = MkdownCounts()
     public var minutesToRead: MinutesToReadValue?
     

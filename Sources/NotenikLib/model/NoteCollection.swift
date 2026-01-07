@@ -3,7 +3,7 @@
 //  NotenikLib
 //
 //  Created by Herb Bowie on 12/4/18.
-//  Copyright © 2019 - 2025 Herb Bowie (https://hbowie.net)
+//  Copyright © 2019 - 2026 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -156,6 +156,7 @@ public class NoteCollection {
     public  var textToParse    = ""
     public  var fileNameToParse = ""
     public  var shortID        = ""
+    public  var initialDisplay = true
     public  var tocNoteID      = ""
     public  var includingID    = ""
     public  var lastInclusion  = ""

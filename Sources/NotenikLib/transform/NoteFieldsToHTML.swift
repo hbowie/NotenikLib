@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 4/15/21.
 //
-//  Copyright © 2021 - 2025 Herb Bowie (https://hbowie.net)
+//  Copyright © 2021 - 2026 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -116,14 +116,11 @@ public class NoteFieldsToHTML {
         if parms.descriptionCode == .teaser && note.hasTeaser() {
             desc = note.teaser.value
         }
-        if desc == nil && parms.descriptionCode != .none {
-            let options = MkdownOptions()
-            let parser = MkdownParser(note.body.value, options: options)
-            parser.parse()
-            desc = StringUtils.summarize(parser.plainText.text, max: 160, ellipsis: true, trailingPeriod: false)
+        if desc == nil && parms.descriptionCode != .none && results.bodyText != nil {
+            desc = StringUtils.summarize(results.bodyText!, max: 160, ellipsis: true, trailingPeriod: false)
         }
         
-        // Determint the author to identify (if any)
+        // Determine the author to identify (if any)
         var author = ""
         if !parms.author.isEmpty {
             let creator = note.creator
@@ -651,7 +648,8 @@ public class NoteFieldsToHTML {
                 mkdownContext!.identifyNoteToParse(id: note.noteID.commonID,
                                                    text: note.noteID.text,
                                                    fileName: note.noteID.commonFileName,
-                                                   shortID: note.shortID.value)
+                                                   shortID: note.shortID.value,
+                                                   initialDisplay: true)
                 if let nmkdcontext = mkdownContext as? NotesMkdownContext {
                     nmkdcontext.clearIncludedNotes()
                 }

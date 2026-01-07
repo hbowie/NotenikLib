@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 7/12/21.
 //
-//  Copyright © 2021 - 2025 Herb Bowie (https://hbowie.net)
+//  Copyright © 2021 - 2026 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -63,12 +63,18 @@ public class NotesMkdownContext: MkdownContext {
     ///   - text: A textual representation of the note ID, to be read by humans.
     ///   - fileName: The common filename for the note.
     ///   - shortID: The short, minimal, ID for the note.
-    public func identifyNoteToParse(id: String, text: String, fileName: String, shortID: String) {
+    ///   - initialDisplay: Is this the initial display of the note?
+    public func identifyNoteToParse(id: String,
+                                    text: String,
+                                    fileName: String,
+                                    shortID: String,
+                                    initialDisplay: Bool = true) {
         guard let collection = io.collection else { return }
         collection.idToParse = id
         collection.textToParse = text
         collection.fileNameToParse = fileName
         collection.shortID = shortID
+        collection.initialDisplay = initialDisplay
         if collection.idToParse != collection.lastInclusion {
             collection.includingID = id
             collection.lastInclusion = ""
@@ -635,10 +641,12 @@ public class NotesMkdownContext: MkdownContext {
         indexCollection.sort()
         
         if let collection = io.collection {
-            collection.indexPageID = collection.idToParse
-            collection.indexOfCollection = indexCollection
-            collection.lastIndexTermKey = ""
-            collection.lastIndexTermPageIx = -1
+            if collection.initialDisplay {
+                collection.indexPageID = collection.idToParse
+                collection.indexOfCollection = indexCollection
+                collection.lastIndexTermKey = ""
+                collection.lastIndexTermPageIx = -1
+            }
         }
         
         // Generate an index, formatted using Markdown.
