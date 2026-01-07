@@ -71,6 +71,25 @@ public class NotesToTextDriver {
         return exportCount
     }
     
+    public func toText(selection: SelectedNotes) -> Int {
+        
+        exportCount = 0
+        notesToText.start()
+        
+        for sortedNote in selection {
+            let added = notesToText.oneNoteToText(note: sortedNote.note)
+            if added < 0 {
+                return failure
+            } else {
+                exportCount += added
+            }
+        }
+        
+        notesToText.finish()
+        
+        return exportCount
+    }
+    
     public func quickExport() -> Bool {
         guard let fileIO = io as? FileIO else { return false }
         guard let collection = fileIO.collection else { return false }
