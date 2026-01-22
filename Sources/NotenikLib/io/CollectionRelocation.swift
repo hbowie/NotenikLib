@@ -3,7 +3,7 @@
 //  NotenikLib
 //
 //  Created by Herb Bowie on 11/26/20.
-//  Copyright © 2020-2021 Herb Bowie (https://hbowie.net)
+//  Copyright © 2020-2026 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -52,6 +52,7 @@ public class CollectionRelocation {
         fromPath = from
         toPath = to
         self.move = move
+        var klassFolder: String? = nil
         
         // Copy or Move Nested Collections.
         do {
@@ -65,6 +66,8 @@ public class CollectionRelocation {
                         let subTo = FileUtils.joinPaths(path1: to, path2: dirEntry)
                         let subRelo = CollectionRelocation()
                         _ = subRelo.copyOrMoveCollection(from: subFrom, to: subTo, move: move)
+                    } else if dirEntry == NotenikConstants.klassFolderName {
+                        klassFolder = dirEntry
                     }
                 }
             }
@@ -124,6 +127,11 @@ public class CollectionRelocation {
         toCollection!.dailyNotesType = fromCollection!.dailyNotesType
         
         toNotesPath = toCollection!.lib.getPath(type: .notes)
+        
+        // Copy the class folder, if it exists.
+        if klassFolder != nil {
+            copySubfolder(folderName: klassFolder!, move: move)
+        }
 
         let caseMods = ["u", "u", "l"]
         for def in fromDict.list {

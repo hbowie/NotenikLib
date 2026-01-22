@@ -1279,7 +1279,7 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     
     /// Return a derived depth, using level, if available, otherwise seq depth, if available,
     /// otherwise 1.
-    var depth: Int {
+    public var depth: Int {
         
         // Use level, if we have it
         if let levelDef = collection.levelFieldDef {

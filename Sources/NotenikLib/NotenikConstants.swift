@@ -225,12 +225,15 @@ public struct NotenikConstants {
     //
     //-------------------------------------------------------------
     
+    public static let actionKlass       = "action"
     public static let authorKlass       = "author"
     public static let backKlass         = "back"
     public static let biblioKlass       = "biblio"
     public static let excludeKlass      = "exclude"
     public static let frontKlass        = "front"
+    public static let headerKlass       = "header"
     public static let introKlass        = "intro"
+    public static let itemKlass         = "item"
     public static let prefaceKlass      = "preface"
     public static let quoteKlass        = "quote"
     public static let quotationKlass    = "quotation"

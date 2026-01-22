@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 8/4/24.
 //
-//  Copyright © 2024 - 2025 Herb Bowie (https://hbowie.net)
+//  Copyright © 2024 - 2026 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -53,11 +53,15 @@ public class OutlineNode2: Comparable, CustomStringConvertible, Hashable {
             if _sortedNote != nil {
                 type = .note
                 level = _sortedNote!.depth
+                seqSegCount = _sortedNote!.seqSingleValue.numberOfLevels
                 seqSortKey = _sortedNote!.seqSortKey
+                seqSortSegments = seqSortKey.split(separator: ".", omittingEmptySubsequences: false)
                 seqValue = _sortedNote!.seqSingleValue.value
             } else {
                 level = 0
                 seqSortKey = ""
+                seqSortSegments = []
+                seqSegCount = 0
             }
         }
     }
@@ -66,11 +70,17 @@ public class OutlineNode2: Comparable, CustomStringConvertible, Hashable {
     // The Seq Sort Key for this node
     var seqSortKey = ""
     
+    // The sort key split into segments
+    var seqSortSegments: [String.SubSequence] = []
+    
     // The Seq Value for this Node
     var seqValue   = ""
     
     // Level in hierarchy as indicated by level and/or seq fields.
     var level = 0
+    
+    // Number of seq segments
+    var seqSegCount = 0
     
     // -----------------------------------------------------------
     //
@@ -182,8 +192,16 @@ public class OutlineNode2: Comparable, CustomStringConvertible, Hashable {
         guard level > possibleParent.level else {
             return false
         }
-        guard seqValue.starts(with: possibleParent.seqValue) else {
-            return false
+        var i = 0
+        var parentCount = possibleParent.seqSegCount
+        if parentCount < 1 {
+            parentCount = 1
+        }
+        while i < parentCount {
+            if possibleParent.seqSortSegments[i] != seqSortSegments[i] {
+                return false
+            }
+            i += 1
         }
         return true
     }
