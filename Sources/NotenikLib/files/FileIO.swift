@@ -484,9 +484,12 @@ public class FileIO: NotenikIO, RowConsumer {
             mkdownContext = NotesMkdownContext(io: self, displayParms: displayParms)
         }
         for item in notesContents! {
-            if item.type == .folder {
+            if item.type == .folder && !item.fileName.starts(with: ".") {
                 if let def = collection?.folderFieldDef {
-                    loadNotesSubFolder(folderFieldDef: def, realm: realm, collectionPath: collectionPath, subFolder: item)
+                    let folderToExclude = collection!.foldersToExclude[item.fileName]
+                    if folderToExclude == nil {
+                        loadNotesSubFolder(folderFieldDef: def, realm: realm, collectionPath: collectionPath, subFolder: item)
+                    }
                 }
             } else if item.type == .note {
                 let note = item.readNote(collection: collection!, reportErrors: true)

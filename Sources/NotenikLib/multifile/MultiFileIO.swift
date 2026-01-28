@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 8/19/21.
 
-//  Copyright © 2021 - 2024 Herb Bowie (https://hbowie.net)
+//  Copyright © 2021 - 2026 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -110,7 +110,6 @@ public class MultiFileIO {
     public func provision(collectionPath: String,
                           inspector: NoteOpenInspector?,
                           readOnly: Bool) -> (NoteCollection?, FileIO) {
-        
         let io = FileIO()
         let realm = io.getDefaultRealm()
         realm.path = ""
@@ -126,13 +125,13 @@ public class MultiFileIO {
                 if existingIO.collectionOpen && existingIO.collection != nil {
                     return (existingIO.collection, existingIO)
                 } else {
-                    // print("  - I/O module found but not opened")
+                    print("  - I/O module found but not opened")
                 }
             } else {
-                // print("  - Existing I/O module not found!")
+                print("  - Existing I/O module not found!")
             }
         } else {
-            // print("  - File Path Key could not be found!")
+            print("  - File Path Key could not be found!")
         }
         
 
@@ -143,7 +142,6 @@ public class MultiFileIO {
                                                             collectionPath: filePathKey.key,
                                                             readOnly: readOnly,
                                                             multiRequests: requests)
-        
         if collection != nil {
             if let url = collection!.fullPathURL {
                 let link = NotenikLink(url: url, isCollection: true)

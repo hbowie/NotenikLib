@@ -210,5 +210,29 @@ class ApplyTemplateValues {
             }
         }
         
+        if def.fieldType.typeString == NotenikConstants.folderCommon {
+            if typeValues.count > 0 {
+                collection.foldersToExclude.removeAll()
+                var folder = ""
+                for c in typeValues.str {
+                    if folder.isEmpty && c.isWhitespace {
+                        // Drop leading spaces from folder name
+                    } else if c == ">" {
+                        // Skip end of field definition
+                    } else if c == ":" {
+                        folder = ""
+                    } else if c == "," || c == ";" {
+                        collection.foldersToExclude[folder] = folder
+                        folder = ""
+                    } else {
+                        folder.append(c)
+                    }
+                }
+                if !folder.isEmpty {
+                    collection.foldersToExclude[folder] = folder
+                }
+            }
+        }
+        
     }
 } // end of class ApplyTemplateValues

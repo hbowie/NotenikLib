@@ -83,6 +83,7 @@ public class NoteCollection {
     
     public  var seqFormatter =  SeqFormatter()
     public  var linkFormatter = LinkFormatter()
+    public  var foldersToExclude: [String: String] = [:]
     
     public  var noteIdentifier = NoteIdentifier()
     
@@ -743,6 +744,7 @@ public class NoteCollection {
         for (_, def) in dict.dict {
             _ = dict2.addDef(def)
         }
+        collection2.foldersToExclude = foldersToExclude
     }
     
     /// This is a short identifier meant for internal use.
