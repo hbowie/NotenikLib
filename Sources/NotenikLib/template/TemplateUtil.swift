@@ -1118,6 +1118,8 @@ public class TemplateUtil {
                 zStage = 1
             } else if charLower == "'" {
                 modifiedValue = emailSingleQuoteConverter.convert(from: modifiedValue)
+            } else if char == "-" {
+                modifiedValue = StringUtils.trim(modifiedValue)
             } else if char == "\\" {
                 modifiedValue = StringUtils.prepHTMLforJSON(modifiedValue)
             } else if char == "#" && varNameCommon == NotenikConstants.tagsCommon {
