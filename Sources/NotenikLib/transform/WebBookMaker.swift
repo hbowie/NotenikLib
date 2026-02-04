@@ -114,6 +114,8 @@ public class WebBookMaker {
     var filesDeleted = 0
     var filesWritten = 0
     
+    var filesToRemove: [String : URL] = [:]
+    
     let htmlConverter = StringConverter()
     
     // -----------------------------------------------------------
@@ -371,6 +373,9 @@ public class WebBookMaker {
         copyImages()
         
         // Now finish up.
+        for (_, url) in filesToRemove {
+            try? fm.removeItem(at: url)
+        }
         if epub {
             _ = generateManifest(folder: "", filenameWithExt: "", finish: true)
             generateSpine(idref: "", finish: true)
@@ -457,8 +462,9 @@ public class WebBookMaker {
                     if webBookType == .website && entry.lastPathComponent == hdrFN {
                         // Leave the header file
                     } else {
+                        filesToRemove[entry.path] = entry
                         // if epub || entry.lastPathComponent != "index.html" {
-                        try fm.removeItem(at: entry)
+                        // try fm.removeItem(at: entry)
                         filesDeleted += 1
                         // }
                     }
@@ -683,18 +689,19 @@ public class WebBookMaker {
         let fileURL = URL(fileURLWithPath: fileName, relativeTo: htmlFolder).appendingPathExtension(htmlFileExt)
         let mdResults = TransformMdResults()
         let code = display.display(sortedNote, io: io, parms: parms, mdResults: mdResults)
-        
+        _ = filesToRemove.removeValue(forKey: fileURL.path)
         let written = FileUtils.saveToDisk(strToWrite: code,
                                            outputURL: fileURL,
                                            createDirectories: true,
-                                           checkForChanges: false)
+                                           checkForChanges: true)
         
         if firstPage && !epub {
             let indexURL = URL(fileURLWithPath: "index", relativeTo: htmlFolder).appendingPathExtension(htmlFileExt)
+            _ = filesToRemove.removeValue(forKey: indexURL.path)
             _ = FileUtils.saveToDisk(strToWrite: code,
                                      outputURL: indexURL,
                                      createDirectories: false,
-                                     checkForChanges: false)
+                                     checkForChanges: true)
         }
         
         if written {
