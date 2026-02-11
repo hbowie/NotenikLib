@@ -704,14 +704,15 @@ public class WebBookMaker {
                                      checkForChanges: true)
         }
         
+        if let imgURL = sortedNote.note.getImageURL() {
+            if let imgCommon = sortedNote.note.getImageCommonName() {
+                let img = ImageFile(originalLocation: imgURL, toName: imgCommon)
+                images.append(img)
+            }
+        }
+        
         if written {
             filesWritten += 1
-            if let imgURL = sortedNote.note.getImageURL() {
-                if let imgCommon = sortedNote.note.getImageCommonName() {
-                    let img = ImageFile(originalLocation: imgURL, toName: imgCommon)
-                    images.append(img)
-                }
-            }
             if epub {
                 var properties = ""
                 if sortedNote.note.mkdownCommandList.scripted {
@@ -1166,6 +1167,12 @@ public class WebBookMaker {
         init(originalLocation: URL, toName: String) {
             self.originalLocation = originalLocation
             self.toName = toName
+        }
+        
+        func display() {
+            print("    - ImageFile.display")
+            print("      - original location = \(originalLocation!)")
+            print("      - to name = \(toName)")
         }
     }
     
