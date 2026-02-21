@@ -110,15 +110,19 @@ public class SortedNote: Comparable {
     ///   will have no effect.
     ///   - sep: The separator to place between the Seq and the Title. Defaults to a single space.
     /// - Returns: The title of the Note, optionally preceded by a Seq value.
-    public func getTitle(withSeq: Bool = false, formattedSeq: Bool = false, full: Bool = false, sep: String = " ") -> String {
+    public func getTitle(withSeq: Bool = false,
+                         formattedSeq: Bool = false,
+                         full: Bool = false,
+                         sep: String = " ",
+                         titleFormat: TitleFormat = .plain) -> String {
         if withSeq && note.hasSeq() && !note.klass.frontOrBack {
             if formattedSeq || full {
-                return getFormattedSeqForDisplay(full: full) + sep + note.title.value
+                return getFormattedSeqForDisplay(full: full) + sep + note.title.getTitle(format: titleFormat)
             } else {
-                return seqSingleValue.value + sep + note.title.value
+                return seqSingleValue.value + sep + note.title.getTitle(format: titleFormat)
             }
         } else {
-            return note.title.value
+            return note.title.getTitle(format: titleFormat)
         }
     }
     

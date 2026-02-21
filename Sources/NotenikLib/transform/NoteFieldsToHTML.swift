@@ -95,16 +95,16 @@ public class NoteFieldsToHTML {
         // Start the Markedup code generator.
         let code = Markedup(format: parms.format)
         
-        var noteTitle = pop.toXML(note.title.value)
+        var noteTitle = note.title.plain
         var suffix = parms.titleSuffix
         if !suffix.isEmpty && suffix.last!.isWhitespace {
             suffix.removeLast()
         }
         if !suffix.isEmpty {
             if suffix.last!.isPunctuation {
-                noteTitle = pop.toXML(suffix + " " + note.title.value)
+                noteTitle = pop.toXML(suffix + " " + note.title.plain)
             } else {
-                noteTitle = pop.toXML(note.title.value + " " + suffix)
+                noteTitle = pop.toXML(note.title.plain + " " + suffix)
             }
         }
         
@@ -399,7 +399,7 @@ public class NoteFieldsToHTML {
         
         // Start the Markedup code generator.
         let code = Markedup(format: parms.format)
-        let noteTitle = pop.toXML(note.title.value)
+        let noteTitle = note.title.html
         code.startDoc(withTitle: noteTitle,
                       withCSS: note.getCombinedCSS(cssString: parms.cssString),
                       linkToFile: parms.cssLinkToFile,
@@ -898,7 +898,7 @@ public class NoteFieldsToHTML {
     // Display the Title of the Note in one of several possible formats.
     func displayTitle(note: Note, noteTitle: String, markedup: Markedup) {
         
-        var titleToDisplay = parms.compoundTitle(note: note)
+        var titleToDisplay = parms.compoundTitle(note: note, titleFormat: .html)
         
         if parms.displayMode == .streamlinedReading && parms.included.on && note.klass.quote && note.hasAuthor() {
             let titleMarkup = Markedup(format: parms.format)

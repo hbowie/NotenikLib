@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 12/4/18.
-//  Copyright © 2018 - 2025 Herb Bowie (https://hbowie.net)
+//  Copyright © 2018 - 2026 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -787,15 +787,15 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     ///   will have no effect.
     ///   - sep: The separator to place between the Seq and the Title. Defaults to a single space.
     /// - Returns: The title of the Note, optionally preceded by a Seq value.
-    public func getTitle(withSeq: Bool = false, formattedSeq: Bool = false, full: Bool = false, sep: String = " ") -> String {
+    public func getTitle(withSeq: Bool = false, formattedSeq: Bool = false, full: Bool = false, sep: String = " ", titleFormat: TitleFormat = .plain) -> String {
         if withSeq && hasSeq() && !klass.frontOrBack {
             if formattedSeq || full {
-                return getFormattedSeqForDisplay(full: full) + sep + title.value
+                return getFormattedSeqForDisplay(full: full) + sep + title.getTitle(format: titleFormat)
             } else {
-                return seq.value + sep + title.value
+                return seq.value + sep + title.getTitle(format: titleFormat)
             }
         } else {
-            return title.value
+            return title.getTitle(format: titleFormat)
         }
     }
     

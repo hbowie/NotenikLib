@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 7/7/21.
 //
-//  Copyright © 2021 - 2024 Herb Bowie (https://hbowie.net)
+//  Copyright © 2021 - 2026 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -219,19 +219,20 @@ public class DisplayParms {
         if altText != nil && !altText!.isEmpty {
             text = altText!
         } else if sortedNote.note.noteID.seqBeforeTitle {
-            text = sortedNote.note.title.value
+            text = sortedNote.note.title.html
         } else {
             text = sortedNote.note.noteID.text
         }
 
-        let htmlText = titleToHTML(text: text, note: sortedNote.note)
+        let htmlText = text
+        // titleToHTML(text: text, note: sortedNote.note)
         let wikiLink = wikiLinks.assembleWikiLink(idBasis: idToUse)
         markedup.link(text: htmlText,
                       path: wikiLink,
                       klass: klass)
     }
     
-    func titleToHTML(text: String, note: Note) -> String {
+    /* func titleToHTML(text: String, note: Note) -> String {
         
         let parserID = AppPrefs.shared.markdownParser
         let mdResults = TransformMdResults()
@@ -247,7 +248,7 @@ public class DisplayParms {
                                    noteFileName: note.noteID.commonFileName,
                                    note: note)
         return StringUtils.removeParagraphTags(mdResults.html)
-    }
+    } */
     
     
     /// Format the title with a possible preceding sequence number, when
@@ -255,12 +256,12 @@ public class DisplayParms {
     /// - Parameter note: The Note whose title is to be formatted.
     /// - Returns: The title of the Note, possibly preceded by a
     ///   Sequence number of one kind or another. 
-    public func compoundTitle(note: Note) -> String {
-        var simpleTitle = note.title.value
+    public func compoundTitle(note: Note, titleFormat: TitleFormat = .plain) -> String {
+        var simpleTitle = note.title.getTitle(format: titleFormat)
         guard displayMode != .normal else { return simpleTitle }
         guard !note.klass.quote else { return simpleTitle }
         if note.hasLongTitle() {
-            simpleTitle = note.longTitle.value
+            simpleTitle = note.longTitle.getTitle(format: titleFormat)
         }
         guard !included.asList else { return simpleTitle }
         guard !note.klass.frontOrBack else { return simpleTitle }

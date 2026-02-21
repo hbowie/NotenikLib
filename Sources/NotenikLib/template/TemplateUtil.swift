@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 6/3/19.
-//  Copyright © 2019 - 2025 Herb Bowie (https://hbowie.net)
+//  Copyright © 2019 - 2026 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -952,7 +952,7 @@ public class TemplateUtil {
             } else if altPending {
                 modifiedValue = NumberUtils.toAlternate(modifiedValue, altType: char)
                 altPending = false
-            } else if char == shiftChar && !shiftEngaged && nextCharLower == "r" {
+            } else if char == shiftChar && !shiftEngaged && (nextCharLower == "r" || nextCharLower == "t") {
                 shiftEngaged = true
             } else if char == shiftChar && shiftEngaged {
                 shiftEngaged = false
@@ -963,6 +963,24 @@ public class TemplateUtil {
                 repeatTimes = 1
                 repeatString = ""
                 repeatStarted = true
+            } else if shiftEngaged && charLower == "t" {
+                let titleValue = TitleValue(modifiedValue)
+                if nextCharLower == "p" {
+                    modifiedValue = titleValue.getTitle(format: .plain)
+                    inc = 2
+                } else if nextCharLower == "h" || nextCharLower == "o" {
+                    modifiedValue = titleValue.getTitle(format: .html)
+                    inc = 2
+                } else if nextCharLower == "f" || nextCharLower == "w" {
+                    modifiedValue = titleValue.getTitle(format: .webFileName)
+                    inc = 2
+                } else if nextCharLower == "m" || nextCharLower == "t"{
+                    modifiedValue = titleValue.getTitle(format: .trimmed)
+                    inc = 2
+                } else {
+                    modifiedValue = titleValue.plain
+                }
+                shiftEngaged = false
             } else if shiftEngaged && repeatStarted {
                 if repeatString.isEmpty && (char == "+" || char == "-") && repeatPlusMinus == 0 {
                     if char == "+" {
@@ -991,8 +1009,8 @@ public class TemplateUtil {
             } else if char == "/" {
                 let website = StringUtils.websiteFromLink(str: modifiedValue)
                 modifiedValue = website
-            } else if char == "^" && (nextChar.lowercased() == "x") {
-                let caretFollowing = nextChar.lowercased()
+            } else if char == "^" && (nextCharLower == "x") {
+                let caretFollowing = nextCharLower
                 modifiedValue = extractString(inStr: modifiedValue, command: caretFollowing)
                 inc = 2
             } else if char == "@" {

@@ -124,7 +124,7 @@ public class NoteDisplay {
         var continuousPosition: ContinuousPosition = .first
         while nextNote != nil {
             if i == 0 {
-                let noteTitle = pop.toXML(nextNote!.note.title.value)
+                let noteTitle = pop.toXML(nextNote!.note.title.plain)
                 code.startDoc(withTitle: noteTitle,
                               withCSS: sortedNote.note.getCombinedCSS(cssString: parms.cssString),
                               linkToFile: parms.cssLinkToFile,
@@ -173,7 +173,7 @@ public class NoteDisplay {
         var nextNote = collection.displayedNotes.getNote(at: i)
         while nextNote != nil {
             if i == 0 {
-                let noteTitle = pop.toXML(nextNote!.note.title.value)
+                let noteTitle = pop.toXML(nextNote!.note.title.plain)
                 code.startDoc(withTitle: noteTitle,
                               withCSS: sortedNote.note.getCombinedCSS(cssString: parms.cssString),
                               linkToFile: parms.cssLinkToFile,

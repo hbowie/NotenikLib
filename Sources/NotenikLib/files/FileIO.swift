@@ -144,7 +144,7 @@ public class FileIO: NotenikIO, RowConsumer {
         realm.path = NSHomeDirectory()
         closeCollection()
         ioNumber = IOJuggler.shared.getNextIoNumber()
-        logInfo("New FileIO Instance Created")
+        // logInfo("New FileIO Instance Created")
     }
     
     /// Provide an inspector that will be passed each Note as a Collection is opened.

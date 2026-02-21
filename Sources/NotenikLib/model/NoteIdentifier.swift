@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 2/12/24.
 //
-//  Copyright © 2024 - 2025 Herb Bowie (https://hbowie.net)
+//  Copyright © 2024 - 2026 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -57,29 +57,29 @@ public class NoteIdentifier {
         // Generate the basis to be used for internal identification.
         switch uniqueIdRule {
         case .titleOnly:
-            noteID.basis = note.title.value
-            noteID.fileNameBasis = note.title.value
+            noteID.basis = note.title.getTitle(format: .plain)
+            noteID.fileNameBasis = note.title.getTitle(format: .plain)
         case .titleBeforeAux:
             if aux.isEmpty {
-                noteID.basis = note.title.value
-                noteID.fileNameBasis = note.title.value
+                noteID.basis = note.title.getTitle(format: .plain)
+                noteID.fileNameBasis = note.title.getTitle(format: .plain)
             } else if auxIsFolder {
-                noteID.basis = note.title.value + " " + aux
-                noteID.fileNameBasis = note.title.value
+                noteID.basis = note.title.getTitle(format: .plain) + " " + aux
+                noteID.fileNameBasis = note.title.getTitle(format: .plain)
             } else {
-                noteID.basis = note.title.value + " " + aux
-                noteID.fileNameBasis = note.title.value + " " + aux
+                noteID.basis = note.title.getTitle(format: .plain) + " " + aux
+                noteID.fileNameBasis = note.title.getTitle(format: .plain) + " " + aux
             }
         case .titleAfterAux:
             if aux.isEmpty {
-                noteID.basis = note.title.value
-                noteID.fileNameBasis = note.title.value
+                noteID.basis = note.title.getTitle(format: .plain)
+                noteID.fileNameBasis = note.title.getTitle(format: .plain)
             } else if auxIsFolder {
-                noteID.basis = aux + " " + note.title.value
-                noteID.fileNameBasis = note.title.value
+                noteID.basis = aux + " " + note.title.getTitle(format: .plain)
+                noteID.fileNameBasis = note.title.getTitle(format: .plain)
             } else {
-                noteID.basis = aux + " " + note.title.value
-                noteID.fileNameBasis = aux + " " + note.title.value
+                noteID.basis = aux + " " + note.title.getTitle(format: .plain)
+                noteID.fileNameBasis = aux + " " + note.title.getTitle(format: .plain)
             }
         case .auxOnly:
             noteID.basis = aux
@@ -89,23 +89,23 @@ public class NoteIdentifier {
         // Generate the text to be used to identify the note to the user.
         switch textIdRule {
         case .titleOnly:
-            noteID.text = note.title.value
+            noteID.text = note.title.getTitle(format: .plain)
         case .titleBeforeAux:
             if aux.isEmpty {
-                noteID.text = note.title.value
+                noteID.text = note.title.getTitle(format: .plain)
             } else if textIdSep.isEmpty {
-                noteID.text = note.title.value + " " + aux
+                noteID.text = note.title.getTitle(format: .plain) + " " + aux
             } else {
-                noteID.text = note.title.value + textIdSep + aux
+                noteID.text = note.title.getTitle(format: .plain) + textIdSep + aux
             }
         case .titleAfterAux:
             if aux.isEmpty {
-                noteID.text = note.title.value
+                noteID.text = note.title.getTitle(format: .plain)
             } else {
                 if textIdSep.isEmpty {
-                    noteID.text = aux + " " + note.title.value
+                    noteID.text = aux + " " + note.title.getTitle(format: .plain)
                 } else {
-                    noteID.text = aux + textIdSep + note.title.value
+                    noteID.text = aux + textIdSep + note.title.getTitle(format: .plain)
                 }
                 if seqFieldFirst {
                     noteID.seqBeforeTitle = true
