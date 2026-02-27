@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 5/25/19.
-//  Copyright © 2019 - 2025 Herb Bowie (https://hbowie.net)
+//  Copyright © 2019 - 2026 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -130,6 +130,9 @@ public class AppPrefs {
     
     let allowDotsKey = "allow-dots-in-filenames"
     var _allowDots = false
+    
+    let menuBarExtraKey = "menu-bar-extra"
+    var _menuBarExtra = false
     
     let scriptFolderKey = "script-folder"
     var _scriptFolder = ""
@@ -354,6 +357,8 @@ public class AppPrefs {
         _openInNova = defaults.bool(forKey: openInNovaKey)
         
         _allowDots = defaults.bool(forKey: allowDotsKey)
+        
+        _menuBarExtra = defaults.bool(forKey: menuBarExtraKey)
         
         let sf = defaults.string(forKey: scriptFolderKey)
         if sf != nil && !sf!.isEmpty {
@@ -621,6 +626,14 @@ public class AppPrefs {
         set {
             _allowDots = newValue
             defaults.set(_allowDots, forKey: allowDotsKey)
+        }
+    }
+    
+    public var menuBarExtra: Bool {
+        get { return _menuBarExtra }
+        set {
+            _menuBarExtra = newValue
+            defaults.set(_menuBarExtra, forKey: menuBarExtraKey)
         }
     }
     

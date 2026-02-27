@@ -110,6 +110,7 @@ public class MultiFileIO {
     public func provision(collectionPath: String,
                           inspector: NoteOpenInspector?,
                           readOnly: Bool) -> (NoteCollection?, FileIO) {
+        
         let io = FileIO()
         let realm = io.getDefaultRealm()
         realm.path = ""
@@ -119,7 +120,6 @@ public class MultiFileIO {
         }
         
         let filePathKey = FilePathKey(str: collectionPath)
-        
         if linkDict.keys.contains(filePathKey) {
             if let existingIO = linkDict[filePathKey]!.io {
                 if existingIO.collectionOpen && existingIO.collection != nil {
