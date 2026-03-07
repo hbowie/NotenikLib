@@ -204,7 +204,9 @@ public class TitleValue: StringValue {
                     macFileNameAppend(char)
                     // webFileName.append("")
                     html.append("&#8217;")
-                } else if (char == "*" || char == "_") && !codePending {
+                } else if !codePending && (char == "*"
+                           || (char == "_" && lastChar.isWhitespace && closingTag.isEmpty)
+                           || (char == "_" && !closingTag.isEmpty)) {
                     if !closingTag.isEmpty {
                         html.append(closingTag)
                         closingTag = ""
