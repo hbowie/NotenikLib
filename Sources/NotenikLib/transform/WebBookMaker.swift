@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 7/6/21.
 //
-//  Copyright © 2021 - 2025 Herb Bowie (https://hbowie.net)
+//  Copyright © 2021 - 2026 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -234,6 +234,24 @@ public class WebBookMaker {
             
             tocFile = URL(fileURLWithPath: tocFileName, relativeTo: contentFolder).appendingPathExtension(htmlFileExt)
             
+        case .webPresentation:
+            
+            htmlFileExt = "html"
+            pubFolder = bookFolder
+            contentFolder = bookFolder
+            htmlFolder = bookFolder
+            
+            cssFolder = pubFolder.appendingPathComponent(cssFolderName, isDirectory: true)
+            guard FileUtils.ensureFolder(forURL: cssFolder!) else { return }
+            cssFile = URL(fileURLWithPath: cssFileName, relativeTo: cssFolder).appendingPathExtension(cssFileExt)
+            cssRelPath = "\(cssFolderName)/\(cssFileName).\(cssFileExt)"
+            
+            imagesFolder = pubFolder.appendingPathComponent(imagesFolderName, isDirectory: true)
+            guard FileUtils.ensureFolder(forURL: imagesFolder) else { return nil }
+            imagesRelPath = "\(imagesFolderName)"
+            
+            jsFolder = pubFolder.appendingPathComponent(jsFolderName, isDirectory: true)
+            
         }
 
         pubFolderPath = pathFromURL(pubFolder)
@@ -260,7 +278,7 @@ public class WebBookMaker {
         }
         collection = possibleCollection
         
-        if webBookType == .website && !collection.addins.isEmpty {
+        if (webBookType == .website || webBookType == .webPresentation) && !collection.addins.isEmpty {
             addInsFolder = pubFolder.appendingPathComponent(NotenikConstants.addinsFolderName,
                                                             isDirectory: true)
         }
@@ -277,7 +295,11 @@ public class WebBookMaker {
             parms.format = .htmlDoc
         }
         parms.sortParm = .seqPlusTitle
-        parms.displayMode = .streamlinedReading
+        if webBookType == .webPresentation {
+            parms.displayMode = .presentation
+        } else if webBookType == .website {
+            parms.displayMode = .streamlinedReading
+        }
         parms.wikiLinks.set(format: .fileName, prefix: "", suffix: "." + htmlFileExt)
         parms.mathJax = collection.mathJax
         parms.localMj = false
@@ -357,7 +379,7 @@ public class WebBookMaker {
             io.sortParm = .seqPlusTitle
         }
         
-        bookTitle = ""
+        bookTitle = nil
         var (sortedNote, position) = io.firstNote()
         firstPage = true
         while sortedNote != nil && position.valid {
@@ -382,7 +404,7 @@ public class WebBookMaker {
             writeOPF()
         }
         
-        logInfo(msg: "\(filesWritten) files written to \(bookFolder)")
+        logInfo(msg: "\(filesWritten) export files written to \(bookFolder)")
         
         if webBookType == .epub {
             zipToEpub()
@@ -423,7 +445,7 @@ public class WebBookMaker {
         container.append("  <rootfiles>\n")
         
         switch webBookType {
-        case .website:
+        case .website, .webPresentation:
             break
         case .epubsite:
             container.append("    <rootfile full-path=\"\(opfFileName).\(opfFileExt)\" media-type=\"application/oebps-package+xml\"/>\n")
@@ -459,7 +481,7 @@ public class WebBookMaker {
                                                       options: .skipsHiddenFiles)
             for entry in contents {
                 if entry.pathExtension == htmlFileExt || entry.pathExtension == opfFileExt {
-                    if webBookType == .website && entry.lastPathComponent == hdrFN {
+                    if (webBookType == .website || webBookType == .webPresentation) && entry.lastPathComponent == hdrFN {
                         // Leave the header file
                     } else {
                         filesToRemove[entry.path] = entry
@@ -643,7 +665,7 @@ public class WebBookMaker {
     //
     // -----------------------------------------------------------
     
-    var bookTitle = ""
+    var bookTitle: TitleValue? = nil
     var firstPage = true
     
     var parms = DisplayParms()
@@ -660,7 +682,7 @@ public class WebBookMaker {
         
         guard sortedNote.note.includeInBook(epub: epub) else { return }
         
-        let title = sortedNote.note.title.value
+        let title = sortedNote.note.title
         let level = sortedNote.note.level
         var levelText = level.value
         var levelInt = level.getInt()
@@ -672,7 +694,7 @@ public class WebBookMaker {
         }
         let fileName = sortedNote.note.noteID.commonFileName
         
-        if bookTitle.isEmpty {
+        if bookTitle == nil {
             bookTitle = title
             levelText = "1"
             levelInt = 1
@@ -1027,8 +1049,8 @@ public class WebBookMaker {
         opf.append("  <metadata xmlns:dc=\"http://purl.org/dc/elements/1.1/\">\n")
         let metaCode = collection.mkdownCommandList.getCodeFor(MkdownConstants.metadataCmd)
         if metaCode.isEmpty || metaNote == nil {
-            opf.append("    <dc:identifier id=\"pub-identifier\">\(StringUtils.toCommonFileName(bookTitle))</dc:identifier>\n")
-            opf.append("    <dc:title>\(bookTitle)</dc:title>\n")
+            opf.append("    <dc:identifier id=\"pub-identifier\">\(bookTitle!.getTitle(format: .webFileName))</dc:identifier>\n")
+            opf.append("    <dc:title>\(bookTitle!.plain)</dc:title>\n")
             opf.append("    <dc:language>en</dc:language>\n")
         } else {
             let templateUtil = TemplateUtil()
@@ -1070,8 +1092,8 @@ public class WebBookMaker {
     
     func zipToEpub() {
         
-        if !bookTitle.isEmpty {
-            let newEPUBFileName = StringUtils.toCommonFileName(bookTitle)
+        if bookTitle != nil {
+            let newEPUBFileName = bookTitle!.getTitle(format: .webFileName)
             epubFile = URL(fileURLWithPath: newEPUBFileName, relativeTo: bookFolder).appendingPathExtension(epubFileExt)
             do {
                 try fm.removeItem(at: epubFile)

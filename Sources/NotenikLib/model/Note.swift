@@ -84,7 +84,7 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     }
     
     public var treatAsTitlePage: Bool {
-        if klass.value == NotenikConstants.titleKlass { return true }
+        if klass.title { return true }
         if collection.klassFieldDef != nil { return false }
         if level.level > 1 { return false }
         if level.label.lowercased().contains("title") { return true }

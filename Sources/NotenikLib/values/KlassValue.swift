@@ -34,7 +34,7 @@ public class KlassValue: StringValue {
             return true
         case NotenikConstants.quoteKlass:
             return true
-        case NotenikConstants.titleKlass:
+        case NotenikConstants.titleKlass, NotenikConstants.titlePageKlass:
             return true
         case NotenikConstants.tocKlass:
             return true
@@ -65,7 +65,25 @@ public class KlassValue: StringValue {
     
     public var frontMatter: Bool {
         switch value {
-        case NotenikConstants.frontKlass, NotenikConstants.introKlass, NotenikConstants.prefaceKlass, NotenikConstants.titleKlass:
+        case NotenikConstants.frontKlass, NotenikConstants.introKlass, NotenikConstants.prefaceKlass, NotenikConstants.titleKlass, NotenikConstants.titlePageKlass:
+            return true
+        default:
+            return false
+        }
+    }
+    
+    public var title: Bool {
+        switch value {
+        case NotenikConstants.titleKlass, NotenikConstants.titlePageKlass:
+            return true
+        default:
+            return false
+        }
+    }
+    
+    public var presentation: Bool {
+        switch value {
+        case NotenikConstants.slideKlass:
             return true
         default:
             return false

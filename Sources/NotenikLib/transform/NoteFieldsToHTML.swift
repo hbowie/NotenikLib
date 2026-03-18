@@ -189,13 +189,17 @@ public class NoteFieldsToHTML {
                     code.header(headerContents, klass: "nnk-header")
                 }
                 let navCode = collection.mkdownCommandList.getCodeFor(MkdownConstants.navCmd)
-                if !navCode.isEmpty && note.klass.value != NotenikConstants.titleKlass {
+                if !navCode.isEmpty && !note.klass.title {
                     code.nav(navCode, klass: "nnk-nav")
                 }
             }
         }
         
-        code.startMain()
+        if parms.displayMode == .presentation {
+            code.startMain(klass: "pitch")
+        } else {
+            code.startMain()
+        }
         
         if topOfPage.isEmpty && note.hasTags() && collection.tagsDisplayOption == .replNavUp {
             let tagsField = note.getTagsAsField()
@@ -332,6 +336,8 @@ public class NoteFieldsToHTML {
         formatInclusions(note, linksHTML: code, io: io)
         formatIncludedBy(note, linksHTML: code, io: io)
         
+        code.finishMain()
+        
         // Now add the bottom of the page, if any.
         if !bottomOfPage.isEmpty {
             code.horizontalRule()
@@ -342,8 +348,6 @@ public class NoteFieldsToHTML {
         if lastInList {
             finishListOfChildren(code: code)
         }
-        
-        code.finishMain()
         
         var footer = true
         if parms.epub3 {
@@ -421,7 +425,7 @@ public class NoteFieldsToHTML {
                 code.header(headerContents, klass: "nnk-header")
             }
             let navCode = collection.mkdownCommandList.getCodeFor(MkdownConstants.navCmd)
-            if !navCode.isEmpty && note.klass.value != NotenikConstants.titleKlass {
+            if !navCode.isEmpty && !note.klass.title {
                 code.nav(navCode, klass: "nnk-nav")
             }
         }
@@ -934,12 +938,20 @@ public class NoteFieldsToHTML {
                 markedup.newLine()
             }
         } else {
+            var style = "clear:both;"
+            if parms.displayMode == .presentation && note.klass.title {
+                style.append("margin-top:2em;margin-bottom:3em;")
+            }
             markedup.displayLine(opt: note.collection.titleDisplayOption,
                                  text: titleToDisplay,
                                  depth: note.depth,
                                  addID: true,
                                  idText: note.title.value,
-                                 style: "clear:both")
+                                 style: style)
+        }
+        
+        if parms.displayMode == .presentation && note.klass.value == NotenikConstants.slideKlass {
+            markedup.horizontalRule(klass: "pitch-divider-1")
         }
     }
     

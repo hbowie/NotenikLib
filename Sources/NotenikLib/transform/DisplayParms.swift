@@ -198,7 +198,7 @@ public class DisplayParms {
 
         let idBasis = sortedNote.note.noteID.getBasis()
         var seqPrefix = ""
-        if sortedNote.note.klass.frontOrBack || sortedNote.note.klass.quote
+        if sortedNote.note.klass.frontOrBack || sortedNote.note.klass.quote || sortedNote.note.klass.presentation
             || (altText != nil && !altText!.isEmpty) {
             // no need for a preceding number
         } else if sortedNote.note.hasDisplaySeq() {
@@ -259,6 +259,7 @@ public class DisplayParms {
     public func compoundTitle(note: Note, titleFormat: TitleFormat = .plain) -> String {
         var simpleTitle = note.title.getTitle(format: titleFormat)
         guard displayMode != .normal else { return simpleTitle }
+        guard displayMode != .presentation else { return simpleTitle }
         guard !note.klass.quote else { return simpleTitle }
         if note.hasLongTitle() {
             simpleTitle = note.longTitle.getTitle(format: titleFormat)

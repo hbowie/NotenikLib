@@ -386,13 +386,15 @@ public class NoteDisplay {
         let sortParm = parms.sortParm
         guard sortParm == .seqPlusTitle || parms.displayMode == .quotations else { return "" }
         
+        // Prepare to start generating HTML
         let bottomHTML = Markedup()
         
+        // Find the next note, or generate back-to-top link
         let currentPosition = io.positionOfNote(sortedNote)
         let currDepth = sortedNote.depth
         var (nextNote, nextPosition) = nextNote(startingPosition: currentPosition, startingNote: sortedNote, passedIO: io)
         guard nextPosition.valid && nextNote != nil else {
-            backToTop(io: io, bottomHTML: bottomHTML)
+            backToTop(sortedNote: sortedNote, io: io, bottomHTML: bottomHTML)
             return bottomHTML.code
         }
         
@@ -425,7 +427,8 @@ public class NoteDisplay {
                 nextSeq = nextNote!.seqSingleValue
                 nextDepth = nextNote!.depth
                 if nextNote!.noteID.commonID != "tableofcontents"
-                    && nextNote!.note.klass.value != "toc" {
+                    && nextNote!.note.klass.value != "toc"
+                    && parms.displayMode != .presentation {
                     let collectionToC = sortedNote.note.mkdownCommandList.contains(MkdownConstants.collectionTocCmd)
                     if !sortedNote.note.collection.skipContentsForParent && !collectionToC {
                         formatToCforBottom(sortedNote,
@@ -447,6 +450,8 @@ public class NoteDisplay {
         }
         
         if !parms.epub3 {
+            
+            // Format bottom contents for quoations
             if parms.displayMode == .quotations {
                 bottomHTML.startDiv(klass: nil)
                 bottomHTML.startParagraph()
@@ -466,7 +471,9 @@ public class NoteDisplay {
                 bottomHTML.finishParagraph()
                 bottomHTML.finishDiv()
             } else if nextBasis.isEmpty {
-                backToTop(io: io, bottomHTML: bottomHTML)
+                backToTop(sortedNote: sortedNote, io: io, bottomHTML: bottomHTML)
+                
+            // Format bottom contents for streamlined reading
             } else if parms.displayMode == .streamlinedReading {
                 bottomHTML.startDiv(klass: nil)
                 if !skipIdBasis.isEmpty {
@@ -486,10 +493,23 @@ public class NoteDisplay {
                     bottomHTML.finishParagraph()
                 }
                 bottomHTML.finishDiv()
+                
+            // Format bottom contents for a presentation
             } else if parms.displayMode == .presentation {
-                bottomHTML.startParagraph()
-                bottomHTML.link(text: "Next", path: parms.wikiLinks.assembleWikiLink(idBasis: nextBasis), klass: Markedup.htmlClassNavLink)
-                bottomHTML.finishParagraph()
+                var centerText = ""
+                var rightText = ""
+                let slideNumber = sortedNote.seqSingleValue.value
+                if !slideNumber.isEmpty && slideNumber != "1" {
+                    checkForTitleNoteTitle(sortedNote, io: io)
+                    if io.collection!.titleNoteTitle != nil {
+                        centerText = io.collection!.titleNoteTitle!.plain
+                    }
+                    rightText = slideNumber
+                }
+                leftRightCenter(leftText: "Next", leftPath: parms.wikiLinks.assembleWikiLink(idBasis: nextBasis),
+                                centerText: centerText,
+                                rightText: rightText,
+                                markedUp: bottomHTML)
             }
         }
         
@@ -513,15 +533,63 @@ public class NoteDisplay {
         return (nextSortedNote, nextPosition)
     }
     
-    func backToTop(io: NotenikIO, bottomHTML: Markedup) {
+    func backToTop(sortedNote: SortedNote, io: NotenikIO, bottomHTML: Markedup) {
         let (firstNote, _) = io.firstNote()
         guard firstNote != nil else { return }
         let firstBasis = firstNote!.noteID.getBasis() 
         let firstText = firstNote!.noteID.text
-        bottomHTML.startParagraph()
-        bottomHTML.append("Back to Top: ")
-        bottomHTML.link(text: firstText, path: parms.wikiLinks.assembleWikiLink(idBasis: firstBasis), klass: Markedup.htmlClassNavLink)
-        bottomHTML.finishParagraph()
+        if parms.displayMode == .presentation {
+            var centerText = ""
+            var rightText = ""
+            let slideNumber = sortedNote.seqSingleValue.value
+            if !slideNumber.isEmpty && slideNumber != "1" {
+                checkForTitleNoteTitle(sortedNote, io: io)
+                if io.collection!.titleNoteTitle != nil {
+                    centerText = io.collection!.titleNoteTitle!.plain
+                }
+                rightText = slideNumber
+            }
+            leftRightCenter(leftText: "Back to Top", leftPath: parms.wikiLinks.assembleWikiLink(idBasis: firstBasis),
+                            centerText: centerText,
+                            rightText: rightText,
+                            markedUp: bottomHTML)
+        } else {
+            bottomHTML.startParagraph()
+            bottomHTML.append("Back to Top: ")
+            bottomHTML.link(text: firstText, path: parms.wikiLinks.assembleWikiLink(idBasis: firstBasis), klass: Markedup.htmlClassNavLink)
+            bottomHTML.finishParagraph()
+        }
+    }
+    
+    func checkForTitleNoteTitle(_ sortedNote: SortedNote, io: NotenikIO) {
+        guard let collection = io.collection else { return }
+        if sortedNote.note.klass.title {
+            collection.titleNoteTitle = sortedNote.note.title
+        }
+        guard collection.titleNoteTitle == nil else { return }
+        let (firstNote, _) = io.firstNote()
+        guard firstNote != nil else { return }
+        guard firstNote!.note.klass.title else { return }
+        collection.titleNoteTitle = firstNote!.note.title
+    }
+    
+    func leftRightCenter(leftText: String, leftPath: String, centerText: String, rightText: String, markedUp: Markedup) {
+        
+        markedUp.startDiv(klass: "left-right-center")
+        
+        markedUp.startParagraph(klass: "align-left")
+        markedUp.link(text: leftText, path: leftPath, klass: Markedup.htmlClassNavLink)
+        markedUp.finishParagraph()
+        
+        markedUp.startParagraph(klass: "align-center")
+        markedUp.append(centerText)
+        markedUp.finishParagraph()
+        
+        markedUp.startParagraph(klass: "align-right")
+        markedUp.append(rightText)
+        markedUp.finishParagraph()
+        
+        markedUp.finishDiv()
     }
     
     func skipDetails(_ sortedNote: SortedNote,

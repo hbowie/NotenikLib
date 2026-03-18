@@ -11,4 +11,5 @@ public enum WebBookType {
     case website
     case epubsite
     case epub
+    case webPresentation
 }

@@ -25,5 +25,6 @@ public enum ExportFormat {
     case webBookEPUB
     case webBookEPUBFolder
     case webBookSite
+    case webPresentation
     case exportScript
 }

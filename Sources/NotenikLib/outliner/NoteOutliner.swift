@@ -78,7 +78,7 @@ public class NoteOutliner: Sequence {
                 include = false
             } else if sortedNote.note.noteID.commonID == skipID {
                 include = false
-            } else if sortedNote.note.klass.value == NotenikConstants.titleKlass {
+            } else if sortedNote.note.klass.title {
                 include = false
             } else if !sortedNote.note.includeInBook(epub: displayParms.epub3) {
                 include = false

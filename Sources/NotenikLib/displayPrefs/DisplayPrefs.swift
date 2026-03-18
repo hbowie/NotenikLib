@@ -3,7 +3,7 @@
 //  NotenikLib
 //
 //  Created by Herb Bowie on 5/8/19.
-//  Copyright © 2019 - 2025 Herb Bowie (https://hbowie.net)
+//  Copyright © 2019 - 2026 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -607,6 +607,25 @@ public class DisplayPrefs {
             text-decoration: none;
             border-bottom: none;
         }
+        
+        h1.pitch {
+            margin-top: 4em;
+            margin-bottom: 6em;
+        }
+        
+        hr.pitch-divider-1 {
+            border-width: 2px;
+        }
+        
+        main.pitch {
+            min-height: 450px;
+        }
+        
+        div.left-right-center {
+            display: flex;
+            justify-content: space-between;
+        }
+        
         """)
         tempCSS.append(buildHeadingsCSS())
         

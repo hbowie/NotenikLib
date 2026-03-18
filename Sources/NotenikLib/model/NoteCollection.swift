@@ -153,6 +153,8 @@ public class NoteCollection {
     public  var webBookAsEPUB  = true
     public  var tocDepth       = 3
     
+    public  var webPresentationPath = ""
+    
     public  var idToParse      = ""
     public  var textToParse    = ""
     public  var fileNameToParse = ""
@@ -191,6 +193,8 @@ public class NoteCollection {
     public var lastIndexTermPageIx: Int = -1
     public var lastIndexTermPageCount: Int = 0
     public var lastIndexedPageID = ""
+    
+    public var titleNoteTitle: TitleValue? = nil
     
     /// Default initialization of a new Collection.
     public init () {

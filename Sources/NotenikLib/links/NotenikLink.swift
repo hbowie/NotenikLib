@@ -492,7 +492,9 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
     /// This method should only be called when needed in a particular context. It is not automatically
     /// performed upon initialization or when a new value is set.
     public func determineCollectionType(source: NotenikLinkSource) {
-        guard !collectionTypeDetermined else { return }
+        guard !collectionTypeDetermined else {
+            return
+        }
         determineDirAndPackage()
         guard type == .folder ||
                 type == .ordinaryCollection ||
@@ -502,15 +504,6 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
         }
         
         let folderPath = path
-        
-        // See if this points to an existing Collection.
-        let infoFile = ResourceFileSys(folderPath: folderPath, fileName: NotenikConstants.infoFileName)
-        if infoFile.exists && infoFile.isReadable {
-            type = .ordinaryCollection
-            collectionTypeDetermined = true
-            seekCollectionTitle(infoFile: infoFile)
-            return
-        }
         
         let infoParentFile = ResourceFileSys(folderPath: folderPath, fileName: NotenikConstants.infoParentFileName)
         if infoParentFile.exists && infoParentFile.isReadable {
@@ -523,6 +516,15 @@ public class NotenikLink: CustomStringConvertible, Comparable, Identifiable {
         if infoProjectFile.exists && infoProjectFile.isReadable {
             type = .parentRealm
             collectionTypeDetermined = true
+            return
+        }
+    
+        // See if this points to an existing Collection.
+        let infoFile = ResourceFileSys(folderPath: folderPath, fileName: NotenikConstants.infoFileName)
+        if infoFile.exists && infoFile.isReadable {
+            type = .ordinaryCollection
+            collectionTypeDetermined = true
+            seekCollectionTitle(infoFile: infoFile)
             return
         }
         

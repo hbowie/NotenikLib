@@ -172,6 +172,8 @@ public class NotesExporter {
             break
         case .webBookEPUB, .webBookSite, .webBookEPUBFolder:
             break
+        case .webPresentation:
+            break
         case .exportScript:
             break
         }
@@ -749,6 +751,8 @@ public class NotesExporter {
         case .continuousHtml:
             return true
         case .webBookEPUB, .webBookSite, .webBookEPUBFolder:
+            return false
+        case .webPresentation:
             return false
         case .exportScript:
             return false
