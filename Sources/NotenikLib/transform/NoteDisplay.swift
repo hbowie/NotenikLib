@@ -313,6 +313,11 @@ public class NoteDisplay {
         return topHTML.code
     }
     
+    /// Generate the appropriate HTML to display an image. A figure tag will be used if there is an associated caption.
+    /// - Parameters:
+    ///   - note: The note whose image is to be displayed.
+    ///   - io: The I/O module for the collection.
+    /// - Returns: The appropriate HTML. 
     func formatImage(_ note: Note, io: NotenikIO) -> String {
         guard !parms.imagesPath.isEmpty else { return "" }
 
