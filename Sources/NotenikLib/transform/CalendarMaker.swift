@@ -39,7 +39,7 @@ public class CalendarMaker {
     public func startCalendar(title: String, prefs: DisplayPrefs) {
         
         writer.startDoc(withTitle: title,
-                          withCSS: prefs.displayCSS,
+                          withCSS: prefs.displayCSS(),
                           linkToFile: false,
                           withJS: nil)
         currDate = nil

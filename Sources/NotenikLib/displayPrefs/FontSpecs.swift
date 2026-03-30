@@ -96,18 +96,18 @@ public class FontSpecs {
         size = latestSize
     }
     
-    public func buildFontCSS(indent: Int) -> String {
+    public func buildFontCSS(boostFactor: Float = 1.0, indent: Int) -> String {
         if size == nil {
             _ = setDefaultSize()
         }
-        return buildCSS(f: font, s: size!, indent: indent)
+        return buildCSS(f: font, s: size!, boostFactor: boostFactor, indent: indent)
     }
     
     public func buildLatestCSS(indent: Int) -> String {
         return buildCSS(f: latestFont, s: latestSize, indent: indent)
     }
     
-    public func buildCSS(f: String, s: String, indent: Int) -> String {
+    public func buildCSS(f: String, s: String, boostFactor: Float = 1.0, indent: Int) -> String {
         var indentStr = ""
         while indentStr.count < indent {
             indentStr += " "
@@ -119,7 +119,22 @@ public class FontSpecs {
         tempCSS += ", \"Helvetica Neue\", Helvetica, Arial, sans-serif;\n"
         tempCSS += indentStr
         tempCSS += "font-size: "
-        tempCSS += s
+        
+        var boosted = false
+        if boostFactor != 1.0 {
+            if let fontSize = Float(s) {
+                let newSizeFloat = fontSize * boostFactor
+                let newSizeRounded = newSizeFloat.rounded(.toNearestOrAwayFromZero)
+                let newSizeInt = Int(newSizeRounded)
+                let newSizeStr = String(newSizeInt)
+                tempCSS += newSizeStr
+                boosted = true
+            }
+        }
+        
+        if !boosted {
+            tempCSS += s
+        }
         tempCSS += "pt;\n"
         return tempCSS
     }

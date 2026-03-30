@@ -273,8 +273,8 @@ public class NoteTransformer {
         
         // First let's create a css styles file.
         var css = ""
-        if displayPrefs.displayCSS != nil {
-            css = displayPrefs.displayCSS!
+        if let displayCSS = displayPrefs.displayCSS() {
+            css = displayCSS
         }
         ok = NoteTransformer.writeSampleFile(contents: css,
                                              collectionPath: collectionPath,

@@ -156,13 +156,17 @@ public class NoteFieldsToHTML {
         // Start the document now, creating the head section
         if parms.displayMode != .continuous && parms.displayMode !=  .continuousPartial {
             code.startDoc(withTitle: noteTitle,
-                          withCSS: note.getCombinedCSS(cssString: parms.cssString),
+                          withCSS: note.getCombinedCSS(cssString: parms.cssString, displayBoost: parms.displayBoost),
                           withDesc: desc,
                           withAuthor: author,
                           linkToFile: parms.cssLinkToFile,
                           withJS: mkdownOptions.getHtmlScript(),
                           epub3: parms.epub3,
                           addins: parms.addins)
+        }
+        
+        if parms.displayMode == .presentation {
+            code.startDiv(klass: "slide")
         }
         
         // See if we need to start a list of included children.
@@ -365,6 +369,9 @@ public class NoteFieldsToHTML {
         }
         
         // Finish off the entire document.
+        if parms.displayMode == .presentation {
+            code.finishDiv()
+        }
         if parms.displayMode != .continuous && parms.displayMode != .continuousPartial {
             code.finishDoc()
         }
@@ -950,7 +957,7 @@ public class NoteFieldsToHTML {
                                  style: style)
         }
         
-        if parms.displayMode == .presentation && note.klass.value == NotenikConstants.slideKlass {
+        if parms.displayMode == .presentation && !note.klass.title {
             markedup.horizontalRule(klass: "pitch-divider-1")
         }
     }

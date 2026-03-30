@@ -23,6 +23,7 @@ public class DisplayParms {
     public var cssString = ""
     public var cssLinkToFile = false
     public var displayTemplate = ""
+    public var displayBoost = false
     public var format: MarkedupFormat = .htmlDoc
     public var epub3 = false
     public var sortParm: NoteSortParm = .seqPlusTitle
@@ -80,7 +81,7 @@ public class DisplayParms {
             cssString = NotenikConstants.cssFolderName + "/" + collection.selCSSfile + ".css"
         } else {
             cssLinkToFile = false
-            setCSS(useFirst: collection.displayCSS, useSecond: DisplayPrefs.shared.displayCSS)
+            setCSS(useFirst: collection.displayCSS, useSecond: DisplayPrefs.shared.displayCSS())
         }
         displayTemplate = collection.displayTemplate
         format = .htmlDoc

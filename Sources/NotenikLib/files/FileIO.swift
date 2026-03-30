@@ -144,7 +144,7 @@ public class FileIO: NotenikIO, RowConsumer {
         realm.path = NSHomeDirectory()
         closeCollection()
         ioNumber = IOJuggler.shared.getNextIoNumber()
-        // logInfo("New FileIO Instance Created")
+        // logInfo("New FileIO Instance Created and assigned # \(ioNumber)")
     }
     
     /// Provide an inspector that will be passed each Note as a Collection is opened.
@@ -1129,6 +1129,15 @@ public class FileIO: NotenikIO, RowConsumer {
         let notePickerAction = infoNote.getField(label: NotenikConstants.notePickerActionCommon)
         if notePickerAction != nil && !notePickerAction!.value.isEmpty {
             collection!.notePickerAction = notePickerAction!.value.value
+        }
+        
+        if let boostFactor = infoNote.getField(label: NotenikConstants.booastFactorCommon) {
+            if let boostFactor = Float(boostFactor.value.value) {
+                collection!.boostFactor = boostFactor
+            }
+        }
+        if collection!.boostFactor == 0.0 {
+            collection!.boostFactor = 1.0
         }
         
         infoFound = true

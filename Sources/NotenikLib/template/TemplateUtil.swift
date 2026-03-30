@@ -109,10 +109,10 @@ public class TemplateUtil {
         emailSingleQuoteConverter.addEmailQuotes()
         noBreakConverter.addNoBreaks()
         parms = DisplayParms()
-        if DisplayPrefs.shared.displayCSS == nil {
-            parms.cssString = ""
+        if let displayCSS = DisplayPrefs.shared.displayCSS() {
+            parms.cssString = displayCSS
         } else {
-            parms.cssString = DisplayPrefs.shared.displayCSS!
+            parms.cssString = ""
         }
         noteFieldsToHTML = NoteFieldsToHTML()
         resetGroupValues()
@@ -1548,7 +1548,7 @@ public class TemplateUtil {
         let parms = DisplayParms()
         guard let collection = workspace?.collection else { return "" }
         parms.setCSS(useFirst: collection.displayCSS,
-                     useSecond: DisplayPrefs.shared.displayCSS)
+                     useSecond: DisplayPrefs.shared.displayCSS())
         var defaultCSS = parms.cssString
         defaultCSS.append("\nimg { max-width: 100%; border: 4px solid gray; }")
         defaultCSS.append("\nbody { max-width: 33em; margin: 0 auto; float: none; }")

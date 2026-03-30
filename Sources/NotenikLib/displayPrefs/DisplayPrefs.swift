@@ -128,7 +128,7 @@ public class DisplayPrefs {
     }
     
     /// Supply the complete CSS to be used for displaying a Note.
-    public var displayCSS: String? {
+    public func displayCSS(boostFactor: Float = 1.0) -> String? {
         var tempCSS = darkModeAdjustments()
         tempCSS.append("""
         /* The following CSS comes from the displayCSS method of the
@@ -145,10 +145,14 @@ public class DisplayPrefs {
           color: var(--text-color);
           line-height: 1.45;
         """)
-        if fontCSS != nil {
+        if fontCSS != nil && boostFactor == 1.0 {
             tempCSS.append("/* fontCSS insertion starts here */\n")
             tempCSS.append(fontCSS!)
             tempCSS.append("/* fontCSS insertion ends here   */\n")
+        } else if boostFactor != 1.0 {
+            tempCSS.append("/* boosted fontCSS insertion starts here */\n")
+            tempCSS.append(bodySpecs.buildFontCSS(boostFactor: boostFactor, indent: 2))
+            tempCSS.append("/* boosted fontCSS insertion ends here   */\n")
         }
         tempCSS.append("""
         }
@@ -189,24 +193,56 @@ public class DisplayPrefs {
           }
         }
         blockquote {
-          border-left: 0.4em solid #999;
-          margin-left: 0;
-          padding-left: 1em;
+            margin: 0.25em 0;
+            padding: 0.35em 40px;
+            line-height: 1.45;
+            position: relative;
+        }
+
+        blockquote:before {
+            display: block;
+            padding-left: 10px;
+            content: \"\\201C\";
+            font-size: 80px;
+            position: absolute;
+            left: -20px;
+            top: -20px;
+            color: var(--highlight-color);
+        }
+        blockquote.attribution-following {
+            margin-bottom: 0;
         }
         .quote-from {
             margin-block-start: 0.1rem;
             margin-block-end: 0.5rem;
-            margin: 0.1rem 0 0.5rem 0;
-            padding: 0.25rem 2.6em;
+            margin: 0rem 0 1.5em 0;
+            padding: 0.25rem 2em;
+            padding-left: 1.3em;
+            padding-right: 4.6em;
+            padding-top: 0.25em;
+            padding-bottom: 0.25em;
             line-height: 1.45;
             position: relative;
         }
         .quote-from:before {
             display: block;
-            padding-left: 1.4em;
+            padding-left: 0;
             content: \"\\2014\";
             position: absolute;
             left: 0;
+        }
+        figure.notenik-quote-attrib {
+            margin-left: 2em;
+            margin-right: 2em;
+            margin-bottom: 2em;
+        }
+        figure.notenik-quote-attrib blockquote {
+          border-left: none;
+          margin-left: 0;
+          padding-left: 0;
+        }
+        figure.notenik-quote-attrib figcaption {
+            text-align: right;
         }
         figure {
           margin-left: 0.2em;
@@ -242,6 +278,10 @@ public class DisplayPrefs {
                 width: 100%;
                 text-align: right;
                 clear: both;
+        }
+        ul ul {
+            margin-block-start: 0;
+            margin-block-end: 0.8em;
         }
         ul.checklist { list-style-type: none; }
         ul.tags-list { list-style-type: none; }
@@ -608,6 +648,10 @@ public class DisplayPrefs {
             border-bottom: none;
         }
         
+        div.slide {
+            max-width: 40em;
+        }
+        
         h1.pitch {
             margin-top: 4em;
             margin-bottom: 6em;
@@ -618,7 +662,7 @@ public class DisplayPrefs {
         }
         
         main.pitch {
-            min-height: 450px;
+            min-height: 25em;
         }
         
         div.left-right-center {
@@ -627,7 +671,7 @@ public class DisplayPrefs {
         }
         
         """)
-        tempCSS.append(buildHeadingsCSS())
+        tempCSS.append(buildHeadingsCSS(boostFactor: boostFactor))
         
         // tempCSS.append("\ncode { overflow: auto }")
         return tempCSS
@@ -643,19 +687,21 @@ public class DisplayPrefs {
         return tempCSS
     }
     
-    public func buildHeadingsCSS() -> String {
+    public func buildHeadingsCSS(boostFactor: Float = 1.0) -> String {
         return buildHeadingCSS(centerStart: headingCenterStart,
                                centerFinish: headingCenterFinish,
                                bodyFont: bodySpecs.font,
                                headingsFont: headingSpecs.font,
-                               headingsSize: headingSpecs.size!)
+                               headingsSize: headingSpecs.size!,
+                               boostFactor: boostFactor)
     }
     
     public func buildHeadingCSS(centerStart: Int,
                                 centerFinish: Int,
                                 bodyFont: String,
                                 headingsFont: String,
-                                headingsSize: String) -> String {
+                                headingsSize: String,
+                                boostFactor: Float = 1.0) -> String {
         
         var hc = ""
         var fontWeight = "600"

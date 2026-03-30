@@ -18,6 +18,8 @@ import NotenikUtils
 /// Information about a collection of Notes.
 public class NoteCollection {
     
+    public var collectionNumber: Int = 0
+    
     public  var title       = ""
     public  var titleSetByUser = false
     public  var shortcut    = ""
@@ -59,6 +61,7 @@ public class NoteCollection {
     public  var overrideCustomDisplay = false
     public  var displayTemplate = ""
     public  var displayCSS = ""
+    public  var boostFactor: Float = 1.2
     
     public  var displayMode: DisplayMode = .normal
     public  var previousDisplayMode: DisplayMode = .normal
@@ -198,6 +201,7 @@ public class NoteCollection {
     
     /// Default initialization of a new Collection.
     public init () {
+        collectionNumber = IOJuggler.shared.getNextCollectionNumber()
         lib = ResourceLibrary()
         dict = FieldDictionary()
         
@@ -225,6 +229,7 @@ public class NoteCollection {
         let format = DateFormatter()
         format.dateFormat = "yyyy-MM-dd"
         todaysDate = format.string(from: today)
+        logInfo("New Collection Instance Created")
     }
     
     func resetFieldInfo() {
@@ -811,6 +816,14 @@ public class NoteCollection {
         guard displayMode == .continuousPartial else { return }
         displayMode = previousDisplayMode
         displayedNotes.removeAll()
+    }
+    
+    /// Send an informative message to the log.
+    func logInfo(_ msg: String) {
+        Logger.shared.log(subsystem: "com.powersurgepub.notenik",
+                          category: "Collection # \(collectionNumber)",
+                          level: .info,
+                          message: msg)
     }
     
     /// Useful for debugging. 

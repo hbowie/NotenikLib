@@ -107,8 +107,8 @@ public class NoteDisplaySample {
         // -----------------------------------------------------------
         
         var css = ""
-        if displayPrefs.displayCSS != nil {
-            css = displayPrefs.displayCSS!
+        if let displayCSS = displayPrefs.displayCSS() {
+            css = displayCSS
         }
 
         ok = cssFile.write(str: css)

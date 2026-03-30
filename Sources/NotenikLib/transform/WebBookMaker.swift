@@ -288,7 +288,14 @@ public class WebBookMaker {
         if webBookType == .epub {
             parms.epub3 = true
         }
-        parms.setCSS(useFirst: collection.displayCSS, useSecond: DisplayPrefs.shared.displayCSS)
+        
+        var boostFactor: Float = 1.0
+        if webBookType == .webPresentation {
+            parms.displayBoost = true
+            boostFactor = collection.boostFactor
+        }
+        parms.setCSS(useFirst: collection.displayCSS, useSecond: DisplayPrefs.shared.displayCSS(boostFactor: boostFactor))
+        
         if epub {
             parms.format = .xhtmlDoc
         } else {
@@ -347,6 +354,7 @@ public class WebBookMaker {
         deleteOldFiles()
         
         parms.cssString = cssRelPath
+        parms.cssLinkToFile = true
         
         // Now generate fresh content.
         display.loadResourcePagesForCollection(io: io, parms: parms)
@@ -571,6 +579,7 @@ public class WebBookMaker {
     
     /// If the CSS file already exists, then leave it in place.
     func generateCSS() {
+        
         
         defaultCSS = parms.cssString
         defaultCSS.append("\nimg { max-width: 100%; border: 4px solid gray; }")

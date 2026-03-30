@@ -860,7 +860,7 @@ public class NotesExporter {
         docTitle = ""
         
         displayParms = DisplayParms()
-        displayParms.setCSS(useFirst: collection.displayCSS, useSecond: DisplayPrefs.shared.displayCSS)
+        displayParms.setCSS(useFirst: collection.displayCSS, useSecond: DisplayPrefs.shared.displayCSS())
         switch exportFormat {
         case .concatHtml, .outlineHtml:
             displayParms.format = .htmlFragment

@@ -1810,15 +1810,21 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     // Functions and variables concerning the Note's pageStyle field
     //
     
-    public func getCombinedCSS(cssString: String) -> String {
+    public func getCombinedCSS(cssString: String, displayBoost: Bool = false) -> String {
+        
+        var css = cssString
+        if displayBoost && css.count > 200 {
+            css = DisplayPrefs.shared.displayCSS(boostFactor: collection.boostFactor)!
+        }
+        
         if self.hasPageStyle() {
-            if cssString.isEmpty {
+            if css.isEmpty {
                 return pageStyle.value
             } else {
-                return cssString + "\n" + pageStyle.value
+                return css + "\n" + pageStyle.value
             }
         } else {
-            return cssString
+            return css
         }
     }
     

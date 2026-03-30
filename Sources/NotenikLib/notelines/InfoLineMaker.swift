@@ -146,6 +146,8 @@ public class InfoLineMaker {
             writer.append(label: NotenikConstants.notePickerAction, value: collection.notePickerAction)
         }
         
+        writer.append(label: NotenikConstants.boostFactor, value: String(collection.boostFactor))
+        
     }
     
     func write(toFile filePath: String) -> Bool {

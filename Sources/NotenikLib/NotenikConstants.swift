@@ -340,6 +340,8 @@ public struct NotenikConstants {
     static let selShareFileCommon       = "selectedsharetemplate"
     public static let notePickerAction       = "Note Picker Action"
     public static let notePickerActionCommon = "notepickeraction"
+    public static let boostFactor       = "Boost Factor"
+    public static let booastFactorCommon = "boostfactor"
     
     public static let listDisplayFont   = "list-display-font"
     public static let listDisplaySize   = "list-display-size"

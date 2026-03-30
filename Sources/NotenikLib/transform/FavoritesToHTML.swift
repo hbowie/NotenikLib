@@ -108,9 +108,8 @@ public class FavoritesToHTML {
     
     func buildCSS() {
         css = ""
-        let displayCSS = DisplayPrefs.shared.displayCSS
-        if displayCSS != nil {
-            writeLineToCSS(displayCSS!)
+        if let displayCSS = DisplayPrefs.shared.displayCSS() {
+            writeLineToCSS(displayCSS)
         }
         writeLineToCSS("body { margin-left: 20px; } ")
         writeLineToCSS(".column { display:inline-block; width: \(columnWidth); vertical-align: top; }")

@@ -19,9 +19,16 @@ class IOJuggler {
     
     var ioNumber = 0
     
+    var collectionNumber = 0
+    
     func getNextIoNumber() -> Int {
         ioNumber += 1
         return ioNumber
+    }
+    
+    func getNextCollectionNumber() -> Int {
+        collectionNumber += 1
+        return collectionNumber
     }
     
     private init() {
