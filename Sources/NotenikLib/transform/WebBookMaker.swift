@@ -826,7 +826,8 @@ public class WebBookMaker {
         
         if !tocStarted {
             toc = Markedup(format: .xhtmlDoc)
-            toc.startDoc(withTitle: "Table of Contents", withCSS: nil, epub3: true)
+            let headInfo = MarkedupHeadInfo(withTitle: "Table of Contents")
+            toc.startDoc(headInfo: headInfo, epub3: true)
             toc.writeLine("<nav epub:type=\"toc\">")
             lastLevel = 0
             tocStarted = true

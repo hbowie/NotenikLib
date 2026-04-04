@@ -115,6 +115,29 @@ public class DisplayParms {
         options.inlineHashtags = inlineHashtags
     }
     
+    public func setCSS(headInfo: MarkedupHeadInfo,
+                       note: Note,
+                       displayBoost: Bool = false) {
+        var cssCode = ""
+        if cssLinkToFile {
+            headInfo.cssFile = cssString
+            cssCode = ""
+        } else {
+            headInfo.cssFile = nil
+            cssCode = cssString
+        }
+        
+        if displayBoost && !cssLinkToFile {
+            cssCode = DisplayPrefs.shared.displayCSS(boostFactor: note.collection.boostFactor)!
+        }
+        
+        if note.hasPageStyle() {
+            cssCode.append("\n")
+            cssCode.append(note.pageStyle.value)
+        }
+        headInfo.cssCode = cssCode
+    }
+    
     public var formatIsHTML: Bool {
         switch format {
         case .htmlDoc, .xhtmlDoc, .htmlFragment:

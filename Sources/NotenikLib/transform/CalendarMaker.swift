@@ -38,10 +38,8 @@ public class CalendarMaker {
     
     public func startCalendar(title: String, prefs: DisplayPrefs) {
         
-        writer.startDoc(withTitle: title,
-                          withCSS: prefs.displayCSS(),
-                          linkToFile: false,
-                          withJS: nil)
+        let headInfo = MarkedupHeadInfo(withTitle: title, cssCode: prefs.displayCSS())
+        writer.startDoc(headInfo: headInfo)
         currDate = nil
     }
     

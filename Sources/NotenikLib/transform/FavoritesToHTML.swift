@@ -58,7 +58,8 @@ public class FavoritesToHTML {
         guard let io = noteIO else { return "" }
         
         buildCSS()
-        markedup.startDoc(withTitle: "Bookmark \(favoritesCap)", withCSS: css)
+        let headInfo = MarkedupHeadInfo(withTitle: "Bookmark \(favoritesCap)", cssCode: css)
+        markedup.startDoc(headInfo: headInfo)
         markedup.startDiv(klass: "container")
         let iterator = io.makeTagsNodeIterator()
         var tagsNode = iterator.next()

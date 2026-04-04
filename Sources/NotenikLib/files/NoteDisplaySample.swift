@@ -123,11 +123,8 @@ public class NoteDisplaySample {
         // Start the template.
         code = Markedup(format: .htmlDoc)
         code.templateNextRec()
-        
-        code.startDoc(withTitle: "=$\(titleLabel)$=",
-                          withCSS: css,
-                          linkToFile: false,
-                          withJS: nil)
+        let headInfo = MarkedupHeadInfo(withTitle: "=$\(titleLabel)$=", cssCode: css)
+        code.startDoc(headInfo: headInfo)
         
         // Include all the fields, formatted as they are on the Display tab.
         code.templateAllFields()

@@ -155,7 +155,8 @@ public class NotesExporter {
             delimOpen()
         case .bookmarks:
             markup = Markedup(format: .netscapeBookmarks)
-            markup.startDoc(withTitle: "Bookmarks", withCSS: nil)
+            let headInfo = MarkedupHeadInfo(withTitle: "Bookmarks")
+            markup.startDoc(headInfo: headInfo)
         case .json:
             jsonOpen()
         case .notenik:
@@ -164,7 +165,8 @@ public class NotesExporter {
             yamlOpen()
         case .opml:
             markup = Markedup(format: .opml)
-            markup.startDoc(withTitle: noteIO.collection!.title, withCSS: nil)
+            let headInfo = MarkedupHeadInfo(withTitle: noteIO.collection!.title)
+            markup.startDoc(headInfo: headInfo)
         case .concatHtml, .outlineHtml, .concatMarkdown, .continuousMarkdown:
             concatOpen(exportFormat: format)
             break
@@ -892,8 +894,8 @@ public class NotesExporter {
             } else {
                 docTitle = collection.title
             }
-            markup.startDoc(withTitle: docTitle,
-                            withCSS: sortedNote.note.getCombinedCSS(cssString: displayParms.cssString))
+            let headInfo = MarkedupHeadInfo(withTitle: docTitle, cssCode: sortedNote.note.getCombinedCSS(cssString: displayParms.cssString))
+            markup.startDoc(headInfo: headInfo)
         }
         
         var expMD: String?
@@ -943,8 +945,8 @@ public class NotesExporter {
             } else {
                 docTitle = collection.title
             }
-            markup.startDoc(withTitle: docTitle,
-                            withCSS: note.getCombinedCSS(cssString: displayParms.cssString))
+            let headInfo = MarkedupHeadInfo(withTitle: docTitle, cssCode: note.getCombinedCSS(cssString: displayParms.cssString))
+            markup.startDoc(headInfo: headInfo)
             openParm = "true"
         } else {
             openParm = nil

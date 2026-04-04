@@ -484,7 +484,7 @@ public class NotesMkdownContext: MkdownContext {
                                         levelEnd: levelEnd,
                                         skipID: collection.tocNoteID,
                                         displayParms: displayParms)
-            return outliner.`genToC`(details: true).code
+            return outliner.genToC(details: true).code
         } else {
             let outliner = NoteOutliner(list: io.notesList,
                                         levelStart: levelStart,

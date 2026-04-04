@@ -229,7 +229,7 @@ public class NoteCollection {
         let format = DateFormatter()
         format.dateFormat = "yyyy-MM-dd"
         todaysDate = format.string(from: today)
-        logInfo("New Collection Instance Created")
+        // logInfo("New Collection Instance Created")
     }
     
     func resetFieldInfo() {

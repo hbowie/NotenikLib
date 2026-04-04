@@ -1370,6 +1370,11 @@ public class TemplateUtil {
             return mkdown.html
         case "2":
             if workspace != nil {
+                if workspace!.mkdownContext != nil {
+                    workspace!.mkdownContext!.displayParms.wikiLinks.prefix = "#"
+                    workspace!.mkdownContext!.displayParms.wikiLinks.format = .fileName
+                    workspace!.mkdownContext!.displayParms.wikiLinks.suffix = ""
+                }
                 mkdownOptions.shortID = workspace!.collection.shortID
                 mkdownOptions.extLinksOpenInNewWindows = workspace!.collection.extLinksOpenInNewWindows
             }

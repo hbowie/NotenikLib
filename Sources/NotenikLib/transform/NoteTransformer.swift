@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 2/6/20.
-//  Copyright © 2020 - 2021 Herb Bowie (https://hbowie.net)
+//  Copyright © 2020 - 2026 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -290,9 +290,8 @@ public class NoteTransformer {
         // markedup.notenikIO = io
         markedup.templateNextRec()
         markedup.templateOutput(filename: "\(upToWebFolder)../../=$title&f$=.html")
-        markedup.startDoc(withTitle: "=$title$=",
-                          withCSS: "\(downToNotesFolder)\(NotenikConstants.mirrorFolderName)/\(cssFolderName)/\(cssFileName)",
-                          linkToFile: true)
+        let headInfo = MarkedupHeadInfo(withTitle: "=$title$=", cssFile: "\(downToNotesFolder)\(NotenikConstants.mirrorFolderName)/\(cssFolderName)/\(cssFileName)")
+        markedup.startDoc(headInfo: headInfo)
         markedup.heading(level: 1, text: "=$title$=")
         
         var i = 0
@@ -329,9 +328,8 @@ public class NoteTransformer {
         // Now let's create a sample index template.
         markedup = Markedup(format: .htmlDoc)
         markedup.templateOutput(filename: "\(upToWebFolder)../../index.html")
-        markedup.startDoc(withTitle: collection.title,
-                          withCSS: "\(downToNotesFolder)\(NotenikConstants.mirrorFolderName)/\(cssFolderName)/\(cssFileName)",
-        linkToFile: true)
+        let headInfo2 = MarkedupHeadInfo(withTitle: collection.title, cssFile: "\(downToNotesFolder)\(NotenikConstants.mirrorFolderName)/\(cssFolderName)/\(cssFileName)")
+        markedup.startDoc(headInfo: headInfo2)
         markedup.heading(level: 1, text: "Index for \(collection.title)")
         markedup.startUnorderedList(klass: nil)
         markedup.templateNextRec()
@@ -461,7 +459,8 @@ public class NoteTransformer {
         }
         let fileExt = NoteTransformer.getFileExt(markdown: markdown)
         markup.writeLine("<?output \"report.\(fileExt)\"?>")
-        markup.startDoc(withTitle: collection.title, withCSS: nil)
+        let headInfo = MarkedupHeadInfo(withTitle: collection.title)
+        markup.startDoc(headInfo: headInfo)
         markup.heading(level: 1, text: collection.title)
         markup.writeLine("<?nextrec?>")
         for field in fields {

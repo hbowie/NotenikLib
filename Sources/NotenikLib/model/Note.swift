@@ -1821,6 +1821,8 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
             if css.isEmpty {
                 return pageStyle.value
             } else {
+                print("Note.getCombinedCSS with pageStyle returning:")
+                print("\(css + "\n" + pageStyle.value)")
                 return css + "\n" + pageStyle.value
             }
         } else {

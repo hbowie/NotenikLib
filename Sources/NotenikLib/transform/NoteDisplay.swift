@@ -124,13 +124,13 @@ public class NoteDisplay {
         var continuousPosition: ContinuousPosition = .first
         while nextNote != nil {
             if i == 0 {
-                let noteTitle = pop.toXML(nextNote!.note.title.plain)
-                code.startDoc(withTitle: noteTitle,
-                              withCSS: sortedNote.note.getCombinedCSS(cssString: parms.cssString),
-                              linkToFile: parms.cssLinkToFile,
-                              withJS: mkdownOptions.getHtmlScript(),
-                              epub3: parms.epub3,
-                              addins: parms.addins)
+                let headInfo = MarkedupHeadInfo(withTitle: nextNote!.note.title.plain,
+                                                withJS: mkdownOptions.getHtmlScript(),
+                                                addins: parms.addins)
+                parms.setCSS(headInfo: headInfo,
+                             note: sortedNote.note)
+                code.startDoc(headInfo: headInfo,
+                              epub3: parms.epub3)
             }
             if nextNote!.note.noteID.id != sortedNote.note.noteID.id {
                 code.append(displayOneNote(nextNote!, io: io, mdResults: otherResults, continuousPosition: continuousPosition))
@@ -173,13 +173,13 @@ public class NoteDisplay {
         var nextNote = collection.displayedNotes.getNote(at: i)
         while nextNote != nil {
             if i == 0 {
-                let noteTitle = pop.toXML(nextNote!.note.title.plain)
-                code.startDoc(withTitle: noteTitle,
-                              withCSS: sortedNote.note.getCombinedCSS(cssString: parms.cssString),
-                              linkToFile: parms.cssLinkToFile,
-                              withJS: mkdownOptions.getHtmlScript(),
-                              epub3: parms.epub3,
-                              addins: parms.addins)
+                let headInfo = MarkedupHeadInfo(withTitle: nextNote!.note.title.plain,
+                                                withJS: mkdownOptions.getHtmlScript(),
+                                                addins: parms.addins)
+                parms.setCSS(headInfo: headInfo,
+                             note: sortedNote.note)
+                code.startDoc(headInfo: headInfo,
+                              epub3: parms.epub3)
             }
             if nextNote!.noteID.id != sortedNote.note.noteID.id {
                 code.append(displayOneNote(nextNote!, io: io, mdResults: otherResults, continuousPosition: continuousPosition))
