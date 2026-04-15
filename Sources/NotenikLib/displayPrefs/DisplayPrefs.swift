@@ -157,6 +157,7 @@ public class DisplayPrefs {
         tempCSS.append("""
         }
         img { max-width: 100%; border: 4px solid gray; }
+        img.no-border { max-width: 100%; border: 0; }
         /* body { max-width: 33em; margin: 0 auto; float: none; } */
         p {
             margin-top: 0.2em;
@@ -668,6 +669,34 @@ public class DisplayPrefs {
         div.left-right-center {
             display: flex;
             justify-content: space-between;
+        }
+        
+        div.content-container {
+            display: flex;
+        }
+        
+        div.content-item {
+          flex-grow: 1;
+        }
+        
+        div.content-item + div.content-item { 
+          margin-left: 2%; 
+        }
+        
+        div.top-divider {
+            display: flex;
+        }
+        
+        div.top-divider-hr {
+          flex-grow: 1;
+        }
+        
+        div.top-divider-links {
+          flex-grow: 0;
+        }
+        
+        div.top-divider-hr + div.top-divider-links { 
+          margin-left: 2%; 
         }
         
         """)

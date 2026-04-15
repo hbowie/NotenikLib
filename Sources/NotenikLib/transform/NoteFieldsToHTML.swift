@@ -42,6 +42,8 @@ public class NoteFieldsToHTML {
     
     var quoted = false
     
+    var contentContainer = false
+    
     let attribBalancer = LineBalancer(maxChars: 50, sep: " <br />")
     
     public init() {
@@ -83,6 +85,7 @@ public class NoteFieldsToHTML {
         self.minutesToRead = results.minutesToRead
         
         var tagsDisplayed = false
+        contentContainer = false
         
         // Use separate logic if in quotes mode
         if parms.displayMode == .quotations && !parms.epub3 {
@@ -156,6 +159,7 @@ public class NoteFieldsToHTML {
         // Start the document now, creating the head section
         if parms.displayMode != .continuous && parms.displayMode !=  .continuousPartial {
             let headInfo = MarkedupHeadInfo(withTitle: noteTitle,
+                                            withAuthor: author,
                                             withJS: mkdownOptions.getHtmlScript(),
                                             addins: parms.addins)
             parms.setCSS(headInfo: headInfo,
@@ -283,7 +287,7 @@ public class NoteFieldsToHTML {
                         } else {
                             code.append(display(field!, noteTitle: noteTitle, note: note, collection: collection, io: io))
                             if field!.def == collection.titleFieldDef {
-                                if !imageWithinPage.isEmpty {
+                                if !imageWithinPage.isEmpty && !contentContainer {
                                     code.append(imageWithinPage)
                                 }
                             }
@@ -339,6 +343,14 @@ public class NoteFieldsToHTML {
         formatInclusions(note, linksHTML: code, io: io)
         formatIncludedBy(note, linksHTML: code, io: io)
         
+        if contentContainer {
+            code.finishDiv()
+            code.startDiv(klass: "content-item")
+            code.append(imageWithinPage)
+            code.finishDiv()
+            code.finishDiv()
+        }
+        
         code.finishMain()
         
         // Now add the bottom of the page, if any.
@@ -362,8 +374,12 @@ public class NoteFieldsToHTML {
         }
         if footer {
             let footerCode = collection.mkdownCommandList.getCodeFor(MkdownConstants.footerCmd)
-            if note.includeInBook(epub: parms.epub3) && !footerCode.isEmpty && !parms.included.hasData {
-                code.footer(footerCode, klass: "nnk-footer")
+            if !footerCode.isEmpty && !parms.included.hasData {
+                if note.includeInBook(epub: parms.epub3) {
+                    code.footer(footerCode, klass: "nnk-footer")
+                } else if parms.displayMode == .presentation {
+                    code.footer(footerCode, klass: "nnk-footer")
+                }
             }
         }
         
@@ -731,6 +747,8 @@ public class NoteFieldsToHTML {
                 break
             case NotenikConstants.imageCreditLinkCommon:
                 break
+            case NotenikConstants.imageLayoutCommon:
+                break
             case NotenikConstants.includeChildrenCommon:
                 break
             case NotenikConstants.tagsCommon:
@@ -946,19 +964,112 @@ public class NoteFieldsToHTML {
             }
         } else {
             var style = "clear:both;"
-            if parms.displayMode == .presentation && note.klass.title {
-                style.append("margin-top:2em;margin-bottom:3em;")
+            var depth = note.depth
+            if parms.displayMode == .presentation {
+                if note.klass.title {
+                    style.append("margin-top:2em;margin-bottom:3em;")
+                } else {
+                    if note.collection.slideDepth > 0 {
+                        depth = note.collection.slideDepth
+                    } else {
+                        note.collection.slideDepth = depth
+                    }
+                }
             }
             markedup.displayLine(opt: note.collection.titleDisplayOption,
                                  text: titleToDisplay,
-                                 depth: note.depth,
+                                 depth: depth,
                                  addID: true,
                                  idText: note.title.value,
                                  style: style)
         }
         
         if parms.displayMode == .presentation && !note.klass.title {
+                
+            markedup.startDiv(klass: "top-divider")
+            
+            markedup.startDiv(klass: "top-divider-hr")
             markedup.horizontalRule(klass: "pitch-divider-1")
+            markedup.finishDiv()
+            
+            var homeBasis = ""
+            var nextBasis = ""
+            var priorBasis = ""
+            if let navIO = io {
+                if navIO.count > 1 {
+                    let position = navIO.positionOfNote(note)
+                    let index = position.index
+                    if let homeNote = navIO.getSortedNote(at: 0) {
+                        homeBasis = homeNote.note.noteID.basis
+                    }
+                    var nextIndex = index + 1
+                    if nextIndex >= navIO.count {
+                        nextIndex = 0
+                        nextBasis = homeBasis
+                    } else {
+                        if let nextNote = navIO.getSortedNote(at: nextIndex) {
+                            nextBasis = nextNote.note.noteID.basis
+                        }
+                    }
+                    var priorIndex = index - 1
+                    if priorIndex < 0 {
+                        priorIndex = navIO.count - 1
+                        if let lastNote = navIO.getSortedNote(at: priorIndex) {
+                            priorBasis = lastNote.note.noteID.basis
+                        }
+                    } else {
+                        if let priorNote = navIO.getSortedNote(at: priorIndex) {
+                            priorBasis = priorNote.note.noteID.basis
+                        }
+                    }
+                }
+            }
+            
+            markedup.startDiv(klass: "top-divider-links")
+            
+            // Down arrow to go to next slide
+            if !nextBasis.isEmpty {
+                markedup.link(text: "&#x2193;", path: parms.wikiLinks.assembleWikiLink(idBasis: nextBasis), klass: "nav-link")
+            }
+            markedup.append("&nbsp;")
+            if !priorBasis.isEmpty {
+                markedup.link(text: "&#x2191;", path: parms.wikiLinks.assembleWikiLink(idBasis: priorBasis), klass: "nav-link")
+            }
+            markedup.append("&nbsp;")
+            if !homeBasis.isEmpty {
+                markedup.link(text: "&#x2302;", path: parms.wikiLinks.assembleWikiLink(idBasis: homeBasis), klass: "nav-link")
+            }
+            
+            markedup.finishDiv()
+            
+            markedup.finishDiv()
+        }
+        
+        /*
+         if parms.displayMode == .presentation {
+             var centerText = ""
+             var rightText = ""
+             let slideNumber = sortedNote.seqSingleValue.value
+             if !slideNumber.isEmpty && slideNumber != "1" {
+                 checkForTitleNoteTitle(sortedNote, io: io)
+                 if io.collection!.titleNoteTitle != nil {
+                     centerText = io.collection!.titleNoteTitle!.plain
+                 }
+                 rightText = slideNumber
+             }
+             leftRightCenter(leftText: "Next", leftPath: parms.wikiLinks.assembleWikiLink(idBasis: nextBasis),
+                             centerText: centerText,
+                             rightText: rightText,
+                             markedUp: bottomHTML)
+         }
+         */
+        
+        if note.hasImageName(pref: .either) {
+            if note.imageLayout.enumValue == .belowTitleRightSide {
+                markedup.startDiv(klass: "content-container")
+                contentContainer = true
+                markedup.startDiv(klass: "content-item")
+            }
         }
     }
     

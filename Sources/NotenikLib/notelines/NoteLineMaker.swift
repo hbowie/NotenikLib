@@ -145,6 +145,10 @@ public class NoteLineMaker {
                     let field = note.getField(def: def!)
                     if field == nil || field!.value.isEmpty {
                         putEmptyField(def: def, format: note.noteID.noteFileFormat)
+                    } else if field!.def.fieldType.typeString == NotenikConstants.imageLayoutCommon
+                                && field!.value.value == ImageLayoutEnum.belowTitleFullWidth.rawValue
+                                && !note.hasImageName(pref: .either) {
+                        putEmptyField(def: def, format: note.noteID.noteFileFormat)
                     } else {
                         putField(field, format: note.noteID.noteFileFormat)
                     }

@@ -1488,6 +1488,12 @@ public class TemplateUtil {
             value = replaceExtendedVarWithValue(varName: varName, fromNote: note, position: position)
         }
         
+        if value == nil && varName.starts(with: "nav") {
+            if let navValue = genNavSlug(varName: varName, fromNote: note, position: position) {
+                value = navValue
+            }
+        }
+        
         if value == nil && varName != "relative" {
             if workspace == nil || workspace!.scriptNoisy {
                 logError("Template Variable named \(varName) could not be found")
@@ -1797,66 +1803,27 @@ public class TemplateUtil {
     
     func genNextSlug(fromNote: Note, position: Int) -> String {
         
-        var label = "Next: "
-        var index = position + 1
-        while index < notesList.count && notesList[index].note.excludeFromBook(epub: false) {
-            index += 1
-        }
-        if index >= notesList.count {
-            label = "Back to Top: "
-            index = 0
-        }
-        guard index < notesList.count else { return "" }
-        let note = notesList[index]
-        let nextHTML = Markedup()
-        nextHTML.startParagraph()
-        nextHTML.append(label)
-        nextHTML.link(text: note.noteID.text,
-                      path: parms.wikiLinks.assembleWikiLink(idBasis: note.noteID.getBasis()),
-                      klass: Markedup.htmlClassNavLink)
-        nextHTML.finishParagraph()
-        return nextHTML.code
+        let slug = NotesNav.genNavSlug(varName: "navnextbook",
+                                       fromNote: fromNote,
+                                       startingIndex: position,
+                                       notesList: notesList,
+                                       parms: parms)
+        if slug == nil { return "" } else { return slug! }
+    }
+    
+    func genNavSlug(varName: String, fromNote: Note, position: Int) -> String? {
+        
+        return NotesNav.genNavSlug(varName: varName, fromNote: fromNote, startingIndex: position, notesList: notesList, parms: parms)
     }
     
     func genParentSlug(fromNote: Note, position: Int) -> String {
         
-        guard fromNote.hasSeq() || fromNote.hasLevel() else {
-            return ""
-        }
-        guard position > 0 else { return "" }
-        
-        let depth = fromNote.depth
-        var aboveIndex = position - 1
-        var aboveDepth = depth
-        while aboveIndex >= 0 && aboveDepth >= depth {
-            let aboveNote = notesList[aboveIndex].note
-            aboveDepth = aboveNote.depth
-            if aboveDepth >= depth {
-                aboveIndex -= 1
-            }
-        }
-        
-        guard aboveIndex >= 0 && aboveDepth < depth else {
-            return ""
-        }
-        
-        let parent = notesList[aboveIndex].note
-        let parentSeq = parent.seq
-        let parentHTML = Markedup()
-        parentHTML.startParagraph()
-        if parentSeq.count > 0 {
-            if !parent.klass.frontOrBack {
-                parentHTML.append("\(parentSeq) ")
-            }
-        }
-        parentHTML.link(text: parent.noteID.text, 
-                        path: parms.wikiLinks.assembleWikiLink(idBasis: parent.noteID.getBasis()),
-                        klass: Markedup.htmlClassNavLink)
-        parentHTML.append("&nbsp;")
-        parentHTML.append("&#8593;")
-        parentHTML.finishParagraph()
-        return parentHTML.code
-        
+        let slug = NotesNav.genNavSlug(varName: "navparentbook",
+                                       fromNote: fromNote,
+                                       startingIndex: position,
+                                       notesList: notesList,
+                                       parms: parms)
+        if slug == nil { return "" } else { return slug! }
     }
     
     func genChildrenSlug(fromNote: Note, position: Int) -> String {

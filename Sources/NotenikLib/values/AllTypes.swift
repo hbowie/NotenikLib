@@ -3,7 +3,7 @@
 //  NotenikLib
 //
 //  Created by Herb Bowie on 10/25/19.
-//  Copyright © 2019 - 2025 Herb Bowie (https://hbowie.net)
+//  Copyright © 2019 - 2026 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -32,6 +32,7 @@ public class AllTypes {
     let durationType = DurationType()
     let emailType   = EmailType()
     let folderType  = FolderType()
+    let imageLayoutType = ImageLayoutType()
     let imageNameType = ImageNameType()
     let includeChildrenType = IncludeChildrenType()
     let includedByType = IncludedByType()
@@ -125,6 +126,7 @@ public class AllTypes {
         fieldTypes.append(dateType)
         fieldTypes.append(durationType)
         fieldTypes.append(folderType)
+        fieldTypes.append(imageLayoutType)
         fieldTypes.append(imageNameType)
         fieldTypes.append(includeChildrenType)
         fieldTypes.append(indexType)

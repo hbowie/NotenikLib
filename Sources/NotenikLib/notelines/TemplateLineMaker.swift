@@ -112,7 +112,7 @@ public class TemplateLineMaker {
                     }
                 } else if def.fieldType.typeString == NotenikConstants.folderCommon {
                     value += "<folder: excluding: "
-                    for folder in collection.foldersToExclude {
+                    for (_, folder) in collection.foldersToExclude {
                         value += "\(folder), "
                     }
                     value += ">"

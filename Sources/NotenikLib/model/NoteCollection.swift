@@ -128,6 +128,7 @@ public class NoteCollection {
     public  var datePickedFieldDef: FieldDefinition?
     public  var imageNameFieldDef: FieldDefinition?
     public  var imageDarkFieldDef: FieldDefinition?
+    public  var imageLayoutFieldDef: FieldDefinition?
     public  var minutesToReadDef: FieldDefinition?
     public  var shortIdDef:     FieldDefinition?
     
@@ -178,6 +179,8 @@ public class NoteCollection {
     public  var notePickerAction = ""
     
     public  var highestSeq: SeqValue?
+    
+    public  var slideDepth: Int = -1
     
     public  var sortBySeq: Bool {
         switch sortParm {
@@ -585,6 +588,12 @@ public class NoteCollection {
                 imageNameFieldDef = def
             } else if imageDarkFieldDef == nil && def.fieldLabel.commonForm.contains("dark") {
                 imageDarkFieldDef = def
+            }
+            imgLocal = true
+            
+        case NotenikConstants.imageLayoutCommon:
+            if imageLayoutFieldDef == nil {
+                imageLayoutFieldDef = def
             }
             
         case NotenikConstants.includeChildrenCommon:

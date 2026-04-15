@@ -347,72 +347,6 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
         }
     }
     
-    public func getURLforAttachment(attachmentName: String) -> URL? {
-        for attachment in attachments {
-            if attachmentName == attachment.fullName || attachmentName == attachment.suffix {
-                if self.hasFolder() {
-                    if let subLib = collection.lib.getSubLib(folderName: folder.value) {
-                        let attachmentsFolder = subLib.getResource(type: .attachments)
-                        let attachmentResource = ResourceFileSys(parent: attachmentsFolder,
-                                                                 fileName: attachment.fullName,
-                                                                 type: .attachment)
-                        return attachmentResource.url
-                    }
-                } else {
-                    let attachmentsFolder = collection.lib.getResource(type: .attachments)
-                    let attachmentResource = ResourceFileSys(parent: attachmentsFolder,
-                                                             fileName: attachment.fullName,
-                                                             type: .attachment)
-                    return attachmentResource.url
-                }
-            }
-        }
-        return nil
-    }
-    
-    public func getImageURL(pref: ImagePref = .light) -> URL? {
-        guard let attachment = getImageAttachment(pref: pref) else { return nil }
-        let attachmentsFolder = collection.lib.getResource(type: .attachments)
-        let attachmentResource = ResourceFileSys(parent: attachmentsFolder,
-                                                 fileName: attachment.fullName,
-                                                 type: .attachment)
-        return attachmentResource.url
-    }
-    
-    public func getImageCommonName(pref: ImagePref = .light) -> String? {
-        guard let attachment = getImageAttachment(pref: pref) else { return nil }
-        return attachment.commonName
-    }
-    
-    public func getImageAttachment(pref: ImagePref = .light) -> AttachmentName? {
-        guard let imageName = getImageName(pref: pref) else { return nil }
-        let imageNameLowered = imageName.lowercased()
-        for attachment in attachments {
-            if attachment.suffix.lowercased() == imageNameLowered {
-                return attachment
-            }
-        }
-        return nil
-    }
-    
-    public func getImageName(pref: ImagePref = .light) -> String? {
-        guard let imageField = getImageField(pref: pref) else { return nil }
-        let imageName = imageField.value.value
-        guard !imageName.isEmpty else { return nil }
-        return imageName
-    }
-    
-    public func getImageField(pref: ImagePref = .light) -> NoteField? {
-        var def: FieldDefinition?
-        if pref == .dark && collection.imageDarkFieldDef != nil {
-            def = collection.imageDarkFieldDef
-        } else {
-            def = collection.imageNameFieldDef
-        }
-        guard def != nil else { return nil }
-        return getField(def: def!)
-    }
-    
     /// Make a copy of this Note
     public func copy(with zone: NSZone? = nil) -> Any {
         let newNote = Note(collection: collection)
@@ -564,34 +498,6 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
         }
         return str
     }
-    
-    /// Provide a value to uniquely identify this note within its Collection, and provide
-    /// conformance to the Identifiable protocol.
-    /*
-    public var id: String {
-        return _noteID.identifier
-    }
-    
-    var _noteID = NoteID()
-    
-    /// Get the unique ID used to identify this note within its collection
-    public var noteID: NoteID {
-        return _noteID
-    }
-    
-    func setID() {
-        _noteID.set(from: self)
-    }
-    
-    func incrementID() -> String {
-        return _noteID.increment()
-    }
-    
-    func updateIDSource() {
-        _noteID.updateSource(note: self)
-    }
-     
-     */
     
     /// Set the Note's Code value
     func setCode(_ code: String) -> Bool {
@@ -888,6 +794,138 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
         guard let def = collection.longTitleFieldDef else { return false }
         let ok = setField(label: def.fieldLabel.commonForm, value: longTitle)
         return ok
+    }
+    
+    //
+    // Functions and variables concerning the Note's Attachments, including images.
+    //
+    
+    public func getURLforAttachment(attachmentName: String) -> URL? {
+        for attachment in attachments {
+            if attachmentName == attachment.fullName || attachmentName == attachment.suffix {
+                if self.hasFolder() {
+                    if let subLib = collection.lib.getSubLib(folderName: folder.value) {
+                        let attachmentsFolder = subLib.getResource(type: .attachments)
+                        let attachmentResource = ResourceFileSys(parent: attachmentsFolder,
+                                                                 fileName: attachment.fullName,
+                                                                 type: .attachment)
+                        return attachmentResource.url
+                    }
+                } else {
+                    let attachmentsFolder = collection.lib.getResource(type: .attachments)
+                    let attachmentResource = ResourceFileSys(parent: attachmentsFolder,
+                                                             fileName: attachment.fullName,
+                                                             type: .attachment)
+                    return attachmentResource.url
+                }
+            }
+        }
+        return nil
+    }
+    
+    public func hasImageName(pref: ImagePref = .either) -> Bool {
+        if pref == .light || pref == .either {
+            if let def = collection.imageNameFieldDef {
+                if let field = getField(def: def) {
+                    if field.value.hasData {
+                        return true
+                    }
+                }
+            }
+        }
+        if pref == .light {
+            return false
+        }
+        if let def = collection.imageDarkFieldDef {
+            if let field = getField(def: def) {
+                if field.value.hasData {
+                    return true
+                }
+            }
+        }
+        return false
+    }
+    
+    public func getImageURL(pref: ImagePref = .light) -> URL? {
+        guard let attachment = getImageAttachment(pref: pref) else { return nil }
+        let attachmentsFolder = collection.lib.getResource(type: .attachments)
+        let attachmentResource = ResourceFileSys(parent: attachmentsFolder,
+                                                 fileName: attachment.fullName,
+                                                 type: .attachment)
+        return attachmentResource.url
+    }
+    
+    public func getImageCommonName(pref: ImagePref = .light) -> String? {
+        guard let attachment = getImageAttachment(pref: pref) else { return nil }
+        return attachment.commonName
+    }
+    
+    public func getImageAttachment(pref: ImagePref = .light) -> AttachmentName? {
+        guard let imageName = getImageName(pref: pref) else { return nil }
+        let imageNameLowered = imageName.lowercased()
+        for attachment in attachments {
+            if attachment.suffix.lowercased() == imageNameLowered {
+                return attachment
+            }
+        }
+        return nil
+    }
+    
+    public func getImageName(pref: ImagePref = .light) -> String? {
+        guard let imageField = getImageField(pref: pref) else { return nil }
+        let imageName = imageField.value.value
+        guard !imageName.isEmpty else { return nil }
+        return imageName
+    }
+    
+    public func getImageField(pref: ImagePref = .light) -> NoteField? {
+        var def: FieldDefinition?
+        if pref == .dark && collection.imageDarkFieldDef != nil {
+            def = collection.imageDarkFieldDef
+        } else {
+            def = collection.imageNameFieldDef
+        }
+        guard def != nil else { return nil }
+        return getField(def: def!)
+    }
+    
+    //
+    // Functions and variables concerning the Note's Image Layout Field
+    //
+    
+    public func hasImageLayout() -> Bool {
+        guard let def = collection.imageLayoutFieldDef else { return false }
+        let field = getField(def: def)
+        if field == nil {
+            return false
+        } else if field!.value.isEmpty {
+            return false
+        }
+        return true
+    }
+    
+    public var imageLayout: ImageLayoutValue {
+        guard let def = collection.imageLayoutFieldDef else { return ImageLayoutValue() }
+        let field = getField(def: def)
+        if field == nil {
+            return ImageLayoutValue()
+        } else if let value = field!.value as? ImageLayoutValue {
+            return value
+        } else {
+            return ImageLayoutValue(field!.value.value)
+        }
+    }
+    
+    public var nonBlankImageLayout: ImageLayoutValue {
+        guard let def = collection.imageLayoutFieldDef else { return ImageLayoutValue(ImageLayoutList.defaultLayout) }
+        let field = getField(def: def)
+        if field == nil {
+            return ImageLayoutValue(ImageLayoutList.defaultLayout)
+        } else if let value = field!.value as? ImageLayoutValue {
+            return value
+        } else {
+            return ImageLayoutValue(ImageLayoutList.defaultLayout)
+        }
     }
     
     //

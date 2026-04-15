@@ -125,6 +125,7 @@ public class CollectionRelocation {
         toCollection!.shortcut = fromCollection!.shortcut
         toCollection!.extLinksOpenInNewWindows = fromCollection!.extLinksOpenInNewWindows
         toCollection!.dailyNotesType = fromCollection!.dailyNotesType
+        toCollection!.imgLocal = fromCollection!.imgLocal
         
         toNotesPath = toCollection!.lib.getPath(type: .notes)
         

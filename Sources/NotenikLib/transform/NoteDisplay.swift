@@ -352,8 +352,12 @@ public class NoteDisplay {
         }
 
         let imageHTML = Markedup()
+        var imageKlass = NotenikConstants.imageKlass
+        if parms.displayMode == .presentation {
+            imageKlass = "no-border"
+        }
         if imageCaption.isEmpty && imageCaptionText.isEmpty {
-            imageHTML.image(alt: imageAlt, path: imagePath, title: imageAlt, klass: NotenikConstants.imageKlass)
+            imageHTML.image(alt: imageAlt, path: imagePath, title: imageAlt, klass: imageKlass)
         } else if imageCaption.isEmpty {
             imageHTML.startFigure()
             let pathFixed = imagePath.replacingOccurrences(of: "?", with: "%3F")

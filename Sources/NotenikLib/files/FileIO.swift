@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 12/14/18.
-//  Copyright © 2018 - 2025 Herb Bowie (https://hbowie.net)
+//  Copyright © 2018 - 2026 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -1203,25 +1203,7 @@ public class FileIO: NotenikIO, RowConsumer {
                                                  shortcut: collection!.shortcut)
                 MultiFileIO.shared.stopAccess(url: collection!.fullPathURL!)
             }
-            guard let lib = collection?.lib else { return }
-            guard lib.hasAvailable(type: .notes) else { return }
-            guard !collection!.readOnly else { return }
-            let folder = lib.getURL(type: .notes)
-            let tempURL = folder!.appendingPathComponent(NotenikConstants.tempDisplayBase).appendingPathExtension(NotenikConstants.tempDisplayExt)
-            do {
-                try FileManager.default.removeItem(at: tempURL)
-            } catch {
-                // no need to report a failure
-            }
-            let nnkfiles = lib.getResource(type: .notenikFiles)
-            if nnkfiles.exists && nnkfiles.isReadable {
-                let tempURL = nnkfiles.url!.appendingPathComponent(NotenikConstants.tempDisplayBase).appendingPathExtension(NotenikConstants.tempDisplayExt)
-                do {
-                    try FileManager.default.removeItem(at: tempURL)
-                } catch {
-                    // no need to report a failure
-                }
-            }
+            tempCleanup()
         }
 
         collection = nil
@@ -1232,6 +1214,32 @@ public class FileIO: NotenikIO, RowConsumer {
         templateFound = false
         infoFound = false
         reports = []
+    }
+    
+    /// Clean up temp storage
+    public func tempCleanup() {
+        guard collection != nil else { return }
+        guard let lib = collection?.lib else { return }
+        guard lib.hasAvailable(type: .notes) else { return }
+        guard !collection!.readOnly else { return }
+        guard let lib = collection?.lib else { return }
+        guard lib.hasAvailable(type: .notes) else { return }
+        let folder = lib.getURL(type: .notes)
+        let tempURL = folder!.appendingPathComponent(NotenikConstants.tempDisplayBase).appendingPathExtension(NotenikConstants.tempDisplayExt)
+        do {
+            try FileManager.default.removeItem(at: tempURL)
+        } catch {
+            // logError("FileManager could not remove temp display file at \(tempURL)")
+        }
+        let nnkfiles = lib.getResource(type: .notenikFiles)
+        if nnkfiles.exists && nnkfiles.isReadable {
+            let tempURL = nnkfiles.url!.appendingPathComponent(NotenikConstants.tempDisplayBase).appendingPathExtension(NotenikConstants.tempDisplayExt)
+            do {
+                try FileManager.default.removeItem(at: tempURL)
+            } catch {
+                // logError("FileManager could not remove temp display file at \(tempURL)")
+            }
+        }
     }
     
     /// Open a Collection to be used as an archive for another Collection. This will

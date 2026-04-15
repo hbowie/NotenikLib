@@ -10,4 +10,5 @@ import Foundation
 public enum ImagePref {
     case light
     case dark
+    case either
 }

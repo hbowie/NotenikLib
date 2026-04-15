@@ -674,6 +674,11 @@ class BunchIO: NotenikIO, RowConsumer  {
         }
     }
     
+    /// Clean up temp storage
+    func tempCleanup() {
+        
+    }
+    
     /// Stash Notenik special files into a special subfolder.
     func stashNotenikFilesInSubfolder()  {
         // Does nothing for this particular implementation of NotenikIO

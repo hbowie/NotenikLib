@@ -12,12 +12,12 @@
 
 import Foundation
 
-public enum TitleFormat {
-    case trimmed
-    case plain
-    case common
-    case macFileName
-    case webFileName
-    case html
+public enum TitleFormat: String, CaseIterable {
+    case trimmed = "trimmed"
+    case plain   = "plain"
+    case common  = "common"
+    case macFileName = "macfilename"
+    case webFileName = "webfilename"
+    case html    = "html"
 }
 
