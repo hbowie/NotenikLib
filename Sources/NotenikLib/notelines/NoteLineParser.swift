@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 12/10/18.
-//  Copyright © 2018 - 2025 Herb Bowie (https://hbowie.net)
+//  Copyright © 2018 - 2026 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -371,9 +371,14 @@ public class NoteLineParser {
     
     func appendYAMLvalue() {
         if !value.isEmpty {
-            if def.fieldType.typeString == NotenikConstants.authorCommon {
+            switch def.fieldType.typeString {
+            case NotenikConstants.authorCommon:
                 value.append(", ")
-            } else {
+            case NotenikConstants.wikilinksCommon, NotenikConstants.backlinksCommon:
+                value.append(";; ")
+            case NotenikConstants.inclusionsCommon, NotenikConstants.includedByCommon:
+                value.append(";; ")
+            default:
                 value.append("; ")
             }
         }

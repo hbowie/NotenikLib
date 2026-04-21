@@ -31,6 +31,12 @@ public class AnyType {
     // Display this field type for streamline reading (and similar display modes)?
     public var reducedDisplay = true
     
+    // Store links to notes in this type of field.
+    public var noteLinks = false
+    
+    // Store wiki-style links in this field. 
+    public var wikiLinks = false
+    
     init() {
         
     }

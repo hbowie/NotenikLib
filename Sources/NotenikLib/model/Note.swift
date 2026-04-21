@@ -1911,7 +1911,7 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
             let val = field!.value
             if val is BacklinkValue {
                 let linksVal = val as! BacklinkValue
-                linksVal.append(morelinks)
+                linksVal.appendLine(morelinks)
             }
         }
     }
@@ -1963,7 +1963,7 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
             let val = field!.value
             if val is WikilinkValue {
                 let linksVal = val as! WikilinkValue
-                linksVal.append(morelinks)
+                linksVal.appendLine(morelinks)
             }
         }
     }
@@ -2023,7 +2023,7 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
             let val = field!.value
             if val is InclusionsValue {
                 let incVal = val as! InclusionsValue
-                incVal.append(moreIncludes)
+                incVal.appendLine(moreIncludes)
             }
         }
     }
@@ -2083,7 +2083,7 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
             let val = field!.value
             if val is IncludedByValue {
                 let includedByVal = val as! IncludedByValue
-                includedByVal.append(moreIncludedBy)
+                includedByVal.appendLine(moreIncludedBy)
             }
         }
     }

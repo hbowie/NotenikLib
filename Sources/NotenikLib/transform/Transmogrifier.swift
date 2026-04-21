@@ -33,6 +33,7 @@ public class Transmogrifier {
     public func updateLinks(for note: Note, links: [WikiLink]) -> Bool {
 
         guard let collection = io.collection else { return false }
+        let fromCollectionID = collection.collectionID
         guard collection.backlinksDef != nil else { return false }
         guard collection.wikilinksDef != nil else { return false }
         
@@ -72,7 +73,7 @@ public class Transmogrifier {
                 let modNote = linkedNote!.copy() as! Note
                 let backLinks = modNote.backlinks
                 let path = note.collection.collectionID
-                if path.isEmpty {
+                if path.isEmpty || path == fromCollectionID {
                     backLinks.add(noteIdBasis: note.noteID.basis)
                 } else {
                     backLinks.add(noteIdBasis: path + "/" + note.noteID.basis)

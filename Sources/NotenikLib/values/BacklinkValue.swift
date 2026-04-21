@@ -16,7 +16,7 @@ import NotenikMkdown
 import NotenikUtils
 
 /// Back links to other Notes with Wiki Links to this Note. 
-public class BacklinkValue: StringValue {
+public class BacklinkValue: StringValue, MultiValues {
     
     public var notePointers = WikiLinkTargetList()
     
@@ -71,12 +71,16 @@ public class BacklinkValue: StringValue {
     /// - Parameter value: The new value for the links, with paired semi-colons separating titles.
     public override func set(_ value: String) {
         notePointers.clear()
-        append(value)
+        if value.contains(";;") {
+            appendLine(value)
+        } else {
+            append(value)
+        }
     }
     
     /// Append another line to the value.
-    func append(_ line: String) {
-        notePointers.append(line)
+    func appendLine(_ line: String) {
+        notePointers.appendLine(line)
     }
     
     func add(noteIdBasis: String) {
@@ -93,4 +97,27 @@ public class BacklinkValue: StringValue {
             pointer.display()
         }
     }
+    
+    //
+    // The following constants, variables and functions provide conformance to the MultiValues protocol.
+    //
+    
+    public let multiDelimiter = ";;"
+    
+    public var multiCount: Int {
+        return notePointers.count
+    }
+    
+    /// Return a sub-value at the given index position.
+    /// - Returns: The indicated sub-value, for a valid index, otherwise nil.
+    public func multiAt(_ index: Int) -> String? {
+        guard index >= 0 else { return nil }
+        guard index < multiCount else { return nil }
+        return notePointers[index].pathSlashID
+    }
+    
+    public func append(_ str: String) {
+        notePointers.add(noteIdBasis: str)
+    }
+    
 }

@@ -20,17 +20,23 @@ class BacklinkType: AnyType {
 
         super.init()
         
-        /// A string identifying this particular field type.
+        // A string identifying this particular field type.
         typeString  = NotenikConstants.backlinksCommon
         
-        /// The proper label typically assigned to fields of this type.
+        // The proper label typically assigned to fields of this type.
         properLabel = NotenikConstants.backlinks
         
-        /// The common label typically assigned to fields of this type.
+        // The common label typically assigned to fields of this type.
         commonLabel = NotenikConstants.backlinksCommon
         
-        /// Can the user edit this type of field?
+        // Can the user edit this type of field?
         userEditable = false
+        
+        // Yes, this type of field stores links to other notes.
+        noteLinks = true
+        
+        // Yes, this type of field should have its values stored as wiki-style links. 
+        wikiLinks = true
         
     }
     

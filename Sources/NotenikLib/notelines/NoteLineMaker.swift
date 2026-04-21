@@ -3,7 +3,7 @@
 //  NotenikLib
 //
 //  Created by Herb Bowie on 2/11/19.
-//  Copyright © 2019 - 2025 Herb Bowie (https://hbowie.net)
+//  Copyright © 2019 - 2026 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -115,28 +115,32 @@ public class NoteLineMaker {
                 def! != collection.tagsFieldDef &&
                 def! != collection.textFormatFieldDef {
                 if def == collection.backlinksDef {
-                    let field = note.getFieldAsValue(def: def!)
-                    if let backlinkField = field as? BacklinkValue {
+                    let field = note.getField(def: def!)
+                    let fieldValue = note.getFieldAsValue(def: def!)
+                    if let backlinkField = fieldValue as? BacklinkValue {
                         let notePointers = backlinkField.notePointers
-                        putWikilinks(note: note, def: def!, notePointers: notePointers)
+                        putWikilinks(note: note, field: field, notePointers: notePointers)
                     }
                 } else if def == collection.wikilinksDef {
-                    let field = note.getFieldAsValue(def: def!)
-                    if let wikilinkField = field as? WikilinkValue {
+                    let field = note.getField(def: def!)
+                    let fieldValue = note.getFieldAsValue(def: def!)
+                    if let wikilinkField = fieldValue as? WikilinkValue {
                         let notePointers = wikilinkField.notePointers
-                        putWikilinks(note: note, def: def!, notePointers: notePointers)
+                        putWikilinks(note: note, field: field, notePointers: notePointers)
                     }
                 } else if def == collection.inclusionsDef {
-                    let field = note.getFieldAsValue(def: def!)
-                    if let inclusionsField = field as? InclusionsValue {
+                    let field = note.getField(def: def!)
+                    let fieldValue = note.getFieldAsValue(def: def!)
+                    if let inclusionsField = fieldValue as? InclusionsValue {
                         let notePointers = inclusionsField.notePointers
-                        putWikilinks(note: note, def: def!, notePointers: notePointers)
+                        putWikilinks(note: note, field: field, notePointers: notePointers)
                     }
                 } else if def == collection.includedByDef {
-                    let field = note.getFieldAsValue(def: def!)
-                    if let includedByField = field as? IncludedByValue {
+                    let field = note.getField(def: def!)
+                    let fieldValue = note.getFieldAsValue(def: def!)
+                    if let includedByField = fieldValue as? IncludedByValue {
                         let notePointers = includedByField.notePointers
-                        putWikilinks(note: note, def: def!, notePointers: notePointers)
+                        putWikilinks(note: note, field: field, notePointers: notePointers)
                     }
                 } else if def!.parentField {
                     parentLabel = def!.fieldLabel.properForm
@@ -164,7 +168,6 @@ public class NoteLineMaker {
         }
         if includeAttachments && !note.attachments.isEmpty {
             let attachmentsPath = note.collection.lib.getPath(type: .attachments)
-            print("Attachments path: \(attachmentsPath)")
             let statusConfig = note.collection.statusConfig
             var attachmentsValue = ""
             for attachment in note.attachments {
@@ -233,12 +236,29 @@ public class NoteLineMaker {
         }
     }
     
-    func putWikilinks(note: Note, def: FieldDefinition, notePointers: WikiLinkTargetList) {
+    func putWikilinks(note: Note, field: NoteField?, notePointers: WikiLinkTargetList) {
+        guard field != nil else { return }
         if !note.noteID.mmdOrYaml {
             writer.endLine()
         }
-        for notePointer in notePointers {
-            writer.writeLine("\(def.fieldLabel.properForm): \(notePointer.pathSlashItem)")
+        let def = field!.def
+        var multiVal: MultiValues?
+        if let backLinks = field!.value as? BacklinkValue {
+            multiVal = backLinks
+        } else if let wikiLinks = field!.value as? WikilinkValue {
+            multiVal = wikiLinks
+        } else if let inclusions = field!.value as? InclusionsValue {
+            multiVal = inclusions
+        } else if let incBy = field!.value as? IncludedByValue {
+            multiVal = incBy
+        }
+        if note.noteID.noteFileFormat == .yaml && multiVal != nil {
+            putFieldName(def, multiCount: multiVal!.multiCount, format: note.noteID.noteFileFormat)
+            putFieldValue(field!, format: note.noteID.noteFileFormat)
+        } else {
+            for notePointer in notePointers {
+                writer.writeLine("\(def.fieldLabel.properForm): \(notePointer.pathSlashItem)")
+            }
         }
         fieldsWritten += 1
     }
@@ -343,14 +363,23 @@ public class NoteLineMaker {
     
     func putFieldValueInYAML(_ field: NoteField) {
         var written = false
+        let noteLinks = field.def.fieldType.noteLinks 
         if let multi = field.value as? MultiValues {
             if multi.multiCount > 1 {
                 writer.endLine()
                 var i = 0
                 while i < multi.multiCount {
-                    writer.writeLine("- \(multi.multiAt(i)!)")
+                    if noteLinks {
+                        writer.writeLine("  - \'[[\(multi.multiAt(i)!)]]'")
+                    } else {
+                        writer.writeLine("  - \(multi.multiAt(i)!)")
+                    }
                     i += 1
                 }
+                written = true
+            } else {
+                let str = StringValue(multi.multiAt(0)!)
+                putFieldValueOnSameLine(str, yamlLinks: true)
                 written = true
             }
         }
@@ -362,7 +391,12 @@ public class NoteLineMaker {
     /// Write the field value to the writer.
     ///
     /// - Parameter value: A StringValue or one of its descendants.
-    func putFieldValueOnSameLine(_ value: StringValue) {
-        writer.writeLine(value.valueToWrite(mods: fieldMods))
+    func putFieldValueOnSameLine(_ value: StringValue, yamlLinks: Bool = false) {
+        if yamlLinks {
+            writer.writeLine("\'[[\(value.value)]]\'")
+        } else {
+            writer.writeLine(value.valueToWrite(mods: fieldMods))
+        }
+        
     }
 }

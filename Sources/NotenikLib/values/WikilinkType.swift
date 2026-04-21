@@ -32,6 +32,11 @@ class WikilinkType: AnyType {
         /// Can the user edit this type of field?
         userEditable = false
     
+        // Yes, this type of field stores links to other notes.
+        noteLinks = true
+        
+        // Yes, this type of field should have its values stored as wiki-style links.
+        wikiLinks = true
     }
     
     /// A factory method to create a new value of this type with no initial value.

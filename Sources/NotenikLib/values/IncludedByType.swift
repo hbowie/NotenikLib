@@ -32,6 +32,12 @@ class IncludedByType: AnyType {
         /// Can the user edit this type of field?
         userEditable = false
         
+        // Yes, this type of field stores links to other notes.
+        noteLinks = true
+        
+        // No, this type of field should not have its values stored as wiki-style links.
+        wikiLinks = false
+        
     }
     
     /// A factory method to create a new value of this type with no initial value.
