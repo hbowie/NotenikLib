@@ -125,13 +125,13 @@ public class MultiFileIO {
                 if existingIO.collectionOpen && existingIO.collection != nil {
                     return (existingIO.collection, existingIO)
                 } else {
-                    print("  - I/O module found but not opened")
+                    // print("  - I/O module found but not opened")
                 }
             } else {
-                print("  - Existing I/O module not found!")
+                // print("  - Existing I/O module not found!")
             }
         } else {
-            print("  - File Path Key could not be found!")
+            // print("  - File Path Key could not be found!")
         }
         
 

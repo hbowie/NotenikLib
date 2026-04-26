@@ -137,6 +137,9 @@ public class AppPrefs {
     let scriptFolderKey = "script-folder"
     var _scriptFolder = ""
     
+    let editingAppsKey = "editing-apps"
+    var _editingAppsConcat = ""
+    
     var _appLaunching = false
     
     var _qd: Bool = false
@@ -365,6 +368,11 @@ public class AppPrefs {
             _scriptFolder = sf!
         } else {
             _scriptFolder = FileManager.default.homeDirectoryForCurrentUser.path
+        }
+        
+        let ea = defaults.string(forKey: editingAppsKey)
+        if ea != nil && !ea!.isEmpty {
+            _editingAppsConcat = ea!
         }
         
         let mh = defaults.string(forKey: mastHandleKey)
@@ -659,6 +667,15 @@ public class AppPrefs {
         }
     }
     
+    public var editingAppsConcat: String {
+        get {
+            return _editingAppsConcat
+        }
+        set {
+            _editingAppsConcat = newValue
+            defaults.set(_editingAppsConcat, forKey: editingAppsKey)
+        }
+    }
     public var mastodonHandle: String {
         get {
             return _mastHandle
