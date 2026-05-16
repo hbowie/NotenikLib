@@ -214,14 +214,8 @@ public class DisplayPrefs {
             margin-bottom: 0;
         }
         .quote-from {
-            margin-block-start: 0.1rem;
-            margin-block-end: 0.5rem;
-            margin: 0rem 0 1.5em 0;
-            padding: 0.25rem 2em;
-            padding-left: 1.3em;
-            padding-right: 4.6em;
-            padding-top: 0.25em;
-            padding-bottom: 0.25em;
+            margin: 0 0 1.5em 40px;
+            padding: 0 40px 0.25em 1.3em;
             line-height: 1.45;
             position: relative;
         }

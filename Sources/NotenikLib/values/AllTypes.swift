@@ -47,6 +47,7 @@ public class AllTypes {
     let longTitleType = LongTitleType()
     let lookBackType = LookBackType()
     let lookupType  = LookupType()
+    let markType    = MarkType()
     let minutesToReadType = MinutesToReadType()
     let pageStyleType = PageStyleType()
     let personType  = PersonType()
@@ -172,6 +173,8 @@ public class AllTypes {
         fieldTypes.append(pageStyleType)
         
         fieldTypes.append(longTitleType)
+        
+        fieldTypes.append(markType)
         
     }
     

@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 12/14/18.
-//  Copyright © 2018 - 2022 Herb Bowie (https://hbowie.net)
+//  Copyright © 2018 - 2026 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -25,6 +25,9 @@ public protocol NotenikIO {
     
     /// The currently open collection, if any
     var collection: NoteCollection? { get }
+    
+    /// Are we currently maintaining a filtered view?
+    var filtering: Bool { get }
     
     /// The position of the selected note, if any, in the current collection
     var position:   NotePosition? { get }

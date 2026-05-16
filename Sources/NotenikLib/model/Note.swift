@@ -890,6 +890,84 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     }
     
     //
+    // Functions and variables concerning the Note's Mark field
+    //
+    
+    public func toggleMark() -> Bool {
+        if collection.markFieldDef == nil { return false }
+        if isMarked() {
+            return setMark("false")
+        } else {
+            return setMark("true")
+        }
+    }
+    
+    public func isMarked() -> Bool {
+        guard let def = collection.markFieldDef else { return false }
+        let field = getField(def: def)
+        if field == nil {
+            return false
+        } else if let val = field!.value as? MarkValue {
+            return val.isMarked
+        } else {
+            let val = MarkValue(field!.value.value)
+            return val.isMarked
+        }
+    }
+    
+    public var mark: MarkValue {
+        guard let def = collection.markFieldDef else { return MarkValue() }
+        let field = getField(def: def)
+        if field == nil {
+            return MarkValue()
+        } else if let value = field!.value as? MarkValue {
+            return value
+        } else {
+            return MarkValue(field!.value.value)
+        }
+    }
+    
+    public var markStr: String {
+        guard let def = collection.markFieldDef else { return "" }
+        let field = getField(def: def)
+        if field == nil {
+            return ""
+        } else if let value = field!.value as? MarkValue {
+            return value.markStr(collection: collection)
+        } else {
+            return MarkValue(field!.value.value).markStr(collection: collection)
+        }
+    }
+    
+    public var markSuffix: String {
+        guard let def = collection.markFieldDef else { return "" }
+        let field = getField(def: def)
+        if field == nil {
+            return ""
+        } else if let value = field!.value as? MarkValue {
+            return value.markSuffix(collection: collection)
+        } else {
+            return MarkValue(field!.value.value).markSuffix(collection: collection)
+        }
+    }
+    
+    /// Attempt to mark or unmark. 
+    public func setMark(_ marked: Bool) -> Bool {
+        if marked {
+            return setMark("true")
+        } else {
+            return setMark("false")
+        }
+    }
+    
+    /// Attempt to set the Note's mark value.
+    public func setMark(_ mark: String) -> Bool {
+        guard collection.markFieldDef != nil else { return false }
+        return setField(label: collection.markFieldDef!.fieldLabel.commonForm,
+                        value: mark)
+    }
+    
+    //
     // Functions and variables concerning the Note's Image Layout Field
     //
     

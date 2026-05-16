@@ -131,6 +131,9 @@ public class NoteCollection {
     public  var imageLayoutFieldDef: FieldDefinition?
     public  var minutesToReadDef: FieldDefinition?
     public  var shortIdDef:     FieldDefinition?
+    public  var markFieldDef:   FieldDefinition?
+    public  var marker          = "Mk"
+    public  var markerCodes     = ""
     
     public  var personDef:      FieldDefinition?
     public  var authorDef:      FieldDefinition?
@@ -712,6 +715,9 @@ public class NoteCollection {
             
         case NotenikConstants.includedByCommon:
             includedByDef = def
+            
+        case NotenikConstants.markCommon:
+            markFieldDef = def
             
         default:
             break

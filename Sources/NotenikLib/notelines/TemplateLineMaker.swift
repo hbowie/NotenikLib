@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 4/7/24.
 //
-//  Copyright © 2024 - 2025 Herb Bowie (https://hbowie.net)
+//  Copyright © 2024 - 2026 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -116,6 +116,12 @@ public class TemplateLineMaker {
                         value += "\(folder), "
                     }
                     value += ">"
+                } else if def.fieldType.typeString == NotenikConstants.markCommon {
+                    if collection.markerCodes.isEmpty {
+                        value += "<mark: \(collection.marker)>"
+                    } else {
+                        value += "<mark: \(collection.markerCodes)>"
+                    }
                 } else if def.fieldType.typeString != NotenikConstants.stringType {
                     value += "<\(def.fieldType.typeString)>"
                 }

@@ -35,6 +35,7 @@ public class ColumnWidths: CustomStringConvertible {
         add(title: "Tags", min: 50, pref: 100, max: 1200)
         add(title: "Date Added", min: 100, pref: 180, max: 250)
         add(title: "Date Mod", min: 100, pref: 180, max: 250)
+        add(title: "Mk", min: 24, pref: 36, max: 48)
     }
     
     public func set(_ str: String) {

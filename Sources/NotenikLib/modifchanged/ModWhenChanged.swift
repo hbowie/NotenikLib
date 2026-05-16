@@ -238,6 +238,8 @@ public class ModWhenChanged {
                     outcome = .modWithKeyChanges
                 } else if collection.folderFieldDef != nil && (startingNote.folder != modNote.folder) {
                     outcome = .modWithKeyChanges
+                } else if collection.markFieldDef != nil && (startingNote.mark != modNote.mark) {
+                    outcome = .modWithKeyChanges
                 }
             }
             if modID.count == 0 {

@@ -93,6 +93,8 @@ public struct NotenikConstants {
     public static let linkCommon        = "link"
     public static let longTitle         = "Long Title"
     public static let longTitleCommon   = "longtitle"
+    public static let mark              = "Mark"
+    public static let markCommon        = "mark"
     public static let minutesToRead     = "Minutes to Read"
     public static let minutesToReadCommon = "minutestoread"
     public static let mirrorAutoIndex   = "Mirror Auto Index"

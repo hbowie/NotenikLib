@@ -379,7 +379,7 @@ public class NoteLineMaker {
                 written = true
             } else {
                 let str = StringValue(multi.multiAt(0)!)
-                putFieldValueOnSameLine(str, yamlLinks: true)
+                putFieldValueOnSameLine(str, yamlLinks: noteLinks)
                 written = true
             }
         }

@@ -164,6 +164,19 @@ class ApplyTemplateValues {
             let includedByType = IncludedByType()
             includedByType.setInitialReveal(str: typeValues.str)
             def.fieldType = includedByType
+        } else if typeStrCommon == NotenikConstants.markCommon && !typeValues.isEmpty {
+            collection.marker = ""
+            if typeValues.count > 3 {
+                if let charCode = UInt32(typeValues.str, radix: 16) {
+                    if let uniCode = UnicodeScalar(charCode) {
+                        collection.marker = String(uniCode)
+                        collection.markerCodes = typeValues.str
+                    }
+                }
+            }
+            if collection.marker.isEmpty {
+                collection.marker = typeValues.str
+            }
         } else {
             def.fieldType = collection.typeCatalog.assignType(label: def.fieldLabel, type: typeStrCommon)
             def.pickList = def.fieldType.genPickList()

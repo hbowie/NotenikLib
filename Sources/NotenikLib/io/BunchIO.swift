@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 5/17/19.
-//  Copyright © 2019 - 2025 Herb Bowie (https://hbowie.net)
+//  Copyright © 2019 - 2026 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -16,6 +16,9 @@ import NotenikUtils
 /// A NotenikIO module that stores all information in memory, without any persistent
 /// backing. Used by RealmIO.
 class BunchIO: NotenikIO, RowConsumer  {
+    
+    /// Are we currently maintaining a filtered view?
+    var filtering: Bool = false
     
     var provider       : Provider = Provider()
     var realm          : Realm

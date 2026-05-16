@@ -28,6 +28,9 @@ public class FileIO: NotenikIO, RowConsumer {
     /// The currently open collection, if any
     public var collection: NoteCollection?
     
+    /// Are we currently maintaining a filtered view?
+    public var filtering: Bool = false
+    
     /// An indicator of the status of the Collection: open or closed
     public var collectionOpen = false
     
