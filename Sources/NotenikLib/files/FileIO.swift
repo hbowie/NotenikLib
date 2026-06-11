@@ -29,7 +29,7 @@ public class FileIO: NotenikIO, RowConsumer {
     public var collection: NoteCollection?
     
     /// Are we currently maintaining a filtered view?
-    public var filtering: Bool = false
+    public var filterStatus : FilterIO = .showAll
     
     /// An indicator of the status of the Collection: open or closed
     public var collectionOpen = false
@@ -43,9 +43,57 @@ public class FileIO: NotenikIO, RowConsumer {
     /// The Collection of Notes stored in memory.
     var bunch: BunchOfNotes?
     
+    /// The filtered set of notes.
+    var filtered: BunchOfNotes?
+    
+    var activeBunch: BunchOfNotes? {
+        if filtered != nil {
+            return filtered
+        } else {
+            return bunch
+        }
+    }
+    
+    // -----------------------------------------------------------
+    //
+    // MARK: Start or stop filtering
+    //
+    // -----------------------------------------------------------
+    
+    public func startFiltering(filterIO: FilterIO) -> Int {
+        guard bunch != nil else { return 0 }
+        guard collection != nil else { return 0 }
+        guard filterIO != .showAll else {
+            filtered = nil
+            filterStatus = .showAll
+            return bunch!.count
+        }
+        filtered = BunchOfNotes(collection: collection!)
+        var index = 0
+        while index < bunch!.count {
+            if let note = bunch!.getNote(at: index) {
+                if note.isMarked() && filterIO == .showMarked {
+                    _ = filtered!.add(note: note)
+                } else if !note.isMarked() && filterIO == .showUnmarked {
+                    _ = filtered!.add(note: note)
+                }
+            }
+            index += 1
+        }
+        filterStatus = filterIO
+        return filtered!.count
+    }
+    
+    public func stopFiltering() {
+        filtered = nil
+        filterStatus = .showAll
+    }
+    
     /// A list of notes in the Collection.
     public var notesList: NotesList {
-        if bunch != nil {
+        if filtered != nil {
+            return filtered!.notesList
+        } else if bunch != nil {
             return bunch!.notesList
         } else {
             return NotesList()
@@ -55,7 +103,7 @@ public class FileIO: NotenikIO, RowConsumer {
     /// The number of notes in the current collection
     public var notesCount: Int {
         guard bunch != nil else { return 0 }
-        return bunch!.count
+        return activeBunch!.count
     }
     
     /// The position of the selected note, if any, in the current collection
@@ -63,7 +111,7 @@ public class FileIO: NotenikIO, RowConsumer {
         if !collectionOpen || collection == nil || bunch == nil {
             return nil
         } else {
-            notePosition.index = bunch!.listIndex
+            notePosition.index = activeBunch!.listIndex
             return notePosition
         }
     }
@@ -80,6 +128,9 @@ public class FileIO: NotenikIO, RowConsumer {
                 if bunch != nil {
                     bunch!.sortParm = newValue
                 }
+                if filtered != nil {
+                    filtered!.sortParm = newValue
+                }
             }
         }
     }
@@ -90,7 +141,12 @@ public class FileIO: NotenikIO, RowConsumer {
         set {
             if newValue != collection!.sortDescending {
                 collection!.sortDescending = newValue
-                bunch!.sortDescending = newValue
+                if bunch != nil {
+                    bunch!.sortDescending = newValue
+                }
+                if filtered != nil {
+                    filtered!.sortDescending = newValue
+                }
             }
         }
     }
@@ -104,6 +160,9 @@ public class FileIO: NotenikIO, RowConsumer {
             if newValue != collection!.sortBlankDatesLast {
                 collection!.sortBlankDatesLast = newValue
                 bunch!.sortBlankDatesLast = newValue
+                if filtered != nil {
+                    filtered!.sortBlankDatesLast = newValue
+                }
             }
         }
         
@@ -218,6 +277,8 @@ public class FileIO: NotenikIO, RowConsumer {
         guard ok else { return ok }
         
         bunch = BunchOfNotes(collection: collection)
+        filtered = nil
+        filterStatus = .showAll
         
         if withFirstNote {
             ok = writeFirstNote()
@@ -393,6 +454,9 @@ public class FileIO: NotenikIO, RowConsumer {
         _ = firstNote.setBody("A note-taking system cunningly devised by Herb Bowie")
         firstNote.identify()
         
+        filtered = nil
+        filterStatus = .showAll
+        
         let added = bunch!.add(note: firstNote)
         guard added else {
             logError("Couldn't add first note to internal storage")
@@ -446,6 +510,9 @@ public class FileIO: NotenikIO, RowConsumer {
         
         // Let's read the directory contents
         bunch = BunchOfNotes(collection: collection!)
+        
+        filtered = nil
+        filterStatus = .showAll
         
         loadAttachments()
         
@@ -1073,6 +1140,11 @@ public class FileIO: NotenikIO, RowConsumer {
             collection!.columnWidths.set(columnWidths!.value.value)
         }
         
+        let scriptWindowNumbers = infoNote.getField(label: NotenikConstants.scriptWindowNumbersCommon)
+        if scriptWindowNumbers != nil && !scriptWindowNumbers!.value.isEmpty {
+            collection!.scriptWindowPosStr = scriptWindowNumbers!.value.value
+        }
+        
         for (key, field) in infoNote.fields {
             if key.hasSuffix("noteid") {
                 let command = String(key.dropLast(6))
@@ -1211,6 +1283,9 @@ public class FileIO: NotenikIO, RowConsumer {
 
         collection = nil
         collectionOpen = false
+        if filtered != nil {
+            filtered!.close()
+        }
         if bunch != nil {
             bunch!.close()
         }
@@ -1633,9 +1708,13 @@ public class FileIO: NotenikIO, RowConsumer {
     /// - Returns: The modified note and its position.
     public func modNote(oldNote: Note, newNote: Note) -> (Note?, NotePosition) {
 
-        guard collection != nil && collectionOpen else { return (nil, NotePosition(index: -1)) }
-        guard newNote.hasTitle() else {
+        guard collection != nil && collectionOpen else {
             logError("modNote error 1 - No Collection")
+            return (nil, NotePosition(index: -1))
+        }
+        
+        guard newNote.hasTitle() else {
+            logError("modNote error 2 - New note has no title")
             return (nil, NotePosition(index: -1))
         }
         
@@ -1643,8 +1722,12 @@ public class FileIO: NotenikIO, RowConsumer {
         var deleted = false
         deleted = bunch!.delete(note: oldNote)
         guard deleted else {
-            logError("modNote error 2 - Could not delete old version from memory")
+            logError("modNote error 3 - Could not delete old version from memory")
             return (nil, NotePosition(index: -1))
+        }
+        
+        if filtered != nil {
+            _ = filtered!.delete(note: oldNote)
         }
         
         MultiFileIO.shared.cancelLookBacks(lkUpNote: oldNote)
@@ -1655,14 +1738,21 @@ public class FileIO: NotenikIO, RowConsumer {
                 _ = newNote.setTimestamp("")
             }
         }
+
         newNote.identify()
         ensureUniqueID(for: newNote)
         
         // Add the new note to memory.
         let added = bunch!.add(note: newNote)
         guard added else {
-            logError("modNote error 3 - Could not add new version to memory")
+            logError("modNote error 4 - Could not add new version to memory")
             return (nil, NotePosition(index: -1))
+        }
+        
+        if filtered != nil && newNote.isMarked() && filterStatus == .showMarked {
+            _ = filtered!.add(note: newNote)
+        } else if filtered != nil && !newNote.isMarked() && filterStatus == .showUnmarked {
+            _ = filtered!.add(note: newNote)
         }
         
         MultiFileIO.shared.registerLookBacks(lkUpNote: newNote)
@@ -1670,11 +1760,11 @@ public class FileIO: NotenikIO, RowConsumer {
         // Rename the Note file if needed.
         // newNote.fileInfo.genFileName()
         guard let oldPath = oldNote.noteID.getFullPath(note: oldNote) else {
-            logError("modNote error 4 - Full path not available for old version")
+            logError("modNote error 5 - Full path not available for old version")
             return (nil, NotePosition(index: -1))
         }
         guard let newPath = newNote.noteID.getFullPath(note: newNote) else {
-            logError("modNote error 5 - Full path not available for new version")
+            logError("modNote error 6 - Full path not available for new version")
             return (nil, NotePosition(index: -1))
         }
         if oldPath != newPath {
@@ -1687,7 +1777,7 @@ public class FileIO: NotenikIO, RowConsumer {
             let noteResource = ResourceFileSys(parent: notesFolder, fileName: fileName!, type: .note)
             let renameOK = noteResource.rename(to: newPath)
             if !renameOK {
-                logError("modNote error 6 - Could not rename file from \(oldPath) to \(newPath)")
+                logError("modNote error 7 - Could not rename file from \(oldPath) to \(newPath)")
                 return (nil, NotePosition(index: -1))
             }
             newNote.noteID.clearExistingFilename()
@@ -1696,10 +1786,10 @@ public class FileIO: NotenikIO, RowConsumer {
         // Save the changes to the Note file. 
         let written = writeNote(newNote)
         if !written {
-            logError("modNote error 7 - Could not write new version to disk")
+            logError("modNote error 8 - Could not write new version to disk")
             return (nil, NotePosition(index: -1))
         } else {
-            let (_, position) = bunch!.selectNote(newNote)
+            let (_, position) = activeBunch!.selectNote(newNote)
             return (newNote, position)
         }
 
@@ -1719,10 +1809,21 @@ public class FileIO: NotenikIO, RowConsumer {
                 _ = newNote.setTimestamp("")
             }
         }
+        
+        // If the user has the filter on, and they add a new note, we
+        // assume they will want to see it in the filtered view.
+        if filtered != nil && filterStatus == .showMarked {
+            _ = newNote.setMark(true)
+        }
+        
         newNote.identify()
         ensureUniqueID(for: newNote)
         let added = bunch!.add(note: newNote)
         guard added else { return (nil, NotePosition(index: -1)) }
+        
+        if filtered != nil {
+            _ = filtered!.add(note: newNote)
+        }
 
         MultiFileIO.shared.registerLookBacks(lkUpNote: newNote)
         // newNote.fileInfo.genFileName()
@@ -1730,7 +1831,7 @@ public class FileIO: NotenikIO, RowConsumer {
         if !written {
             return (nil, NotePosition(index: -1))
         } else {
-            let (_, position) = bunch!.selectNote(newNote)
+            let (_, position) = activeBunch!.selectNote(newNote)
             return (newNote, position)
         }
     }
@@ -1781,14 +1882,14 @@ public class FileIO: NotenikIO, RowConsumer {
         guard collection != nil && collectionOpen else { return (nil, NotePosition(index: -1)) }
         
         // Make sure we have a selected note
-        let (noteToDelete, oldPosition) = bunch!.getSelectedNote()
+        let (noteToDelete, oldPosition) = activeBunch!.getSelectedNote()
         guard noteToDelete != nil && oldPosition.index >= 0 else {
             return (nil, NotePosition(index: -1))
         }
         
         guard let lib = noteToDelete?.note.getResourceLib() else { return (nil, NotePosition(index: -1)) }
         
-        let (priorNote, priorPosition) = bunch!.priorNote(oldPosition)
+        let (priorNote, priorPosition) = activeBunch!.priorNote(oldPosition)
         var returnNote = priorNote
         var returnPosition = priorPosition
  
@@ -1797,17 +1898,21 @@ public class FileIO: NotenikIO, RowConsumer {
             logError("Could not delete note titled '\(noteToDelete!.note.title.value)' from internal storage")
         }
         
+        if filtered != nil {
+            _ = filtered!.delete(note: noteToDelete!.note)
+        }
+        
         MultiFileIO.shared.cancelLookBacks(lkUpNote: noteToDelete!.note)
         
         if priorNote != nil {
-            let (nextNote, nextPosition) = bunch!.nextNote(priorPosition)
+            let (nextNote, nextPosition) = activeBunch!.nextNote(priorPosition)
             if nextNote != nil {
                 returnNote = nextNote
                 returnPosition = nextPosition
             }
         }
         if returnNote == nil {
-            (returnNote, returnPosition) = bunch!.firstNote()
+            (returnNote, returnPosition) = activeBunch!.firstNote()
         }
         
         let noteResource = lib.getNoteResource(note: noteToDelete!.note)
@@ -1860,6 +1965,10 @@ public class FileIO: NotenikIO, RowConsumer {
         deleted = bunch!.delete(note: noteToDelete)
         guard deleted else { return false }
         
+        if filtered != nil {
+            _ = filtered!.delete(note: noteToDelete)
+        }
+        
         MultiFileIO.shared.cancelLookBacks(lkUpNote: noteToDelete)
 
         // Delete any attachments, unless asked to preserve them.
@@ -1892,6 +2001,9 @@ public class FileIO: NotenikIO, RowConsumer {
     public func registerComboValue(comboDef: FieldDefinition, value: String) {
         guard bunch != nil else { return }
         bunch!.registerComboValue(comboDef: comboDef, value: value)
+        if filtered != nil {
+            filtered!.registerComboValue(comboDef: comboDef, value: value)
+        }
     }
     
     /// Read a note from disk.
@@ -1917,8 +2029,14 @@ public class FileIO: NotenikIO, RowConsumer {
         var ok = false
         ok = bunch!.delete(note: noteToReload)
         guard ok else { return nil }
+        if filtered != nil {
+            _ = filtered!.delete(note: noteToReload)
+        }
         restoreAttachments(to: reloaded!)
         ok = bunch!.add(note: reloaded!)
+        if filtered != nil {
+            _ = filtered!.add(note: noteToReload) 
+        }
 
         if ok {
             return reloaded
@@ -1954,7 +2072,7 @@ public class FileIO: NotenikIO, RowConsumer {
     /// If the list is empty, return a nil Note and an index position of -1.
     public func firstNote() -> (SortedNote?, NotePosition) {
         guard collection != nil && collectionOpen else { return (nil, NotePosition(index: -1)) }
-        return bunch!.firstNote()
+        return activeBunch!.firstNote()
     }
     
     /// Return the last note in the sorted list, along with its index position
@@ -1962,7 +2080,7 @@ public class FileIO: NotenikIO, RowConsumer {
     /// if the list is empty, return a nil Note and an index position of -1.
     public func lastNote() -> (SortedNote?, NotePosition) {
         guard collection != nil && collectionOpen else { return (nil, NotePosition(index: -1)) }
-        return bunch!.lastNote()
+        return activeBunch!.lastNote()
     }
 
     /// Return the next note in the sorted list, along with its index position.
@@ -1972,7 +2090,7 @@ public class FileIO: NotenikIO, RowConsumer {
     ///            If we're at the end of the list, then return a nil Note and an index of -1.
     public func nextNote(_ position: NotePosition) -> (SortedNote?, NotePosition) {
         guard collection != nil && collectionOpen else { return (nil, NotePosition(index: -1)) }
-        return bunch!.nextNote(position)
+        return activeBunch!.nextNote(position)
     }
     
     /// Return the prior note in the sorted list, along with its index position.
@@ -1982,7 +2100,7 @@ public class FileIO: NotenikIO, RowConsumer {
     ///            if we're outside the bounds of the list, then return a nil Note and an index of -1.
     public func priorNote(_ position : NotePosition) -> (SortedNote?, NotePosition) {
         guard collection != nil && collectionOpen else { return (nil, NotePosition(index: -1)) }
-        return bunch!.priorNote(position)
+        return activeBunch!.priorNote(position)
     }
     
     /// Return the position of a given note.
@@ -1991,7 +2109,7 @@ public class FileIO: NotenikIO, RowConsumer {
     /// - Returns: A Note Position
     public func positionOfNote(_ note: Note) -> NotePosition {
         guard collection != nil && collectionOpen else { return NotePosition(index: -1) }
-        let (_, position) = bunch!.selectNote(note)
+        let (_, position) = activeBunch!.selectNote(note)
         return position
     }
     
@@ -2000,7 +2118,7 @@ public class FileIO: NotenikIO, RowConsumer {
     /// - Returns: The position within the master list.
     public func positionOfNote(_ sortedNote: SortedNote) -> NotePosition {
         guard collection != nil && collectionOpen else { return NotePosition(index: -1) }
-        return bunch!.positionOfNote(sortedNote)
+        return activeBunch!.positionOfNote(sortedNote)
     }
     
     /// Select the note at the given position in the sorted list.
@@ -2012,7 +2130,7 @@ public class FileIO: NotenikIO, RowConsumer {
     ///            - If the index is too low, return the first note.
     public func selectNote(at index: Int) -> (SortedNote?, NotePosition) {
         guard collection != nil && collectionOpen else { return (nil, NotePosition(index: -1)) }
-        return bunch!.selectNote(at: index)
+        return activeBunch!.selectNote(at: index)
     }
     
     /// Return the note currently selected.
@@ -2020,7 +2138,7 @@ public class FileIO: NotenikIO, RowConsumer {
     /// If the list index is out of range, return a nil Note and an index posiiton of -1.
     public func getSelectedNote() -> (SortedNote?, NotePosition) {
         guard collection != nil && collectionOpen else { return (nil, NotePosition(index: -1)) }
-        return bunch!.getSelectedNote()
+        return activeBunch!.getSelectedNote()
     }
     
     /// Return the note at the specified position in the sorted list, if possible.
@@ -2029,7 +2147,7 @@ public class FileIO: NotenikIO, RowConsumer {
     /// - Returns: Either the note at that position, or nil, if the index is out of range.
     public func getNote(at index: Int) -> Note? {
         guard collection != nil && collectionOpen else { return nil }
-        return bunch!.getNote(at: index)
+        return activeBunch!.getNote(at: index)
     }
     
     /// Return the Sorted Note  at the specified position in the sorted list, if possible.
@@ -2038,7 +2156,7 @@ public class FileIO: NotenikIO, RowConsumer {
     /// - Returns: Either the note at that position, or nil, if the index is out of range.
     public func getSortedNote(at index: Int) -> SortedNote? {
         guard collection != nil && collectionOpen else { return nil }
-        return bunch!.getSortedNote(at: index)
+        return activeBunch!.getSortedNote(at: index)
     }
     
     /// Get the Note that is known by the passed identifier, one way or another.
@@ -2103,7 +2221,7 @@ public class FileIO: NotenikIO, RowConsumer {
     /// - Returns: The Note with this key, if one exists; otherwise nil.
     public func getNote(forID noteID: NoteIdentification) -> Note? {
         guard collection != nil && collectionOpen else { return nil }
-        return bunch!.getNote(forID: noteID)
+        return activeBunch!.getNote(forID: noteID)
     }
     
     /// Get the existing note with the specified ID.
@@ -2112,7 +2230,7 @@ public class FileIO: NotenikIO, RowConsumer {
     /// - Returns: The Note with this key, if one exists; otherwise nil.
     public func getNote(forID id: String) -> Note? {
         guard collection != nil && collectionOpen else { return nil }
-        return bunch!.getNote(forID: id)
+        return activeBunch!.getNote(forID: id)
     }
     
     /// Get the existing Note with the specified AKA value, if one exists.
@@ -2120,14 +2238,14 @@ public class FileIO: NotenikIO, RowConsumer {
     /// - Returns: The Note having this aka value, if one exists; otherwise nil.
     public func getNote(alsoKnownAs aka: String) -> Note? {
         guard collection != nil && collectionOpen else { return nil }
-        return bunch!.getNote(alsoKnownAs: aka)
+        return activeBunch!.getNote(alsoKnownAs: aka)
     }
     
     /// Return the Alias entries for the Collection.
     /// - Returns: All of the AKA aliases, plus the Notes to which they point.
     public func getAKAEntries() -> AKAentries {
         guard collection != nil && collectionOpen else { return AKAentries() }
-        return bunch!.getAKAEntries()
+        return activeBunch!.getAKAEntries()
     }
     
     /// In conformance with MkdownWikiLinkLookup protocol, lookup a title given a timestamp.
@@ -2175,7 +2293,7 @@ public class FileIO: NotenikIO, RowConsumer {
     /// - Returns: The Note with this timestamp, if one exists; otherwise nil.
     public func getNote(forTimestamp stamp: String) -> Note? {
         guard collection != nil && collectionOpen else { return nil }
-        return bunch!.getNote(forTimestamp: stamp)
+        return activeBunch!.getNote(forTimestamp: stamp)
     }
     
     // -----------------------------------------------------------
@@ -2187,7 +2305,7 @@ public class FileIO: NotenikIO, RowConsumer {
     /// Return the total number of Notes in the Collection.
     public var count: Int {
         guard bunch != nil else { return 0 }
-        return bunch!.count
+        return activeBunch!.count
     }
     
     // -----------------------------------------------------------
@@ -2351,7 +2469,7 @@ public class FileIO: NotenikIO, RowConsumer {
     public func purgeClosed(archiveIO: NotenikIO?) -> Int {
 
         guard collection != nil && collectionOpen else { return 0 }
-        guard let notes = bunch?.notesList else { return 0 }
+        guard let notes = activeBunch?.notesList else { return 0 }
         
         // Now look for closed notes
         var notesToDelete: [Note] = []
@@ -2451,7 +2569,7 @@ public class FileIO: NotenikIO, RowConsumer {
     
     public func getTagsNodeRoot() -> TagsNode? {
         guard collection != nil && collectionOpen else { return nil }
-        return bunch!.notesTree.root
+        return activeBunch!.notesTree.root
     }
     
     /// Create an iterator for the tags nodes.
@@ -2467,15 +2585,15 @@ public class FileIO: NotenikIO, RowConsumer {
     
     /// Return the root of the Tags tree
     public func getOutlineNodeRoot() -> OutlineNode2? {
-        guard collection != nil && collectionOpen && bunch?.outlineTree != nil else {
+        guard collection != nil && collectionOpen && activeBunch?.outlineTree != nil else {
             return nil
         }
-        return bunch!.outlineTree.root
+        return activeBunch!.outlineTree.root
     }
     
     /// Create an iterator for the tags nodes.
     public func makeOutlineNodeIterator() -> OutlineNodeIterator {
-        return bunch!.outlineTree.makeIterator()
+        return activeBunch!.outlineTree.makeIterator()
     }
     
     // -----------------------------------------------------------
@@ -2486,12 +2604,12 @@ public class FileIO: NotenikIO, RowConsumer {
     
     public func klassForLevel(_ level: Int) -> String? {
         guard bunch != nil else { return nil }
-        return bunch!.levelToKlass.klassForLevel(level)
+        return activeBunch!.levelToKlass.klassForLevel(level)
     }
     
     public func levelForKlass(_ klass: String) -> Int? {
         guard bunch != nil else { return nil }
-        return bunch!.levelToKlass.levelForKlass(klass)
+        return activeBunch!.levelToKlass.levelForKlass(klass)
     }
     
     // -----------------------------------------------------------

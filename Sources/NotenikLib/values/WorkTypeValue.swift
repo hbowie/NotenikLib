@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 8/31/19.
-//  Copyright © 2019 - 2025 Herb Bowie (https://hbowie.net)
+//  Copyright © 2019 - 2026 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -21,7 +21,18 @@ public class WorkTypeValue: StringValue {
     public override func set(_ value: String) {
         let index = types.matchesOriginal(value: value)
         if index == NSNotFound {
-            self.value = value
+            if value.hasSuffix("s") {
+                var singular = value
+                singular.removeLast(1)
+                let index = types.matchesOriginal(value: singular)
+                if index == NSNotFound {
+                    self.value = value
+                } else {
+                    self.value = types.originalTypes[index]
+                }
+            } else {
+                self.value = value
+            }
         } else {
             self.value = types.originalTypes[index]
         }

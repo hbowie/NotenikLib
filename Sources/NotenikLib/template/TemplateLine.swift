@@ -46,7 +46,8 @@ class TemplateLine {
             setCommandCharsFromFirstLine()
         }
         
-        if text.hasPrefix(util.startCommand) && text.hasSuffix(util.endCommand) {
+        let trimmed = StringUtils.trim(text)
+        if text.hasPrefix(util.startCommand) && trimmed.hasSuffix(util.endCommand) {
             analyzeApparentCommandLine()
         }
     }
@@ -336,15 +337,18 @@ class TemplateLine {
             return
         }
         
+        // First token is the if itself
         if tokens.count < 2 {
             // If we have an if command with nothing following, then the result is false.
             util.skippingData = true
             return
         }
         
-        // We have two or more operands
+        // We have two or more tokens
+        // Second token is the first value to be compared to something
         let operand1 = util.replaceVariables(str: String(tokens[1]), note: note).line
         
+        // Third token is an optional comparison operator
         if tokens.count < 3 {
             // We're just testing for the presence of a variable
             if operand1 == "" || operand1 == "false" {
@@ -353,7 +357,7 @@ class TemplateLine {
             return
         }
         
-        // We have three or more operands
+        // We have three or more tokens
         var value1 = ""
         var value2 = ""
         var value2Index = 2
@@ -370,6 +374,7 @@ class TemplateLine {
             return
         }
         
+        // Fourth token is the second value, to be compared to the first
         if tokens.count > 3 {
             value2 = util.replaceVariables(str: String(tokens[value2Index]), note: note).line
         }

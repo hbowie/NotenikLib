@@ -27,7 +27,7 @@ public protocol NotenikIO {
     var collection: NoteCollection? { get }
     
     /// Are we currently maintaining a filtered view?
-    var filtering: Bool { get }
+    var filterStatus: FilterIO { get }
     
     /// The position of the selected note, if any, in the current collection
     var position:   NotePosition? { get }
@@ -79,6 +79,16 @@ public protocol NotenikIO {
     /// Add the default definitions to the Collection's dictionary:
     /// Title, Tags, Link and Body
     func addDefaultDefinitions()
+    
+    // -----------------------------------------------------------
+    //
+    // MARK: Start or stop filtering
+    //
+    // -----------------------------------------------------------
+    
+    func startFiltering(filterIO: FilterIO) -> Int
+    
+    func stopFiltering()
     
     // -----------------------------------------------------------
     //

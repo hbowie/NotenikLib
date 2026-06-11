@@ -37,7 +37,7 @@ public class NoteIdentification: Identifiable, Comparable, Equatable {
     var seqBeforeTitle   = false
     var basis            = ""
     var fileNameBasis    = ""
-    var text             = ""
+    public var text             = ""
     
     var existingBase:    String?
     var existingExt:     String?
@@ -48,9 +48,9 @@ public class NoteIdentification: Identifiable, Comparable, Equatable {
     
     var derivationNeeded = false
     
-    var commonID         = ""
+    public var commonID         = ""
     var readableFileName = ""
-    var commonFileName   = ""
+    public var commonFileName   = ""
     
     // -----------------------------------------------------------
     //

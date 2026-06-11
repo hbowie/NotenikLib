@@ -2422,6 +2422,38 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
     }
     
     //
+    // Functions and variables concerning the Note's spoken script field.
+    //
+    
+    /// Does the note have any spoken script?
+    public var hasSpokenScript: Bool {
+        guard let def = collection.spokenScriptFieldDef else {
+            return false
+        }
+        guard let spokenField = getField(def: def) else {
+            return false
+        }
+        guard let longText = spokenField.value as? LongTextValue else {
+            return false
+        }
+        return !longText.value.isEmpty
+    }
+    
+    /// Return the Spoken Script  of the Note
+    public var spokenScript: String {
+        guard let def = collection.spokenScriptFieldDef else {
+            return ""
+        }
+        guard let spokenField = getField(def: def) else {
+            return ""
+        }
+        guard let longText = spokenField.value as? LongTextValue else {
+            return ""
+        }
+        return longText.value
+    }
+    
+    //
     // Functions and variables for Body Check Box Updates.
     //
     

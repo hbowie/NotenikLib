@@ -188,7 +188,13 @@ public class TemplateUtil {
             return nil
         } else {
             lineCount += 1
-            return TemplateLine(text: nextLine!, util: self)
+            let tLine = TemplateLine(text: nextLine!, util: self)
+            /* if tLine.command == nil {
+                print("Template Line #\(lineCount): no command | \(tLine.text)")
+            } else {
+                print("Template Line #\(lineCount): \(tLine.command!) | \(tLine.text)")
+            } */
+            return tLine
         }
     }
     
@@ -977,6 +983,10 @@ public class TemplateUtil {
                 } else if nextCharLower == "m" || nextCharLower == "t"{
                     modifiedValue = titleValue.getTitle(format: .trimmed)
                     inc = 2
+                } else if nextCharLower == "c" {
+                    modifiedValue = titleValue.getTitle(format: .common)
+                } else if nextCharLower == "n" {
+                    modifiedValue = titleValue.getTitle(format: .macFileName)
                 } else {
                     modifiedValue = titleValue.plain
                 }

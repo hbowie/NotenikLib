@@ -18,7 +18,7 @@ import NotenikUtils
 class BunchIO: NotenikIO, RowConsumer  {
     
     /// Are we currently maintaining a filtered view?
-    var filtering: Bool = false
+    var filterStatus      : FilterIO = .showAll
     
     var provider       : Provider = Provider()
     var realm          : Realm
@@ -59,6 +59,14 @@ class BunchIO: NotenikIO, RowConsumer  {
         realm.name = NSUserName()
         realm.path = NSHomeDirectory()
         closeCollection()
+    }
+    
+    public func startFiltering(filterIO: FilterIO) -> Int {
+        return 0
+    }
+    
+    public func stopFiltering() {
+        
     }
     
     /// Return the number of notes in the current collection.

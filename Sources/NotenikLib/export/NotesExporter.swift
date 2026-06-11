@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 7/17/19.
-//  Copyright © 2019-2021 Herb Bowie (https://hbowie.net)
+//  Copyright © 2019-2026 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -167,7 +167,7 @@ public class NotesExporter {
             markup = Markedup(format: .opml)
             let headInfo = MarkedupHeadInfo(withTitle: noteIO.collection!.title)
             markup.startDoc(headInfo: headInfo)
-        case .concatHtml, .outlineHtml, .concatMarkdown, .continuousMarkdown:
+        case .concatHtml, .outlineHtml, .concatMarkdown, .continuousMarkdown, .iaPresenter:
             concatOpen(exportFormat: format)
             break
         case .continuousHtml:
@@ -401,6 +401,8 @@ public class NotesExporter {
             writeOutline(splitTag: splitTag, cleanTags: cleanTags, note: note)
         case .concatHtml, .concatMarkdown, .continuousMarkdown:
             writeConcat(splitTag: splitTag, cleanTags: cleanTags, sortedNote: sortedNote)
+        case .iaPresenter:
+            writeIaPresenter(splitTag: splitTag, cleanTags: cleanTags, sortedNote: sortedNote)
         case .outlineHtml:
             writeOutlineHtml(note: note)
         default:
@@ -748,7 +750,7 @@ public class NotesExporter {
             return yamlClose()
         case .opml:
             return outlineClose()
-        case .concatHtml, .outlineHtml, .concatMarkdown, .continuousMarkdown:
+        case .concatHtml, .outlineHtml, .concatMarkdown, .continuousMarkdown, .iaPresenter:
             return concatClose(exportFormat: format)
         case .continuousHtml:
             return true
@@ -927,6 +929,59 @@ public class NotesExporter {
         } else {
             let code = display.display(sortedNote, io: noteIO, parms: displayParms, mdResults: mdResults, expandedMarkdown: expMD)
             markup.append(code)
+        }
+        
+        // markup.writeLine(" ")
+        notesExported += 1
+    }
+    
+    func writeIaPresenter(splitTag: String, cleanTags: String, sortedNote: SortedNote) {
+        
+        markup.writeLine("---")
+        if docTitle.count == 0 {
+            if sortedNote.note.seq.isEmpty && sortedNote.note.level.getInt() == 1 {
+                docTitle = sortedNote.note.title.value
+            } else {
+                docTitle = collection.title
+            }
+            let headInfo = MarkedupHeadInfo(withTitle: docTitle, cssCode: sortedNote.note.getCombinedCSS(cssString: displayParms.cssString))
+            markup.startDoc(headInfo: headInfo)
+        }
+        
+        var expMD: String?
+        
+        displayParms.format = .markdown
+        let expander = MkdownExpander()
+        expMD = expander.expand(md: sortedNote.note.body.value,
+                                note: sortedNote.note,
+                                io: noteIO,
+                                parms: displayParms)
+        
+        let titleToDisplay = displayParms.compoundTitle(note: sortedNote.note, titleFormat: .trimmed)
+        markup.displayLine(opt: sortedNote.note.collection.titleDisplayOption,
+                             text: titleToDisplay,
+                             depth: sortedNote.depth,
+                             addID: false,
+                             idText: sortedNote.note.title.value)
+    
+        if expMD != nil {
+            let lineReader = BigStringReader(expMD!)
+            let lineWriter = BigStringWriter()
+            lineReader.open()
+            lineWriter.open()
+            var nextLine = lineReader.readLine()
+            while nextLine != nil {
+                lineWriter.writeLine("\t" + nextLine!)
+                nextLine = lineReader.readLine()
+            }
+            lineReader.close()
+            lineWriter.close()
+            markup.append(lineWriter.bigString)
+        }
+        
+        if sortedNote.note.hasSpokenScript {
+            markup.writeLine("")
+            markup.append(sortedNote.note.spokenScript)
         }
         
         // markup.writeLine(" ")

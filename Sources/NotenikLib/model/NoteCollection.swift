@@ -131,6 +131,8 @@ public class NoteCollection {
     public  var imageLayoutFieldDef: FieldDefinition?
     public  var minutesToReadDef: FieldDefinition?
     public  var shortIdDef:     FieldDefinition?
+    public  var spokenScriptFieldDef: FieldDefinition?
+    
     public  var markFieldDef:   FieldDefinition?
     public  var marker          = "Mk"
     public  var markerCodes     = ""
@@ -176,6 +178,8 @@ public class NoteCollection {
     
     public  var windowPosStr   = ""
     public  var columnWidths   = ColumnWidths()
+    
+    public  var scriptWindowPosStr = ""
     
     public  var minBodyEditViewHeight: Float = 5.0
     
@@ -235,6 +239,13 @@ public class NoteCollection {
         let format = DateFormatter()
         format.dateFormat = "yyyy-MM-dd"
         todaysDate = format.string(from: today)
+        
+        if let charCode = UInt32("2691", radix: 16) {
+            if let uniCode = UnicodeScalar(charCode) {
+                marker = String(uniCode)
+                markerCodes = "2691"
+            }
+        }
         // logInfo("New Collection Instance Created")
     }
     
@@ -658,6 +669,13 @@ public class NoteCollection {
         case NotenikConstants.levelCommon:
             if levelFieldDef == nil {
                 levelFieldDef = def
+            }
+            
+        case NotenikConstants.longTextType:
+            if def.fieldLabel.commonForm == NotenikConstants.scriptCommon
+                || def.fieldLabel.commonForm == NotenikConstants.spokenCommon
+                || def.fieldLabel.commonForm == (NotenikConstants.spokenCommon + NotenikConstants.scriptCommon) {
+                spokenScriptFieldDef = def
             }
             
         case NotenikConstants.shortIdCommon:
