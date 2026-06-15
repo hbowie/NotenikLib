@@ -180,6 +180,7 @@ public class NoteCollection {
     public  var columnWidths   = ColumnWidths()
     
     public  var scriptWindowPosStr = ""
+    public  var presentWindowPosStr = ""
     
     public  var minBodyEditViewHeight: Float = 5.0
     

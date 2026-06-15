@@ -792,17 +792,31 @@ public class NoteDisplay {
             }
         }
         
-        let fieldsToHTML = NoteFieldsToHTML()
-        parms.included.reset()
-        return fieldsToHTML.fieldsToHTML(note,
-                                         io: io,
-                                         parms: parms,
-                                         topOfPage: topOfPage,
-                                         imageWithinPage: imageWithinPage,
-                                         results: mdResults,
-                                         bottomOfPage: bottomOfPage,
-                                         expandedMarkdown: expandedMarkdown,
-                                         continuousPosition: continuousPosition)
+        if parms.genPresentation {
+            let fieldsToHTML = NoteFieldsToPresent()
+            parms.included.reset()
+            return fieldsToHTML.fieldsToHTML(note,
+                                             io: io,
+                                             parms: parms,
+                                             topOfPage: topOfPage,
+                                             imageWithinPage: imageWithinPage,
+                                             results: mdResults,
+                                             bottomOfPage: bottomOfPage,
+                                             expandedMarkdown: expandedMarkdown,
+                                             continuousPosition: continuousPosition)
+        } else {
+            let fieldsToHTML = NoteFieldsToHTML()
+            parms.included.reset()
+            return fieldsToHTML.fieldsToHTML(note,
+                                             io: io,
+                                             parms: parms,
+                                             topOfPage: topOfPage,
+                                             imageWithinPage: imageWithinPage,
+                                             results: mdResults,
+                                             bottomOfPage: bottomOfPage,
+                                             expandedMarkdown: expandedMarkdown,
+                                             continuousPosition: continuousPosition)
+        }
     }
     
     func parseMarkdown(_ md: String, context: MkdownContext) -> String {

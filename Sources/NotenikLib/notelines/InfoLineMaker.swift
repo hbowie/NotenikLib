@@ -111,6 +111,10 @@ public class InfoLineMaker {
             writer.append(label: NotenikConstants.scriptWindowNumbers, value: collection.scriptWindowPosStr)
         }
         
+        if !collection.presentWindowPosStr.isEmpty && !subFolder && !cloning {
+            writer.append(label: NotenikConstants.presentWindowNumbers, value: collection.presentWindowPosStr)
+        }
+        
         writer.append(label: NotenikConstants.columnWidths, value: "\(collection.columnWidths)")
         
         if !cloning {

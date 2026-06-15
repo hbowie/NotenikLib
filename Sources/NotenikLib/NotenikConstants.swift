@@ -312,6 +312,8 @@ public struct NotenikConstants {
     static let windowNumbersCommon      = "windownumbers"
     static let scriptWindowNumbers      = "Script Window Numbers"
     static let scriptWindowNumbersCommon = "scriptwindownumbers"
+    static let presentWindowNumbers     = "Present Window Numbers"
+    static let presentWindowNumbersCommon = "presentwindownumbers"
     static let columnWidths             = "Column Widths"
     static let columnWidthsCommon       = "columnwidths"
     static let noteFileFormat           = "Note File Format"

@@ -1145,6 +1145,11 @@ public class FileIO: NotenikIO, RowConsumer {
             collection!.scriptWindowPosStr = scriptWindowNumbers!.value.value
         }
         
+        let presentWindowNumbers = infoNote.getField(label: NotenikConstants.presentWindowNumbersCommon)
+        if presentWindowNumbers != nil && !presentWindowNumbers!.value.isEmpty {
+            collection!.presentWindowPosStr = presentWindowNumbers!.value.value
+        }
+        
         for (key, field) in infoNote.fields {
             if key.hasSuffix("noteid") {
                 let command = String(key.dropLast(6))

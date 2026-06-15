@@ -24,10 +24,12 @@ public class DisplayParms {
     public var cssLinkToFile = false
     public var displayTemplate = ""
     public var displayBoost = false
+    public var boostFactor: Float? = nil
     public var format: MarkedupFormat = .htmlDoc
     public var epub3 = false
     public var sortParm: NoteSortParm = .seqPlusTitle
     public var displayMode: DisplayMode = .normal
+    public var genPresentation = false
     public var concatenated = false
     public var wikiLinks = WikiLinkDisplay()
     public var mathJax = false
@@ -117,7 +119,8 @@ public class DisplayParms {
     
     public func setCSS(headInfo: MarkedupHeadInfo,
                        note: Note,
-                       displayBoost: Bool = false) {
+                       displayBoost: Bool = false,
+                       boostFactor: Float? = nil) {
         var cssCode = ""
         if cssLinkToFile {
             headInfo.cssFile = cssString
@@ -128,7 +131,11 @@ public class DisplayParms {
         }
         
         if displayBoost && !cssLinkToFile {
-            cssCode = DisplayPrefs.shared.displayCSS(boostFactor: note.collection.boostFactor)!
+            if boostFactor != nil {
+                cssCode = DisplayPrefs.shared.displayCSS(boostFactor: boostFactor!)!
+            } else {
+                cssCode = DisplayPrefs.shared.displayCSS(boostFactor: note.collection.boostFactor)!
+            }
         }
         
         if note.hasPageStyle() {
