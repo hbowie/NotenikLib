@@ -15,4 +15,6 @@ import Foundation
 public enum ImageLayoutEnum: String, CaseIterable {
     case belowTitleFullWidth = "below title full width"
     case belowTitleRightSide = "below title right side"
+    case belowBodyFullWidth  = "below body full width"
+    
 }

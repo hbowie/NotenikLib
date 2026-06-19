@@ -2,7 +2,7 @@
 //  SeqFormatter.swift
 //  NotenikLib
 //
-//  Copyright © 2022 - 2025 Herb Bowie (https://hbowie.net)
+//  Copyright © 2022 - 2026 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -66,9 +66,11 @@ public class SeqFormatter {
         var padLength = 1
         var charIx = subCodes.startIndex
         var skipped = 0
+        
         while charIx < subCodes.endIndex {
             let nextIx = subCodes.index(after: charIx)
             let char = subCodes[charIx]
+            let currIx = charIx
             charIx = nextIx
             
             // Ignore any leading white space
@@ -83,6 +85,31 @@ public class SeqFormatter {
                 segmentIx += 1
                 skipped += 1
                 continue
+            }
+            
+            // Treat a leading word as a literal
+            var leadingWord = ""
+            if currIx < subCodes.endIndex {
+                leadingWord.append(char)
+                var wordIx = currIx
+                var wordChar = char
+                while wordIx < subCodes.endIndex && !wordChar.isWhitespace {
+                    wordIx = subCodes.index(after: wordIx)
+                    if wordIx < subCodes.endIndex {
+                        wordChar = subCodes[wordIx]
+                        if !wordChar.isWhitespace {
+                            leadingWord.append(wordChar)
+                        }
+                    }
+                }
+                if wordIx < subCodes.endIndex {
+                    if leadingWord.count >= 5 || (lowerChar != "x" && lowerChar != "n" && lowerChar != "a" && lowerChar != "i") {
+                        formatted.append(leadingWord)
+                        formatted.append(" ")
+                        charIx = subCodes.index(charIx, offsetBy: leadingWord.count)
+                        continue
+                    }
+                }
             }
             
             // If nothing else meaningful, add it to the output as a literal

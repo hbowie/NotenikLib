@@ -222,7 +222,7 @@ public class NoteFieldsToPresent {
                     } else {
                         code.append(display(field!, noteTitle: noteTitle, note: note, collection: collection, io: io))
                         if field!.def == collection.titleFieldDef {
-                            if !imageWithinPage.isEmpty && !contentContainer {
+                            if !imageWithinPage.isEmpty && !contentContainer && note.imageLayout.enumValue == .belowTitleFullWidth {
                                 code.append(imageWithinPage)
                             }
                         }
@@ -234,6 +234,10 @@ public class NoteFieldsToPresent {
         
         // Finish up an included item, if needed.
         finishIncludedItem(code: code)
+        
+        if !imageWithinPage.isEmpty && !contentContainer && note.imageLayout.enumValue == .belowBodyFullWidth {
+            code.append(imageWithinPage)
+        }
         
         if contentContainer {
             code.finishDiv()
