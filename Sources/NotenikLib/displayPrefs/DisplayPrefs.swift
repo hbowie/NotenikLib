@@ -158,6 +158,7 @@ public class DisplayPrefs {
         }
         img { max-width: 100%; border: 4px solid gray; }
         video { max-width: 100%; }
+        audio { margin-left: 2em }
         img.no-border { max-width: 100%; border: 0; }
         /* body { max-width: 33em; margin: 0 auto; float: none; } */
         p {

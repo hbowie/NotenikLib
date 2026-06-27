@@ -12,6 +12,8 @@
 
 import Foundation
 
+import NotenikUtils
+
 public class SortedNote: Comparable {
     
     public var sortKey:  String
