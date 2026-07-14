@@ -359,6 +359,9 @@ public struct NotenikConstants {
     public static let tocDepth          = "ToC Depth"
     public static let tocDepthCommon    = "tocdepth"
     
+    public static let specialFontsConfig = "Special Fonts Config"
+    public static let specialFontsConfigCommon = "specialfontsconfig"
+    
     //-------------------------------------------------------------
     //
     // Files and folders

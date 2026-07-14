@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 3/3/23.
 //
-//  Copyright © 2023 - 2024 Herb Bowie (https://hbowie.net)
+//  Copyright © 2023 - 2026 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -17,6 +17,7 @@ public class FontSpecs {
     let defaults = UserDefaults.standard
     
     public var fontsFor: FontsFor = .body
+    public var storeType: DisplayPrefsStoreType = .appSettings
     
     let displayFontKey = "display-font"
     var completeFontKey = ""
@@ -48,17 +49,58 @@ public class FontSpecs {
     }
     
     public func loadDefaults() {
+        
         _displayFont = defaults.string(forKey: completeFontKey)
         if _displayFont == nil || _displayFont!.count == 0 {
             _ = setDefaultFont()
         }
-        startingFont = _displayFont!
-        latestFont = _displayFont!
         
         _displaySize = defaults.string(forKey: completeSizeKey)
         if _displaySize == nil || _displaySize!.count == 0 {
             _ = setDefaultSize()
         }
+
+        initStartingAndLatest()
+    }
+    
+    public func loadCollectionDefaults(infoNote: Note) {
+        
+        let fontField = infoNote.getField(label: completeFontKey)
+        if fontField == nil || fontField!.value.isEmpty {
+            _ = setDefaultFont()
+        } else {
+            _displayFont = fontField!.value.value
+        }
+        
+        let sizeField = infoNote.getField(label: completeSizeKey)
+        if sizeField == nil || sizeField!.value.isEmpty {
+            _ = setDefaultSize()
+        } else {
+            _displaySize = sizeField!.value.value
+        }
+        
+        initStartingAndLatest()
+    }
+    
+    public func saveCollectionDefaults(writer: KeyValueWriter) {
+        writer.append(label: completeFontKey, value: font)
+        if size != nil {
+            writer.append(label: completeSizeKey, value: size!)
+        }
+    }
+    
+    public func copy(storeType: DisplayPrefsStoreType = .collectionSettings) -> FontSpecs {
+        let copy = FontSpecs(fontsFor: fontsFor)
+        copy.storeType = storeType
+        copy.font = font
+        copy.size = size
+        copy.initStartingAndLatest()
+        return copy
+    }
+    
+    func initStartingAndLatest() {
+        startingFont = _displayFont!
+        latestFont = _displayFont!
         startingSize = _displaySize!
         latestSize = _displaySize!
     }
@@ -165,11 +207,16 @@ public class FontSpecs {
     
     public var font: String {
         get {
+            if _displayFont == nil {
+                _ = setDefaultFont()
+            }
             return _displayFont!
         }
         set {
             _displayFont = newValue
-            defaults.set(_displayFont, forKey: completeFontKey)
+            if storeType == .appSettings {
+                defaults.set(_displayFont, forKey: completeFontKey)
+            }
         }
     }
     
@@ -193,7 +240,19 @@ public class FontSpecs {
         }
         set {
             _displaySize = newValue
-            defaults.set(_displaySize, forKey: completeSizeKey)
+            if storeType == .appSettings {
+                defaults.set(_displaySize, forKey: completeSizeKey)
+            }
+        }
+    }
+    
+    public func display() {
+        print("  - Font Specs for \(fontsFor.rawValue)")
+        print("    - font: \(font)")
+        if size != nil {
+            print("    - size: \(size!)")
+        } else {
+            print("    - size: nil!")
         }
     }
     

@@ -109,13 +109,14 @@ public class FavoritesToHTML {
     
     func buildCSS() {
         css = ""
-        if let displayCSS = DisplayPrefs.shared.displayCSS() {
+        guard let collection = noteIO?.collection else { return }
+        if let displayCSS = collection.displayPrefs.displayCSS() {
             writeLineToCSS(displayCSS)
         }
         writeLineToCSS("body { margin-left: 20px; } ")
         writeLineToCSS(".column { display:inline-block; width: \(columnWidth); vertical-align: top; }")
-        writeLineToCSS("h2 { font-weight: 600; margin-top: 10pt; margin-bottom: 4pt; font-size: \(DisplayPrefs.shared.bodySpecs.sizePlusUnit!); line-height: normal; }")
-        writeLineToCSS("p { font-size: \(DisplayPrefs.shared.bodySpecs.sizePlusUnit!); margin-top: 0pt; margin-bottom: 4pt; font-weight: 500; }")
+        writeLineToCSS("h2 { font-weight: 600; margin-top: 10pt; margin-bottom: 4pt; font-size: \(collection.displayPrefs.bodySpecs.sizePlusUnit!); line-height: normal; }")
+        writeLineToCSS("p { font-size: \(collection.displayPrefs.bodySpecs.sizePlusUnit!); margin-top: 0pt; margin-bottom: 4pt; font-weight: 500; }")
         writeLineToCSS("a:link { text-decoration: none; }")
         writeLineToCSS("a:visited { text-decoration: none; }")
         writeLineToCSS("a:hover { text-decoration: underline; }")

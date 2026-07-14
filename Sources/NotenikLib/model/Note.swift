@@ -1930,7 +1930,7 @@ public class Note: CustomStringConvertible, Comparable, Identifiable, NSCopying 
         
         var css = cssString
         if displayBoost && css.count > 200 {
-            css = DisplayPrefs.shared.displayCSS(boostFactor: collection.boostFactor)!
+            css = collection.displayPrefs.displayCSS(boostFactor: collection.boostFactor)!
         }
         
         if self.hasPageStyle() {

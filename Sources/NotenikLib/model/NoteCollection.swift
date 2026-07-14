@@ -88,6 +88,9 @@ public class NoteCollection {
     public  var linkFormatter = LinkFormatter()
     public  var foldersToExclude: [String: String] = [:]
     
+    public  var specialFontsConfig = false
+    public  var displayPrefs = DisplayPrefs()
+    
     public  var noteIdentifier = NoteIdentifier()
     
     // Store some key and singular field definitions for easy access.

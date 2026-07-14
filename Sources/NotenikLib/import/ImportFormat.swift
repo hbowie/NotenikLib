@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 6/4/24.
 //
-//  Copyright © 2024 Herb Bowie (https://hbowie.net)
+//  Copyright © 2024 - 2026 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -18,6 +18,7 @@ public enum ImportFormat {
     case delim
     case json
     case notenik
+    case mdToOutline
     case omnifocus
     case opml
     case text

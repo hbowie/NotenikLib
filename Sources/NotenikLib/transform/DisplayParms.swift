@@ -83,7 +83,7 @@ public class DisplayParms {
             cssString = NotenikConstants.cssFolderName + "/" + collection.selCSSfile + ".css"
         } else {
             cssLinkToFile = false
-            setCSS(useFirst: collection.displayCSS, useSecond: DisplayPrefs.shared.displayCSS())
+            setCSS(useFirst: collection.displayCSS, useSecond: collection.displayPrefs.displayCSS())
         }
         displayTemplate = collection.displayTemplate
         format = .htmlDoc
@@ -132,9 +132,9 @@ public class DisplayParms {
         
         if displayBoost && !cssLinkToFile {
             if boostFactor != nil {
-                cssCode = DisplayPrefs.shared.displayCSS(boostFactor: boostFactor!)!
+                cssCode = note.collection.displayPrefs.displayCSS(boostFactor: boostFactor!)!
             } else {
-                cssCode = DisplayPrefs.shared.displayCSS(boostFactor: note.collection.boostFactor)!
+                cssCode = note.collection.displayPrefs.displayCSS(boostFactor: note.collection.boostFactor)!
             }
         }
         

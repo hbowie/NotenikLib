@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 11/7/19.
-//  Copyright © 2019 Herb Bowie (https://powersurgepub.com)
+//  Copyright © 2019 - 2026 Herb Bowie (https://powersurgepub.com)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -153,6 +153,7 @@ public class MDHeadReader: RowImporter {
     }
     
     func finishRow() {
+        body = StringUtils.trim(body)
         if title.count > 0 || body.count > 0 {
             if title.count == 0 {
                 title = "Start of Document"

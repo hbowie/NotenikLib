@@ -116,6 +116,9 @@ public class AppPrefs {
     let grantAccessKey = "grant-access"
     var _grantAccessOpt = 1
     
+    let reloadPromptsKey = "reload-prompts"
+    var _reloadPrompts = 2
+    
     let queryOutKey = "query-output-window-numbers"
     var _queryOut = ""
     
@@ -399,6 +402,13 @@ public class AppPrefs {
             _grantAccessOpt = gao
         } else if gao == 3 {
             _grantAccessOpt = 2
+        }
+        
+        let rel = defaults.integer(forKey: reloadPromptsKey)
+        if rel == 0 {
+            _reloadPrompts = 2
+        } else if rel >= 1 && rel <= 3 {
+            _reloadPrompts = rel
         }
         
         let idf = defaults.integer(forKey: idFolderLevelsKey)
@@ -737,6 +747,18 @@ public class AppPrefs {
         set {
             _grantAccessOpt = newValue
             defaults.set(_grantAccessOpt, forKey: grantAccessKey)
+        }
+    }
+    
+    public var reloadPrompts: Int {
+        get {
+            return _reloadPrompts
+        }
+        set {
+            if newValue >= 1 && newValue <= 3 {
+                _reloadPrompts = newValue
+                defaults.set(_reloadPrompts, forKey: reloadPromptsKey)
+            }
         }
     }
     

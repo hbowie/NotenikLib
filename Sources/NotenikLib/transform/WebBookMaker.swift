@@ -294,7 +294,7 @@ public class WebBookMaker {
             parms.displayBoost = true
             boostFactor = collection.boostFactor
         }
-        parms.setCSS(useFirst: collection.displayCSS, useSecond: DisplayPrefs.shared.displayCSS(boostFactor: boostFactor))
+        parms.setCSS(useFirst: collection.displayCSS, useSecond: collection.displayPrefs.displayCSS(boostFactor: boostFactor))
         
         if epub {
             parms.format = .xhtmlDoc

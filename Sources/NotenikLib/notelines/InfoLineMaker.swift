@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 4/9/24.
 //
-//  Copyright © 2024 - 2025 Herb Bowie (https://hbowie.net)
+//  Copyright © 2024 - 2026 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -155,7 +155,12 @@ public class InfoLineMaker {
         }
         
         writer.append(label: NotenikConstants.boostFactor, value: String(collection.boostFactor))
+    
+        writer.append(label: NotenikConstants.specialFontsConfig, value: String(collection.specialFontsConfig))
         
+        if collection.specialFontsConfig {
+            collection.displayPrefs.saveCollectionDefaults(writer: writer)
+        }
     }
     
     func write(toFile filePath: String) -> Bool {

@@ -426,7 +426,7 @@ public class NotesMkdownContext: MkdownContext {
         }
         
         let calendar = CalendarMaker(format: .htmlFragment, lowYM: lowYM, highYM: highYM)
-        calendar.startCalendar(title: collection.title, prefs: DisplayPrefs.shared)
+        calendar.startCalendar(title: collection.title, prefs: collection.displayPrefs)
         
         var (sortedNote, position) = io.firstNote()
         var done = false

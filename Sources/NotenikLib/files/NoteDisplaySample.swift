@@ -95,7 +95,7 @@ public class NoteDisplaySample {
         //
         // -----------------------------------------------------------
 
-        let displayPrefs = DisplayPrefs.shared
+        let displayPrefs = collection.displayPrefs
 
         titleLabel = collection.titleFieldDef.fieldLabel.commonForm
         tagsLabel = collection.tagsFieldDef.fieldLabel.commonForm

@@ -245,8 +245,6 @@ public class NoteTransformer {
     /// of NoteTransformer..
     public static func genSampleMirrorFolder(io: NotenikIO) -> (NoteTransformer?, String) {
         
-        let displayPrefs = DisplayPrefs.shared
-        
         var ok = true
         
         // Let's make sure we have what we need to proceed.
@@ -260,6 +258,7 @@ public class NoteTransformer {
             return (nil, "No collection open")
         }
         let collection = io.collection!
+        let displayPrefs = collection.displayPrefs
         let collectionPath = collection.lib.getPath(type: .notes)
         let dict = collection.dict
         var upToWebFolder = ""

@@ -18,7 +18,9 @@ import NotenikUtils
 public class DisplayPrefs {
     
     // Provide a single standard shared singleton instance
-    public static let shared = DisplayPrefs()
+    public static let shared = DisplayPrefs(storeType: .appSettings)
+    
+    public var storeType: DisplayPrefsStoreType = .appSettings
     
     let defaults = UserDefaults.standard
     let appPrefs = AppPrefs.shared
@@ -33,6 +35,7 @@ public class DisplayPrefs {
     
     let fontCSSKey = "display-css"
     var _fontCSS: String?
+    public var customCSS = false
     
     let headingCenterStartKey = "heading-center-start"
     var _headingCenterStart = 0
@@ -44,9 +47,16 @@ public class DisplayPrefs {
     
     var displayMaster: NoteDisplayMaster?
     
-    /// Private initializer to prevent creation of more than one instance
-    private init() {
-        
+    public init() {
+        loadAppDefaults()
+    }
+    
+    public convenience init(storeType: DisplayPrefsStoreType = .appSettings) {
+        self.init()
+        self.storeType = storeType
+    }
+    
+    public func loadAppDefaults() {
         _longFontList = defaults.bool(forKey: longFontListKey)
         
         bodySpecs.loadDefaults()
@@ -56,10 +66,58 @@ public class DisplayPrefs {
         _fontCSS = defaults.string(forKey: fontCSSKey)
         if _fontCSS == nil || _fontCSS!.count == 0 {
             buildFontCSS()
+        } else {
+            customCSS = true
         }
         
         _headingCenterStart = defaults.integer(forKey: headingCenterStartKey)
         _headingCenterFinish = defaults.integer(forKey: headingCenterFinishKey)
+    }
+    
+    public func loadCollectionDefaults(infoNote: Note) {
+        _longFontList = defaults.bool(forKey: longFontListKey)
+        
+        bodySpecs.loadCollectionDefaults(infoNote: infoNote)
+        headingSpecs.loadCollectionDefaults(infoNote: infoNote)
+        listSpecs.loadCollectionDefaults(infoNote: infoNote)
+        
+        buildFontCSS()
+        
+        let headingCenterStartStr = infoNote.getFieldAsString(label: headingCenterStartKey)
+        if !headingCenterStartStr.isEmpty {
+            let headingCenterStart = Int(headingCenterStartStr)
+            if headingCenterStart != nil {
+                _headingCenterStart = headingCenterStart!
+            }
+        }
+
+        let headingCenterFinishStr = infoNote.getFieldAsString(label: headingCenterFinishKey)
+        if !headingCenterFinishStr.isEmpty {
+            let headingCenterFinish = Int(headingCenterFinishStr)
+            if headingCenterFinish != nil {
+                _headingCenterFinish = headingCenterFinish!
+            }
+        }
+    }
+    
+    public func saveCollectionDefaults(writer: KeyValueWriter) {
+        bodySpecs.saveCollectionDefaults(writer: writer)
+        headingSpecs.saveCollectionDefaults(writer: writer)
+        listSpecs.saveCollectionDefaults(writer: writer)
+        writer.append(label: headingCenterStartKey, value: String(headingCenterStart))
+        writer.append(label: headingCenterFinishKey, value: String(headingCenterFinish))
+    }
+    
+    public func copy(storeType: DisplayPrefsStoreType = .collectionSettings) -> DisplayPrefs {
+        let copy = DisplayPrefs(storeType: storeType)
+        copy.storeType = storeType
+        copy.longFontList = longFontList
+        copy.bodySpecs = bodySpecs.copy(storeType: storeType)
+        copy.headingSpecs = headingSpecs.copy(storeType: storeType)
+        copy.listSpecs = listSpecs.copy(storeType: storeType)
+        copy.headingCenterStart = headingCenterStart
+        copy.headingCenterFinish = headingCenterFinish
+        return copy
     }
     
     public func saveLatestFontSpecs() {
@@ -93,8 +151,11 @@ public class DisplayPrefs {
         get {
             return _fontCSS
         }
-        set {
-            _fontCSS = newValue
+    }
+    
+    public func set(fontCSS: String?, gen: Bool) {
+        _fontCSS = fontCSS
+        if !gen {
             defaults.set(_fontCSS, forKey: fontCSSKey)
         }
     }
@@ -120,7 +181,7 @@ public class DisplayPrefs {
     }
     
     public func buildFontCSS() {
-        fontCSS = bodySpecs.buildFontCSS(indent: 0)
+        set(fontCSS: bodySpecs.buildFontCSS(indent: 0), gen: true)
     }
     
     public func buildCSS(f: String, s: String) -> String {
@@ -884,5 +945,12 @@ public class DisplayPrefs {
         if displayMaster != nil {
             displayMaster!.displayRefresh()
         }
+    }
+    
+    public func display() {
+        print("DisplayPrefs.display for store type of \(storeType)")
+        bodySpecs.display()
+        headingSpecs.display()
+        listSpecs.display()
     }
 }

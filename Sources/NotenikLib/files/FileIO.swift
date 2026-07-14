@@ -889,6 +889,7 @@ public class FileIO: NotenikIO, RowConsumer {
         collection = NoteCollection(realm: realm)
         collection!.path = collectionPath
         collection!.readOnly = readOnly
+        collection!.displayPrefs = DisplayPrefs.shared
         
         guard collection!.lib.hasAvailable(type: .collection) else { return false }
         guard let url = collection!.lib.getURL(type: .collection) else { return false }
@@ -1218,6 +1219,15 @@ public class FileIO: NotenikIO, RowConsumer {
         }
         if collection!.boostFactor == 0.0 {
             collection!.boostFactor = 1.0
+        }
+        
+        if let sfc = infoNote.getField(label: NotenikConstants.specialFontsConfigCommon) {
+            let specialFontsConfig = BooleanValue(sfc.value.value)
+            collection!.specialFontsConfig = specialFontsConfig.isTrue
+            if collection!.specialFontsConfig {
+                collection!.displayPrefs = DisplayPrefs.shared.copy(storeType: .collectionSettings)
+                collection!.displayPrefs.loadCollectionDefaults(infoNote: infoNote)
+            }
         }
         
         infoFound = true
