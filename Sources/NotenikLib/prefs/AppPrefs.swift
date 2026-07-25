@@ -125,6 +125,9 @@ public class AppPrefs {
     let horizontalListScrolBarKey = "horiz-list-scroll"
     var _horizListScrollBar = "on"
     
+    let alternatingRowColorsKey = "alternating-row-colors"
+    var _alternatingRowColors = "on"
+    
     let auxLongTextKey = "aux-long-text"
     var _auxLongText = false
     
@@ -356,6 +359,11 @@ public class AppPrefs {
         let hls = defaults.string(forKey: horizontalListScrolBarKey)
         if hls != nil && !hls!.isEmpty {
             _horizListScrollBar = hls!
+        }
+        
+        let alt = defaults.string(forKey: alternatingRowColorsKey)
+        if alt != nil && !alt!.isEmpty {
+            _alternatingRowColors = alt!
         }
         
         _auxLongText = defaults.bool(forKey: auxLongTextKey)
@@ -614,6 +622,16 @@ public class AppPrefs {
         set {
             _horizListScrollBar = newValue
             defaults.set(_horizListScrollBar, forKey: horizontalListScrolBarKey)
+        }
+    }
+    
+    public var alternatingRowColors: String {
+        get {
+            return _alternatingRowColors
+        }
+        set {
+            _alternatingRowColors = newValue
+            defaults.set(_alternatingRowColors, forKey: alternatingRowColorsKey)
         }
     }
     

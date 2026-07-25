@@ -217,10 +217,11 @@ public class DisplayPrefs {
         }
         tempCSS.append("""
         }
-        img { max-width: 100%; border: 4px solid gray; }
+        img { max-width: 100%; height: auto; border: 4px solid gray; }
         video { max-width: 100%; }
-        audio { margin-left: 2em }
+        audio { margin-left: 2em; }
         img.no-border { max-width: 100%; border: 0; }
+        img.max-75 { max-width: 75%; }
         /* body { max-width: 33em; margin: 0 auto; float: none; } */
         p {
             margin-top: 0.2em;
@@ -315,10 +316,6 @@ public class DisplayPrefs {
         }
         th, td {
           padding: 6px;
-        }
-        img {
-          max-width: 100%;
-          height: auto;
         }
 
         /* --------------------------------------------------

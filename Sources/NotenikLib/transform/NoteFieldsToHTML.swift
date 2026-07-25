@@ -282,6 +282,8 @@ public class NoteFieldsToHTML {
                             // don't show flags in quotes mode
                         } else if field!.def.fieldType.typeString == NotenikConstants.pageStyleCommon {
                             // don't display as separate field
+                        } else if field!.def.fieldLabel.commonForm == NotenikConstants.imageClassCommon {
+                            // don't display as separate field
                         } else if field!.def == collection.attribFieldDef {
                             attribution = field
                         } else {
@@ -980,6 +982,11 @@ public class NoteFieldsToHTML {
                     }
                 }
             }
+            
+            /* if note.hasImageName() && note.imageLayout.enumValue == .rightOfTitle {
+                ???
+            } */
+            
             markedup.displayLine(opt: note.collection.titleDisplayOption,
                                  text: titleToDisplay,
                                  depth: depth,

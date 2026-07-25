@@ -69,6 +69,8 @@ public struct NotenikConstants {
     public static let imageAltCommon    = "imagealt"
     public static let imageCaption      = "Image Caption"
     public static let imageCaptionCommon = "imagecaption"
+    public static let imageClass        = "Image Class"
+    public static let imageClassCommon  = "imageclass"
     public static let imageCredit       = "Image Credit"
     public static let imageCreditCommon = "imagecredit"
     public static let imageCreditLink   = "Image Credit Link"

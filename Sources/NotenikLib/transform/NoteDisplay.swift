@@ -356,6 +356,9 @@ public class NoteDisplay {
         if parms.displayMode == .presentation {
             imageKlass = "no-border"
         }
+        if let imageClass = note.getField(label: NotenikConstants.imageClassCommon) {
+            imageKlass = imageClass.value.value
+        }
         if imageCaption.isEmpty && imageCaptionText.isEmpty {
             imageHTML.image(alt: imageAlt, path: imagePath, title: imageAlt, klass: imageKlass)
         } else if imageCaption.isEmpty {
