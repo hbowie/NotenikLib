@@ -221,14 +221,26 @@ class NoteLineIn {
             } while !reader.endOfLine
             
             if mdValueFound {
+                checkForQuotes(str: reader.bigString, first: &mdValueFirst, last: &mdValueLast)
                 value = String(reader.bigString[mdValueFirst...mdValueLast])
             } else if validLabel && valueFound {
+                checkForQuotes(str: reader.bigString, first: &valueFirst, last: &valueLast)
                 value = String(reader.bigString[valueFirst...valueLast])
             } else if indented && valueFound {
+                checkForQuotes(str: reader.bigString, first: &valueFirst, last: &valueLast)
                 value = String(reader.bigString[valueFirst...valueLast])
             }
             
             line = reader.lastLine
+        }
+    }
+    
+    func checkForQuotes(str: String, first: inout String.Index, last: inout String.Index) {
+        guard last > first else { return }
+        if // (str[first] == "\"" && str[last] == "\"") ||
+            (str[first] == "'" && str[last] == "'") {
+            first = str.index(after: first)
+            last = str.index(before: last)
         }
     }
     

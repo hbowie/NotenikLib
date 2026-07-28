@@ -500,6 +500,11 @@ public class DisplayPrefs {
         footer.nnk-footer p {
             padding-top: 0.5em;
         }
+        footer.nnk-footer a:link {
+            color: var(--text-color);
+            text-decoration: none;
+            border-bottom: none;
+        }
 
         .float-left {
             float: left;
