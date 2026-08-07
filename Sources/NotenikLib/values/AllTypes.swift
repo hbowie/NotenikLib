@@ -49,6 +49,7 @@ public class AllTypes {
     let lookupType  = LookupType()
     let markType    = MarkType()
     let minutesToReadType = MinutesToReadType()
+    let noteLinkType = NoteLinkType()
     let pageStyleType = PageStyleType()
     let personType  = PersonType()
     let phoneType   = PhoneType()
@@ -175,6 +176,7 @@ public class AllTypes {
         fieldTypes.append(longTitleType)
         
         fieldTypes.append(markType)
+        fieldTypes.append(noteLinkType)
         
     }
     

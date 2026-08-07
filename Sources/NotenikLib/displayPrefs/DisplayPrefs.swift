@@ -222,6 +222,8 @@ public class DisplayPrefs {
         audio { margin-left: 2em; }
         img.no-border { max-width: 100%; border: 0; }
         img.max-75 { max-width: 75%; }
+        img.max-67 { max-width: 67%; }
+        img.max-50 { max-width: 50%; }
         /* body { max-width: 33em; margin: 0 auto; float: none; } */
         p {
             margin-top: 0.2em;

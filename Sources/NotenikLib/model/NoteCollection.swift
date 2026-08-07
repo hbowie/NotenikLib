@@ -144,6 +144,7 @@ public class NoteCollection {
     public  var authorDef:      FieldDefinition?
     
     public  var pageStyleDef:   FieldDefinition?
+    public  var noteLinkDef:    FieldDefinition?
     
     public  var newLabelForTitle = ""
     public  var newLabelForBody  = ""
@@ -274,6 +275,7 @@ public class NoteCollection {
         folderFieldDef = nil
         creatorFound = false
         pageStyleDef = nil
+        noteLinkDef = nil
 
         dateCount = 0
         linkCount = 0
@@ -731,6 +733,9 @@ public class NoteCollection {
             
         case NotenikConstants.pageStyleCommon:
             pageStyleDef = def
+            
+        case NotenikConstants.noteLinkCommon:
+            noteLinkDef = def
             
         case NotenikConstants.inclusionsCommon:
             inclusionsDef = def

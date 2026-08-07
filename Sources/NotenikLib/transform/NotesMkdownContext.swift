@@ -1631,6 +1631,12 @@ public class NotesMkdownContext: MkdownContext {
               nextElement = rows[i + 1].getElementsByTagName("TD")[n];
               firstLowered = firstElement.innerText.trim().toLowerCase();
               nextLowered = nextElement.innerText.trim().toLowerCase();
+              if (nextLowered.startsWith("the ")) {
+                nextLowered = nextLowered.slice(4);
+              }
+              if (firstLowered.startsWith("the ")) {
+                firstLowered = firstLowered.slice(4)
+              }
               firstNumber = Number(firstLowered);
               nextNumber = Number(nextLowered);
               if (isNaN(firstLowered) || isNaN(nextLowered)) {

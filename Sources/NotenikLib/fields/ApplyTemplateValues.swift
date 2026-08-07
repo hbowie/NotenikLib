@@ -164,6 +164,10 @@ class ApplyTemplateValues {
             let includedByType = IncludedByType()
             includedByType.setInitialReveal(str: typeValues.str)
             def.fieldType = includedByType
+        } else if typeStrCommon == NotenikConstants.noteLinkCommon && !typeValues.isEmpty {
+            let noteLinkType = NoteLinkType()
+            noteLinkType.setKlassSelector(typeValues.str)
+            def.fieldType = noteLinkType
         } else if typeStrCommon == NotenikConstants.markCommon && !typeValues.isEmpty {
             collection.marker = ""
             if typeValues.count > 3 {

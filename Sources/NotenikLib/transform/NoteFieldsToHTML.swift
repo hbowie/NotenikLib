@@ -707,6 +707,8 @@ public class NoteFieldsToHTML {
             // code.finishParagraph()
         } else if field.def.fieldType is LinkType {
             displayLink(field, collection: collection, markedup: code)
+        } else if field.def.fieldType is NoteLinkType {
+            displayNoteLink(field, markedup: code)
         } else if field.def.fieldType is EmailType {
             displayEmail(field, markedup: code)
         } else if field.def.fieldType is PhoneType {
@@ -1121,6 +1123,39 @@ public class NoteFieldsToHTML {
                       path: pathForLink,
                       klass: "ext-link",
                       blankTarget: blankTarget)
+        markedup.finishParagraph()
+    }
+    
+    func displayNoteLink(_ field: NoteField, markedup: Markedup) {
+        
+        markedup.startParagraph()
+        markedup.append(field.def.fieldLabel.properWithParent)
+        markedup.append(": ")
+        
+        var wlTarget: WikiLinkTarget?
+        var href = ""
+        
+        if io != nil {
+            let resolution = NoteLinkResolution(io: io!, linkText: field.value.value)
+            NoteLinkResolver.resolve(resolution: resolution)
+            wlTarget = resolution.genWikiLinkTarget()
+            if wlTarget != nil {
+                wlTarget!.display()
+            }
+        }
+        
+        if wlTarget != nil {
+            href = parms.wikiLinks.assembleWikiLink(target: wlTarget!)
+        }
+        
+        if href.isEmpty {
+            markedup.append(field.value.value)
+        } else {
+            markedup.link(text: field.value.value,
+                          path: href,
+                          klass: "wiki-link",
+                          blankTarget: false)
+        }
         markedup.finishParagraph()
     }
     

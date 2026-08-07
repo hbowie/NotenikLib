@@ -101,6 +101,8 @@ public struct NotenikConstants {
     public static let minutesToReadCommon = "minutestoread"
     public static let mirrorAutoIndex   = "Mirror Auto Index"
     public static let mirrorAutoIndexCommon = "mirrorautoindex"
+    public static let noteLink          = "Note Link"
+    public static let noteLinkCommon    = "notelink"
     public static let otherFields       = "Other Fields Allowed"
     public static let otherFieldsCommon = "otherfieldsallowed"
     public static let pageStyle         = "Page Style"
