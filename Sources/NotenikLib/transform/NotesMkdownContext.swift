@@ -896,7 +896,8 @@ public class NotesMkdownContext: MkdownContext {
                 markup.writeLine("    { ")
                 
                 // Generate title
-                markup.writeLine("        title: \"\(sortedNote!.note.noteID.text)\", ")
+                let jTitle = StringUtils.prepHTMLforJSON(sortedNote!.note.noteID.text)
+                markup.writeLine("        title: \"\(jTitle)\", ")
                 
                 // Generate date
                 if sortedNote!.note.hasDate() {

@@ -47,6 +47,7 @@ public class DisplayParms {
     public var titleSuffix = ""
     public var descriptionCode: PageDescriptionCode = .none
     public var author = ""
+    public var faviconLinks = ""
     
     public var tagsIndexFilename: String? = nil
     public var hasTagsIndexFilename: Bool {
@@ -56,6 +57,10 @@ public class DisplayParms {
     
     public init() {
         htmlConverter.addHTML()
+    }
+    
+    public func addFaviconLink(type: String, href: String) {
+        faviconLinks.append("<link rel=\"icon\" type=\"\(type)\" href=\"\(href)\" />\n")
     }
     
     public func formatLinkToTag(tag: String) -> String {

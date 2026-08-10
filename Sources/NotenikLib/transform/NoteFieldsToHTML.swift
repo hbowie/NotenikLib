@@ -103,7 +103,7 @@ public class NoteFieldsToHTML {
         if !suffix.isEmpty && suffix.last!.isWhitespace {
             suffix.removeLast()
         }
-        if !suffix.isEmpty {
+        if !suffix.isEmpty && !note.klass.title {
             if suffix.last!.isPunctuation {
                 noteTitle = pop.toXML(suffix + " " + note.title.plain)
             } else {
@@ -160,6 +160,7 @@ public class NoteFieldsToHTML {
         if parms.displayMode != .continuous && parms.displayMode !=  .continuousPartial {
             let headInfo = MarkedupHeadInfo(withTitle: noteTitle,
                                             withAuthor: author,
+                                            faviconLinks: parms.faviconLinks,
                                             withJS: mkdownOptions.getHtmlScript(),
                                             addins: parms.addins)
             parms.setCSS(headInfo: headInfo,
@@ -797,6 +798,8 @@ public class NoteFieldsToHTML {
                 case NotenikConstants.imageCreditCommon:
                     break
                 case NotenikConstants.imageCreditLinkCommon:
+                    break
+                case NotenikConstants.redirectCommon:
                     break
                 default:
                     displayStraight(field, markedup: code)

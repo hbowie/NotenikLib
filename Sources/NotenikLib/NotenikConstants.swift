@@ -3,7 +3,7 @@
 //  Notenik
 //
 //  Created by Herb Bowie on 12/11/18.
-//  Copyright © 2018 - 2025 Herb Bowie (https://hbowie.net)
+//  Copyright © 2018 - 2026 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -121,6 +121,8 @@ public struct NotenikConstants {
     public static let ratingCommon  = "rating"
     public static let recurs        = "Recurs"
     public static let recursCommon  = "recurs"
+    public static let redirerct     = "Redirect"
+    public static let redirectCommon = "redirect"
     public static let singleSeq     = "Single Seq"
     public static let singleSeqCommon = "singleseq"
     public static let seq           = "Seq"

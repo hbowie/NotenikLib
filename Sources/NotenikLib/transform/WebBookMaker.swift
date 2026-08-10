@@ -84,6 +84,9 @@ public class WebBookMaker {
     // HTML folder.
     let htmlFolderName = "html"
     var htmlFolder:     URL
+    
+    // Favicon address.
+    var faviconFile: URL?
 
     // Images folder.
     let imagesFolderName = "images"
@@ -347,6 +350,25 @@ public class WebBookMaker {
             generateSpine(idref: "", finish: false)
         }
         
+        // Check for Favicon files in output directory
+        let faviconFile1 = URL(fileURLWithPath: "favicon",
+                           relativeTo: htmlFolder).appendingPathExtension("ico")
+        if fm.fileExists(atPath: faviconFile1.path) {
+            parms.addFaviconLink(type: "image/x-icon", href: "favicon.ico")
+        }
+        
+        let faviconFile2 = URL(fileURLWithPath: "favicon",
+                               relativeTo: htmlFolder).appendingPathExtension("png")
+        if fm.fileExists(atPath: faviconFile2.path) {
+            parms.addFaviconLink(type: "image/png", href: "favicon.png")
+        }
+        
+        let faviconFile3 = URL(fileURLWithPath: "favicon",
+                               relativeTo: htmlFolder).appendingPathComponent("svg")
+        if fm.fileExists(atPath: faviconFile3.path) {
+            parms.addFaviconLink(type: "image/svg+xml", href: "favicon.svg")
+        }
+        
         generateCSS()
         
         copyAddIns()
@@ -580,7 +602,6 @@ public class WebBookMaker {
     /// If the CSS file already exists, then leave it in place.
     func generateCSS() {
         
-        
         defaultCSS = parms.cssString
         defaultCSS.append("\nimg { max-width: 100%; border: 4px solid gray; }")
         defaultCSS.append("\nbody { max-width: 33em; margin: 0 auto; float: none; }")
@@ -726,6 +747,12 @@ public class WebBookMaker {
                                            createDirectories: true,
                                            checkForChanges: true)
         
+        if !epub {
+            if let redirectField = sortedNote.note.getField(common: NotenikConstants.redirectCommon) {
+                genRedirectPage(note:sortedNote.note, redirectValue: redirectField.value.value, fileName: fileName)
+            }
+        }
+        
         if firstPage && !epub {
             let indexURL = URL(fileURLWithPath: "index", relativeTo: htmlFolder).appendingPathExtension(htmlFileExt)
             _ = filesToRemove.removeValue(forKey: indexURL.path)
@@ -790,6 +817,52 @@ public class WebBookMaker {
                 }
             }
         } 
+    }
+    
+    func genRedirectPage(note: Note, redirectValue: String, fileName: String) {
+
+        let fileURL = URL(fileURLWithPath: redirectValue, relativeTo: htmlFolder)
+        var redirectPath = ""
+        var possibleFolderPath = ""
+        var folderPath = ""
+        for char in redirectValue {
+            if char == "/" {
+                redirectPath.append("../")
+                folderPath = possibleFolderPath
+            }
+            possibleFolderPath.append(char)
+        }
+        redirectPath.append(fileName)
+        redirectPath.append(".html")
+        var code = ""
+        code.append("<!DOCTYPE html>\n")
+        code.append("<html lang=\"en\">\n")
+        code.append("<head>\n")
+        code.append("    <meta charset=\"utf-8\" />\n")
+        code.append("    <title>\(note.title.value)</title>\n")
+        code.append("    <meta http-equiv=\"refresh\" content=\"0; URL=\(redirectPath)\" />\n")
+        code.append("</head>\n")
+        code.append("<body>\n")
+        code.append("<p>Please click <a href=\"\(redirectPath)\">here</a> to view the new location for this page.</p>")
+        code.append("</body>\n")
+        code.append("</html>\n")
+        if !folderPath.isEmpty {
+            let folderURL = URL(fileURLWithPath: folderPath, relativeTo: htmlFolder)
+            if !fm.fileExists(atPath: folderURL.path) {
+                do {
+                    try fm.createDirectory(at: folderURL, withIntermediateDirectories: true, attributes: nil)
+                } catch {
+                    communicateError("Could not create folder at \(folderURL.path)")
+                    communicateError("\(error)")
+                }
+            }
+        }
+        do {
+            try code.write(to: fileURL, atomically: true, encoding: .utf8)
+        } catch {
+            communicateError("Could not write Web Book Redirect file to \(fileURL.path)")
+            communicateError("\(error)")
+        }
     }
     
     // -----------------------------------------------------------
