@@ -78,6 +78,7 @@ public class NoteCollection {
     public  var mathJax = false
     public  var imgLocal = false
     public  var missingTargets = false
+    public  var missingTargetsNormal: Bool? = nil
     public  var curlyApostrophes = true
     public  var extLinksOpenInNewWindows = false
     public  var scrollingSync = false
@@ -858,6 +859,22 @@ public class NoteCollection {
         guard displayMode == .continuousPartial else { return }
         displayMode = previousDisplayMode
         displayedNotes.removeAll()
+    }
+    
+    /// If we're filtering, then be sure we're not adding missing wiki link targets.
+    /// When we're done filtering, restore the usual setting.
+    /// - Parameter option: The filtering option to be used. 
+    public func setFiltering(option: FilterIO) {
+        switch option {
+        case .showAll:
+            if missingTargetsNormal != nil {
+                missingTargets = missingTargetsNormal!
+                missingTargetsNormal = nil
+            }
+        default:
+            missingTargetsNormal = missingTargets
+            missingTargets = false
+        }
     }
     
     /// Send an informative message to the log.

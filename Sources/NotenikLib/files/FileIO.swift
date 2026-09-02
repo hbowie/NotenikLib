@@ -46,8 +46,12 @@ public class FileIO: NotenikIO, RowConsumer {
     /// The filtered set of notes.
     var filtered: BunchOfNotes?
     
+    var found: BunchOfNotes?
+    
     var activeBunch: BunchOfNotes? {
-        if filtered != nil {
+        if found != nil && found!.count > 0 {
+            return found
+        } else if filtered != nil {
             return filtered
         } else {
             return bunch
@@ -60,32 +64,60 @@ public class FileIO: NotenikIO, RowConsumer {
     //
     // -----------------------------------------------------------
     
+    public func loadFound(searcher: SearchNotes) -> Int {
+        guard bunch != nil else { return 0 }
+        guard collection != nil else { return 0 }
+        let collector = BunchOfNotes(collection: collection!)
+        var sortedNote: SortedNote?
+        (sortedNote, _) = searcher.nextMatching(startNew: true)
+        while sortedNote != nil {
+            _ = collector.add(note: sortedNote!.note)
+            (sortedNote, _) = searcher.nextMatching(startNew: false)
+        }
+        found = collector
+        return found!.count
+    }
+    
     public func startFiltering(filterIO: FilterIO) -> Int {
         guard bunch != nil else { return 0 }
         guard collection != nil else { return 0 }
-        guard filterIO != .showAll else {
+        switch filterIO {
+        case .showAll:
             filtered = nil
+            found = nil
             filterStatus = .showAll
             return bunch!.count
-        }
-        filtered = BunchOfNotes(collection: collection!)
-        var index = 0
-        while index < bunch!.count {
-            if let note = bunch!.getNote(at: index) {
-                if note.isMarked() && filterIO == .showMarked {
-                    _ = filtered!.add(note: note)
-                } else if !note.isMarked() && filterIO == .showUnmarked {
-                    _ = filtered!.add(note: note)
+        case .showMarked, .showUnmarked:
+            filtered = BunchOfNotes(collection: collection!)
+            found = nil
+            var index = 0
+            while index < bunch!.count {
+                if let note = bunch!.getNote(at: index) {
+                    if note.isMarked() && filterIO == .showMarked {
+                        _ = filtered!.add(note: note)
+                    } else if !note.isMarked() && filterIO == .showUnmarked {
+                        _ = filtered!.add(note: note)
+                    }
                 }
+                index += 1
             }
-            index += 1
+            filterStatus = filterIO
+            return filtered!.count
+        case .showSearchResults:
+            if found == nil || found!.count == 0 {
+                filtered = nil
+                found = nil
+                filterStatus = .showAll
+                return 0
+            }
+            filterStatus = filterIO
+            return found!.count
         }
-        filterStatus = filterIO
-        return filtered!.count
     }
     
     public func stopFiltering() {
         filtered = nil
+        found = nil
         filterStatus = .showAll
     }
     
@@ -93,6 +125,8 @@ public class FileIO: NotenikIO, RowConsumer {
     public var notesList: NotesList {
         if filtered != nil {
             return filtered!.notesList
+        } else if found != nil && found!.count > 0 {
+            return found!.notesList
         } else if bunch != nil {
             return bunch!.notesList
         } else {
@@ -121,7 +155,9 @@ public class FileIO: NotenikIO, RowConsumer {
     
     /// Get or Set the NoteSortParm for the current collection.
     public var sortParm: NoteSortParm {
-        get { return collection!.sortParm }
+        get {
+            return collection!.sortParm
+        }
         set {
             if newValue != collection!.sortParm {
                 collection!.sortParm = newValue
@@ -130,6 +166,9 @@ public class FileIO: NotenikIO, RowConsumer {
                 }
                 if filtered != nil {
                     filtered!.sortParm = newValue
+                }
+                if found != nil {
+                    found!.sortParm = newValue
                 }
             }
         }
@@ -147,6 +186,9 @@ public class FileIO: NotenikIO, RowConsumer {
                 if filtered != nil {
                     filtered!.sortDescending = newValue
                 }
+                if found != nil {
+                    found!.sortDescending = newValue
+                }
             }
         }
     }
@@ -162,6 +204,9 @@ public class FileIO: NotenikIO, RowConsumer {
                 bunch!.sortBlankDatesLast = newValue
                 if filtered != nil {
                     filtered!.sortBlankDatesLast = newValue
+                }
+                if found != nil {
+                    found!.sortBlankDatesLast = newValue
                 }
             }
         }
@@ -278,6 +323,7 @@ public class FileIO: NotenikIO, RowConsumer {
         
         bunch = BunchOfNotes(collection: collection)
         filtered = nil
+        found = nil
         filterStatus = .showAll
         
         if withFirstNote {
@@ -455,6 +501,7 @@ public class FileIO: NotenikIO, RowConsumer {
         firstNote.identify()
         
         filtered = nil
+        found = nil
         filterStatus = .showAll
         
         let added = bunch!.add(note: firstNote)
@@ -512,6 +559,7 @@ public class FileIO: NotenikIO, RowConsumer {
         bunch = BunchOfNotes(collection: collection!)
         
         filtered = nil
+        found = nil
         filterStatus = .showAll
         
         loadAttachments()
@@ -1301,9 +1349,13 @@ public class FileIO: NotenikIO, RowConsumer {
         if filtered != nil {
             filtered!.close()
         }
+        if found != nil {
+            found!.close()
+        }
         if bunch != nil {
             bunch!.close()
         }
+        
         templateFound = false
         infoFound = false
         reports = []
@@ -1745,6 +1797,10 @@ public class FileIO: NotenikIO, RowConsumer {
             _ = filtered!.delete(note: oldNote)
         }
         
+        if found != nil {
+            _ = found!.delete(note: oldNote)
+        }
+        
         MultiFileIO.shared.cancelLookBacks(lkUpNote: oldNote)
         
         // Get New Note ready for storage.
@@ -1768,6 +1824,10 @@ public class FileIO: NotenikIO, RowConsumer {
             _ = filtered!.add(note: newNote)
         } else if filtered != nil && !newNote.isMarked() && filterStatus == .showUnmarked {
             _ = filtered!.add(note: newNote)
+        }
+        
+        if found != nil {
+            _ = found!.add(note: newNote)
         }
         
         MultiFileIO.shared.registerLookBacks(lkUpNote: newNote)
@@ -1917,6 +1977,10 @@ public class FileIO: NotenikIO, RowConsumer {
             _ = filtered!.delete(note: noteToDelete!.note)
         }
         
+        if found != nil {
+            _ = found!.delete(note: noteToDelete!.note)
+        }
+        
         MultiFileIO.shared.cancelLookBacks(lkUpNote: noteToDelete!.note)
         
         if priorNote != nil {
@@ -1984,6 +2048,10 @@ public class FileIO: NotenikIO, RowConsumer {
             _ = filtered!.delete(note: noteToDelete)
         }
         
+        if found != nil {
+            _ = found!.delete(note: noteToDelete)
+        }
+        
         MultiFileIO.shared.cancelLookBacks(lkUpNote: noteToDelete)
 
         // Delete any attachments, unless asked to preserve them.
@@ -2019,6 +2087,9 @@ public class FileIO: NotenikIO, RowConsumer {
         if filtered != nil {
             filtered!.registerComboValue(comboDef: comboDef, value: value)
         }
+        if found != nil {
+            found!.registerComboValue(comboDef: comboDef, value: value)
+        }
     }
     
     /// Read a note from disk.
@@ -2047,10 +2118,17 @@ public class FileIO: NotenikIO, RowConsumer {
         if filtered != nil {
             _ = filtered!.delete(note: noteToReload)
         }
+        var foundDeleted = false
+        if found != nil {
+            foundDeleted = found!.delete(note: noteToReload)
+        }
         restoreAttachments(to: reloaded!)
         ok = bunch!.add(note: reloaded!)
         if filtered != nil {
             _ = filtered!.add(note: noteToReload) 
+        }
+        if found != nil && foundDeleted {
+            _ = found!.add(note: noteToReload)
         }
 
         if ok {

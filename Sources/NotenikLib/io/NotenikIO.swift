@@ -86,6 +86,8 @@ public protocol NotenikIO {
     //
     // -----------------------------------------------------------
     
+    func loadFound(searcher: SearchNotes) -> Int
+    
     func startFiltering(filterIO: FilterIO) -> Int
     
     func stopFiltering()

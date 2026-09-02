@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 1/23/24.
 //
-//  Copyright © 2024 Herb Bowie (https://hbowie.net)
+//  Copyright © 2026 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -86,6 +86,7 @@ public class SearchNotes {
                 (sortedNote, position) = io.nextNote(position)
             }
         }
+        
         if found && options.scope == .within && !sortedNote!.seqSingleValue.value.starts(with: options.anchorSeq) {
             found = false
         }

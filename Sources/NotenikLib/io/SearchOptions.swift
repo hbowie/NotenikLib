@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 10/19/21.
 //
-//  Copyright © 2021 - 2024 Herb Bowie (https://hbowie.net)
+//  Copyright © 2021 - 2026 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -37,6 +37,8 @@ public class SearchOptions {
     public var bodyField = true
     
     public var caseSensitive = false
+    
+    public var filterResults = false
     
     public var scope: SearchScope {
         get {

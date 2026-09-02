@@ -61,6 +61,10 @@ class BunchIO: NotenikIO, RowConsumer  {
         closeCollection()
     }
     
+    public func loadFound(searcher: SearchNotes) -> Int {
+        return 0
+    }
+    
     public func startFiltering(filterIO: FilterIO) -> Int {
         return 0
     }

@@ -12,10 +12,13 @@
 
 import Foundation
 
+/// The nature of the desired/current filtering. 
 public enum FilterIO {
+    
     case showAll
     case showMarked
     case showUnmarked
+    case showSearchResults
     
     public var filtering: Bool {
         return self != .showAll
