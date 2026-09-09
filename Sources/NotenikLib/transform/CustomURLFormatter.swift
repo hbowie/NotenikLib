@@ -4,7 +4,7 @@
 //
 //  Created by Herb Bowie on 4/16/24.
 //
-//  Copyright © 2024 Herb Bowie (https://hbowie.net)
+//  Copyright © 2024 - 2026 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -37,6 +37,14 @@ public class CustomURLFormatter {
         initWithScheme()
         addOpenCommand()
         identifyCollection(collection: collection)
+        percentEncode()
+        return link
+    }
+    
+    public func open(url: URL) -> String {
+        initWithScheme()
+        addOpenCommand()
+        link.append("path=\(url.path)")
         percentEncode()
         return link
     }

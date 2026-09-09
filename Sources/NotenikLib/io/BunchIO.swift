@@ -36,8 +36,27 @@ class BunchIO: NotenikIO, RowConsumer  {
     
     var bunch          : BunchOfNotes?
     
-    var notesList: NotesList {
-        if bunch != nil {
+    var filtered: BunchOfNotes?
+    
+    var found: BunchOfNotes?
+    
+    var activeBunch: BunchOfNotes? {
+        if found != nil && found!.count > 0 {
+            return found
+        } else if filtered != nil {
+            return filtered
+        } else {
+            return bunch
+        }
+    }
+    
+    /// A list of notes in the Collection.
+    public var notesList: NotesList {
+        if filtered != nil {
+            return filtered!.notesList
+        } else if found != nil && found!.count > 0 {
+            return found!.notesList
+        } else if bunch != nil {
             return bunch!.notesList
         } else {
             return NotesList()
@@ -62,15 +81,60 @@ class BunchIO: NotenikIO, RowConsumer  {
     }
     
     public func loadFound(searcher: SearchNotes) -> Int {
-        return 0
+        guard bunch != nil else { return 0 }
+        guard collection != nil else { return 0 }
+        let collector = BunchOfNotes(collection: collection!)
+        var sortedNote: SortedNote?
+        (sortedNote, _) = searcher.nextMatching(startNew: true)
+        while sortedNote != nil {
+            _ = collector.add(note: sortedNote!.note)
+            (sortedNote, _) = searcher.nextMatching(startNew: false)
+        }
+        found = collector
+        return found!.count
     }
     
     public func startFiltering(filterIO: FilterIO) -> Int {
-        return 0
+        guard bunch != nil else { return 0 }
+        guard collection != nil else { return 0 }
+        switch filterIO {
+        case .showAll:
+            filtered = nil
+            found = nil
+            filterStatus = .showAll
+            return bunch!.count
+        case .showMarked, .showUnmarked:
+            filtered = BunchOfNotes(collection: collection!)
+            found = nil
+            var index = 0
+            while index < bunch!.count {
+                if let note = bunch!.getNote(at: index) {
+                    if note.isMarked() && filterIO == .showMarked {
+                        _ = filtered!.add(note: note)
+                    } else if !note.isMarked() && filterIO == .showUnmarked {
+                        _ = filtered!.add(note: note)
+                    }
+                }
+                index += 1
+            }
+            filterStatus = filterIO
+            return filtered!.count
+        case .showSearchResults:
+            if found == nil || found!.count == 0 {
+                filtered = nil
+                found = nil
+                filterStatus = .showAll
+                return 0
+            }
+            filterStatus = filterIO
+            return found!.count
+        }
     }
     
     public func stopFiltering() {
-        
+        filtered = nil
+        found = nil
+        filterStatus = .showAll
     }
     
     /// Return the number of notes in the current collection.
@@ -78,52 +142,67 @@ class BunchIO: NotenikIO, RowConsumer  {
     /// - Returns: The number of notes in the current collection
     var notesCount: Int {
         guard bunch != nil else { return 0 }
-        return bunch!.count
+        return activeBunch!.count
     }
     
     /// Return the total number of Notes in the Collection.
     public var count: Int {
         guard bunch != nil else { return 0 }
-        return bunch!.count
+        return activeBunch!.count
     }
     
     /// The position of the selected note, if any, in the current collection
-    var position:   NotePosition? {
+    var position: NotePosition? {
         if !collectionOpen || collection == nil || bunch == nil {
             return nil
         } else {
-            notePosition.index = bunch!.listIndex
+            notePosition.index = activeBunch!.listIndex
             return notePosition
         }
     }
     
     /// Get or Set the NoteSortParm for the current collection.
-    var sortParm: NoteSortParm {
+    public var sortParm: NoteSortParm {
         get {
             return collection!.sortParm
         }
         set {
             if newValue != collection!.sortParm {
                 collection!.sortParm = newValue
-                bunch!.sortParm = newValue
+                if bunch != nil {
+                    bunch!.sortParm = newValue
+                }
+                if filtered != nil {
+                    filtered!.sortParm = newValue
+                }
+                if found != nil {
+                    found!.sortParm = newValue
+                }
             }
         }
     }
     
     /// Should the list be in descending sequence?
-    var sortDescending: Bool {
-        get {
-            return collection!.sortDescending
-        }
+    public var sortDescending: Bool {
+        get { return collection!.sortDescending }
         set {
             if newValue != collection!.sortDescending {
                 collection!.sortDescending = newValue
-                bunch!.sortDescending = newValue
+                if bunch != nil {
+                    bunch!.sortDescending = newValue
+                }
+                if filtered != nil {
+                    filtered!.sortDescending = newValue
+                }
+                if found != nil {
+                    found!.sortDescending = newValue
+                }
             }
         }
     }
     
-    var sortBlankDatesLast: Bool {
+    /// Should blank dates be sorted last, or first?
+    public var sortBlankDatesLast: Bool {
         get {
             return collection!.sortBlankDatesLast
         }
@@ -131,6 +210,12 @@ class BunchIO: NotenikIO, RowConsumer  {
             if newValue != collection!.sortBlankDatesLast {
                 collection!.sortBlankDatesLast = newValue
                 bunch!.sortBlankDatesLast = newValue
+                if filtered != nil {
+                    filtered!.sortBlankDatesLast = newValue
+                }
+                if found != nil {
+                    found!.sortBlankDatesLast = newValue
+                }
             }
         }
     }
@@ -216,6 +301,9 @@ class BunchIO: NotenikIO, RowConsumer  {
         let initOK = initCollection(realm: realm, collectionPath: collectionPath, readOnly: readOnly)
         guard initOK else { return nil }
         bunch = BunchOfNotes(collection: collection!)
+        filtered = nil
+        found = nil
+        filterStatus = .showAll
         collectionOpen = true
         return collection
     }
@@ -267,6 +355,9 @@ class BunchIO: NotenikIO, RowConsumer  {
     func newCollection(collection: NoteCollection, withFirstNote: Bool = true) -> Bool {
         self.collection = collection
         bunch = BunchOfNotes(collection: collection)
+        filtered = nil
+        found = nil
+        filterStatus = .showAll
         collectionOpen = true
         return true
     }
@@ -371,10 +462,19 @@ class BunchIO: NotenikIO, RowConsumer  {
             return (nil, NotePosition(index: -1))
         }
         
+        // If the user has the filter on, and they add a new note, we
+        // assume they will want to see it in the filtered view.
+        if filtered != nil && filterStatus == .showMarked {
+            _ = newNote.setMark(true)
+        }
+        
         let added = bunch!.add(note: newNote)
         guard added else {
             print("Trouble adding to bunch of notes")
             return (nil, NotePosition(index: -1))
+        }
+        if filtered != nil {
+            _ = filtered!.add(note: newNote)
         }
         pickLists.registerNote(note: newNote)
         if newNote.hasSeq() {
@@ -405,6 +505,13 @@ class BunchIO: NotenikIO, RowConsumer  {
     func deleteNote(_ noteToDelete: Note, preserveAttachments: Bool) -> Bool {
         guard collection != nil && collectionOpen else { return false }
         let deleted = bunch!.delete(note: noteToDelete)
+        if filtered != nil {
+            _ = filtered!.delete(note: noteToDelete)
+        }
+        
+        if found != nil {
+            _ = found!.delete(note: noteToDelete)
+        }
         return deleted
     }
     
@@ -412,6 +519,12 @@ class BunchIO: NotenikIO, RowConsumer  {
     public func registerComboValue(comboDef: FieldDefinition, value: String) {
         guard bunch != nil else { return }
         bunch!.registerComboValue(comboDef: comboDef, value: value)
+        if filtered != nil {
+            filtered!.registerComboValue(comboDef: comboDef, value: value)
+        }
+        if found != nil {
+            found!.registerComboValue(comboDef: comboDef, value: value)
+        }
     }
     
     /// Select the given note and return its index, if it can be found in the sorted list, using its current sort key.
@@ -441,7 +554,7 @@ class BunchIO: NotenikIO, RowConsumer  {
     /// - Returns: Either the note at that position, or nil, if the index is out of range.
     func getNote(at index: Int) -> Note? {
         guard collection != nil && collectionOpen else { return nil }
-        return bunch!.getNote(at: index)
+        return activeBunch!.getNote(at: index)
     }
     
     /// Return the Sorted Note  at the specified position in the sorted list, if possible.
@@ -450,7 +563,7 @@ class BunchIO: NotenikIO, RowConsumer  {
     /// - Returns: Either the note at that position, or nil, if the index is out of range.
     func getSortedNote(at index: Int) -> SortedNote? {
         guard collection != nil && collectionOpen else { return nil }
-        return bunch!.getSortedNote(at: index)
+        return activeBunch!.getSortedNote(at: index)
     }
     
     /// Get the Note that is known by the passed identifier, one way or another.
@@ -515,7 +628,7 @@ class BunchIO: NotenikIO, RowConsumer  {
     /// - Returns: The Note with this key, if one exists; otherwise nil.
     func getNote(forID noteID: NoteIdentification) -> Note? {
         guard collection != nil && collectionOpen else { return nil }
-        return bunch!.getNote(forID: noteID)
+        return activeBunch!.getNote(forID: noteID)
     }
     
     /// Get the existing note with the specified ID.
@@ -524,7 +637,7 @@ class BunchIO: NotenikIO, RowConsumer  {
     /// - Returns: The Note with this key, if one exists; otherwise nil.
     func getNote(forID id: String) -> Note? {
         guard collection != nil && collectionOpen else { return nil }
-        return bunch!.getNote(forID: id)
+        return activeBunch!.getNote(forID: id)
     }
     
     /// Get the existing Note with the specified AKA value, if one exists.
@@ -532,14 +645,14 @@ class BunchIO: NotenikIO, RowConsumer  {
     /// - Returns: The Note having this aka value, if one exists; otherwise nil.
     func getNote(alsoKnownAs aka: String) -> Note? {
         guard collection != nil && collectionOpen else { return nil }
-        return bunch!.getNote(alsoKnownAs: aka)
+        return activeBunch!.getNote(alsoKnownAs: aka)
     }
     
     /// Return the Alias entries for the Collection.
     /// - Returns: All of the AKA aliases, plus the Notes to which they point.
     public func getAKAEntries() -> AKAentries {
         guard collection != nil && collectionOpen else { return AKAentries() }
-        return bunch!.getAKAEntries()
+        return activeBunch!.getAKAEntries()
     }
     
     /// In conformance with MkdownWikiLinkLookup protocol, lookup a title given a timestamp.
@@ -559,7 +672,7 @@ class BunchIO: NotenikIO, RowConsumer  {
     /// - Returns: The Note with this timestamp, if one exists; otherwise nil.
     func getNote(forTimestamp stamp: String) -> Note? {
         guard collection != nil && collectionOpen else { return nil }
-        return bunch!.getNote(forTimestamp: stamp)
+        return activeBunch!.getNote(forTimestamp: stamp)
     }
     
     /// Return the first note in the sorted list, along with its index position.
@@ -567,7 +680,7 @@ class BunchIO: NotenikIO, RowConsumer  {
     /// If the list is empty, return a nil Note and an index position of -1.
     func firstNote() -> (SortedNote?, NotePosition) {
         guard collection != nil && collectionOpen else { return (nil, NotePosition(index: -1)) }
-        return bunch!.firstNote()
+        return activeBunch!.firstNote()
     }
     
     /// Return the last note in the sorted list, along with its index position
@@ -575,7 +688,7 @@ class BunchIO: NotenikIO, RowConsumer  {
     /// if the list is empty, return a nil Note and an index position of -1.
     func lastNote() -> (SortedNote?, NotePosition) {
         guard collection != nil && collectionOpen else { return (nil, NotePosition(index: -1)) }
-        return bunch!.lastNote()
+        return activeBunch!.lastNote()
     }
     
     
@@ -586,7 +699,7 @@ class BunchIO: NotenikIO, RowConsumer  {
     ///            If we're at the end of the list, then return a nil Note and an index of -1.
     func nextNote(_ position : NotePosition) -> (SortedNote?, NotePosition) {
         guard collection != nil && collectionOpen else { return (nil, NotePosition(index: -1)) }
-        return bunch!.nextNote(position)
+        return activeBunch!.nextNote(position)
     }
     
     /// Return the prior note in the sorted list, along with its index position.
@@ -596,7 +709,7 @@ class BunchIO: NotenikIO, RowConsumer  {
     ///            if we're outside the bounds of the list, then return a nil Note and an index of -1.
     func priorNote(_ position : NotePosition) -> (SortedNote?, NotePosition) {
         guard collection != nil && collectionOpen else { return (nil, NotePosition(index: -1)) }
-        return bunch!.priorNote(position)
+        return activeBunch!.priorNote(position)
     }
     
     /// Return the position of a given note.
@@ -605,7 +718,7 @@ class BunchIO: NotenikIO, RowConsumer  {
     /// - Returns: A Note Position
     func positionOfNote(_ note: Note) -> NotePosition {
         guard collection != nil && collectionOpen else { return NotePosition(index: -1) }
-        let (_, position) = bunch!.selectNote(note)
+        let (_, position) = activeBunch!.selectNote(note)
         return position
     }
     
@@ -614,7 +727,7 @@ class BunchIO: NotenikIO, RowConsumer  {
     /// - Returns: The position within the master list.
     func positionOfNote(_ sortedNote: SortedNote) -> NotePosition {
         guard collection != nil && collectionOpen else { return NotePosition(index: -1) }
-        return bunch!.positionOfNote(sortedNote)
+        return activeBunch!.positionOfNote(sortedNote)
     }
     
     /// Return the note currently selected.
@@ -622,7 +735,7 @@ class BunchIO: NotenikIO, RowConsumer  {
     /// If the list index is out of range, return a nil Note and an index posiiton of -1.
     func getSelectedNote() -> (SortedNote?, NotePosition) {
         guard collection != nil && collectionOpen else { return (nil, NotePosition(index: -1)) }
-        return bunch!.getSelectedNote()
+        return activeBunch!.getSelectedNote()
     }
     
     /// Delete the currently selected Note
@@ -643,6 +756,13 @@ class BunchIO: NotenikIO, RowConsumer  {
         
         let deleted = bunch!.delete(note: noteToDelete!.note)
         guard deleted else { return (nil, NotePosition(index: -1))}
+        if filtered != nil {
+            _ = filtered!.delete(note: noteToDelete!.note)
+        }
+        
+        if found != nil {
+            _ = found!.delete(note: noteToDelete!.note)
+        }
         var positioned = false
         if priorNote != nil {
             (nextNote, nextPosition) = bunch!.nextNote(priorPosition)
@@ -659,7 +779,7 @@ class BunchIO: NotenikIO, RowConsumer  {
     
     func getTagsNodeRoot() -> TagsNode? {
         guard collection != nil && collectionOpen else { return nil }
-        return bunch!.notesTree.root
+        return activeBunch!.notesTree.root
     }
     
     /// Create an iterator for the tags nodes.
@@ -672,18 +792,24 @@ class BunchIO: NotenikIO, RowConsumer  {
         guard collection != nil && collectionOpen && bunch?.outlineTree != nil else {
             return nil
         }
-        return bunch!.outlineTree.root
+        return activeBunch!.outlineTree.root
     }
     
     /// Create an iterator for the tags nodes.
     public func makeOutlineNodeIterator() -> OutlineNodeIterator {
-        return bunch!.outlineTree.makeIterator()
+        return activeBunch!.outlineTree.makeIterator()
     }
     
     /// Close the current collection, if one is open.
     func closeCollection() {
         collection = nil
         collectionOpen = false
+        if filtered != nil {
+            filtered!.close()
+        }
+        if found != nil {
+            found!.close()
+        }
         if bunch != nil {
             bunch!.close()
         }
@@ -760,11 +886,11 @@ class BunchIO: NotenikIO, RowConsumer  {
     
     public func klassForLevel(_ level: Int) -> String? {
         guard bunch != nil else { return nil }
-        return bunch!.levelToKlass.klassForLevel(level)
+        return activeBunch!.levelToKlass.klassForLevel(level)
     }
     
     public func levelForKlass(_ klass: String) -> Int? {
         guard bunch != nil else { return nil }
-        return bunch!.levelToKlass.levelForKlass(klass)
+        return activeBunch!.levelToKlass.levelForKlass(klass)
     }
 }

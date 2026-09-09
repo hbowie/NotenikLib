@@ -2,7 +2,7 @@
 //  LinkFormatter.swift
 //  NotenikLib
 //
-//  Copyright © 2023 Herb Bowie (https://hbowie.net)
+//  Copyright © 2023 - 2026 Herb Bowie (https://hbowie.net)
 //
 //  This programming code is published as open source software under the
 //  terms of the MIT License (https://opensource.org/licenses/MIT).
@@ -89,12 +89,21 @@ public class LinkFormatter {
         guard !formatStack.isEmpty else { return link.value }
         guard let url = link.url else { return link.value }
         guard let scheme = url.scheme else { return link.value }
-        guard scheme == "http" || scheme == "https" else { return link.value }
+        // guard scheme == "http" || scheme == "https" else { return link.value }
         var str = ""
         
         // Format URL scheme.
         let schemeInstruction = formatStack[schemeIx]
-        if schemeInstruction != .exclude {
+        if schemeInstruction == .simplify {
+            switch scheme {
+            case "http", "https:":
+                str.append("Web Link")
+            case "notenik":
+                str.append("Notenik Link")
+            default:
+                str.append("\(scheme) Link")
+            }
+        } else if schemeInstruction != .exclude {
             str.append(scheme + "://")
         }
         
