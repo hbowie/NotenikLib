@@ -78,9 +78,14 @@ class ApplyTemplateValues {
         
         var typeStr = SolidString()
         var typeValues = SolidString()
+        var toolTip = SolidString()
+        var instructions = SolidString()
         
         var leftAngle: Character = " "
         var colon: Character = " "
+        var exclamationPending = false
+        var singleExclamation: Character = " "
+        var doubleExclamation: String = ""
         for char in value {
             if char == "@" {
                 def.writeEmpty = true
@@ -90,12 +95,34 @@ class ApplyTemplateValues {
                 break
             } else if char == ":" && colon == " " {
                 colon = char
+            } else if char == "!" {
+                if exclamationPending {
+                    doubleExclamation = "!!"
+                    exclamationPending = false
+                } else if !exclamationPending {
+                    exclamationPending = true
+                }
+            } else if exclamationPending {
+                singleExclamation = "!"
+                exclamationPending = false
+                toolTip.append(char)
+            } else if !doubleExclamation.isEmpty {
+                exclamationPending = false
+                instructions.append(char)
+            } else if singleExclamation == "!" {
+                exclamationPending = false
+                toolTip.append(char)
             } else if colon == ":" {
+                exclamationPending = false
                 typeValues.append(char)
             } else {
+                exclamationPending = false
                 typeStr.append(char)
             }
         }
+        
+        def.toolTip = toolTip.str
+        def.instructions = instructions.str
         
         if leftAngle == " " &&
             (def.fieldLabel.commonForm == NotenikConstants.statusCommon

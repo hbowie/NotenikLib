@@ -23,6 +23,8 @@ public class FieldDefinition: Comparable, CustomStringConvertible {
     public var pickList:        PickList?
     public var comboList:       ComboList?
     public var lookupFrom:      String = ""
+    public var toolTip:         String = ""
+    public var instructions:    String = ""
     
     /// Initialize with no parameters, defaulting to a simple String type.
     init() {
@@ -134,6 +136,16 @@ public class FieldDefinition: Comparable, CustomStringConvertible {
         default:
             return ""
         }
+    }
+    
+    var exclamationsText: String {
+        guard !toolTip.isEmpty || !instructions.isEmpty else { return "" }
+        var str = ""
+        str.append(" !")
+        str.append(toolTip)
+        str.append("!!")
+        str.append(instructions)
+        return str
     }
     
     var isBody: Bool {

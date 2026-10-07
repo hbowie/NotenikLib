@@ -50,25 +50,25 @@ public class TemplateLineMaker {
                 } else if def.fieldLabel.commonForm == NotenikConstants.statusCommon {
                     value += collection.statusConfig.statusOptionsAsString
                 } else if def.fieldType.typeString == NotenikConstants.rankCommon {
-                    value += "<rank: \(collection.rankConfig.possibleValuesAsString)>"
+                    value += "<rank: \(collection.rankConfig.possibleValuesAsString)\(def.exclamationsText)>"
                 } else if def.fieldLabel.commonForm == NotenikConstants.levelCommon {
-                    value += "<level: \(collection.levelConfig.intsWithLabels)>"
+                    value += "<level: \(collection.levelConfig.intsWithLabels)\(def.exclamationsText)>"
                 } else if def.fieldType.typeString == NotenikConstants.linkCommon {
-                    value += "<link\(collection.linkFormatter.toCodes(withOptionalPrefix: true))>"
+                    value += "<link\(collection.linkFormatter.toCodes(withOptionalPrefix: true))\(def.exclamationsText)>"
                 } else if def.fieldLabel.commonForm == NotenikConstants.bodyCommon {
-                    value += ""
+                    value += "\(def.exclamationsText)"
                 } else if def.fieldType is LongTextType {
-                    value += "<longtext>"
+                    value += "<longtext\(def.exclamationsText)>"
                 } else if def.fieldType.typeString == NotenikConstants.lookupType {
-                    value += "<lookup: \(def.lookupFrom)>"
+                    value += "<lookup: \(def.lookupFrom)\(def.exclamationsText)>"
                 } else if def.fieldType.typeString == NotenikConstants.lookBackType {
-                    value += "<lookback: \(def.lookupFrom)>"
+                    value += "<lookback: \(def.lookupFrom)\(def.exclamationsText)>"
                 } else if def.fieldType.typeString == NotenikConstants.noteLinkCommon {
                     if let nlType = def.fieldType as? NoteLinkType {
                         if nlType.hasKlassSelector() {
-                            value += "<notelink: \(nlType.klassSelector)>"
+                            value += "<notelink: \(nlType.klassSelector)\(def.exclamationsText)>"
                         } else {
-                            value += "<notelink>"
+                            value += "<notelink\(def.exclamationsText)>"
                         }
                     }
                 } else if def.pickList != nil
@@ -82,40 +82,40 @@ public class TemplateLineMaker {
                     value += "<seq: \(collection.seqFormatter.toCodes())>"
                 } else if def.fieldType.typeString == NotenikConstants.displaySeqCommon {
                     if let displaySeqType = def.fieldType as? DisplaySeqType {
-                        value += "<displayseq: \(displaySeqType.formatString)>"
+                        value += "<displayseq: \(displaySeqType.formatString)\(def.exclamationsText)>"
                     } else {
-                        value += "<displayseq>"
+                        value += "<displayseq\(def.exclamationsText)>"
                     }
                 } else if def.fieldType.typeString == NotenikConstants.backlinksCommon {
                     if let backLinksType = def.fieldType as? BacklinkType {
                         if backLinksType.initialReveal {
-                            value += "<backlinks: reveal>"
+                            value += "<backlinks: reveal\(def.exclamationsText)>"
                         } else {
-                            value += "<backlinks>"
+                            value += "<backlinks\(def.exclamationsText)>"
                         }
                     }
                 } else if def.fieldType.typeString == NotenikConstants.wikilinksCommon {
                     if let wikiLinksType = def.fieldType as? WikilinkType {
                         if wikiLinksType.initialReveal {
-                            value += "<wikilinks: reveal>"
+                            value += "<wikilinks: reveal\(def.exclamationsText)>"
                         } else {
-                            value += "<wikilinks>"
+                            value += "<wikilinks\(def.exclamationsText)>"
                         }
                     }
                 } else if def.fieldType.typeString == NotenikConstants.inclusionsCommon {
                     if let inclusionstType = def.fieldType as? InclusionsType {
                         if inclusionstType.initialReveal {
-                            value += "<inclusions: reveal>"
+                            value += "<inclusions: reveal\(def.exclamationsText)>"
                         } else {
-                            value += "<inclusions>"
+                            value += "<inclusions\(def.exclamationsText)>"
                         }
                     }
                 } else if def.fieldType.typeString == NotenikConstants.includedByCommon {
                     if let includedByType = def.fieldType as? IncludedByType {
                         if includedByType.initialReveal {
-                            value += "<includedby: reveal>"
+                            value += "<includedby: reveal\(def.exclamationsText)>"
                         } else {
-                            value += "<includedby>"
+                            value += "<includedby\(def.exclamationsText)>"
                         }
                     }
                 } else if def.fieldType.typeString == NotenikConstants.folderCommon {
@@ -123,22 +123,22 @@ public class TemplateLineMaker {
                     for (_, folder) in collection.foldersToExclude {
                         value += "\(folder), "
                     }
-                    value += ">"
+                    value += "\(def.exclamationsText)>"
                 } else if def.fieldType.typeString == NotenikConstants.markCommon {
                     if collection.markerCodes.isEmpty {
-                        value += "<mark: \(collection.marker)>"
+                        value += "<mark: \(collection.marker)\(def.exclamationsText)>"
                     } else {
-                        value += "<mark: \(collection.markerCodes)>"
+                        value += "<mark: \(collection.markerCodes)\(def.exclamationsText)>"
                     }
                 } else if def.fieldType.typeString != NotenikConstants.stringType {
-                    value += "<\(def.fieldType.typeString)>"
+                    value += "<\(def.fieldType.typeString)\(def.exclamationsText)>"
                 }
                 var label = def.fieldLabel.properForm
                 if def.fieldType.typeString == NotenikConstants.titleCommon && !collection.newLabelForTitle.isEmpty {
                     label = collection.newLabelForTitle
                 } else if def.fieldType.typeString == NotenikConstants.bodyCommon && !collection.newLabelForBody.isEmpty {
                     label = collection.newLabelForBody
-                    value += "<body>"
+                    value += "<body\(def.exclamationsText)>"
                 }
                 writer.writeLine("\(label): \(value)")
                 writer.endLine()
